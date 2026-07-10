@@ -12,6 +12,7 @@ Detailed step-by-step reports (suitable for Google Docs / portfolio) live in [`d
 |-------|--------|----------|
 | 0 — Secure environment | Complete | [phase-0-secure-environment.md](docs/phases/phase-0-secure-environment.md) |
 | 1 — Data model | Complete | [phase-1-data-model.md](docs/phases/phase-1-data-model.md) |
+| 2 — Internal CRUD | Complete | [phase-2-internal-crud.md](docs/phases/phase-2-internal-crud.md) |
 
 ## Requirements
 

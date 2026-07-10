@@ -1,17 +1,14 @@
 """Database engine and session factory."""
 
-import os
 from collections.abc import Generator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql://sentinel:sentinel@localhost:5432/sentinel_suisse",
-)
+from sentinel_suisse.config import get_settings
 
-engine = create_engine(DATABASE_URL, pool_pre_ping=True)
+settings = get_settings()
+engine = create_engine(settings.database_url, pool_pre_ping=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 

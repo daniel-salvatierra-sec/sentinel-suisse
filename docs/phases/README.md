@@ -10,3 +10,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 |------|-------|
 | [phase-0-secure-environment.md](phase-0-secure-environment.md) | Secure environment |
 | [phase-1-data-model.md](phase-1-data-model.md) | Data model (schema only) |
+| [phase-2-internal-crud.md](phase-2-internal-crud.md) | Internal CRUD API |
