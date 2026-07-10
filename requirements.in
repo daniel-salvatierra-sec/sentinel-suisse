@@ -1,0 +1,10 @@
+# Runtime dependencies — compile with: pip-compile requirements.in
+# fastapi
+# uvicorn[standard]
+# sqlalchemy
+# alembic
+# psycopg2-binary
+# pydantic-settings
+# redis
+# httpx
+# structlog
