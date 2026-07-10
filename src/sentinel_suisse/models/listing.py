@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from sqlalchemy import (
     DateTime,
+    Enum,
     ForeignKey,
     Index,
     Numeric,
@@ -16,7 +17,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from sentinel_suisse.db.base import Base
-from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.enums import ListingType, enum_values
 
 if TYPE_CHECKING:
     from sentinel_suisse.models.provider import Provider
@@ -37,7 +38,15 @@ class Listing(Base):
         ForeignKey("providers.id", ondelete="RESTRICT"), nullable=False
     )
     external_id: Mapped[str] = mapped_column(String(255), nullable=False)
-    listing_type: Mapped[ListingType] = mapped_column(nullable=False)
+    listing_type: Mapped[ListingType] = mapped_column(
+        Enum(
+            ListingType,
+            name="listing_type",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=False,
+    )
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)

@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint, func
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, UniqueConstraint, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from sentinel_suisse.db.base import Base
-from sentinel_suisse.models.enums import ChannelType
+from sentinel_suisse.models.enums import ChannelType, enum_values
 
 if TYPE_CHECKING:
     from sentinel_suisse.models.user import User
@@ -19,7 +19,15 @@ class NotificationChannel(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    channel_type: Mapped[ChannelType] = mapped_column(nullable=False)
+    channel_type: Mapped[ChannelType] = mapped_column(
+        Enum(
+            ChannelType,
+            name="channel_type",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=False,
+    )
     # PII: encrypt at rest before production — phone/email/tokenized address
     channel_address: Mapped[str] = mapped_column(String(500), nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

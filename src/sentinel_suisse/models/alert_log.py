@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, ForeignKey, String, Text, func
+from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from sentinel_suisse.db.base import Base
-from sentinel_suisse.models.enums import AlertStatus
+from sentinel_suisse.models.enums import AlertStatus, enum_values
 
 if TYPE_CHECKING:
     pass
@@ -25,7 +25,16 @@ class AlertLog(Base):
         ForeignKey("listings.id", ondelete="RESTRICT"), nullable=False
     )
     channel_type: Mapped[str] = mapped_column(String(20), nullable=False)
-    status: Mapped[AlertStatus] = mapped_column(nullable=False, default=AlertStatus.PENDING)
+    status: Mapped[AlertStatus] = mapped_column(
+        Enum(
+            AlertStatus,
+            name="alert_status",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=False,
+        default=AlertStatus.PENDING,
+    )
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
     sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
