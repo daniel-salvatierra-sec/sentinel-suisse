@@ -1,64 +1,47 @@
 # Sentinel Suisse
 
-Agregador suizo de anuncios de vivienda y empleo con alertas multicanal (WhatsApp, email).
+Swiss housing and job listing aggregator with multi-channel alerts (WhatsApp, email).
 
-Proyecto personal con metodología secure-by-design: cada fase cierra con checklist de seguridad y evidencia antes de avanzar.
+Personal project built with **secure-by-design** methodology: each phase closes with a security checklist and evidence before moving on.
 
-## Fase 0 — Entorno seguro
+## Phase documentation
 
-### Requisitos
+Detailed step-by-step reports (suitable for Google Docs / portfolio) live in [`docs/phases/`](docs/phases/).
+
+| Phase | Status | Document |
+|-------|--------|----------|
+| 0 — Secure environment | Complete | [phase-0-secure-environment.md](docs/phases/phase-0-secure-environment.md) |
+| 1 — Data model | Complete | [phase-1-data-model.md](docs/phases/phase-1-data-model.md) |
+
+## Requirements
 
 - Python 3.11+
 - Git
-- Docker Desktop (opcional, para Postgres y Redis locales)
-- [gitleaks](https://github.com/gitleaks/gitleaks) (vía pre-commit)
+- Docker Desktop (Postgres + Redis for Phase 1+)
+- pre-commit (via dev dependencies)
 
-### Configuración inicial (una sola vez)
+## Quick start
 
 ```powershell
 cd C:\Users\danin\Projects\sentinel-suisse
-Set-ExecutionPolicy -Scope Process Bypass
-.\scripts\setup-fase0.ps1
-```
-
-El script hace: `git init`, primer commit, rama `feature/fase-0`, venv, `pip install`, `pre-commit install`, y verifica que `.env` está ignorado.
-
-**Repo privado en GitHub** (cuando tengas `gh` autenticado):
-
-```powershell
-gh repo create sentinel-suisse --private --source=. --remote=origin
-git push -u origin main
-```
-
-**Servicios locales** (Postgres + Redis):
-
-```powershell
+.\.venv\Scripts\Activate.ps1
 docker compose up -d
+pip install -r requirements.txt
+pre-commit run --all-files
 ```
 
-### Checklist Fase 0
-
-- [x] `.gitignore` con `.env`, `*.pem`, credenciales
-- [x] `.env.example` con nombres de variables (sin valores reales)
-- [x] `pre-commit` configurado (gitleaks, ruff, bandit)
-- [x] CI seguridad en `.github/workflows/security.yml`
-- [x] `docker-compose.yml` (Postgres 16 + Redis 7)
-- [ ] Ejecutar `.\scripts\setup-fase0.ps1` en tu máquina
-- [ ] `gitleaks` limpio sobre el historial git
-- [ ] `.env` real NO está en el repo (`git status` no lo lista)
-- [ ] `pre-commit run --all-files` pasa sin errores
-- [ ] Repo privado creado en GitHub
-
-### Estructura
+## Project structure
 
 ```
 sentinel-suisse/
-├── src/sentinel_suisse/    # Código fuente
-├── docs/agent-prompts/     # Prompts de seguridad por fase
-├── .github/workflows/      # CI seguridad
+├── src/sentinel_suisse/    # Application source
+├── alembic/                # Database migrations
+├── docs/phases/            # Phase completion reports
+├── docs/privacy/           # nLPD / data mapping
+├── docs/agent-prompts/     # Security prompts per phase
 └── docker-compose.yml      # Postgres + Redis
 ```
 
-## Licencia
+## License
 
-Privado — uso personal.
+Private — personal use.

@@ -1,14 +1,14 @@
-# Prompts de agente por fase
+# Agent security prompts
 
-Cada fase tiene un archivo `fase-N.md` con instrucciones de seguridad explícitas para el agente de IA.
+One file per phase with **explicit** security instructions for the AI coding agent.
 
-| Fase | Archivo | Estado |
-|------|---------|--------|
-| 0 | Entorno seguro | Completada |
-| 1 | Modelo de datos | Pendiente |
-| 2 | CRUD interno | Pendiente |
-| 3 | Ingesta | Pendiente |
-| 4 | Búsqueda + preferencias | Pendiente |
-| 5 | Alertas WhatsApp | Pendiente |
+| Phase | File | Status |
+|-------|------|--------|
+| 0 | Secure environment | Done |
+| 1 | [phase-1-data-model.md](phase-1-data-model.md) | Active |
+| 2 | CRUD internal API | Pending |
+| 3 | Ingestion pipeline | Pending |
+| 4 | Search + preferences | Pending |
+| 5 | WhatsApp alerts | Pending |
 
-**Regla:** el agente nunca ve credenciales reales. Usar `os.getenv()` y `.env.example` como referencia.
+**Rule:** the agent never sees real credentials. Use `os.getenv()` and `.env.example` as reference only.
