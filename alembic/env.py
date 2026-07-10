@@ -1,11 +1,11 @@
 """Alembic migration environment."""
 
-import os
 from logging.config import fileConfig
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
+from sentinel_suisse.config import get_settings
 from sentinel_suisse.db.base import Base
 from sentinel_suisse.models import (  # noqa: F401 — register models
     AlertLog,
@@ -23,11 +23,8 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-database_url = os.getenv(
-    "DATABASE_URL",
-    "postgresql://sentinel:sentinel@localhost:5432/sentinel_suisse",
-)
-config.set_main_option("sqlalchemy.url", database_url)
+database_url = get_settings().database_url
+config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
 
 def run_migrations_offline() -> None:

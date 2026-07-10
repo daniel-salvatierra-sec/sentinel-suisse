@@ -19,6 +19,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     # PII: encrypt at rest before production (nLPD) — see docs/privacy/data-map.md
     email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True)
+    api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
