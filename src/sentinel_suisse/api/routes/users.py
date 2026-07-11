@@ -10,7 +10,8 @@ from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.user import User
-from sentinel_suisse.schemas.user import UserCreate, UserCreated, UserRead, UserUpdate
+from sentinel_suisse.schemas.user import UserCreate, UserCreated, UserRead, UserUpdate, to_user_read
+from sentinel_suisse.security.pii import decrypt_pii, email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -22,8 +23,9 @@ def list_users(
     request: Request,
     db: Session = Depends(get_db),
     _: str = Depends(verify_admin),
-) -> list[User]:
-    return list(db.scalars(select(User).order_by(User.id)).all())
+) -> list[UserRead]:
+    users = list(db.scalars(select(User).order_by(User.id)).all())
+    return [to_user_read(user) for user in users]
 
 
 @router.get("/{user_id}", response_model=UserRead)
@@ -33,11 +35,11 @@ def get_user(
     user_id: int,
     db: Session = Depends(get_db),
     _: str = Depends(verify_admin),
-) -> User:
+) -> UserRead:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return user
+    return to_user_read(user)
 
 
 @router.post("", response_model=UserCreated, status_code=status.HTTP_201_CREATED)
@@ -49,8 +51,10 @@ def create_user(
     _: str = Depends(verify_admin),
 ) -> UserCreated:
     api_key = generate_api_token()
+    plain_email = str(payload.email).lower()
     user = User(
-        email=str(payload.email).lower(),
+        email_lookup=email_lookup(plain_email),
+        email=encrypt_pii(plain_email),
         is_active=payload.is_active,
         api_token_hash=hash_api_token(api_key),
     )
@@ -66,7 +70,7 @@ def create_user(
     db.refresh(user)
     return UserCreated(
         id=user.id,
-        email=user.email,
+        email=plain_email,
         is_active=user.is_active,
         created_at=user.created_at,
         api_key=api_key,
@@ -81,14 +85,17 @@ def update_user(
     payload: UserUpdate,
     db: Session = Depends(get_db),
     _: str = Depends(verify_admin),
-) -> User:
+) -> UserRead:
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
     updates = payload.model_dump(exclude_unset=True)
     if "email" in updates and updates["email"] is not None:
-        updates["email"] = str(updates["email"]).lower()
+        plain_email = str(updates["email"]).lower()
+        user.email_lookup = email_lookup(plain_email)
+        user.email = encrypt_pii(plain_email)
+        del updates["email"]
 
     for field, value in updates.items():
         setattr(user, field, value)
@@ -102,7 +109,7 @@ def update_user(
             detail="User with this email already exists",
         ) from exc
     db.refresh(user)
-    return user
+    return to_user_read(user)
 
 
 @router.post("/{user_id}/regenerate-api-key", response_model=UserCreated)
@@ -123,7 +130,7 @@ def regenerate_api_key(
     db.refresh(user)
     return UserCreated(
         id=user.id,
-        email=user.email,
+        email=decrypt_pii(user.email),
         is_active=user.is_active,
         created_at=user.created_at,
         api_key=api_key,

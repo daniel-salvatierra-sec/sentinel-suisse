@@ -3,10 +3,20 @@
 import os
 
 import pytest
+from cryptography.fernet import Fernet
 from fastapi.testclient import TestClient
 
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.main import app
+
+# Stable test key so integration tests can encrypt/decrypt without a real .env secret.
+_TEST_PII_KEY = os.environ.get("PII_ENCRYPTION_KEY") or Fernet.generate_key().decode()
+os.environ.setdefault("PII_ENCRYPTION_KEY", _TEST_PII_KEY)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _ensure_pii_key() -> None:
+    get_settings.cache_clear()
 
 
 @pytest.fixture

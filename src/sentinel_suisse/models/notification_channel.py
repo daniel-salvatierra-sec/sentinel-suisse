@@ -29,7 +29,7 @@ class NotificationChannel(Base):
         nullable=False,
     )
     # PII: encrypt at rest before production — phone/email/tokenized address
-    channel_address: Mapped[str] = mapped_column(String(500), nullable=False)
+    channel_address: Mapped[str] = mapped_column(String(1000), nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_primary: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

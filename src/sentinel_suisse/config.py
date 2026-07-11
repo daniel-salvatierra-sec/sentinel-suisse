@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     app_env: str = "development"
     secret_key: str = ""
+    pii_encryption_key: str = ""
     database_url: str = "postgresql://sentinel:sentinel@localhost:5432/sentinel_suisse"
     admin_username: str = ""
     admin_password_hash: str = ""

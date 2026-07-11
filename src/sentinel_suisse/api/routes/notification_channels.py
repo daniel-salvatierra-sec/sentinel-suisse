@@ -17,7 +17,9 @@ from sentinel_suisse.schemas.notification_channel import (
     NotificationChannelCreate,
     NotificationChannelRead,
     NotificationChannelVerify,
+    to_channel_read,
 )
+from sentinel_suisse.security.pii import encrypt_pii
 
 router = APIRouter(prefix="/notification-channels", tags=["notification-channels"])
 
@@ -28,13 +30,13 @@ def list_channels(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> list[NotificationChannel]:
+) -> list[NotificationChannelRead]:
     stmt = (
         select(NotificationChannel)
         .where(NotificationChannel.user_id == current_user.id)
         .order_by(NotificationChannel.id)
     )
-    return list(db.scalars(stmt).all())
+    return [to_channel_read(channel) for channel in db.scalars(stmt).all()]
 
 
 @router.post("", response_model=NotificationChannelRead, status_code=status.HTTP_201_CREATED)
@@ -44,11 +46,11 @@ def create_channel(
     payload: NotificationChannelCreate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> NotificationChannel:
+) -> NotificationChannelRead:
     channel = NotificationChannel(
         user_id=current_user.id,
         channel_type=payload.channel_type,
-        channel_address=payload.channel_address,
+        channel_address=encrypt_pii(payload.channel_address),
         is_verified=False,
         is_primary=payload.is_primary,
         created_at=datetime.now(UTC),
@@ -63,7 +65,7 @@ def create_channel(
             detail="Channel type already registered for this user",
         ) from exc
     db.refresh(channel)
-    return channel
+    return to_channel_read(channel)
 
 
 @router.patch("/{channel_id}/verify", response_model=NotificationChannelRead)
@@ -74,7 +76,7 @@ def verify_channel(
     payload: NotificationChannelVerify,
     db: Session = Depends(get_db),
     _: str = Depends(verify_admin),
-) -> NotificationChannel:
+) -> NotificationChannelRead:
     channel = db.get(NotificationChannel, channel_id)
     if channel is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Channel not found")
@@ -83,4 +85,4 @@ def verify_channel(
     channel.verified_at = datetime.now(UTC) if payload.is_verified else None
     db.commit()
     db.refresh(channel)
-    return channel
+    return to_channel_read(channel)

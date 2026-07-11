@@ -14,6 +14,7 @@ from sentinel_suisse.models.saved_search import SavedSearch
 from sentinel_suisse.notifications.base import AlertMessage, Notifier
 from sentinel_suisse.notifications.factory import get_notifier_for_channel
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.security.pii import decrypt_pii
 from sentinel_suisse.services.matching import listing_matches_query
 
 
@@ -66,7 +67,7 @@ class AlertService:
                 alert_message = AlertMessage(
                     listing=listing,
                     saved_search=saved_search,
-                    channel_address=channel.channel_address,
+                    channel_address=decrypt_pii(channel.channel_address),
                     channel_type=channel.channel_type.value,
                 )
                 notifier = (

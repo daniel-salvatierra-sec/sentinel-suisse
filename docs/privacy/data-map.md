@@ -7,10 +7,10 @@
 
 | Field | Table | PII | Encryption at rest | Retention |
 |-------|-------|-----|-------------------|-----------|
-| `email` | `users` | Yes | Planned (Fernet/KMS) | Until account deletion |
-| `channel_address` | `notification_channels` | Yes (phone/email) | Planned | Until channel removed |
+| `email` | `users` | Yes | Fernet (`PII_ENCRYPTION_KEY`) | Until account deletion |
+| `channel_address` | `notification_channels` | Yes (phone/email) | Fernet | Until channel removed |
 | `query` | `saved_searches` | Possibly (location keywords) | No | Until search deleted |
-| `raw_payload` | `listings` | Possibly (third-party data) | No | TTL 30 days (planned job) |
+| `raw_payload` | `listings` | Possibly (third-party data) | No | TTL 30 days (`maintenance purge-raw-payload`) |
 
 ## Non-PII / operational
 
@@ -27,7 +27,7 @@
 
 ## Before production
 
-- [ ] Encrypt `email` and `channel_address` at rest
+- [x] Encrypt `email` and `channel_address` at rest
 - [ ] Publish privacy policy (FR/DE per target audience)
 - [ ] Implement right-to-erasure (delete user cascades channels + searches)
-- [ ] TTL job for `raw_payload`
+- [x] TTL job for `raw_payload`

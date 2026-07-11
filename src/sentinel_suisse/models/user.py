@@ -17,8 +17,9 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    # PII: encrypt at rest before production (nLPD) — see docs/privacy/data-map.md
-    email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True)
+    email_lookup: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    # Fernet ciphertext — decrypt with security.pii.decrypt_pii for API responses
+    email: Mapped[str] = mapped_column(String(512), nullable=False)
     api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(
