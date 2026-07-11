@@ -5,6 +5,7 @@ from sentinel_suisse.models.enums import ChannelType
 from sentinel_suisse.notifications.base import Notifier
 from sentinel_suisse.notifications.console import ConsoleNotifier
 from sentinel_suisse.notifications.email import EmailNotifier
+from sentinel_suisse.notifications.whatsapp import WhatsAppNotifier
 
 
 def get_notifier_for_channel(
@@ -18,4 +19,6 @@ def get_notifier_for_channel(
         raise RuntimeError(msg)
     if channel_type == ChannelType.EMAIL and cfg.smtp_is_configured():
         return EmailNotifier(cfg)
+    if channel_type == ChannelType.WHATSAPP and cfg.whatsapp_is_configured():
+        return WhatsAppNotifier(cfg)
     return ConsoleNotifier()

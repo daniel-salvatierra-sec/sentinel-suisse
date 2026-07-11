@@ -14,3 +14,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-4-search.md](phase-4-search.md) | Search API + saved searches |
 | [phase-5-alerts.md](phase-5-alerts.md) | Alert dispatch pipeline |
 | [phase-6-email-alerts.md](phase-6-email-alerts.md) | SMTP email alerts |
+| [phase-7-whatsapp.md](phase-7-whatsapp.md) | WhatsApp alerts + ingest dispatch |

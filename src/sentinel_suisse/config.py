@@ -32,9 +32,16 @@ class Settings(BaseSettings):
     smtp_password: str = ""
     smtp_from: str = ""
     smtp_use_tls: bool = True
+    whatsapp_token: str = ""
+    whatsapp_phone_number_id: str = ""
+    # Dispatch alerts automatically after ingest when new listings are created
+    ingest_dispatch_alerts: bool = False
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)
+
+    def whatsapp_is_configured(self) -> bool:
+        return bool(self.whatsapp_token and self.whatsapp_phone_number_id)
 
 
 @lru_cache

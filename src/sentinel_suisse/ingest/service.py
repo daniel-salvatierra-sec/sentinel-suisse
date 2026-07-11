@@ -1,6 +1,6 @@
 """Upsert listings with deduplication."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -16,6 +16,7 @@ class IngestStats:
     created: int = 0
     updated: int = 0
     skipped: int = 0
+    created_listing_ids: list[int] = field(default_factory=list)
 
 
 class IngestService:
@@ -41,21 +42,22 @@ class IngestService:
             )
 
             if existing is None:
-                self.db.add(
-                    Listing(
-                        provider_id=provider.id,
-                        external_id=item.external_id,
-                        listing_type=item.listing_type,
-                        title=item.title,
-                        description=item.description,
-                        location=item.location,
-                        price=item.price,
-                        source_url=str(item.source_url),
-                        content_hash=content_hash,
-                        raw_payload=item.raw_payload,
-                        fetched_at=fetched_at,
-                    )
+                listing = Listing(
+                    provider_id=provider.id,
+                    external_id=item.external_id,
+                    listing_type=item.listing_type,
+                    title=item.title,
+                    description=item.description,
+                    location=item.location,
+                    price=item.price,
+                    source_url=str(item.source_url),
+                    content_hash=content_hash,
+                    raw_payload=item.raw_payload,
+                    fetched_at=fetched_at,
                 )
+                self.db.add(listing)
+                self.db.flush()
+                stats.created_listing_ids.append(listing.id)
                 stats.created += 1
                 continue
 
