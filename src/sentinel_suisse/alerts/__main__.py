@@ -1,4 +1,4 @@
-"""Dispatch alerts for a listing (pilot: console notifier)."""
+"""Dispatch alerts for a listing."""
 
 import argparse
 import logging

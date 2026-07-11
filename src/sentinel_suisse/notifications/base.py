@@ -11,6 +11,7 @@ class AlertMessage:
     listing: Listing
     saved_search: SavedSearch
     channel_address: str
+    channel_type: str
 
 
 class Notifier:

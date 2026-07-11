@@ -24,6 +24,17 @@ class Settings(BaseSettings):
     api_host: str = "127.0.0.1"
     api_port: int = 8000
     rate_limit: str = "30/minute"
+    # auto = SMTP when configured, else console; console = always log; smtp = require SMTP
+    notifier_mode: str = "auto"
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_use_tls: bool = True
+
+    def smtp_is_configured(self) -> bool:
+        return bool(self.smtp_host and self.smtp_from)
 
 
 @lru_cache

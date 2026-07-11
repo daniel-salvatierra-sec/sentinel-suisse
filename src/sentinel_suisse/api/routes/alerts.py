@@ -10,7 +10,6 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.alert_log import AlertLog
 from sentinel_suisse.models.user import User
-from sentinel_suisse.notifications.console import ConsoleNotifier
 from sentinel_suisse.schemas.alert import AlertLogRead, DispatchStatsRead
 from sentinel_suisse.services.alerts import AlertService
 
@@ -45,7 +44,7 @@ def dispatch_alerts(
     listing_id: int = Query(gt=0),
 ) -> DispatchStatsRead:
     try:
-        stats = AlertService(db, notifier=ConsoleNotifier()).dispatch_for_listing(listing_id)
+        stats = AlertService(db).dispatch_for_listing(listing_id)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
     return DispatchStatsRead(

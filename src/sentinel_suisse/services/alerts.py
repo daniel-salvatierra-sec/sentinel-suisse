@@ -12,7 +12,7 @@ from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.saved_search import SavedSearch
 from sentinel_suisse.notifications.base import AlertMessage, Notifier
-from sentinel_suisse.notifications.console import ConsoleNotifier
+from sentinel_suisse.notifications.factory import get_notifier_for_channel
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.matching import listing_matches_query
 
@@ -28,7 +28,7 @@ class DispatchStats:
 class AlertService:
     def __init__(self, db: Session, notifier: Notifier | None = None) -> None:
         self.db = db
-        self.notifier = notifier or ConsoleNotifier()
+        self._override_notifier = notifier
 
     def dispatch_for_listing(self, listing_id: int) -> DispatchStats:
         listing = self.db.get(Listing, listing_id)
@@ -63,13 +63,18 @@ class AlertService:
                 status=AlertStatus.PENDING,
             )
             try:
-                self.notifier.send(
-                    AlertMessage(
-                        listing=listing,
-                        saved_search=saved_search,
-                        channel_address=channel.channel_address,
-                    )
+                alert_message = AlertMessage(
+                    listing=listing,
+                    saved_search=saved_search,
+                    channel_address=channel.channel_address,
+                    channel_type=channel.channel_type.value,
                 )
+                notifier = (
+                    self._override_notifier
+                    if self._override_notifier is not None
+                    else get_notifier_for_channel(channel.channel_type)
+                )
+                notifier.send(alert_message)
                 alert.status = AlertStatus.SENT
                 alert.sent_at = datetime.now(UTC)
                 stats.sent += 1

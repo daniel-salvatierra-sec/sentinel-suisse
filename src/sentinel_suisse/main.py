@@ -22,7 +22,7 @@ settings = get_settings()
 app = FastAPI(
     title="Sentinel Suisse API",
     description="Internal API — localhost only until public launch",
-    version="0.4.0",
+    version="0.5.0",
     docs_url="/docs" if settings.app_env == "development" else None,
     redoc_url=None,
 )
