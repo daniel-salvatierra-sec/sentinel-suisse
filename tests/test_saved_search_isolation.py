@@ -1,6 +1,12 @@
 """Saved search isolation between users."""
 
+import uuid
+
 from fastapi.testclient import TestClient
+
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}-{uuid.uuid4().hex[:8]}@example.com"
 
 
 def _create_user(client: TestClient, admin_auth: tuple[str, str], email: str) -> tuple[int, str]:
@@ -31,8 +37,8 @@ def _create_saved_search(client: TestClient, api_key: str, name: str) -> int:
 def test_user_cannot_read_other_users_saved_search(
     client: TestClient, admin_auth: tuple[str, str]
 ) -> None:
-    _, key_a = _create_user(client, admin_auth, "isolation-a@example.com")
-    _, key_b = _create_user(client, admin_auth, "isolation-b@example.com")
+    _, key_a = _create_user(client, admin_auth, _unique_email("isolation-a"))
+    _, key_b = _create_user(client, admin_auth, _unique_email("isolation-b"))
 
     search_id = _create_saved_search(client, key_a, "Geneva alerts")
 
@@ -51,8 +57,8 @@ def test_user_cannot_read_other_users_saved_search(
 
 
 def test_user_only_sees_own_saved_searches(client: TestClient, admin_auth: tuple[str, str]) -> None:
-    _, key_a = _create_user(client, admin_auth, "isolation-list-a@example.com")
-    _, key_b = _create_user(client, admin_auth, "isolation-list-b@example.com")
+    _, key_a = _create_user(client, admin_auth, _unique_email("isolation-list-a"))
+    _, key_b = _create_user(client, admin_auth, _unique_email("isolation-list-b"))
 
     _create_saved_search(client, key_a, "Search A")
     _create_saved_search(client, key_b, "Search B")
