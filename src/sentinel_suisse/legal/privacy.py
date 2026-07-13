@@ -1,10 +1,11 @@
 """Load published privacy policy documents."""
 
 from sentinel_suisse.config import PROJECT_DIR
+from sentinel_suisse.i18n import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 
 PRIVACY_DIR = PROJECT_DIR / "docs" / "privacy"
 POLICY_VERSION = "2026-07-13"
-SUPPORTED_LANGS = frozenset({"fr", "de"})
+SUPPORTED_LANGS = SUPPORTED_LANGUAGES
 
 
 def load_privacy_policy(lang: str) -> str:
@@ -18,3 +19,7 @@ def load_privacy_policy(lang: str) -> str:
         raise FileNotFoundError(msg)
 
     return path.read_text(encoding="utf-8")
+
+
+def default_language() -> str:
+    return DEFAULT_LANGUAGE

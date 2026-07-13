@@ -1,13 +1,12 @@
 """Public legal documents (privacy policy)."""
 
-from typing import Literal
-
 from fastapi import APIRouter, Query, Request
 
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
+from sentinel_suisse.i18n import DEFAULT_LANGUAGE
 from sentinel_suisse.legal.privacy import POLICY_VERSION, load_privacy_policy
-from sentinel_suisse.schemas.legal import PrivacyPolicyRead
+from sentinel_suisse.schemas.legal import PrivacyLanguage, PrivacyPolicyRead
 
 router = APIRouter(prefix="/legal", tags=["legal"])
 
@@ -16,9 +15,12 @@ router = APIRouter(prefix="/legal", tags=["legal"])
 @limiter.limit(lambda: get_settings().rate_limit)
 def get_privacy_policy(
     request: Request,
-    lang: Literal["fr", "de"] = Query(default="fr", description="Policy language (fr or de)"),
+    lang: PrivacyLanguage = Query(
+        default=DEFAULT_LANGUAGE,
+        description="Policy language: fr, de, es, pt, or en",
+    ),
 ) -> PrivacyPolicyRead:
-    """Return the published privacy policy (nLPD / nDSG). No authentication required."""
+    """Return the published privacy policy (nLPD). No authentication required."""
     return PrivacyPolicyRead(
         lang=lang,
         version=POLICY_VERSION,

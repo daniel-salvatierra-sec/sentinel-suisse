@@ -28,6 +28,6 @@
 ## Before production
 
 - [x] Encrypt `email` and `channel_address` at rest
-- [x] Publish privacy policy (FR/DE per target audience) — `GET /api/v1/legal/privacy?lang=fr|de`
+- [x] Publish privacy policy (FR/DE/ES/PT/EN) — `GET /api/v1/legal/privacy?lang=fr|de|es|pt|en`
 - [x] Implement right-to-erasure (delete user cascades channels + searches)
 - [x] TTL job for `raw_payload`
