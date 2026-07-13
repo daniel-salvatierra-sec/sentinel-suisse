@@ -39,11 +39,13 @@ class Settings(BaseSettings):
     ingest_dispatch_alerts: bool = False
     # Live Homegate fetch — disabled by default (legal / rate-limit review required)
     ingest_homegate_live: bool = False
+    ingest_jobs_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
-        "SentinelSuisse/0.13 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
+        "SentinelSuisse/0.14 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
     )
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
+    jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

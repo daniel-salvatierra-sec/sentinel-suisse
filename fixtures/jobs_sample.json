@@ -1,0 +1,22 @@
+[
+  {
+    "external_id": "jc-demo-001",
+    "listing_type": "job",
+    "title": "Software Engineer 80-100%",
+    "description": "Backend development for Swiss fintech. Pilot fixture.",
+    "location": "Geneva",
+    "price": null,
+    "source_url": "https://www.jobs.ch/en/vacancies/detail/jc-demo-001/",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "jc-demo-002",
+    "listing_type": "job",
+    "title": "Infirmier·ère diplômé·e",
+    "description": "Hôpital universitaire — équipe de jour.",
+    "location": "Lausanne",
+    "price": null,
+    "source_url": "https://www.jobs.ch/en/vacancies/detail/jc-demo-002/",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  }
+]

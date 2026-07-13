@@ -10,10 +10,24 @@ from sentinel_suisse.ingest.connectors.fixture import load_fixture
 from sentinel_suisse.ingest.connectors.homegate import (
     HomegateDisabledError,
     HomegateFetchError,
-    fetch_search_listings,
+)
+from sentinel_suisse.ingest.connectors.homegate import (
+    fetch_search_listings as fetch_homegate_listings,
+)
+from sentinel_suisse.ingest.connectors.jobs import (
+    JobsDisabledError,
+    JobsFetchError,
+)
+from sentinel_suisse.ingest.connectors.jobs import (
+    fetch_search_listings as fetch_jobs_listings,
 )
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
+
+_LIVE_CONNECTORS = {
+    "homegate": fetch_homegate_listings,
+    "jobs": fetch_jobs_listings,
+}
 
 
 def main() -> None:
@@ -21,7 +35,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate)",
+        help="Provider slug (e.g. homegate, jobs)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -32,13 +46,13 @@ def main() -> None:
     source.add_argument(
         "--live",
         action="store_true",
-        help="Fetch from Homegate search page (requires INGEST_HOMEGATE_LIVE=true)",
+        help="Fetch live from provider search page (opt-in via .env)",
     )
     parser.add_argument(
         "--search-url",
         type=str,
         default=None,
-        help="Override Homegate search URL (with --live)",
+        help="Override provider search URL (with --live)",
     )
     parser.add_argument(
         "--dispatch-alerts",
@@ -54,8 +68,18 @@ def main() -> None:
         if args.fixture is not None:
             items = load_fixture(args.fixture)
         else:
-            items = fetch_search_listings(settings, search_url=args.search_url)
-    except (HomegateDisabledError, HomegateFetchError) as exc:
+            fetcher = _LIVE_CONNECTORS.get(args.provider)
+            if fetcher is None:
+                msg = f"Live ingest not supported for provider: {args.provider}"
+                raise ValueError(msg)
+            items = fetcher(settings, search_url=args.search_url)
+    except (
+        HomegateDisabledError,
+        HomegateFetchError,
+        JobsDisabledError,
+        JobsFetchError,
+        ValueError,
+    ) as exc:
         print(exc, file=sys.stderr)
         sys.exit(1)
 

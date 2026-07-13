@@ -21,3 +21,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-11-i18n.md](phase-11-i18n.md) | Five-language i18n (fr de es pt en) |
 | [phase-12-alert-i18n.md](phase-12-alert-i18n.md) | Localized alert templates |
 | [phase-13-homegate-live.md](phase-13-homegate-live.md) | Homegate live connector (opt-in) |
+| [phase-14-jobs.md](phase-14-jobs.md) | jobs.ch employment connector |

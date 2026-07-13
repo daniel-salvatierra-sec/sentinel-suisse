@@ -1,0 +1,25 @@
+{
+  "props": {
+    "pageProps": {
+      "searchResult": {
+        "vacancies": [
+          {
+            "id": "7d5597bc-9ec1-412a-9a81-33afacd9bb1c",
+            "title": "Software Engineer 80-100%",
+            "company": {"name": "Acme SA"},
+            "place": "Geneva",
+            "description": "Python and cloud experience welcome.",
+            "url": "/en/vacancies/detail/7d5597bc-9ec1-412a-9a81-33afacd9bb1c/"
+          },
+          {
+            "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+            "title": "Product Manager",
+            "company": {"name": "Beta GmbH"},
+            "place": "Zurich",
+            "url": "https://www.jobs.ch/en/vacancies/detail/a1b2c3d4-e5f6-7890-abcd-ef1234567890/"
+          }
+        ]
+      }
+    }
+  }
+}
