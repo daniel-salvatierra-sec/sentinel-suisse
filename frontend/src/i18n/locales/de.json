@@ -13,9 +13,9 @@
   "list": "Liste",
   "alerts": "Alerts",
   "alertsTitle": "Neue Inserate erhalten",
-  "alertsDesc": "QR scannen oder WhatsApp / E-Mail eingeben.",
-  "phone": "WhatsApp-Nummer",
-  "email": "E-Mail (optional)",
+  "alertsDesc": "E-Mail eingeben und optional Ihre WhatsApp-Nummer.",
+  "phone": "WhatsApp-Nummer (optional)",
+  "email": "E-Mail",
   "saveSearch": "Alert aktivieren",
   "guide": "Guide",
   "guideHello": "Hallo! Ich bin Ihr Suisse Alert Guide. Was suchen Sie?",
@@ -28,5 +28,12 @@
   "privacy": "Datenschutz",
   "openSource": "Inserat öffnen",
   "priceMonthly": "CHF / Monat",
-  "route": "Route"
+  "route": "Route",
+  "consentLabel": "Ich akzeptiere die Datenschutzerklärung",
+  "consentRequired": "Bitte akzeptieren Sie die Datenschutzerklärung.",
+  "emailRequired": "E-Mail ist erforderlich.",
+  "alertSuccess": "Alert aktiviert! Sie erhalten neue Inserate.",
+  "alertPending": "Anmeldung gespeichert — Kanalbestätigung ausstehend.",
+  "alertErrorDuplicate": "Diese E-Mail ist bereits registriert.",
+  "alertErrorGeneric": "Alert konnte nicht aktiviert werden. Bitte später erneut versuchen."
 }

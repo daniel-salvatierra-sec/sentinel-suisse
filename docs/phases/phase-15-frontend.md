@@ -78,7 +78,7 @@ git push origin main
 | Search bar + public API | Done (dev only) |
 | Leaflet map with city pins | Done |
 | Floating guide bot | Done |
-| Alert panel (QR placeholder + WhatsApp/email) | UI only — API wiring Phase 16+ |
+| Alert panel (QR placeholder + WhatsApp/email) | Wired to `POST /api/v1/public/signup` (Phase 16) |
 | Swiss palette (lake / mountain / Jet d'Eau) | Done |
 
 ## API

@@ -13,9 +13,9 @@
   "list": "List",
   "alerts": "Alerts",
   "alertsTitle": "Get new listings by alert",
-  "alertsDesc": "Scan the QR code or enter WhatsApp / email.",
-  "phone": "WhatsApp number",
-  "email": "Email (optional)",
+  "alertsDesc": "Enter your email and optionally your WhatsApp number.",
+  "phone": "WhatsApp number (optional)",
+  "email": "Email",
   "saveSearch": "Enable alert",
   "guide": "Guide",
   "guideHello": "Hello! I'm your Suisse Alert guide. What are you looking for?",
@@ -28,5 +28,12 @@
   "privacy": "Privacy",
   "openSource": "View listing",
   "priceMonthly": "CHF / month",
-  "route": "Directions"
+  "route": "Directions",
+  "consentLabel": "I accept the privacy policy",
+  "consentRequired": "Please accept the privacy policy.",
+  "emailRequired": "Email is required.",
+  "alertSuccess": "Alert enabled! You will receive new listings.",
+  "alertPending": "Signup saved — channel confirmation pending.",
+  "alertErrorDuplicate": "This email is already registered.",
+  "alertErrorGeneric": "Could not enable the alert. Please try again later."
 }

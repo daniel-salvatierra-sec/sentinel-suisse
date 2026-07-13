@@ -23,3 +23,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-13-homegate-live.md](phase-13-homegate-live.md) | Homegate live connector (opt-in) |
 | [phase-14-jobs.md](phase-14-jobs.md) | jobs.ch employment connector |
 | [phase-15-frontend.md](phase-15-frontend.md) | Suisse Alert mobile-first UI |
+| [phase-16-alert-signup.md](phase-16-alert-signup.md) | Public alert signup API + UI wiring |

@@ -1,18 +1,55 @@
 import { useState } from "react";
-import type { ListingType } from "../api";
-import type { Messages } from "../i18n";
+import { subscribeAlerts, type ListingType } from "../api";
+import type { Lang, Messages } from "../i18n";
 
 type Props = {
   t: Messages;
+  locale: Lang;
   listingType: ListingType;
   location: string;
   id?: string;
 };
 
-export function AlertSignup({ t, listingType, location, id = "alerts" }: Props) {
+type Status = "idle" | "loading" | "success" | "pending" | "error";
+
+export function AlertSignup({ t, locale, listingType, location, id = "alerts" }: Props) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [saved, setSaved] = useState(false);
+  const [consent, setConsent] = useState(false);
+  const [status, setStatus] = useState<Status>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      setErrorMessage(t.emailRequired);
+      setStatus("error");
+      return;
+    }
+    if (!consent) {
+      setErrorMessage(t.consentRequired);
+      setStatus("error");
+      return;
+    }
+
+    setStatus("loading");
+    setErrorMessage("");
+    try {
+      const result = await subscribeAlerts({
+        email: email.trim(),
+        phone: phone.trim() || undefined,
+        locale,
+        listing_type: listingType,
+        location,
+      });
+      setStatus(result.verification_pending ? "pending" : "success");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "";
+      setErrorMessage(
+        message.includes("already exists") ? t.alertErrorDuplicate : t.alertErrorGeneric,
+      );
+      setStatus("error");
+    }
+  };
 
   return (
     <section className="alert-panel" id={id}>
@@ -24,6 +61,16 @@ export function AlertSignup({ t, listingType, location, id = "alerts" }: Props) 
         WhatsApp
       </div>
       <label>
+        {t.email}
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="you@example.com"
+        />
+      </label>
+      <label>
         {t.phone}
         <input
           type="tel"
@@ -32,31 +79,31 @@ export function AlertSignup({ t, listingType, location, id = "alerts" }: Props) 
           placeholder="+41 79 …"
         />
       </label>
-      <label>
-        {t.email}
+      <label className="consent-row">
         <input
-          type="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@example.com"
+          type="checkbox"
+          checked={consent}
+          onChange={(event) => setConsent(event.target.checked)}
         />
+        <span>{t.consentLabel}</span>
       </label>
       <button
         type="button"
         className="primary-btn"
         style={{ width: "100%" }}
-        onClick={() => {
-          const payload = { listingType, location, phone, email };
-          localStorage.setItem("suisse-alert-pending", JSON.stringify(payload));
-          setSaved(true);
-        }}
+        disabled={status === "loading"}
+        onClick={() => void handleSubmit()}
       >
-        {t.saveSearch}
+        {status === "loading" ? t.loading : t.saveSearch}
       </button>
-      {saved && (
-        <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>
-          {listingType} · {location || "—"} — enregistré localement (API Phase 16+)
-        </p>
+      {status === "success" && (
+        <p className="alert-feedback success">{t.alertSuccess}</p>
+      )}
+      {status === "pending" && (
+        <p className="alert-feedback pending">{t.alertPending}</p>
+      )}
+      {status === "error" && errorMessage && (
+        <p className="alert-feedback error">{errorMessage}</p>
       )}
     </section>
   );

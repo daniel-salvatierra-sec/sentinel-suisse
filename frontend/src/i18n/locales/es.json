@@ -13,9 +13,9 @@
   "list": "Lista",
   "alerts": "Alertas",
   "alertsTitle": "Recibe nuevos anuncios",
-  "alertsDesc": "Escanea el QR o introduce WhatsApp / email.",
-  "phone": "Número WhatsApp",
-  "email": "Email (opcional)",
+  "alertsDesc": "Introduce tu email y, si quieres, tu número de WhatsApp.",
+  "phone": "Número WhatsApp (opcional)",
+  "email": "Email",
   "saveSearch": "Activar alerta",
   "guide": "Guía",
   "guideHello": "¡Hola! Soy tu guía Suisse Alert. ¿Qué buscas?",
@@ -28,5 +28,12 @@
   "privacy": "Privacidad",
   "openSource": "Ver anuncio",
   "priceMonthly": "CHF / mes",
-  "route": "Ruta"
+  "route": "Ruta",
+  "consentLabel": "Acepto la política de privacidad",
+  "consentRequired": "Debes aceptar la política de privacidad.",
+  "emailRequired": "El email es obligatorio.",
+  "alertSuccess": "¡Alerta activada! Recibirás nuevos anuncios.",
+  "alertPending": "Registro guardado — confirmación del canal pendiente.",
+  "alertErrorDuplicate": "Este email ya está registrado.",
+  "alertErrorGeneric": "No se pudo activar la alerta. Inténtalo más tarde."
 }

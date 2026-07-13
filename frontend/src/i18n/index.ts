@@ -41,6 +41,13 @@ export type Messages = {
   openSource: string;
   priceMonthly: string;
   route: string;
+  consentLabel: string;
+  consentRequired: string;
+  emailRequired: string;
+  alertSuccess: string;
+  alertPending: string;
+  alertErrorDuplicate: string;
+  alertErrorGeneric: string;
 };
 
 import fr from "./locales/fr.json";

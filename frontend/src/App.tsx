@@ -101,7 +101,7 @@ export default function App() {
       )}
 
       {(showAlerts) && (
-        <AlertSignup t={t} listingType={category} location={query} />
+        <AlertSignup t={t} locale={lang} listingType={category} location={query} />
       )}
 
       <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
