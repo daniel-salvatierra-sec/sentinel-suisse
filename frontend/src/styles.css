@@ -30,7 +30,24 @@ body {
   padding: 1rem 1rem 5rem;
 }
 
-.lang-bar {
+.verify-banner {
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.verify-banner.success {
+  background: #e8f5ec;
+  color: var(--mountain);
+}
+
+.verify-banner.error {
+  background: #fef3f2;
+  color: #b42318;
+}
+
   display: flex;
   gap: 0.35rem;
   justify-content: center;

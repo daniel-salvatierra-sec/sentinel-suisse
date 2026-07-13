@@ -48,5 +48,8 @@
   "accountDeleteWarning": "Cette action est définitive (nLPD).",
   "accountLoginHint": "Activez une alerte pour accéder à votre compte.",
   "accountError": "Session expirée ou invalide. Réactivez une alerte.",
-  "viewAccount": "Voir mon compte"
+  "viewAccount": "Voir mon compte",
+  "verifySuccess": "E-mail confirmé — vos alertes sont actives.",
+  "verifyError": "Lien de confirmation invalide ou expiré.",
+  "alertCheckEmail": "Consultez votre boîte mail et cliquez sur le lien de confirmation."
 }

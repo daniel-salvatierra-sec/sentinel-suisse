@@ -42,7 +42,11 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
         listing_type: listingType,
         location,
       });
-      setStatus(result.verification_pending ? "pending" : "success");
+      if (result.verification_email_sent) {
+        setStatus("pending");
+      } else {
+        setStatus(result.verification_pending ? "pending" : "success");
+      }
       onSuccess?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
@@ -102,7 +106,7 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
         <p className="alert-feedback success">{t.alertSuccess}</p>
       )}
       {status === "pending" && (
-        <p className="alert-feedback pending">{t.alertPending}</p>
+        <p className="alert-feedback pending">{t.alertCheckEmail}</p>
       )}
       {status === "error" && errorMessage && (
         <p className="alert-feedback error">{errorMessage}</p>

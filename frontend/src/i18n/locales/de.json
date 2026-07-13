@@ -48,5 +48,8 @@
   "accountDeleteWarning": "Diese Aktion ist endgültig (nDSG).",
   "accountLoginHint": "Aktivieren Sie einen Alert, um Ihr Konto zu sehen.",
   "accountError": "Sitzung abgelaufen oder ungültig.",
-  "viewAccount": "Mein Konto anzeigen"
+  "viewAccount": "Mein Konto anzeigen",
+  "verifySuccess": "E-Mail bestätigt — Ihre Alerts sind aktiv.",
+  "verifyError": "Bestätigungslink ungültig oder abgelaufen.",
+  "alertCheckEmail": "Prüfen Sie Ihr Postfach und klicken Sie auf den Bestätigungslink."
 }

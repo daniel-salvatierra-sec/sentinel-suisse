@@ -48,5 +48,8 @@
   "accountDeleteWarning": "This action is permanent (nFADP).",
   "accountLoginHint": "Enable an alert to access your account.",
   "accountError": "Session expired or invalid.",
-  "viewAccount": "View my account"
+  "viewAccount": "View my account",
+  "verifySuccess": "Email confirmed — your alerts are active.",
+  "verifyError": "Confirmation link invalid or expired.",
+  "alertCheckEmail": "Check your inbox and click the confirmation link."
 }

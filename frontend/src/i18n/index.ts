@@ -61,6 +61,9 @@ export type Messages = {
   accountLoginHint: string;
   accountError: string;
   viewAccount: string;
+  verifySuccess: string;
+  verifyError: string;
+  alertCheckEmail: string;
 };
 
 import fr from "./locales/fr.json";

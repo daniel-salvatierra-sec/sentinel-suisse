@@ -70,9 +70,9 @@ Existing endpoints used by UI: `GET/DELETE /saved-searches`, `GET /alerts`, `DEL
 
 ---
 
-## Out of scope (Phase 18+)
+## Out of scope (Phase 19+)
 
-- Email verification links (production)
 - WhatsApp QR onboarding
-- Additional portals
+- Additional housing/job portals
+- Production public signup without review
 - Edit saved search from UI

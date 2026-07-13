@@ -24,6 +24,10 @@ class Settings(BaseSettings):
     admin_password_hash: str = ""
     api_host: str = "127.0.0.1"
     api_port: int = 8000
+    public_app_url: str = "http://127.0.0.1:5173"
+    verification_token_ttl_hours: int = 48
+    # None = auto (verify in development only); False = always send verification email
+    signup_auto_verify: bool | None = None
     rate_limit: str = "30/minute"
     # auto = SMTP when configured, else console; console = always log; smtp = require SMTP
     notifier_mode: str = "auto"
@@ -52,6 +56,11 @@ class Settings(BaseSettings):
 
     def whatsapp_is_configured(self) -> bool:
         return bool(self.whatsapp_token and self.whatsapp_phone_number_id)
+
+    def signup_channels_auto_verify(self) -> bool:
+        if self.signup_auto_verify is not None:
+            return self.signup_auto_verify
+        return self.app_env == "development"
 
 
 @lru_cache

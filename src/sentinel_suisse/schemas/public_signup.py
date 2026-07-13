@@ -30,3 +30,10 @@ class PublicAlertSignupResponse(BaseModel):
     email_verified: bool
     whatsapp_verified: bool
     verification_pending: bool
+    verification_email_sent: bool = False
+
+
+class EmailVerificationResponse(BaseModel):
+    verified: bool
+    channel_type: str = "email"
+    message: str

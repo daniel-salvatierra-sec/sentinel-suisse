@@ -8,6 +8,7 @@ import { LanguageBar } from "./components/LanguageBar";
 import { ListingCard } from "./components/ListingCard";
 import { MapView } from "./components/MapView";
 import { SearchBar } from "./components/SearchBar";
+import { VerifyBanner } from "./components/VerifyBanner";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 
 type Tab = "list" | "map" | "alerts" | "account";
@@ -60,6 +61,13 @@ export default function App() {
 
   return (
     <div className="app">
+      <VerifyBanner
+        t={t}
+        onVerified={() => {
+          setAccountRefresh((value) => value + 1);
+          setTab("account");
+        }}
+      />
       <LanguageBar
         lang={lang}
         onChange={(code) => {

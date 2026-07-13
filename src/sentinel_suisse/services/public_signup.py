@@ -20,6 +20,7 @@ class PublicSignupResult:
     user: User
     api_key: str
     saved_search: SavedSearch
+    email_channel_id: int
     email_verified: bool
     whatsapp_verified: bool
 
@@ -70,6 +71,7 @@ def subscribe_public_alert(
         created_at=now,
     )
     db.add(email_channel)
+    db.flush()
     email_verified = auto_verify_channels
 
     if payload.phone:
@@ -108,6 +110,7 @@ def subscribe_public_alert(
         user=user,
         api_key=api_key,
         saved_search=saved_search,
+        email_channel_id=email_channel.id,
         email_verified=email_verified,
         whatsapp_verified=whatsapp_verified,
     )

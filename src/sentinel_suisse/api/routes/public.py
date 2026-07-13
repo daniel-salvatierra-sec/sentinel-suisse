@@ -9,8 +9,16 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.schemas.listing import ListingRead
-from sentinel_suisse.schemas.public_signup import PublicAlertSignup, PublicAlertSignupResponse
+from sentinel_suisse.schemas.public_signup import (
+    EmailVerificationResponse,
+    PublicAlertSignup,
+    PublicAlertSignupResponse,
+)
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.email_verification import (
+    send_channel_verification_email,
+    verify_email_channel,
+)
 from sentinel_suisse.services.public_signup import subscribe_public_alert
 from sentinel_suisse.services.search import search_listings
 
@@ -61,17 +69,29 @@ def public_signup(
 ) -> PublicAlertSignupResponse:
     """Create user, notification channels, and saved search from the public UI."""
     settings = get_settings()
+    auto_verify = settings.signup_channels_auto_verify()
     try:
         result = subscribe_public_alert(
             db,
             payload,
-            auto_verify_channels=settings.app_env == "development",
+            auto_verify_channels=auto_verify,
         )
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="User with this email already exists",
         ) from exc
+
+    verification_email_sent = False
+    if not auto_verify:
+        send_channel_verification_email(
+            settings,
+            email=str(payload.email).lower(),
+            locale=payload.locale,
+            channel_id=result.email_channel_id,
+            user_id=result.user.id,
+        )
+        verification_email_sent = True
 
     verification_pending = not result.email_verified or (
         payload.phone is not None and not result.whatsapp_verified
@@ -83,4 +103,25 @@ def public_signup(
         email_verified=result.email_verified,
         whatsapp_verified=result.whatsapp_verified,
         verification_pending=verification_pending,
+        verification_email_sent=verification_email_sent,
+    )
+
+
+@router.get("/verify-email", response_model=EmailVerificationResponse)
+@limiter.limit("20/minute")
+def public_verify_email(
+    request: Request,
+    token: str = Query(min_length=10),
+    db: Session = Depends(get_db),
+) -> EmailVerificationResponse:
+    """Confirm email notification channel via signed link (all environments)."""
+    try:
+        channel = verify_email_channel(db, token)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+
+    return EmailVerificationResponse(
+        verified=True,
+        channel_type=channel.channel_type.value,
+        message="Email channel verified",
     )
