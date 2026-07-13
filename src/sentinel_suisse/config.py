@@ -37,6 +37,13 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str = ""
     # Dispatch alerts automatically after ingest when new listings are created
     ingest_dispatch_alerts: bool = False
+    # Live Homegate fetch — disabled by default (legal / rate-limit review required)
+    ingest_homegate_live: bool = False
+    ingest_rate_limit_seconds: float = 3.0
+    ingest_user_agent: str = (
+        "SentinelSuisse/0.13 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
+    )
+    homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

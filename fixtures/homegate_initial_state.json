@@ -1,0 +1,66 @@
+{
+  "resultList": {
+    "search": {
+      "fullSearch": {
+        "result": {
+          "listings": [
+            {
+              "listing": {
+                "id": 4001234567,
+                "listingType": "RENT",
+                "address": {
+                  "locality": "Genève",
+                  "postalCode": "1200"
+                },
+                "prices": {
+                  "rent": {
+                    "net": 2400,
+                    "gross": 2600
+                  }
+                },
+                "localization": {
+                  "primary": "fr",
+                  "fr": {
+                    "text": {
+                      "title": "Appartement 3.5 pièces à Genève",
+                      "description": "Lumineux, proche des transports."
+                    }
+                  }
+                },
+                "meta": {
+                  "url": "/mieten/4001234567"
+                }
+              }
+            },
+            {
+              "listing": {
+                "id": 4007654321,
+                "listingType": "RENT",
+                "address": {
+                  "locality": "Lausanne",
+                  "postalCode": "1003"
+                },
+                "prices": {
+                  "rent": {
+                    "net": 1200
+                  }
+                },
+                "localization": {
+                  "primary": "fr",
+                  "fr": {
+                    "text": {
+                      "title": "Studio à Lausanne"
+                    }
+                  }
+                },
+                "meta": {
+                  "url": "/mieten/4007654321"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

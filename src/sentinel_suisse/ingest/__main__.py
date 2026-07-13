@@ -1,11 +1,17 @@
 """Ingestion CLI."""
 
 import argparse
+import sys
 from pathlib import Path
 
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.db.session import SessionLocal
 from sentinel_suisse.ingest.connectors.fixture import load_fixture
+from sentinel_suisse.ingest.connectors.homegate import (
+    HomegateDisabledError,
+    HomegateFetchError,
+    fetch_search_listings,
+)
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
 
@@ -17,11 +23,22 @@ def main() -> None:
         required=True,
         help="Provider slug (e.g. homegate)",
     )
-    parser.add_argument(
+    source = parser.add_mutually_exclusive_group(required=True)
+    source.add_argument(
         "--fixture",
         type=Path,
-        required=True,
-        help="Path to JSON fixture file",
+        help="Path to JSON fixture file (pilot / tests)",
+    )
+    source.add_argument(
+        "--live",
+        action="store_true",
+        help="Fetch from Homegate search page (requires INGEST_HOMEGATE_LIVE=true)",
+    )
+    parser.add_argument(
+        "--search-url",
+        type=str,
+        default=None,
+        help="Override Homegate search URL (with --live)",
     )
     parser.add_argument(
         "--dispatch-alerts",
@@ -33,7 +50,15 @@ def main() -> None:
     settings = get_settings()
     dispatch_alerts = args.dispatch_alerts or settings.ingest_dispatch_alerts
 
-    items = load_fixture(args.fixture)
+    try:
+        if args.fixture is not None:
+            items = load_fixture(args.fixture)
+        else:
+            items = fetch_search_listings(settings, search_url=args.search_url)
+    except (HomegateDisabledError, HomegateFetchError) as exc:
+        print(exc, file=sys.stderr)
+        sys.exit(1)
+
     db = SessionLocal()
     try:
         stats = IngestService(db).upsert_listings(args.provider, items)
