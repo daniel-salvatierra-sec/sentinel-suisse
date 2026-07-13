@@ -35,5 +35,18 @@
   "alertSuccess": "Alert enabled! You will receive new listings.",
   "alertPending": "Signup saved — channel confirmation pending.",
   "alertErrorDuplicate": "This email is already registered.",
-  "alertErrorGeneric": "Could not enable the alert. Please try again later."
+  "alertErrorGeneric": "Could not enable the alert. Please try again later.",
+  "account": "Account",
+  "accountTitle": "My account",
+  "accountSearches": "Saved alerts",
+  "accountHistory": "Recent history",
+  "accountNoSearches": "No saved alerts.",
+  "accountNoAlerts": "No notifications sent yet.",
+  "accountDeleteSearch": "Delete",
+  "accountDelete": "Delete my account",
+  "accountConfirmDelete": "Confirm deletion",
+  "accountDeleteWarning": "This action is permanent (nFADP).",
+  "accountLoginHint": "Enable an alert to access your account.",
+  "accountError": "Session expired or invalid.",
+  "viewAccount": "View my account"
 }

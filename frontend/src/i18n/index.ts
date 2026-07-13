@@ -48,6 +48,19 @@ export type Messages = {
   alertPending: string;
   alertErrorDuplicate: string;
   alertErrorGeneric: string;
+  account: string;
+  accountTitle: string;
+  accountSearches: string;
+  accountHistory: string;
+  accountNoSearches: string;
+  accountNoAlerts: string;
+  accountDeleteSearch: string;
+  accountDelete: string;
+  accountConfirmDelete: string;
+  accountDeleteWarning: string;
+  accountLoginHint: string;
+  accountError: string;
+  viewAccount: string;
 };
 
 import fr from "./locales/fr.json";

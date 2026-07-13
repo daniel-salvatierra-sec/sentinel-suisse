@@ -47,6 +47,16 @@ def erase_current_user(
     )
 
 
+@router.get("/me", response_model=UserRead)
+@limiter.limit(lambda: get_settings().rate_limit)
+def get_current_user_profile(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+) -> UserRead:
+    """Return the authenticated user's profile."""
+    return to_user_read(current_user)
+
+
 @router.get("/{user_id}", response_model=UserRead)
 @limiter.limit(lambda: get_settings().rate_limit)
 def get_user(

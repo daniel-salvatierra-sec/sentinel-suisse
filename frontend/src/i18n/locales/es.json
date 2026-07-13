@@ -35,5 +35,18 @@
   "alertSuccess": "¡Alerta activada! Recibirás nuevos anuncios.",
   "alertPending": "Registro guardado — confirmación del canal pendiente.",
   "alertErrorDuplicate": "Este email ya está registrado.",
-  "alertErrorGeneric": "No se pudo activar la alerta. Inténtalo más tarde."
+  "alertErrorGeneric": "No se pudo activar la alerta. Inténtalo más tarde.",
+  "account": "Cuenta",
+  "accountTitle": "Mi cuenta",
+  "accountSearches": "Alertas guardadas",
+  "accountHistory": "Historial reciente",
+  "accountNoSearches": "No hay alertas guardadas.",
+  "accountNoAlerts": "Aún no se han enviado notificaciones.",
+  "accountDeleteSearch": "Eliminar",
+  "accountDelete": "Eliminar mi cuenta",
+  "accountConfirmDelete": "Confirmar eliminación",
+  "accountDeleteWarning": "Esta acción es definitiva (nLPD).",
+  "accountLoginHint": "Activa una alerta para acceder a tu cuenta.",
+  "accountError": "Sesión expirada o inválida.",
+  "viewAccount": "Ver mi cuenta"
 }

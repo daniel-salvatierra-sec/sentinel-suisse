@@ -8,11 +8,12 @@ type Props = {
   listingType: ListingType;
   location: string;
   id?: string;
+  onSuccess?: () => void;
 };
 
 type Status = "idle" | "loading" | "success" | "pending" | "error";
 
-export function AlertSignup({ t, locale, listingType, location, id = "alerts" }: Props) {
+export function AlertSignup({ t, locale, listingType, location, id = "alerts", onSuccess }: Props) {
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
@@ -42,6 +43,7 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts" }:
         location,
       });
       setStatus(result.verification_pending ? "pending" : "success");
+      onSuccess?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
       setErrorMessage(

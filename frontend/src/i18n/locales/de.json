@@ -35,5 +35,18 @@
   "alertSuccess": "Alert aktiviert! Sie erhalten neue Inserate.",
   "alertPending": "Anmeldung gespeichert — Kanalbestätigung ausstehend.",
   "alertErrorDuplicate": "Diese E-Mail ist bereits registriert.",
-  "alertErrorGeneric": "Alert konnte nicht aktiviert werden. Bitte später erneut versuchen."
+  "alertErrorGeneric": "Alert konnte nicht aktiviert werden. Bitte später erneut versuchen.",
+  "account": "Konto",
+  "accountTitle": "Mein Konto",
+  "accountSearches": "Gespeicherte Alerts",
+  "accountHistory": "Letzte Benachrichtigungen",
+  "accountNoSearches": "Keine gespeicherten Alerts.",
+  "accountNoAlerts": "Noch keine Benachrichtigungen gesendet.",
+  "accountDeleteSearch": "Löschen",
+  "accountDelete": "Konto löschen",
+  "accountConfirmDelete": "Löschen bestätigen",
+  "accountDeleteWarning": "Diese Aktion ist endgültig (nDSG).",
+  "accountLoginHint": "Aktivieren Sie einen Alert, um Ihr Konto zu sehen.",
+  "accountError": "Sitzung abgelaufen oder ungültig.",
+  "viewAccount": "Mein Konto anzeigen"
 }

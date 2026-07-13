@@ -35,5 +35,18 @@
   "alertSuccess": "Alerte activée ! Vous recevrez les nouvelles annonces.",
   "alertPending": "Inscription enregistrée — confirmation du canal en attente.",
   "alertErrorDuplicate": "Cet e-mail est déjà inscrit.",
-  "alertErrorGeneric": "Impossible d'activer l'alerte. Réessayez plus tard."
+  "alertErrorGeneric": "Impossible d'activer l'alerte. Réessayez plus tard.",
+  "account": "Compte",
+  "accountTitle": "Mon compte",
+  "accountSearches": "Mes alertes enregistrées",
+  "accountHistory": "Historique récent",
+  "accountNoSearches": "Aucune alerte enregistrée.",
+  "accountNoAlerts": "Aucune notification envoyée pour l'instant.",
+  "accountDeleteSearch": "Supprimer",
+  "accountDelete": "Supprimer mon compte",
+  "accountConfirmDelete": "Confirmer la suppression",
+  "accountDeleteWarning": "Cette action est définitive (nLPD).",
+  "accountLoginHint": "Activez une alerte pour accéder à votre compte.",
+  "accountError": "Session expirée ou invalide. Réactivez une alerte.",
+  "viewAccount": "Voir mon compte"
 }

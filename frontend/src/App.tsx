@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { searchListings, type Listing, type ListingType } from "./api";
+import { getApiKey, searchListings, type Listing, type ListingType } from "./api";
+import { AccountPanel } from "./components/AccountPanel";
 import { AlertSignup } from "./components/AlertSignup";
 import { CategoryCards } from "./components/CategoryCards";
 import { GuideBot } from "./components/GuideBot";
@@ -9,7 +10,7 @@ import { MapView } from "./components/MapView";
 import { SearchBar } from "./components/SearchBar";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 
-type ViewMode = "map" | "list";
+type Tab = "list" | "map" | "alerts" | "account";
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
@@ -18,9 +19,10 @@ export default function App() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [view, setView] = useState<ViewMode>("list");
+  const [tab, setTab] = useState<Tab>("list");
   const [focusId, setFocusId] = useState<number | null>(null);
-  const [showAlerts, setShowAlerts] = useState(false);
+  const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
+  const [accountRefresh, setAccountRefresh] = useState(0);
 
   const t = messages[lang];
 
@@ -40,8 +42,21 @@ export default function App() {
   }, [category, query]);
 
   useEffect(() => {
-    void runSearch();
-  }, [category, runSearch]);
+    if (tab === "list" || tab === "map") {
+      void runSearch();
+    }
+  }, [tab, category, runSearch]);
+
+  const onSignupSuccess = () => {
+    setHasSession(true);
+    setAccountRefresh((value) => value + 1);
+    setTab("account");
+  };
+
+  const onLoggedOut = () => {
+    setHasSession(false);
+    setTab("list");
+  };
 
   return (
     <div className="app">
@@ -61,25 +76,29 @@ export default function App() {
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
 
       <div className="tabs">
-        <button type="button" className={view === "list" ? "active" : ""} onClick={() => setView("list")}>
+        <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
           {t.list}
         </button>
-        <button type="button" className={view === "map" ? "active" : ""} onClick={() => setView("map")}>
+        <button type="button" className={tab === "map" ? "active" : ""} onClick={() => setTab("map")}>
           {t.map}
         </button>
-        <button type="button" className={showAlerts ? "active" : ""} onClick={() => setShowAlerts((v) => !v)}>
+        <button type="button" className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>
           {t.alerts}
+        </button>
+        <button type="button" className={tab === "account" ? "active" : ""} onClick={() => setTab("account")}>
+          {t.account}
+          {hasSession && <span className="tab-dot" aria-hidden />}
         </button>
       </div>
 
-      {loading && <p className="empty">{t.loading}</p>}
-      {error && <p className="empty">{t.noResults}</p>}
+      {loading && (tab === "list" || tab === "map") && <p className="empty">{t.loading}</p>}
+      {error && (tab === "list" || tab === "map") && <p className="empty">{t.noResults}</p>}
 
-      {!loading && !error && view === "map" && listings.length > 0 && (
+      {tab === "map" && !loading && !error && listings.length > 0 && (
         <MapView listings={listings} focusId={focusId} />
       )}
 
-      {!loading && !error && view === "list" && (
+      {tab === "list" && !loading && !error && (
         <>
           {listings.length === 0 ? (
             <p className="empty">{t.noResults}</p>
@@ -92,7 +111,7 @@ export default function App() {
                 selected={listing.id === focusId}
                 onSelect={() => {
                   setFocusId(listing.id);
-                  setView("map");
+                  setTab("map");
                 }}
               />
             ))
@@ -100,8 +119,18 @@ export default function App() {
         </>
       )}
 
-      {(showAlerts) && (
-        <AlertSignup t={t} locale={lang} listingType={category} location={query} />
+      {tab === "alerts" && (
+        <AlertSignup
+          t={t}
+          locale={lang}
+          listingType={category}
+          location={query}
+          onSuccess={onSignupSuccess}
+        />
+      )}
+
+      {tab === "account" && (
+        <AccountPanel t={t} refreshToken={accountRefresh} onLoggedOut={onLoggedOut} />
       )}
 
       <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
@@ -112,10 +141,10 @@ export default function App() {
         t={t}
         onPickCategory={(type) => {
           setCategory(type);
-          setShowAlerts(false);
+          setTab("list");
         }}
         onOpenAlerts={() => {
-          setShowAlerts(true);
+          setTab("alerts");
           document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth" });
         }}
       />

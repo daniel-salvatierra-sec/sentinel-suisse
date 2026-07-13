@@ -44,8 +44,90 @@ export type SignupResponse = {
 
 const API_KEY_STORAGE = "suisse-alert-api-key";
 
+export function getApiKey(): string | null {
+  return localStorage.getItem(API_KEY_STORAGE);
+}
+
 export function saveApiKey(key: string): void {
   localStorage.setItem(API_KEY_STORAGE, key);
+}
+
+export function clearApiKey(): void {
+  localStorage.removeItem(API_KEY_STORAGE);
+}
+
+async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch(path, {
+    ...init,
+    headers: {
+      ...(init.headers ?? {}),
+      "X-API-Key": apiKey,
+    },
+  });
+  if (!response.ok) {
+    throw new Error(`request failed: ${response.status}`);
+  }
+  if (response.status === 204) {
+    return undefined as T;
+  }
+  return response.json() as Promise<T>;
+}
+
+export type UserProfile = {
+  id: number;
+  email: string;
+  locale: string;
+  is_active: boolean;
+  created_at: string;
+};
+
+export type SavedSearch = {
+  id: number;
+  user_id: number;
+  name: string;
+  query: {
+    listing_type?: ListingType;
+    location?: string;
+  };
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AlertLog = {
+  id: number;
+  user_id: number;
+  saved_search_id: number;
+  listing_id: number;
+  channel_type: string;
+  status: string;
+  error_message: string | null;
+  sent_at: string | null;
+  created_at: string;
+};
+
+export function fetchMe(): Promise<UserProfile> {
+  return apiFetch<UserProfile>("/api/v1/users/me");
+}
+
+export function fetchSavedSearches(): Promise<SavedSearch[]> {
+  return apiFetch<SavedSearch[]>("/api/v1/saved-searches");
+}
+
+export function deleteSavedSearch(id: number): Promise<void> {
+  return apiFetch<void>(`/api/v1/saved-searches/${id}`, { method: "DELETE" });
+}
+
+export function fetchAlerts(): Promise<AlertLog[]> {
+  return apiFetch<AlertLog[]>("/api/v1/alerts?limit=20");
+}
+
+export function deleteAccount(): Promise<void> {
+  return apiFetch<void>("/api/v1/users/me", { method: "DELETE" });
 }
 
 export async function subscribeAlerts(params: {

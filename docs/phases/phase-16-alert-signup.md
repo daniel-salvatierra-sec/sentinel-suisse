@@ -104,7 +104,7 @@ In development, email and WhatsApp channels are **auto-verified** so alerts can 
 
 ---
 
-## Out of scope (Phase 17+)
+## Out of scope (Phase 18+)
 
 - Email confirmation links (production verify flow)
 - Real WhatsApp QR onboarding
