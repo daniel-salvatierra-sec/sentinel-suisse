@@ -5,14 +5,16 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from sentinel_suisse.api.auth import verify_admin
+from sentinel_suisse.api.auth import get_current_user, verify_admin
 from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.user import User
+from sentinel_suisse.schemas.erasure import UserErasureReport
 from sentinel_suisse.schemas.user import UserCreate, UserCreated, UserRead, UserUpdate, to_user_read
 from sentinel_suisse.security.pii import decrypt_pii, email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
+from sentinel_suisse.services.erasure import erase_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -26,6 +28,23 @@ def list_users(
 ) -> list[UserRead]:
     users = list(db.scalars(select(User).order_by(User.id)).all())
     return [to_user_read(user) for user in users]
+
+
+@router.delete("/me", response_model=UserErasureReport)
+@limiter.limit(lambda: get_settings().rate_limit)
+def erase_current_user(
+    request: Request,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserErasureReport:
+    """Self-service account erasure (nLPD right to deletion)."""
+    result = erase_user(db, current_user)
+    return UserErasureReport(
+        user_id=result.user_id,
+        notification_channels_removed=result.notification_channels_removed,
+        saved_searches_removed=result.saved_searches_removed,
+        alert_logs_removed=result.alert_logs_removed,
+    )
 
 
 @router.get("/{user_id}", response_model=UserRead)
@@ -110,6 +129,28 @@ def update_user(
         ) from exc
     db.refresh(user)
     return to_user_read(user)
+
+
+@router.delete("/{user_id}", response_model=UserErasureReport)
+@limiter.limit(lambda: get_settings().rate_limit)
+def erase_user_by_admin(
+    request: Request,
+    user_id: int,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> UserErasureReport:
+    """Admin-initiated user erasure with cascade summary."""
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    result = erase_user(db, user)
+    return UserErasureReport(
+        user_id=result.user_id,
+        notification_channels_removed=result.notification_channels_removed,
+        saved_searches_removed=result.saved_searches_removed,
+        alert_logs_removed=result.alert_logs_removed,
+    )
 
 
 @router.post("/{user_id}/regenerate-api-key", response_model=UserCreated)

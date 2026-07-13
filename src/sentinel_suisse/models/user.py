@@ -26,8 +26,14 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    notification_channels: Mapped[list["NotificationChannel"]] = relationship(back_populates="user")
-    saved_searches: Mapped[list["SavedSearch"]] = relationship(back_populates="user")
+    notification_channels: Mapped[list["NotificationChannel"]] = relationship(
+        back_populates="user",
+        passive_deletes=True,
+    )
+    saved_searches: Mapped[list["SavedSearch"]] = relationship(
+        back_populates="user",
+        passive_deletes=True,
+    )
 
     def __repr__(self) -> str:
         return f"<User id={self.id}>"

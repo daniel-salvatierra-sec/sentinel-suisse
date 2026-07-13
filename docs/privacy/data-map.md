@@ -29,5 +29,5 @@
 
 - [x] Encrypt `email` and `channel_address` at rest
 - [ ] Publish privacy policy (FR/DE per target audience)
-- [ ] Implement right-to-erasure (delete user cascades channels + searches)
+- [x] Implement right-to-erasure (delete user cascades channels + searches)
 - [x] TTL job for `raw_payload`
