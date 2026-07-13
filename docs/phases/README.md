@@ -19,3 +19,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-9-erasure.md](phase-9-erasure.md) | Right to erasure (nLPD) |
 | [phase-10-privacy-policy.md](phase-10-privacy-policy.md) | Privacy policy FR/DE + legal API |
 | [phase-11-i18n.md](phase-11-i18n.md) | Five-language i18n (fr de es pt en) |
+| [phase-12-alert-i18n.md](phase-12-alert-i18n.md) | Localized alert templates |

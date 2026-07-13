@@ -5,6 +5,7 @@ import re
 import httpx
 
 from sentinel_suisse.config import Settings
+from sentinel_suisse.i18n.alerts import format_whatsapp_alert
 from sentinel_suisse.notifications.base import AlertMessage, Notifier
 
 _GRAPH_API_VERSION = "v21.0"
@@ -12,17 +13,6 @@ _GRAPH_API_VERSION = "v21.0"
 
 def _normalize_phone(address: str) -> str:
     return re.sub(r"\D", "", address)
-
-
-def _format_body(message: AlertMessage) -> str:
-    listing = message.listing
-    price = f"{listing.price} CHF" if listing.price is not None else "n/a"
-    return (
-        f"*{message.saved_search.name}*\n"
-        f"{listing.title}\n"
-        f"{listing.location} — {price}\n"
-        f"{listing.source_url}"
-    )
 
 
 class WhatsAppNotifier(Notifier):
@@ -46,7 +36,7 @@ class WhatsAppNotifier(Notifier):
                 "messaging_product": "whatsapp",
                 "to": phone,
                 "type": "text",
-                "text": {"body": _format_body(message)},
+                "text": {"body": format_whatsapp_alert(message)},
             },
             timeout=30.0,
         )

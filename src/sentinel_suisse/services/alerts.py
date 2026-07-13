@@ -11,6 +11,7 @@ from sentinel_suisse.models.enums import AlertStatus
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.saved_search import SavedSearch
+from sentinel_suisse.models.user import User
 from sentinel_suisse.notifications.base import AlertMessage, Notifier
 from sentinel_suisse.notifications.factory import get_notifier_for_channel
 from sentinel_suisse.schemas.search import SearchQuery
@@ -63,12 +64,15 @@ class AlertService:
                 channel_type=channel.channel_type.value,
                 status=AlertStatus.PENDING,
             )
+            user = self.db.get(User, saved_search.user_id)
+            user_locale = user.locale if user is not None else "fr"
             try:
                 alert_message = AlertMessage(
                     listing=listing,
                     saved_search=saved_search,
                     channel_address=decrypt_pii(channel.channel_address),
                     channel_type=channel.channel_type.value,
+                    locale=user_locale,
                 )
                 notifier = (
                     self._override_notifier

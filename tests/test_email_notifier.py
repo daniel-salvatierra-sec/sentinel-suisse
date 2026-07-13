@@ -77,4 +77,5 @@ def test_email_notifier_sends_message(mock_smtp: MagicMock) -> None:
     mock_smtp.assert_called_once_with("smtp.example.com", 587, timeout=30)
     smtp_instance.starttls.assert_called_once()
     smtp_instance.login.assert_called_once_with("user", "pass")
-    smtp_instance.send_message.assert_called_once()
+    sent = smtp_instance.send_message.call_args[0][0]
+    assert "Location" in sent.get_content() or "Lieu" in sent.get_content()

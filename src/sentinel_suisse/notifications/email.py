@@ -4,6 +4,7 @@ import smtplib
 from email.message import EmailMessage
 
 from sentinel_suisse.config import Settings
+from sentinel_suisse.i18n.alerts import format_email_alert
 from sentinel_suisse.notifications.base import AlertMessage, Notifier
 
 
@@ -12,16 +13,9 @@ class EmailNotifier(Notifier):
         self._settings = settings
 
     def send(self, message: AlertMessage) -> None:
-        listing = message.listing
-        body = (
-            f"New match for saved search: {message.saved_search.name}\n\n"
-            f"{listing.title}\n"
-            f"Location: {listing.location}\n"
-            f"Price: {listing.price}\n"
-            f"Link: {listing.source_url}\n"
-        )
+        subject, body = format_email_alert(message)
         email = EmailMessage()
-        email["Subject"] = f"Sentinel Suisse: {listing.title}"[:120]
+        email["Subject"] = subject
         email["From"] = self._settings.smtp_from
         email["To"] = message.channel_address
         email.set_content(body)

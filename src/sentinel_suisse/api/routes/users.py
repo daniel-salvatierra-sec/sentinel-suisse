@@ -75,6 +75,7 @@ def create_user(
         email_lookup=email_lookup(plain_email),
         email=encrypt_pii(plain_email),
         is_active=payload.is_active,
+        locale=payload.locale,
         api_token_hash=hash_api_token(api_key),
     )
     db.add(user)
@@ -90,6 +91,7 @@ def create_user(
     return UserCreated(
         id=user.id,
         email=plain_email,
+        locale=user.locale,  # type: ignore[arg-type]
         is_active=user.is_active,
         created_at=user.created_at,
         api_key=api_key,
@@ -172,6 +174,7 @@ def regenerate_api_key(
     return UserCreated(
         id=user.id,
         email=decrypt_pii(user.email),
+        locale=user.locale,  # type: ignore[arg-type]
         is_active=user.is_active,
         created_at=user.created_at,
         api_key=api_key,
