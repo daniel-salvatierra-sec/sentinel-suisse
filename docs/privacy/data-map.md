@@ -1,7 +1,7 @@
 # Privacy & data map (nLPD)
 
-**Status:** Design phase — pre-production  
-**Last updated:** 2026-07-10
+**Status:** Pre-production — privacy policies published (API)  
+**Last updated:** 2026-07-13
 
 ## Personal data collected
 
@@ -28,6 +28,6 @@
 ## Before production
 
 - [x] Encrypt `email` and `channel_address` at rest
-- [ ] Publish privacy policy (FR/DE per target audience)
+- [x] Publish privacy policy (FR/DE per target audience) — `GET /api/v1/legal/privacy?lang=fr|de`
 - [x] Implement right-to-erasure (delete user cascades channels + searches)
 - [x] TTL job for `raw_payload`

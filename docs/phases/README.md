@@ -17,3 +17,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-7-whatsapp.md](phase-7-whatsapp.md) | WhatsApp alerts + ingest dispatch |
 | [phase-8-privacy.md](phase-8-privacy.md) | PII encryption + raw_payload TTL |
 | [phase-9-erasure.md](phase-9-erasure.md) | Right to erasure (nLPD) |
+| [phase-10-privacy-policy.md](phase-10-privacy-policy.md) | Privacy policy FR/DE + legal API |

@@ -8,6 +8,7 @@ from slowapi.middleware import SlowAPIMiddleware
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.api.routes import (
     alerts,
+    legal,
     listings,
     notification_channels,
     providers,
@@ -22,7 +23,7 @@ settings = get_settings()
 app = FastAPI(
     title="Sentinel Suisse API",
     description="Internal API — localhost only until public launch",
-    version="0.9.0",
+    version="0.10.0",
     docs_url="/docs" if settings.app_env == "development" else None,
     redoc_url=None,
 )
@@ -38,6 +39,7 @@ app.include_router(users.router, prefix="/api/v1")
 app.include_router(saved_searches.router, prefix="/api/v1")
 app.include_router(notification_channels.router, prefix="/api/v1")
 app.include_router(alerts.router, prefix="/api/v1")
+app.include_router(legal.router, prefix="/api/v1")
 
 
 def custom_openapi() -> dict:
