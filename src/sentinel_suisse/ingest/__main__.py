@@ -21,6 +21,13 @@ from sentinel_suisse.ingest.connectors.homegate import (
 from sentinel_suisse.ingest.connectors.homegate import (
     fetch_search_listings as fetch_homegate_listings,
 )
+from sentinel_suisse.ingest.connectors.immoscout import (
+    ImmoscoutDisabledError,
+    ImmoscoutFetchError,
+)
+from sentinel_suisse.ingest.connectors.immoscout import (
+    fetch_search_listings as fetch_immoscout_listings,
+)
 from sentinel_suisse.ingest.connectors.jobs import (
     JobsDisabledError,
     JobsFetchError,
@@ -35,6 +42,7 @@ _LIVE_CONNECTORS = {
     "homegate": fetch_homegate_listings,
     "jobs": fetch_jobs_listings,
     "flatfox": fetch_flatfox_listings,
+    "immoscout": fetch_immoscout_listings,
 }
 
 
@@ -43,7 +51,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, jobs, flatfox)",
+        help="Provider slug (e.g. homegate, jobs, flatfox, immoscout)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -88,6 +96,8 @@ def main() -> None:
         JobsFetchError,
         FlatfoxDisabledError,
         FlatfoxFetchError,
+        ImmoscoutDisabledError,
+        ImmoscoutFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

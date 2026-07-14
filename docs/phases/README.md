@@ -27,3 +27,5 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-17-account-ui.md](phase-17-account-ui.md) | Account panel (saved searches, history, erasure) |
 | [phase-18-email-verify.md](phase-18-email-verify.md) | Email verification links for signup |
 | [phase-19-whatsapp-verify.md](phase-19-whatsapp-verify.md) | WhatsApp channel verification |
+| [phase-20-flatfox.md](phase-20-flatfox.md) | Flatfox housing connector |
+| [phase-21-immoscout.md](phase-21-immoscout.md) | ImmoScout24 housing connector |

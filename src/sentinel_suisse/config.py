@@ -45,6 +45,7 @@ class Settings(BaseSettings):
     ingest_homegate_live: bool = False
     ingest_jobs_live: bool = False
     ingest_flatfox_live: bool = False
+    ingest_immoscout_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
@@ -52,6 +53,7 @@ class Settings(BaseSettings):
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
     flatfox_search_url: str = "https://flatfox.ch/en/search/?place=Geneva"
+    immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

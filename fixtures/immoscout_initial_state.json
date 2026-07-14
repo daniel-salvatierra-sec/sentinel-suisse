@@ -1,0 +1,22 @@
+{
+  "resultList": {
+    "listData": [
+      {
+        "id": "400555666",
+        "title": "Appartement 2.5 pièces à Genève",
+        "description": "Balcon, proche tram.",
+        "address": {"locality": "Genève", "postalCode": "1204"},
+        "price": {"gross": 2100},
+        "detailUrl": "/fr/d/400555666"
+      },
+      {
+        "id": "400777888",
+        "title": "Loft à Vernier",
+        "description": "Espace ouvert, parking.",
+        "address": {"locality": "Vernier", "postalCode": "1214"},
+        "price": {"gross": 1890},
+        "url": "/fr/d/400777888"
+      }
+    ]
+  }
+}

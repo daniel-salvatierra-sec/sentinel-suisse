@@ -14,6 +14,7 @@ function sourceLabel(url: string): string {
     const host = new URL(url).hostname.replace(/^www\./, "");
     if (host.includes("flatfox")) return "Flatfox";
     if (host.includes("homegate")) return "Homegate";
+    if (host.includes("immoscout24") || host.includes("immoscout")) return "ImmoScout24";
     if (host.includes("jobs.ch")) return "jobs.ch";
     return host;
   } catch {
