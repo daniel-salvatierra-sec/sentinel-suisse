@@ -7,19 +7,33 @@ import {
   fetchSavedSearches,
   getApiKey,
   type AlertLog,
+  type ListingType,
   type SavedSearch,
   type UserProfile,
 } from "../api";
-import type { Messages } from "../i18n";
+import { AlertSignup } from "./AlertSignup";
+import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useState } from "react";
 
 type Props = {
   t: Messages;
+  locale: Lang;
+  listingType: ListingType;
+  location: string;
   refreshToken: number;
+  onSignupSuccess: () => void;
   onLoggedOut: () => void;
 };
 
-export function AccountPanel({ t, refreshToken, onLoggedOut }: Props) {
+export function AccountPanel({
+  t,
+  locale,
+  listingType,
+  location,
+  refreshToken,
+  onSignupSuccess,
+  onLoggedOut,
+}: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
   const [alerts, setAlerts] = useState<AlertLog[]>([]);
@@ -58,9 +72,13 @@ export function AccountPanel({ t, refreshToken, onLoggedOut }: Props) {
 
   if (!getApiKey()) {
     return (
-      <section className="account-panel">
-        <p className="empty">{t.accountLoginHint}</p>
-      </section>
+      <AlertSignup
+        t={t}
+        locale={locale}
+        listingType={listingType}
+        location={location}
+        onSuccess={onSignupSuccess}
+      />
     );
   }
 

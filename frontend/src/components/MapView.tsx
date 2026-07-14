@@ -20,7 +20,23 @@ L.Marker.prototype.options.icon = defaultIcon;
 type Props = {
   listings: Listing[];
   focusId: number | null;
+  searchQuery?: string;
 };
+
+function mapCenter(
+  listings: Listing[],
+  focusId: number | null,
+  searchQuery?: string,
+): [number, number] {
+  const focusListing = listings.find((item) => item.id === focusId);
+  if (focusListing?.location) {
+    return coordsForLocation(focusListing.location);
+  }
+  if (searchQuery?.trim()) {
+    return coordsForLocation(searchQuery.trim());
+  }
+  return coordsForLocation(listings[0]?.location ?? null);
+}
 
 function MapFocus({ center, zoom }: { center: [number, number]; zoom: number }) {
   const map = useMap();
@@ -30,9 +46,9 @@ function MapFocus({ center, zoom }: { center: [number, number]; zoom: number }) 
   return null;
 }
 
-export function MapView({ listings, focusId }: Props) {
-  const focusListing = listings.find((item) => item.id === focusId) ?? listings[0];
-  const center = coordsForLocation(focusListing?.location ?? null);
+export function MapView({ listings, focusId, searchQuery }: Props) {
+  const focusListing = listings.find((item) => item.id === focusId);
+  const center = mapCenter(listings, focusId, searchQuery);
 
   return (
     <div className="map-wrap">
@@ -41,7 +57,7 @@ export function MapView({ listings, focusId }: Props) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapFocus center={center} zoom={focusListing ? 13 : 8} />
+        <MapFocus center={center} zoom={focusListing || searchQuery?.trim() ? 13 : 8} />
         {listings.map((listing) => {
           const coords = coordsForLocation(listing.location);
           return (

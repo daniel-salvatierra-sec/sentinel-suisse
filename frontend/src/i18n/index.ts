@@ -61,9 +61,18 @@ export type Messages = {
   accountLoginHint: string;
   accountError: string;
   viewAccount: string;
+  accountSignupTitle: string;
+  accountSignupDesc: string;
+  accountSignupCta: string;
+  alertsMyPreferences: string;
+  alertsGoToAccount: string;
+  countryCodeSearch: string;
   verifySuccess: string;
+  verifySuccessWhatsapp: string;
   verifyError: string;
   alertCheckEmail: string;
+  alertCheckWhatsapp: string;
+  whatsappVerifyHint: string;
 };
 
 import fr from "./locales/fr.json";

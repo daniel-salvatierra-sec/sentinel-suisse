@@ -46,10 +46,19 @@
   "accountDelete": "Konto löschen",
   "accountConfirmDelete": "Löschen bestätigen",
   "accountDeleteWarning": "Diese Aktion ist endgültig (nDSG).",
-  "accountLoginHint": "Aktivieren Sie einen Alert, um Ihr Konto zu sehen.",
+  "accountLoginHint": "Erstellen Sie ein Konto unter Konto, um Alerts zu aktivieren.",
   "accountError": "Sitzung abgelaufen oder ungültig.",
   "viewAccount": "Mein Konto anzeigen",
+  "accountSignupTitle": "Konto erstellen",
+  "accountSignupDesc": "Registrieren Sie sich für Wohnungs- und Job-Alerts.",
+  "accountSignupCta": "Registrieren",
+  "alertsMyPreferences": "Meine Alerts",
+  "alertsGoToAccount": "Erstellen Sie ein Konto unter Konto, um Alerts zu aktivieren.",
+  "countryCodeSearch": "Land suchen…",
   "verifySuccess": "E-Mail bestätigt — Ihre Alerts sind aktiv.",
+  "verifySuccessWhatsapp": "WhatsApp bestätigt — Ihre Alerts sind aktiv.",
   "verifyError": "Bestätigungslink ungültig oder abgelaufen.",
-  "alertCheckEmail": "Prüfen Sie Ihr Postfach und klicken Sie auf den Bestätigungslink."
+  "alertCheckEmail": "Prüfen Sie Ihr Postfach und klicken Sie auf den Bestätigungslink.",
+  "alertCheckWhatsapp": "Öffnen Sie WhatsApp und tippen Sie auf den Bestätigungslink.",
+  "whatsappVerifyHint": "Mit WhatsApp-Nummer erhalten Sie den Bestätigungslink auch per Nachricht."
 }

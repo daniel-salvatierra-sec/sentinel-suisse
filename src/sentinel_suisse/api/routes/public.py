@@ -8,8 +8,10 @@ from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.schemas.listing import ListingRead
 from sentinel_suisse.schemas.public_signup import (
+    ChannelVerificationResponse,
     EmailVerificationResponse,
     PublicAlertSignup,
     PublicAlertSignupResponse,
@@ -17,6 +19,8 @@ from sentinel_suisse.schemas.public_signup import (
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.email_verification import (
     send_channel_verification_email,
+    send_channel_verification_whatsapp,
+    verify_channel_by_token,
     verify_email_channel,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
@@ -83,6 +87,7 @@ def public_signup(
         ) from exc
 
     verification_email_sent = False
+    whatsapp_verification_sent = False
     if not auto_verify:
         send_channel_verification_email(
             settings,
@@ -92,6 +97,15 @@ def public_signup(
             user_id=result.user.id,
         )
         verification_email_sent = True
+        if payload.phone and result.whatsapp_channel_id is not None:
+            send_channel_verification_whatsapp(
+                settings,
+                phone=payload.phone,
+                locale=payload.locale,
+                channel_id=result.whatsapp_channel_id,
+                user_id=result.user.id,
+            )
+            whatsapp_verification_sent = True
 
     verification_pending = not result.email_verified or (
         payload.phone is not None and not result.whatsapp_verified
@@ -104,7 +118,32 @@ def public_signup(
         whatsapp_verified=result.whatsapp_verified,
         verification_pending=verification_pending,
         verification_email_sent=verification_email_sent,
+        whatsapp_verification_sent=whatsapp_verification_sent,
     )
+
+
+def _verify_channel_response(channel: NotificationChannel) -> ChannelVerificationResponse:
+    label = channel.channel_type.value
+    return ChannelVerificationResponse(
+        verified=True,
+        channel_type=label,
+        message=f"{label} channel verified",
+    )
+
+
+@router.get("/verify-channel", response_model=ChannelVerificationResponse)
+@limiter.limit("20/minute")
+def public_verify_channel(
+    request: Request,
+    token: str = Query(min_length=10),
+    db: Session = Depends(get_db),
+) -> ChannelVerificationResponse:
+    """Confirm any notification channel via signed link (all environments)."""
+    try:
+        channel = verify_channel_by_token(db, token)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return _verify_channel_response(channel)
 
 
 @router.get("/verify-email", response_model=EmailVerificationResponse)
@@ -120,8 +159,5 @@ def public_verify_email(
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
 
-    return EmailVerificationResponse(
-        verified=True,
-        channel_type=channel.channel_type.value,
-        message="Email channel verified",
-    )
+    response = _verify_channel_response(channel)
+    return EmailVerificationResponse(**response.model_dump())

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { formatFullPhone } from "../countryCodes";
 import { subscribeAlerts, type ListingType } from "../api";
+import { CountryCodePicker } from "./CountryCodePicker";
 import type { Lang, Messages } from "../i18n";
 
 type Props = {
@@ -7,18 +9,29 @@ type Props = {
   locale: Lang;
   listingType: ListingType;
   location: string;
-  id?: string;
   onSuccess?: () => void;
+  showHeader?: boolean;
 };
 
 type Status = "idle" | "loading" | "success" | "pending" | "error";
 
-export function AlertSignup({ t, locale, listingType, location, id = "alerts", onSuccess }: Props) {
-  const [phone, setPhone] = useState("");
+export function AlertSignup({
+  t,
+  locale,
+  listingType,
+  location,
+  onSuccess,
+  showHeader = true,
+}: Props) {
+  const [dial, setDial] = useState("+41");
+  const [phoneLocal, setPhoneLocal] = useState("");
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
+  const [pendingWhatsApp, setPendingWhatsApp] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+
+  const fullPhone = formatFullPhone(dial, phoneLocal);
 
   const handleSubmit = async () => {
     if (!email.trim()) {
@@ -37,15 +50,17 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
     try {
       const result = await subscribeAlerts({
         email: email.trim(),
-        phone: phone.trim() || undefined,
+        phone: fullPhone || undefined,
         locale,
         listing_type: listingType,
         location,
       });
-      if (result.verification_email_sent) {
+      if (result.verification_email_sent || result.verification_pending) {
+        setPendingWhatsApp(Boolean(result.whatsapp_verification_sent));
         setStatus("pending");
       } else {
-        setStatus(result.verification_pending ? "pending" : "success");
+        setPendingWhatsApp(false);
+        setStatus("success");
       }
       onSuccess?.();
     } catch (error) {
@@ -58,14 +73,16 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
   };
 
   return (
-    <section className="alert-panel" id={id}>
-      <h2 style={{ marginTop: 0 }}>{t.alertsTitle}</h2>
-      <p>{t.alertsDesc}</p>
-      <div className="qr-placeholder" aria-hidden>
-        QR
-        <br />
-        WhatsApp
-      </div>
+    <section className="alert-panel" id="signup">
+      {showHeader && (
+        <>
+          <h2 style={{ marginTop: 0 }}>{t.accountSignupTitle}</h2>
+          <p>{t.accountSignupDesc}</p>
+        </>
+      )}
+      {phoneLocal.trim() && (
+        <p className="whatsapp-hint">{t.whatsappVerifyHint}</p>
+      )}
       <label>
         {t.email}
         <input
@@ -76,15 +93,14 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
           placeholder="you@example.com"
         />
       </label>
-      <label>
-        {t.phone}
-        <input
-          type="tel"
-          value={phone}
-          onChange={(event) => setPhone(event.target.value)}
-          placeholder="+41 79 …"
-        />
-      </label>
+      <CountryCodePicker
+        lang={locale}
+        t={t}
+        dial={dial}
+        local={phoneLocal}
+        onDialChange={setDial}
+        onLocalChange={setPhoneLocal}
+      />
       <label className="consent-row">
         <input
           type="checkbox"
@@ -100,13 +116,18 @@ export function AlertSignup({ t, locale, listingType, location, id = "alerts", o
         disabled={status === "loading"}
         onClick={() => void handleSubmit()}
       >
-        {status === "loading" ? t.loading : t.saveSearch}
+        {status === "loading" ? t.loading : t.accountSignupCta}
       </button>
       {status === "success" && (
         <p className="alert-feedback success">{t.alertSuccess}</p>
       )}
       {status === "pending" && (
-        <p className="alert-feedback pending">{t.alertCheckEmail}</p>
+        <>
+          <p className="alert-feedback pending">{t.alertCheckEmail}</p>
+          {pendingWhatsApp && (
+            <p className="alert-feedback pending">{t.alertCheckWhatsapp}</p>
+          )}
+        </>
       )}
       {status === "error" && errorMessage && (
         <p className="alert-feedback error">{errorMessage}</p>

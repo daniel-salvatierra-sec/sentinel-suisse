@@ -31,9 +31,14 @@ class PublicAlertSignupResponse(BaseModel):
     whatsapp_verified: bool
     verification_pending: bool
     verification_email_sent: bool = False
+    whatsapp_verification_sent: bool = False
 
 
-class EmailVerificationResponse(BaseModel):
+class ChannelVerificationResponse(BaseModel):
     verified: bool
-    channel_type: str = "email"
+    channel_type: str
     message: str
+
+
+class EmailVerificationResponse(ChannelVerificationResponse):
+    """Backward-compatible alias."""

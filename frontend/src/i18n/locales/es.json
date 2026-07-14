@@ -46,10 +46,19 @@
   "accountDelete": "Eliminar mi cuenta",
   "accountConfirmDelete": "Confirmar eliminación",
   "accountDeleteWarning": "Esta acción es definitiva (nLPD).",
-  "accountLoginHint": "Activa una alerta para acceder a tu cuenta.",
+  "accountLoginHint": "Crea una cuenta en la pestaña Cuenta para activar alertas.",
   "accountError": "Sesión expirada o inválida.",
   "viewAccount": "Ver mi cuenta",
+  "accountSignupTitle": "Crear mi cuenta",
+  "accountSignupDesc": "Regístrate para recibir alertas de vivienda y empleo.",
+  "accountSignupCta": "Registrarse",
+  "alertsMyPreferences": "Mis alertas",
+  "alertsGoToAccount": "Crea una cuenta en Cuenta para activar tus alertas.",
+  "countryCodeSearch": "Buscar país…",
   "verifySuccess": "Email confirmado — tus alertas están activas.",
+  "verifySuccessWhatsapp": "WhatsApp confirmado — tus alertas están activas.",
   "verifyError": "Enlace de confirmación inválido o caducado.",
-  "alertCheckEmail": "Revisa tu correo y haz clic en el enlace de confirmación."
+  "alertCheckEmail": "Revisa tu correo y haz clic en el enlace de confirmación.",
+  "alertCheckWhatsapp": "Abre WhatsApp y pulsa el enlace de confirmación.",
+  "whatsappVerifyHint": "Con número WhatsApp, el enlace de confirmación también se envía por mensaje."
 }

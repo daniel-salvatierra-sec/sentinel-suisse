@@ -21,6 +21,7 @@ class PublicSignupResult:
     api_key: str
     saved_search: SavedSearch
     email_channel_id: int
+    whatsapp_channel_id: int | None
     email_verified: bool
     whatsapp_verified: bool
 
@@ -60,6 +61,7 @@ def subscribe_public_alert(
 
     email_verified = False
     whatsapp_verified = False
+    whatsapp_channel_id: int | None = None
 
     email_channel = NotificationChannel(
         user_id=user.id,
@@ -86,6 +88,8 @@ def subscribe_public_alert(
             created_at=now,
         )
         db.add(whatsapp_channel)
+        db.flush()
+        whatsapp_channel_id = whatsapp_channel.id
         whatsapp_verified = auto_verify_channels
 
     saved_search = SavedSearch(
@@ -111,6 +115,7 @@ def subscribe_public_alert(
         api_key=api_key,
         saved_search=saved_search,
         email_channel_id=email_channel.id,
+        whatsapp_channel_id=whatsapp_channel_id,
         email_verified=email_verified,
         whatsapp_verified=whatsapp_verified,
     )

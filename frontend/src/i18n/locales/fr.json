@@ -46,10 +46,19 @@
   "accountDelete": "Supprimer mon compte",
   "accountConfirmDelete": "Confirmer la suppression",
   "accountDeleteWarning": "Cette action est définitive (nLPD).",
-  "accountLoginHint": "Activez une alerte pour accéder à votre compte.",
+  "accountLoginHint": "Créez un compte dans l'onglet Compte pour activer les alertes.",
   "accountError": "Session expirée ou invalide. Réactivez une alerte.",
   "viewAccount": "Voir mon compte",
+  "accountSignupTitle": "Créer mon compte",
+  "accountSignupDesc": "Inscrivez-vous pour recevoir des alertes logement et emploi.",
+  "accountSignupCta": "S'inscrire",
+  "alertsMyPreferences": "Mes alertes",
+  "alertsGoToAccount": "Créez un compte dans l'onglet Compte pour activer vos alertes.",
+  "countryCodeSearch": "Rechercher un pays…",
   "verifySuccess": "E-mail confirmé — vos alertes sont actives.",
+  "verifySuccessWhatsapp": "WhatsApp confirmé — vos alertes sont actives.",
   "verifyError": "Lien de confirmation invalide ou expiré.",
-  "alertCheckEmail": "Consultez votre boîte mail et cliquez sur le lien de confirmation."
+  "alertCheckEmail": "Consultez votre boîte mail et cliquez sur le lien de confirmation.",
+  "alertCheckWhatsapp": "Ouvrez WhatsApp et cliquez sur le lien de confirmation.",
+  "whatsappVerifyHint": "Si vous ajoutez WhatsApp, le lien de confirmation sera aussi envoyé par message."
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { getApiKey, searchListings, type Listing, type ListingType } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
-import { AlertSignup } from "./components/AlertSignup";
+import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { CategoryCards } from "./components/CategoryCards";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
@@ -103,7 +103,7 @@ export default function App() {
       {error && (tab === "list" || tab === "map") && <p className="empty">{t.noResults}</p>}
 
       {tab === "map" && !loading && !error && listings.length > 0 && (
-        <MapView listings={listings} focusId={focusId} />
+        <MapView listings={listings} focusId={focusId} searchQuery={query} />
       )}
 
       {tab === "list" && !loading && !error && (
@@ -128,17 +128,23 @@ export default function App() {
       )}
 
       {tab === "alerts" && (
-        <AlertSignup
+        <MyAlertsPanel
           t={t}
-          locale={lang}
-          listingType={category}
-          location={query}
-          onSuccess={onSignupSuccess}
+          refreshToken={accountRefresh}
+          onGoToAccount={() => setTab("account")}
         />
       )}
 
       {tab === "account" && (
-        <AccountPanel t={t} refreshToken={accountRefresh} onLoggedOut={onLoggedOut} />
+        <AccountPanel
+          t={t}
+          locale={lang}
+          listingType={category}
+          location={query}
+          refreshToken={accountRefresh}
+          onSignupSuccess={onSignupSuccess}
+          onLoggedOut={onLoggedOut}
+        />
       )}
 
       <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
@@ -152,8 +158,7 @@ export default function App() {
           setTab("list");
         }}
         onOpenAlerts={() => {
-          setTab("alerts");
-          document.getElementById("alerts")?.scrollIntoView({ behavior: "smooth" });
+          setTab(hasSession ? "alerts" : "account");
         }}
       />
     </div>

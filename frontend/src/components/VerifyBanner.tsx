@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { verifyEmailToken } from "../api";
+import { verifyChannelToken } from "../api";
 import type { Messages } from "../i18n";
 
 type Props = {
@@ -11,14 +11,16 @@ type Status = "idle" | "loading" | "success" | "error";
 
 export function VerifyBanner({ t, onVerified }: Props) {
   const [status, setStatus] = useState<Status>("idle");
+  const [channelType, setChannelType] = useState<string>("email");
 
   useEffect(() => {
     const token = new URLSearchParams(window.location.search).get("verify");
     if (!token) return;
 
     setStatus("loading");
-    void verifyEmailToken(token)
-      .then(() => {
+    void verifyChannelToken(token)
+      .then((result) => {
+        setChannelType(result.channel_type);
         setStatus("success");
         onVerified();
       })
@@ -32,9 +34,12 @@ export function VerifyBanner({ t, onVerified }: Props) {
     return null;
   }
 
+  const successMessage =
+    channelType === "whatsapp" ? t.verifySuccessWhatsapp : t.verifySuccess;
+
   return (
     <div className={`verify-banner ${status}`}>
-      {status === "success" ? t.verifySuccess : t.verifyError}
+      {status === "success" ? successMessage : t.verifyError}
     </div>
   );
 }

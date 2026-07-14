@@ -41,6 +41,7 @@ export type SignupResponse = {
   whatsapp_verified: boolean;
   verification_pending: boolean;
   verification_email_sent?: boolean;
+  whatsapp_verification_sent?: boolean;
 };
 
 const API_KEY_STORAGE = "suisse-alert-api-key";
@@ -131,13 +132,21 @@ export function deleteAccount(): Promise<void> {
   return apiFetch<void>("/api/v1/users/me", { method: "DELETE" });
 }
 
-export async function verifyEmailToken(token: string): Promise<void> {
+export async function verifyChannelToken(
+  token: string,
+): Promise<{ channel_type: string }> {
   const response = await fetch(
-    `/api/v1/public/verify-email?token=${encodeURIComponent(token)}`,
+    `/api/v1/public/verify-channel?token=${encodeURIComponent(token)}`,
   );
   if (!response.ok) {
     throw new Error("verify failed");
   }
+  return response.json() as Promise<{ channel_type: string }>;
+}
+
+/** @deprecated use verifyChannelToken */
+export async function verifyEmailToken(token: string): Promise<void> {
+  await verifyChannelToken(token);
 }
 
 export async function subscribeAlerts(params: {

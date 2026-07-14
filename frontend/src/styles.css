@@ -330,7 +330,108 @@ body {
 }
 
 
-.qr-placeholder {
+.phone-field {
+  margin-bottom: 0.5rem;
+}
+
+.phone-field > label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.phone-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.country-picker {
+  position: relative;
+  flex: 0 0 110px;
+}
+
+.country-trigger {
+  width: 100%;
+  padding: 0.65rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 0.6rem;
+  background: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.country-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  margin-top: 0.25rem;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 0.6rem;
+  box-shadow: var(--shadow);
+  max-height: 220px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.country-dropdown input {
+  margin: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.4rem;
+  width: calc(100% - 1rem);
+}
+
+.country-dropdown ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+}
+
+.country-dropdown li button {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: white;
+  cursor: pointer;
+  text-align: left;
+  font-size: 0.85rem;
+}
+
+.country-dropdown li button:hover {
+  background: var(--mist);
+}
+
+.country-dial {
+  color: var(--lake);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.phone-local {
+  flex: 1;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.6rem;
+}
+
+.whatsapp-hint {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  margin: 0 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: #e8f5ec;
+  border-radius: 0.6rem;
+  color: var(--mountain);
+}
+
   width: 120px;
   height: 120px;
   border: 2px dashed var(--lake);

@@ -78,7 +78,7 @@ Without SMTP, verification URL is logged to stdout (same as console notifier pat
 
 ---
 
-## Out of scope (Phase 19+)
+## Out of scope (Phase 20+)
 
 - WhatsApp QR onboarding
 - Additional portals

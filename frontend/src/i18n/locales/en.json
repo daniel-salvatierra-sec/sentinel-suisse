@@ -46,10 +46,19 @@
   "accountDelete": "Delete my account",
   "accountConfirmDelete": "Confirm deletion",
   "accountDeleteWarning": "This action is permanent (nFADP).",
-  "accountLoginHint": "Enable an alert to access your account.",
+  "accountLoginHint": "Create an account in the Account tab to enable alerts.",
   "accountError": "Session expired or invalid.",
   "viewAccount": "View my account",
+  "accountSignupTitle": "Create my account",
+  "accountSignupDesc": "Sign up to receive housing and job alerts.",
+  "accountSignupCta": "Sign up",
+  "alertsMyPreferences": "My alerts",
+  "alertsGoToAccount": "Create an account in Account to enable your alerts.",
+  "countryCodeSearch": "Search country…",
   "verifySuccess": "Email confirmed — your alerts are active.",
+  "verifySuccessWhatsapp": "WhatsApp confirmed — your alerts are active.",
   "verifyError": "Confirmation link invalid or expired.",
-  "alertCheckEmail": "Check your inbox and click the confirmation link."
+  "alertCheckEmail": "Check your inbox and click the confirmation link.",
+  "alertCheckWhatsapp": "Open WhatsApp and tap the confirmation link.",
+  "whatsappVerifyHint": "With a WhatsApp number, the confirmation link is also sent by message."
 }
