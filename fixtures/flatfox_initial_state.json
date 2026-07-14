@@ -1,0 +1,22 @@
+{
+  "search": {
+    "results": [
+      {
+        "id": "800111222",
+        "title": "Appartement 3.5 pièces à Genève",
+        "description": "Lumineux, proche des transports.",
+        "address": {"locality": "Genève", "postalCode": "1201"},
+        "rent_gross": 2300,
+        "url": "/en/flat/800111222/"
+      },
+      {
+        "id": "800333444",
+        "title": "Studio à Carouge",
+        "description": "Calme, proche du centre.",
+        "address": {"locality": "Carouge", "postalCode": "1227"},
+        "rent_gross": 1450,
+        "url": "/en/flat/800333444/"
+      }
+    ]
+  }
+}

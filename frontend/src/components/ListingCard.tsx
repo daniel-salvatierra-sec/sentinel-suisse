@@ -9,8 +9,21 @@ type Props = {
   onSelect: () => void;
 };
 
+function sourceLabel(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, "");
+    if (host.includes("flatfox")) return "Flatfox";
+    if (host.includes("homegate")) return "Homegate";
+    if (host.includes("jobs.ch")) return "jobs.ch";
+    return host;
+  } catch {
+    return "—";
+  }
+}
+
 export function ListingCard({ listing, t, selected, onSelect }: Props) {
   const coords = coordsForLocation(listing.location);
+  const provider = sourceLabel(listing.source_url);
   return (
     <article
       className="listing-card"
@@ -28,6 +41,7 @@ export function ListingCard({ listing, t, selected, onSelect }: Props) {
         {listing.price != null && listing.listing_type === "housing" && (
           <> · {listing.price} {t.priceMonthly}</>
         )}
+        <> · {provider}</>
       </div>
       <a href={listing.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
         {t.openSource}

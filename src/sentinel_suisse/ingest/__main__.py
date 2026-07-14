@@ -7,6 +7,13 @@ from pathlib import Path
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.db.session import SessionLocal
 from sentinel_suisse.ingest.connectors.fixture import load_fixture
+from sentinel_suisse.ingest.connectors.flatfox import (
+    FlatfoxDisabledError,
+    FlatfoxFetchError,
+)
+from sentinel_suisse.ingest.connectors.flatfox import (
+    fetch_search_listings as fetch_flatfox_listings,
+)
 from sentinel_suisse.ingest.connectors.homegate import (
     HomegateDisabledError,
     HomegateFetchError,
@@ -27,6 +34,7 @@ from sentinel_suisse.services.alerts import AlertService
 _LIVE_CONNECTORS = {
     "homegate": fetch_homegate_listings,
     "jobs": fetch_jobs_listings,
+    "flatfox": fetch_flatfox_listings,
 }
 
 
@@ -35,7 +43,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, jobs)",
+        help="Provider slug (e.g. homegate, jobs, flatfox)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -78,6 +86,8 @@ def main() -> None:
         HomegateFetchError,
         JobsDisabledError,
         JobsFetchError,
+        FlatfoxDisabledError,
+        FlatfoxFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)
