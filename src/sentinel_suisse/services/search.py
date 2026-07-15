@@ -28,6 +28,7 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
         stmt = stmt.where(Listing.price >= filters.price_min)
     if filters.price_max is not None:
         stmt = stmt.where(Listing.price <= filters.price_max)
-    if filters.provider_id is not None:
-        stmt = stmt.where(Listing.provider_id == filters.provider_id)
+    provider_ids = filters.resolved_provider_ids()
+    if provider_ids is not None:
+        stmt = stmt.where(Listing.provider_id.in_(provider_ids))
     return stmt

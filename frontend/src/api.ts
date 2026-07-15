@@ -32,7 +32,7 @@ export async function searchListings(params: {
   location?: string;
   price_min?: number;
   price_max?: number;
-  provider_id?: number;
+  provider_ids?: number[];
   limit?: number;
   offset?: number;
 }): Promise<Listing[]> {
@@ -47,8 +47,10 @@ export async function searchListings(params: {
   if (params.price_max != null && !Number.isNaN(params.price_max)) {
     query.set("price_max", String(params.price_max));
   }
-  if (params.provider_id != null) {
-    query.set("provider_id", String(params.provider_id));
+  if (params.provider_ids?.length) {
+    for (const id of params.provider_ids) {
+      query.append("provider_ids", String(id));
+    }
   }
   query.set("limit", String(params.limit ?? 20));
   query.set("offset", String(params.offset ?? 0));

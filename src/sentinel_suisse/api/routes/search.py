@@ -27,6 +27,7 @@ def search(
     price_min: float | None = Query(default=None, ge=0),
     price_max: float | None = Query(default=None, ge=0),
     provider_id: int | None = Query(default=None, gt=0),
+    provider_ids: list[int] | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[ListingRead]:
@@ -37,6 +38,7 @@ def search(
             price_min=price_min,
             price_max=price_max,
             provider_id=provider_id,
+            provider_ids=provider_ids,
         )
     except ValidationError as exc:
         raise HTTPException(

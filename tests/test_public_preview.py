@@ -105,6 +105,27 @@ def test_public_providers_and_provider_filter(dev_client: TestClient) -> None:
     for item in filtered.json():
         assert item["provider_id"] == provider_id
 
+    if len(data) < 2:
+        return
+
+    id_a, id_b = data[0]["id"], data[1]["id"]
+    multi = dev_client.get(
+        f"/api/v1/public/search?listing_type=housing"
+        f"&provider_ids={id_a}&provider_ids={id_b}&limit=50"
+    )
+    assert multi.status_code == 200, multi.text
+    allowed = {id_a, id_b}
+    for item in multi.json():
+        assert item["provider_id"] in allowed
+
+    combined = dev_client.get(
+        f"/api/v1/public/search?listing_type=housing"
+        f"&provider_id={id_a}&provider_ids={id_b}&limit=50"
+    )
+    assert combined.status_code == 200, combined.text
+    for item in combined.json():
+        assert item["provider_id"] in allowed
+
 
 def test_public_providers_hidden_in_production(prod_client: TestClient) -> None:
     response = prod_client.get("/api/v1/public/providers")

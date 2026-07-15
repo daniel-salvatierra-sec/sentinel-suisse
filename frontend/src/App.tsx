@@ -41,7 +41,7 @@ export default function App() {
   const [appliedPriceMin, setAppliedPriceMin] = useState("");
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [providers, setProviders] = useState<Provider[]>([]);
-  const [providerId, setProviderId] = useState<number | null>(null);
+  const [providerIds, setProviderIds] = useState<number[]>([]);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -91,7 +91,7 @@ export default function App() {
         location: query,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
-        provider_id: providerId ?? undefined,
+        provider_ids: providerIds.length ? providerIds : undefined,
         limit: SEARCH_PAGE_SIZE,
         offset: 0,
       });
@@ -105,7 +105,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax, providerId]);
+  }, [category, query, appliedPriceMin, appliedPriceMax, providerIds]);
 
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
@@ -116,7 +116,7 @@ export default function App() {
         location: query,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
-        provider_id: providerId ?? undefined,
+        provider_ids: providerIds.length ? providerIds : undefined,
         limit: SEARCH_PAGE_SIZE,
         offset: listings.length,
       });
@@ -127,7 +127,7 @@ export default function App() {
     } finally {
       setLoadingMore(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax, providerId, listings.length]);
+  }, [category, query, appliedPriceMin, appliedPriceMax, providerIds, listings.length]);
 
   const applyFilters = () => {
     setAppliedPriceMin(priceMin);
@@ -179,8 +179,8 @@ export default function App() {
         t={t}
         showPrice={category === "housing"}
         providers={providers}
-        providerId={providerId}
-        onProviderChange={setProviderId}
+        providerIds={providerIds}
+        onProviderIdsChange={setProviderIds}
         priceMin={priceMin}
         priceMax={priceMax}
         onPriceMinChange={setPriceMin}

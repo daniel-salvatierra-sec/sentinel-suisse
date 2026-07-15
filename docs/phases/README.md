@@ -38,3 +38,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-28-filters-pagination.md](phase-28-filters-pagination.md) | Price filters + load-more pagination |
 | [phase-29-provider-filter.md](phase-29-provider-filter.md) | Public provider filter chips |
 | [phase-30-infinite-scroll.md](phase-30-infinite-scroll.md) | Infinite scroll on listing list |
+| [phase-31-provider-multiselect.md](phase-31-provider-multiselect.md) | Multi-select provider filter chips |

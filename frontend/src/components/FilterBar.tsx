@@ -5,8 +5,8 @@ type Props = {
   t: Messages;
   showPrice: boolean;
   providers: Provider[];
-  providerId: number | null;
-  onProviderChange: (id: number | null) => void;
+  providerIds: number[];
+  onProviderIdsChange: (ids: number[]) => void;
   priceMin: string;
   priceMax: string;
   onPriceMinChange: (value: string) => void;
@@ -18,14 +18,24 @@ export function FilterBar({
   t,
   showPrice,
   providers,
-  providerId,
-  onProviderChange,
+  providerIds,
+  onProviderIdsChange,
   priceMin,
   priceMax,
   onPriceMinChange,
   onPriceMaxChange,
   onApply,
 }: Props) {
+  const noneSelected = providerIds.length === 0;
+
+  const toggleProvider = (id: number) => {
+    if (providerIds.includes(id)) {
+      onProviderIdsChange(providerIds.filter((pid) => pid !== id));
+    } else {
+      onProviderIdsChange([...providerIds, id]);
+    }
+  };
+
   return (
     <div className="filter-bar">
       <p className="filter-bar-label">{t.filters}</p>
@@ -33,21 +43,26 @@ export function FilterBar({
         <div className="provider-chips" role="group" aria-label={t.providerFilter}>
           <button
             type="button"
-            className={providerId == null ? "chip active" : "chip"}
-            onClick={() => onProviderChange(null)}
+            className={noneSelected ? "chip active" : "chip"}
+            aria-pressed={noneSelected}
+            onClick={() => onProviderIdsChange([])}
           >
             {t.allProviders}
           </button>
-          {providers.map((provider) => (
-            <button
-              key={provider.id}
-              type="button"
-              className={providerId === provider.id ? "chip active" : "chip"}
-              onClick={() => onProviderChange(provider.id)}
-            >
-              {provider.name}
-            </button>
-          ))}
+          {providers.map((provider) => {
+            const active = providerIds.includes(provider.id);
+            return (
+              <button
+                key={provider.id}
+                type="button"
+                className={active ? "chip active" : "chip"}
+                aria-pressed={active}
+                onClick={() => toggleProvider(provider.id)}
+              >
+                {provider.name}
+              </button>
+            );
+          })}
         </div>
       )}
       {showPrice && (

@@ -62,8 +62,9 @@ git push origin main
 | Removed | Manual “Load more” button |
 | Versions | `0.30.0` |
 
-## Out of scope (Phase 31+)
+## Out of scope (later)
 
 - Hosting / TLS
-- Multi-select providers
 - Virtualized long lists (react-window)
+
+(Multi-select providers → Phase 31)
