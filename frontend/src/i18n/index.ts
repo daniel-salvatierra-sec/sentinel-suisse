@@ -31,6 +31,17 @@ export type Messages = {
   saveSearch: string;
   guide: string;
   guideHello: string;
+  guideStepCategory: string;
+  guideStepSearch: string;
+  guideStepMap: string;
+  guideStepAlerts: string;
+  guideStepDone: string;
+  guideNext: string;
+  guideBack: string;
+  guideSkip: string;
+  guideSearchCta: string;
+  guideMapCta: string;
+  guideAlertsCta: string;
   guideHousing: string;
   guideJob: string;
   guideAlerts: string;

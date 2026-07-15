@@ -187,6 +187,13 @@ export default function App() {
         onOpenAlerts={() => {
           setTab(hasSession ? "alerts" : "account");
         }}
+        onStartSearch={(location) => {
+          setQuery(location);
+          setTab("list");
+        }}
+        onOpenMap={() => {
+          setTab("map");
+        }}
       />
     </div>
   );
