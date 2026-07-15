@@ -14,6 +14,7 @@ _VERIFY_COPY: dict[str, dict[str, str]] = {
         ),
         "whatsapp": (
             "Suisse Alert : confirmez vos alertes via ce lien :\n{url}\n"
+            "Ou répondez {keyword} à ce numéro.\n"
             "(expire dans {hours} heures)"
         ),
     },
@@ -29,6 +30,7 @@ _VERIFY_COPY: dict[str, dict[str, str]] = {
         ),
         "whatsapp": (
             "Suisse Alert: Bestätigen Sie Ihre Alerts über diesen Link:\n{url}\n"
+            "Oder antworten Sie {keyword} an diese Nummer.\n"
             "(läuft in {hours} Stunden ab)"
         ),
     },
@@ -43,6 +45,7 @@ _VERIFY_COPY: dict[str, dict[str, str]] = {
         ),
         "whatsapp": (
             "Suisse Alert: confirma tus alertas con este enlace:\n{url}\n"
+            "O responde {keyword} a este número.\n"
             "(caduca en {hours} horas)"
         ),
     },
@@ -57,6 +60,7 @@ _VERIFY_COPY: dict[str, dict[str, str]] = {
         ),
         "whatsapp": (
             "Suisse Alert: confirme as suas alertas com esta ligação:\n{url}\n"
+            "Ou responda {keyword} a este número.\n"
             "(expira em {hours} horas)"
         ),
     },
@@ -71,20 +75,31 @@ _VERIFY_COPY: dict[str, dict[str, str]] = {
         ),
         "whatsapp": (
             "Suisse Alert: confirm your alerts by opening this link:\n{url}\n"
+            "Or reply {keyword} to this number.\n"
             "(expires in {hours} hours)"
         ),
     },
 }
 
 
-def format_verification_whatsapp(locale: str, url: str, *, ttl_hours: int) -> str:
+def format_verification_whatsapp(
+    locale: str,
+    url: str,
+    *,
+    ttl_hours: int,
+    keyword: str = "OK",
+) -> str:
     lang = resolve_locale(locale)
     copy = _VERIFY_COPY[lang]
     whatsapp_template = copy.get(
         "whatsapp",
         _VERIFY_COPY["en"]["whatsapp"],
     )
-    return whatsapp_template.format(url=url, hours=ttl_hours)
+    return whatsapp_template.format(
+        url=url,
+        hours=ttl_hours,
+        keyword=keyword.strip() or "OK",
+    )
 
 
 def format_verification_email(locale: str, url: str, *, ttl_hours: int) -> tuple[str, str]:

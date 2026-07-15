@@ -117,6 +117,7 @@ def send_channel_verification_whatsapp(
         locale,
         url,
         ttl_hours=settings.verification_token_ttl_hours,
+        keyword=settings.whatsapp_verify_keyword,
     )
     normalized = _normalize_whatsapp_phone(phone)
     if not normalized:

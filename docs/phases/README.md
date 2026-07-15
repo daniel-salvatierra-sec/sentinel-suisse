@@ -32,3 +32,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-22-qr-subscribe.md](phase-22-qr-subscribe.md) | QR scan-to-subscribe deep links |
 | [phase-23-webhook-signup.md](phase-23-webhook-signup.md) | Public signup flag + WhatsApp webhook |
 | [phase-24-wa-inbound-verify.md](phase-24-wa-inbound-verify.md) | WhatsApp inbound auto-verify |
+| [phase-25-wa-keyword.md](phase-25-wa-keyword.md) | Keyword-gated WhatsApp verify |

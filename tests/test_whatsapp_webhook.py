@@ -99,14 +99,46 @@ def test_extract_inbound_sender_ids() -> None:
                 "changes": [
                     {
                         "value": {
-                            "messages": [{"from": "41791234567", "id": "wamid.1", "type": "text"}]
+                            "messages": [
+                                {
+                                    "from": "41791234567",
+                                    "id": "wamid.1",
+                                    "type": "text",
+                                    "text": {"body": "OK"},
+                                }
+                            ]
                         }
                     }
                 ]
             }
         ],
     }
-    assert extract_inbound_sender_ids(payload) == ["41791234567"]
+    assert extract_inbound_sender_ids(payload, keyword="OK") == ["41791234567"]
+    assert extract_inbound_sender_ids(payload, keyword="YES") == []
+
+
+def test_extract_rejects_wrong_keyword() -> None:
+    payload = {
+        "entry": [
+            {
+                "changes": [
+                    {
+                        "value": {
+                            "messages": [
+                                {
+                                    "from": "41791234567",
+                                    "type": "text",
+                                    "text": {"body": "hello"},
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+    }
+    assert extract_inbound_sender_ids(payload, keyword="OK") == []
+    assert extract_inbound_sender_ids(payload, keyword="") == ["41791234567"]
 
 
 def test_webhook_get_challenge(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -178,6 +210,7 @@ def test_webhook_auto_verifies_matching_whatsapp_channel(
     monkeypatch.setenv("NOTIFIER_MODE", "console")
     monkeypatch.setenv("WHATSAPP_APP_SECRET", "")
     monkeypatch.setenv("WHATSAPP_INBOUND_AUTO_VERIFY", "true")
+    monkeypatch.setenv("WHATSAPP_VERIFY_KEYWORD", "OK")
     get_settings.cache_clear()
     client = TestClient(app)
 
@@ -197,6 +230,31 @@ def test_webhook_auto_verifies_matching_whatsapp_channel(
         assert signup.status_code == 201, signup.text
         api_key = signup.json()["api_key"]
         assert signup.json()["whatsapp_verified"] is False
+
+        ignored = {
+            "object": "whatsapp_business_account",
+            "entry": [
+                {
+                    "changes": [
+                        {
+                            "value": {
+                                "messages": [
+                                    {
+                                        "from": "41791112233",
+                                        "id": "wamid.noise",
+                                        "type": "text",
+                                        "text": {"body": "hello"},
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+        }
+        noise = client.post("/api/v1/webhooks/whatsapp", json=ignored)
+        assert noise.status_code == 200
+        assert noise.json()["verified"] == 0
 
         inbound = {
             "object": "whatsapp_business_account",
@@ -232,5 +290,6 @@ def test_webhook_auto_verifies_matching_whatsapp_channel(
         assert wa["is_verified"] is True
     finally:
         monkeypatch.delenv("SIGNUP_AUTO_VERIFY", raising=False)
+        monkeypatch.delenv("WHATSAPP_VERIFY_KEYWORD", raising=False)
         monkeypatch.setenv("APP_ENV", "development")
         get_settings.cache_clear()

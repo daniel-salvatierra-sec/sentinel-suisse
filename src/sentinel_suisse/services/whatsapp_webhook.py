@@ -77,8 +77,27 @@ def verify_request_signature(
         raise WhatsAppWebhookError(msg)
 
 
-def extract_inbound_sender_ids(payload: dict[str, Any]) -> list[str]:
-    """Collect WhatsApp `from` ids from inbound message events (digits only)."""
+def message_body_text(message: dict[str, Any]) -> str:
+    text = message.get("text")
+    if isinstance(text, dict):
+        return str(text.get("body") or "")
+    return ""
+
+
+def message_matches_verify_keyword(message: dict[str, Any], keyword: str) -> bool:
+    """Empty keyword → any inbound message qualifies; otherwise exact match (casefold)."""
+    required = keyword.strip()
+    if not required:
+        return True
+    return message_body_text(message).strip().casefold() == required.casefold()
+
+
+def extract_inbound_sender_ids(
+    payload: dict[str, Any],
+    *,
+    keyword: str = "",
+) -> list[str]:
+    """Collect WhatsApp `from` ids for messages that pass the keyword gate."""
     senders: list[str] = []
     entries = payload.get("entry")
     if not isinstance(entries, list):
@@ -100,6 +119,8 @@ def extract_inbound_sender_ids(payload: dict[str, Any]) -> list[str]:
                 continue
             for message in messages:
                 if not isinstance(message, dict):
+                    continue
+                if not message_matches_verify_keyword(message, keyword):
                     continue
                 sender = message.get("from")
                 if sender:

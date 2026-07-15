@@ -95,7 +95,10 @@ async def whatsapp_webhook_receive(
 
     verified = 0
     if settings.whatsapp_inbound_auto_verify:
-        senders = extract_inbound_sender_ids(payload)
+        senders = extract_inbound_sender_ids(
+            payload,
+            keyword=settings.whatsapp_verify_keyword,
+        )
         verified = auto_verify_whatsapp_senders(db, senders)
         if verified:
             logger.info("whatsapp_webhook auto_verified=%s", verified)

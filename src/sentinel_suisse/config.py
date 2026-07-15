@@ -45,6 +45,8 @@ class Settings(BaseSettings):
     whatsapp_app_secret: str = ""
     # Phase 24 — mark WhatsApp channel verified when Meta delivers inbound message
     whatsapp_inbound_auto_verify: bool = True
+    # Phase 25 — required reply text (case-insensitive). Empty = any message verifies.
+    whatsapp_verify_keyword: str = "OK"
     # Dispatch alerts automatically after ingest when new listings are created
     ingest_dispatch_alerts: bool = False
     # Live Homegate fetch — disabled by default (legal / rate-limit review required)
