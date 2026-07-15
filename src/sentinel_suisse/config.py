@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     api_port: int = 8000
     public_app_url: str = "http://127.0.0.1:5173"
     verification_token_ttl_hours: int = 48
+    # None = auto (enabled in development); True/False force
+    public_signup_enabled: bool | None = None
     # None = auto (verify in development only); False = always send verification email
     signup_auto_verify: bool | None = None
     rate_limit: str = "30/minute"
@@ -39,6 +41,8 @@ class Settings(BaseSettings):
     smtp_use_tls: bool = True
     whatsapp_token: str = ""
     whatsapp_phone_number_id: str = ""
+    whatsapp_verify_token: str = ""
+    whatsapp_app_secret: str = ""
     # Dispatch alerts automatically after ingest when new listings are created
     ingest_dispatch_alerts: bool = False
     # Live Homegate fetch — disabled by default (legal / rate-limit review required)
@@ -60,6 +64,11 @@ class Settings(BaseSettings):
 
     def whatsapp_is_configured(self) -> bool:
         return bool(self.whatsapp_token and self.whatsapp_phone_number_id)
+
+    def public_signup_is_enabled(self) -> bool:
+        if self.public_signup_enabled is not None:
+            return self.public_signup_enabled
+        return self.app_env == "development"
 
     def signup_channels_auto_verify(self) -> bool:
         if self.signup_auto_verify is not None:

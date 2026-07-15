@@ -30,3 +30,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-20-flatfox.md](phase-20-flatfox.md) | Flatfox housing connector |
 | [phase-21-immoscout.md](phase-21-immoscout.md) | ImmoScout24 housing connector |
 | [phase-22-qr-subscribe.md](phase-22-qr-subscribe.md) | QR scan-to-subscribe deep links |
+| [phase-23-webhook-signup.md](phase-23-webhook-signup.md) | Public signup flag + WhatsApp webhook |

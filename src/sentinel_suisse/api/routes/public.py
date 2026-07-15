@@ -38,6 +38,15 @@ def _require_public_preview() -> None:
         )
 
 
+def _require_public_signup() -> None:
+    settings = get_settings()
+    if not settings.public_signup_is_enabled():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Public signup is not available",
+        )
+
+
 @router.get("/search", response_model=list[ListingRead])
 @limiter.limit(lambda: get_settings().rate_limit)
 def public_search(
@@ -69,7 +78,7 @@ def public_signup(
     request: Request,
     payload: PublicAlertSignup,
     db: Session = Depends(get_db),
-    _: None = Depends(_require_public_preview),
+    _: None = Depends(_require_public_signup),
 ) -> PublicAlertSignupResponse:
     """Create user, notification channels, and saved search from the public UI."""
     settings = get_settings()

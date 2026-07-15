@@ -19,6 +19,7 @@ from sentinel_suisse.api.routes import (
     saved_searches,
     search,
     users,
+    webhooks,
 )
 from sentinel_suisse.config import get_settings
 
@@ -27,7 +28,7 @@ settings = get_settings()
 app = FastAPI(
     title="Sentinel Suisse API",
     description="Internal API — localhost only until public launch",
-    version="0.22.0",
+    version="0.23.0",
     docs_url="/docs" if settings.app_env == "development" else None,
     redoc_url=None,
 )
@@ -36,10 +37,17 @@ app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.add_middleware(SlowAPIMiddleware)
 
+_cors_origins: list[str] = []
 if settings.app_env == "development":
+    _cors_origins.append("http://127.0.0.1:5173")
+_public_origin = settings.public_app_url.rstrip("/")
+if _public_origin and _public_origin not in _cors_origins:
+    _cors_origins.append(_public_origin)
+
+if _cors_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://127.0.0.1:5173"],
+        allow_origins=_cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
@@ -54,6 +62,7 @@ app.include_router(notification_channels.router, prefix="/api/v1")
 app.include_router(alerts.router, prefix="/api/v1")
 app.include_router(legal.router, prefix="/api/v1")
 app.include_router(public.router, prefix="/api/v1")
+app.include_router(webhooks.router, prefix="/api/v1")
 
 
 def _mount_frontend() -> None:

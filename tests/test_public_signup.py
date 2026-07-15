@@ -94,3 +94,25 @@ def test_public_signup_requires_consent(dev_client: TestClient) -> None:
 def test_public_signup_hidden_in_production(prod_client: TestClient) -> None:
     response = prod_client.post("/api/v1/public/signup", json=_signup_payload())
     assert response.status_code == 404
+
+
+def test_public_signup_enabled_flag_in_production(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("PUBLIC_SIGNUP_ENABLED", "true")
+    monkeypatch.setenv("SIGNUP_AUTO_VERIFY", "true")
+    get_settings.cache_clear()
+    client = TestClient(app)
+    try:
+        response = client.post("/api/v1/public/signup", json=_signup_payload())
+        assert response.status_code == 201, response.text
+    finally:
+        monkeypatch.delenv("PUBLIC_SIGNUP_ENABLED", raising=False)
+        monkeypatch.delenv("SIGNUP_AUTO_VERIFY", raising=False)
+        monkeypatch.setenv("APP_ENV", "development")
+        get_settings.cache_clear()
