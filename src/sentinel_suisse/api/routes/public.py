@@ -29,12 +29,12 @@ from sentinel_suisse.services.search import search_listings
 router = APIRouter(prefix="/public", tags=["public"])
 
 
-def _require_public_preview() -> None:
+def _require_public_search() -> None:
     settings = get_settings()
-    if settings.app_env != "development":
+    if not settings.public_search_is_enabled():
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Public preview is not available",
+            detail="Public search is not available",
         )
 
 
@@ -52,7 +52,7 @@ def _require_public_signup() -> None:
 def public_search(
     request: Request,
     db: Session = Depends(get_db),
-    _: None = Depends(_require_public_preview),
+    _: None = Depends(_require_public_search),
     listing_type: ListingType | None = Query(default=None),
     location: str | None = Query(default=None, min_length=1, max_length=200),
     price_min: float | None = Query(default=None, ge=0),
@@ -60,7 +60,7 @@ def public_search(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[ListingRead]:
-    """Unauthenticated search for localhost UI demo only."""
+    """Unauthenticated listing search for the public UI (opt-in in production)."""
     filters = SearchQuery(
         listing_type=listing_type,
         location=location,

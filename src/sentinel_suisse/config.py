@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     verification_token_ttl_hours: int = 48
     # None = auto (enabled in development); True/False force
     public_signup_enabled: bool | None = None
+    public_search_enabled: bool | None = None
     # None = auto (verify in development only); False = always send verification email
     signup_auto_verify: bool | None = None
     rate_limit: str = "30/minute"
@@ -72,6 +73,11 @@ class Settings(BaseSettings):
     def public_signup_is_enabled(self) -> bool:
         if self.public_signup_enabled is not None:
             return self.public_signup_enabled
+        return self.app_env == "development"
+
+    def public_search_is_enabled(self) -> bool:
+        if self.public_search_enabled is not None:
+            return self.public_search_enabled
         return self.app_env == "development"
 
     def signup_channels_auto_verify(self) -> bool:

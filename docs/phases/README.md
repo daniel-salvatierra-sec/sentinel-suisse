@@ -34,3 +34,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-24-wa-inbound-verify.md](phase-24-wa-inbound-verify.md) | WhatsApp inbound auto-verify |
 | [phase-25-wa-keyword.md](phase-25-wa-keyword.md) | Keyword-gated WhatsApp verify |
 | [phase-26-guide.md](phase-26-guide.md) | Interactive guide onboarding (5 langs) |
+| [phase-27-public-search.md](phase-27-public-search.md) | Public search production flag |

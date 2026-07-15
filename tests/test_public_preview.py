@@ -37,3 +37,24 @@ def test_public_search_available_in_development(dev_client: TestClient) -> None:
 def test_public_search_hidden_in_production(prod_client: TestClient) -> None:
     response = prod_client.get("/api/v1/public/search?listing_type=housing")
     assert response.status_code == 404
+
+
+def test_public_search_enabled_flag_in_production(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("PUBLIC_SEARCH_ENABLED", "true")
+    get_settings.cache_clear()
+    client = TestClient(app)
+    try:
+        response = client.get("/api/v1/public/search?listing_type=housing")
+        assert response.status_code == 200, response.text
+        assert isinstance(response.json(), list)
+    finally:
+        monkeypatch.delenv("PUBLIC_SEARCH_ENABLED", raising=False)
+        monkeypatch.setenv("APP_ENV", "development")
+        get_settings.cache_clear()
