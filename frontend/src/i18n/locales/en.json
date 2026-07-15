@@ -13,6 +13,8 @@
   "priceMax": "Max rent (CHF)",
   "applyFilters": "Apply",
   "loadMore": "Load more",
+  "providerFilter": "Portal",
+  "allProviders": "All",
   "map": "Map",
   "list": "List",
   "alerts": "Alerts",

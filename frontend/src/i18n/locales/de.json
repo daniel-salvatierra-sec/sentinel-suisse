@@ -13,6 +13,8 @@
   "priceMax": "Miete max (CHF)",
   "applyFilters": "Anwenden",
   "loadMore": "Mehr laden",
+  "providerFilter": "Portal",
+  "allProviders": "Alle",
   "map": "Karte",
   "list": "Liste",
   "alerts": "Alerts",

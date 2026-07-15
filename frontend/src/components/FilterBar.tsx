@@ -1,8 +1,12 @@
 import type { Messages } from "../i18n";
+import type { Provider } from "../api";
 
 type Props = {
   t: Messages;
-  visible: boolean;
+  showPrice: boolean;
+  providers: Provider[];
+  providerId: number | null;
+  onProviderChange: (id: number | null) => void;
   priceMin: string;
   priceMax: string;
   onPriceMinChange: (value: string) => void;
@@ -12,51 +16,75 @@ type Props = {
 
 export function FilterBar({
   t,
-  visible,
+  showPrice,
+  providers,
+  providerId,
+  onProviderChange,
   priceMin,
   priceMax,
   onPriceMinChange,
   onPriceMaxChange,
   onApply,
 }: Props) {
-  if (!visible) return null;
-
   return (
-    <form
-      className="filter-bar"
-      onSubmit={(event) => {
-        event.preventDefault();
-        onApply();
-      }}
-    >
+    <div className="filter-bar">
       <p className="filter-bar-label">{t.filters}</p>
-      <div className="filter-row">
-        <label>
-          {t.priceMin}
-          <input
-            type="number"
-            min={0}
-            inputMode="numeric"
-            value={priceMin}
-            onChange={(event) => onPriceMinChange(event.target.value)}
-            placeholder="0"
-          />
-        </label>
-        <label>
-          {t.priceMax}
-          <input
-            type="number"
-            min={0}
-            inputMode="numeric"
-            value={priceMax}
-            onChange={(event) => onPriceMaxChange(event.target.value)}
-            placeholder="5000"
-          />
-        </label>
-        <button type="submit" className="secondary-btn">
-          {t.applyFilters}
-        </button>
-      </div>
-    </form>
+      {providers.length > 0 && (
+        <div className="provider-chips" role="group" aria-label={t.providerFilter}>
+          <button
+            type="button"
+            className={providerId == null ? "chip active" : "chip"}
+            onClick={() => onProviderChange(null)}
+          >
+            {t.allProviders}
+          </button>
+          {providers.map((provider) => (
+            <button
+              key={provider.id}
+              type="button"
+              className={providerId === provider.id ? "chip active" : "chip"}
+              onClick={() => onProviderChange(provider.id)}
+            >
+              {provider.name}
+            </button>
+          ))}
+        </div>
+      )}
+      {showPrice && (
+        <form
+          className="filter-row"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onApply();
+          }}
+        >
+          <label>
+            {t.priceMin}
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={priceMin}
+              onChange={(event) => onPriceMinChange(event.target.value)}
+              placeholder="0"
+            />
+          </label>
+          <label>
+            {t.priceMax}
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={priceMax}
+              onChange={(event) => onPriceMaxChange(event.target.value)}
+              placeholder="5000"
+            />
+          </label>
+          <button type="submit" className="secondary-btn">
+            {t.applyFilters}
+          </button>
+        </form>
+      )}
+    </div>
   );
 }

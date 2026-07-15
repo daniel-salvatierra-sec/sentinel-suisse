@@ -8,13 +8,31 @@ export type Listing = {
   listing_type: ListingType;
   source_url: string;
   description?: string | null;
+  provider_id?: number;
 };
+
+export type Provider = {
+  id: number;
+  name: string;
+  slug: string;
+  base_url: string;
+  is_active: boolean;
+};
+
+export async function fetchProviders(): Promise<Provider[]> {
+  const response = await fetch("/api/v1/public/providers");
+  if (!response.ok) {
+    throw new Error("providers failed");
+  }
+  return response.json();
+}
 
 export async function searchListings(params: {
   listing_type: ListingType;
   location?: string;
   price_min?: number;
   price_max?: number;
+  provider_id?: number;
   limit?: number;
   offset?: number;
 }): Promise<Listing[]> {
@@ -28,6 +46,9 @@ export async function searchListings(params: {
   }
   if (params.price_max != null && !Number.isNaN(params.price_max)) {
     query.set("price_max", String(params.price_max));
+  }
+  if (params.provider_id != null) {
+    query.set("provider_id", String(params.provider_id));
   }
   query.set("limit", String(params.limit ?? 20));
   query.set("offset", String(params.offset ?? 0));

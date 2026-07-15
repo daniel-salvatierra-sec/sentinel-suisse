@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  fetchProviders,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
   type Listing,
   type ListingType,
+  type Provider,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
@@ -37,6 +39,8 @@ export default function App() {
   const [priceMax, setPriceMax] = useState("");
   const [appliedPriceMin, setAppliedPriceMin] = useState("");
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
+  const [providers, setProviders] = useState<Provider[]>([]);
+  const [providerId, setProviderId] = useState<number | null>(null);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -71,6 +75,12 @@ export default function App() {
     setDeepLinkReady(true);
   }, []);
 
+  useEffect(() => {
+    void fetchProviders()
+      .then(setProviders)
+      .catch(() => setProviders([]));
+  }, []);
+
   const runSearch = useCallback(async () => {
     setLoading(true);
     setError(false);
@@ -80,6 +90,7 @@ export default function App() {
         location: query,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        provider_id: providerId ?? undefined,
         limit: SEARCH_PAGE_SIZE,
         offset: 0,
       });
@@ -93,7 +104,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax]);
+  }, [category, query, appliedPriceMin, appliedPriceMax, providerId]);
 
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
@@ -104,6 +115,7 @@ export default function App() {
         location: query,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        provider_id: providerId ?? undefined,
         limit: SEARCH_PAGE_SIZE,
         offset: listings.length,
       });
@@ -114,7 +126,7 @@ export default function App() {
     } finally {
       setLoadingMore(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax, listings.length]);
+  }, [category, query, appliedPriceMin, appliedPriceMax, providerId, listings.length]);
 
   const applyFilters = () => {
     setAppliedPriceMin(priceMin);
@@ -164,7 +176,10 @@ export default function App() {
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
       <FilterBar
         t={t}
-        visible={category === "housing"}
+        showPrice={category === "housing"}
+        providers={providers}
+        providerId={providerId}
+        onProviderChange={setProviderId}
         priceMin={priceMin}
         priceMax={priceMax}
         onPriceMinChange={setPriceMin}

@@ -177,6 +177,30 @@ body {
   padding: 0.55rem 0.65rem;
 }
 
+.provider-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.65rem;
+}
+
+.chip {
+  border: 1px solid rgba(30, 107, 140, 0.3);
+  background: var(--mist);
+  color: var(--lake);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--lake);
+  color: white;
+  border-color: var(--lake);
+}
+
 .load-more-btn {
   display: block;
   width: 100%;

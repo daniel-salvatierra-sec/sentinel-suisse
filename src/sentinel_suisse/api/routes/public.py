@@ -2,6 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from pydantic import ValidationError
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -10,7 +11,9 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.notification_channel import NotificationChannel
+from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
+from sentinel_suisse.schemas.provider import ProviderRead
 from sentinel_suisse.schemas.public_signup import (
     ChannelVerificationResponse,
     EmailVerificationResponse,
@@ -48,6 +51,21 @@ def _require_public_signup() -> None:
         )
 
 
+@router.get("/providers", response_model=list[ProviderRead])
+@limiter.limit(lambda: get_settings().rate_limit)
+def public_providers(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_search),
+) -> list[Provider]:
+    """Active providers for public filter chips (same gate as search)."""
+    return list(
+        db.scalars(
+            select(Provider).where(Provider.is_active.is_(True)).order_by(Provider.name)
+        ).all()
+    )
+
+
 @router.get("/search", response_model=list[ListingRead])
 @limiter.limit(lambda: get_settings().rate_limit)
 def public_search(
@@ -58,6 +76,7 @@ def public_search(
     location: str | None = Query(default=None, min_length=1, max_length=200),
     price_min: float | None = Query(default=None, ge=0),
     price_max: float | None = Query(default=None, ge=0),
+    provider_id: int | None = Query(default=None, gt=0),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[ListingRead]:
@@ -68,6 +87,7 @@ def public_search(
             location=location,
             price_min=price_min,
             price_max=price_max,
+            provider_id=provider_id,
         )
     except ValidationError as exc:
         raise HTTPException(

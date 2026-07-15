@@ -13,6 +13,8 @@
   "priceMax": "Loyer max (CHF)",
   "applyFilters": "Appliquer",
   "loadMore": "Voir plus",
+  "providerFilter": "Portail",
+  "allProviders": "Tous",
   "map": "Carte",
   "list": "Liste",
   "alerts": "Alertes",

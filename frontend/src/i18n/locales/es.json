@@ -13,6 +13,8 @@
   "priceMax": "Alquiler max (CHF)",
   "applyFilters": "Aplicar",
   "loadMore": "Ver más",
+  "providerFilter": "Portal",
+  "allProviders": "Todos",
   "map": "Mapa",
   "list": "Lista",
   "alerts": "Alertas",

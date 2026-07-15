@@ -81,3 +81,31 @@ def test_public_search_pagination_and_price_filter(dev_client: TestClient) -> No
 
     bad = dev_client.get("/api/v1/public/search?listing_type=housing&price_min=5000&price_max=1000")
     assert bad.status_code == 422
+
+
+def test_public_providers_and_provider_filter(dev_client: TestClient) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    providers = dev_client.get("/api/v1/public/providers")
+    assert providers.status_code == 200, providers.text
+    data = providers.json()
+    assert isinstance(data, list)
+    assert all(item.get("is_active") is True for item in data)
+
+    if not data:
+        return
+
+    provider_id = data[0]["id"]
+    filtered = dev_client.get(
+        f"/api/v1/public/search?listing_type=housing&provider_id={provider_id}&limit=50"
+    )
+    assert filtered.status_code == 200, filtered.text
+    for item in filtered.json():
+        assert item["provider_id"] == provider_id
+
+
+def test_public_providers_hidden_in_production(prod_client: TestClient) -> None:
+    response = prod_client.get("/api/v1/public/providers")
+    assert response.status_code == 404
