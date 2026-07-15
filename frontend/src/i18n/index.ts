@@ -21,6 +21,10 @@ export type Messages = {
   searchPlaceholder: string;
   search: string;
   filters: string;
+  priceMin: string;
+  priceMax: string;
+  applyFilters: string;
+  loadMore: string;
   map: string;
   list: string;
   alerts: string;

@@ -1,6 +1,7 @@
 """Listing search routes."""
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.api.auth import verify_admin_or_user
@@ -29,11 +30,17 @@ def search(
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
 ) -> list[ListingRead]:
-    filters = SearchQuery(
-        listing_type=listing_type,
-        location=location,
-        price_min=price_min,
-        price_max=price_max,
-        provider_id=provider_id,
-    )
+    try:
+        filters = SearchQuery(
+            listing_type=listing_type,
+            location=location,
+            price_min=price_min,
+            price_max=price_max,
+            provider_id=provider_id,
+        )
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="price_min cannot be greater than price_max",
+        ) from exc
     return search_listings(db, filters, limit=limit, offset=offset)

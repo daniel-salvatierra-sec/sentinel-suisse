@@ -1,6 +1,7 @@
 """Public read-only endpoints for the web UI (development / demo)."""
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -61,12 +62,18 @@ def public_search(
     offset: int = Query(default=0, ge=0),
 ) -> list[ListingRead]:
     """Unauthenticated listing search for the public UI (opt-in in production)."""
-    filters = SearchQuery(
-        listing_type=listing_type,
-        location=location,
-        price_min=price_min,
-        price_max=price_max,
-    )
+    try:
+        filters = SearchQuery(
+            listing_type=listing_type,
+            location=location,
+            price_min=price_min,
+            price_max=price_max,
+        )
+    except ValidationError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="price_min cannot be greater than price_max",
+        ) from exc
     return search_listings(db, filters, limit=limit, offset=offset)
 
 

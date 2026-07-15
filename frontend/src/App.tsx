@@ -1,8 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
-import { getApiKey, searchListings, type Listing, type ListingType } from "./api";
+import {
+  getApiKey,
+  SEARCH_PAGE_SIZE,
+  searchListings,
+  type Listing,
+  type ListingType,
+} from "./api";
 import { AccountPanel } from "./components/AccountPanel";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { CategoryCards } from "./components/CategoryCards";
+import { FilterBar } from "./components/FilterBar";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
 import { ListingCard } from "./components/ListingCard";
@@ -14,12 +21,26 @@ import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribe
 
 type Tab = "list" | "map" | "alerts" | "account";
 
+function parseOptionalPrice(value: string): number | undefined {
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const n = Number(trimmed);
+  if (Number.isNaN(n) || n < 0) return undefined;
+  return n;
+}
+
 export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
   const [category, setCategory] = useState<ListingType>("housing");
   const [query, setQuery] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
+  const [appliedPriceMin, setAppliedPriceMin] = useState("");
+  const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<Tab>("list");
   const [focusId, setFocusId] = useState<number | null>(null);
@@ -54,16 +75,51 @@ export default function App() {
     setLoading(true);
     setError(false);
     try {
-      const results = await searchListings({ listing_type: category, location: query });
+      const results = await searchListings({
+        listing_type: category,
+        location: query,
+        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
+        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        limit: SEARCH_PAGE_SIZE,
+        offset: 0,
+      });
       setListings(results);
+      setHasMore(results.length >= SEARCH_PAGE_SIZE);
       setFocusId(results[0]?.id ?? null);
     } catch {
       setError(true);
       setListings([]);
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }, [category, query]);
+  }, [category, query, appliedPriceMin, appliedPriceMax]);
+
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true);
+    setError(false);
+    try {
+      const results = await searchListings({
+        listing_type: category,
+        location: query,
+        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
+        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        limit: SEARCH_PAGE_SIZE,
+        offset: listings.length,
+      });
+      setListings((prev) => [...prev, ...results]);
+      setHasMore(results.length >= SEARCH_PAGE_SIZE);
+    } catch {
+      setError(true);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [category, query, appliedPriceMin, appliedPriceMax, listings.length]);
+
+  const applyFilters = () => {
+    setAppliedPriceMin(priceMin);
+    setAppliedPriceMax(priceMax);
+  };
 
   useEffect(() => {
     if (!deepLinkReady) return;
@@ -106,6 +162,15 @@ export default function App() {
 
       <CategoryCards t={t} active={category} onSelect={setCategory} />
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
+      <FilterBar
+        t={t}
+        visible={category === "housing"}
+        priceMin={priceMin}
+        priceMax={priceMax}
+        onPriceMinChange={setPriceMin}
+        onPriceMaxChange={setPriceMax}
+        onApply={applyFilters}
+      />
 
       <div className="tabs">
         <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
@@ -147,6 +212,16 @@ export default function App() {
                 }}
               />
             ))
+          )}
+          {hasMore && listings.length > 0 && (
+            <button
+              type="button"
+              className="secondary-btn load-more-btn"
+              disabled={loadingMore}
+              onClick={() => void loadMore()}
+            >
+              {loadingMore ? t.loading : t.loadMore}
+            </button>
           )}
         </>
       )}
