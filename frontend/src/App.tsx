@@ -13,6 +13,7 @@ import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { CategoryCards } from "./components/CategoryCards";
 import { FilterBar } from "./components/FilterBar";
 import { GuideBot } from "./components/GuideBot";
+import { InfiniteScrollSentinel } from "./components/InfiniteScrollSentinel";
 import { LanguageBar } from "./components/LanguageBar";
 import { ListingCard } from "./components/ListingCard";
 import { MapView } from "./components/MapView";
@@ -228,15 +229,18 @@ export default function App() {
               />
             ))
           )}
-          {hasMore && listings.length > 0 && (
-            <button
-              type="button"
-              className="secondary-btn load-more-btn"
-              disabled={loadingMore}
-              onClick={() => void loadMore()}
-            >
-              {loadingMore ? t.loading : t.loadMore}
-            </button>
+          {listings.length > 0 && hasMore && (
+            <>
+              {loadingMore && <p className="empty scroll-loading">{t.loading}</p>}
+              <InfiniteScrollSentinel
+                enabled={hasMore && !loadingMore}
+                loading={loadingMore}
+                onVisible={() => void loadMore()}
+              />
+            </>
+          )}
+          {listings.length > 0 && !hasMore && (
+            <p className="empty end-of-results">{t.endOfResults}</p>
           )}
         </>
       )}

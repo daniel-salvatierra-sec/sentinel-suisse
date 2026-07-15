@@ -207,6 +207,17 @@ body {
   margin: 0.75rem 0 1rem;
 }
 
+.scroll-sentinel {
+  height: 1px;
+  margin: 0.5rem 0 1.5rem;
+}
+
+.scroll-loading,
+.end-of-results {
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1.5rem;
+}
+
 .tabs {
   display: flex;
   gap: 0.5rem;

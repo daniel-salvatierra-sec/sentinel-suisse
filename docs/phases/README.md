@@ -37,3 +37,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-27-public-search.md](phase-27-public-search.md) | Public search production flag |
 | [phase-28-filters-pagination.md](phase-28-filters-pagination.md) | Price filters + load-more pagination |
 | [phase-29-provider-filter.md](phase-29-provider-filter.md) | Public provider filter chips |
+| [phase-30-infinite-scroll.md](phase-30-infinite-scroll.md) | Infinite scroll on listing list |

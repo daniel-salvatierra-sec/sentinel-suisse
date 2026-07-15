@@ -25,6 +25,7 @@ export type Messages = {
   priceMax: string;
   applyFilters: string;
   loadMore: string;
+  endOfResults: string;
   providerFilter: string;
   allProviders: string;
   map: string;
