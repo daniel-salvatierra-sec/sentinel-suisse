@@ -1,19 +1,31 @@
-"""Meta WhatsApp Cloud API webhook helpers (Phase 23)."""
+"""Meta WhatsApp Cloud API webhook helpers (Phase 23+)."""
 
 from __future__ import annotations
 
 import hashlib
 import hmac
 import logging
+import re
+from datetime import UTC, datetime
 from typing import Any
 
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from sentinel_suisse.config import Settings
+from sentinel_suisse.models.enums import ChannelType
+from sentinel_suisse.models.notification_channel import NotificationChannel
+from sentinel_suisse.security.pii import decrypt_pii
 
 logger = logging.getLogger(__name__)
 
 
 class WhatsAppWebhookError(ValueError):
     """Invalid webhook challenge or signature."""
+
+
+def normalize_wa_id(value: str) -> str:
+    return re.sub(r"\D", "", value)
 
 
 def verify_subscription_challenge(
@@ -49,7 +61,6 @@ def verify_request_signature(
 ) -> None:
     """Validate X-Hub-Signature-256 from Meta (required when app secret is set)."""
     if not settings.whatsapp_app_secret:
-        # Dev scaffold: allow unsigned posts only when secret unset
         logger.warning("WHATSAPP_APP_SECRET unset — skipping signature check")
         return
     if not signature_header or not signature_header.startswith("sha256="):
@@ -64,6 +75,64 @@ def verify_request_signature(
     if not hmac.compare_digest(expected, signature_header):
         msg = "X-Hub-Signature-256 mismatch"
         raise WhatsAppWebhookError(msg)
+
+
+def extract_inbound_sender_ids(payload: dict[str, Any]) -> list[str]:
+    """Collect WhatsApp `from` ids from inbound message events (digits only)."""
+    senders: list[str] = []
+    entries = payload.get("entry")
+    if not isinstance(entries, list):
+        return senders
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        changes = entry.get("changes")
+        if not isinstance(changes, list):
+            continue
+        for change in changes:
+            if not isinstance(change, dict):
+                continue
+            value = change.get("value")
+            if not isinstance(value, dict):
+                continue
+            messages = value.get("messages")
+            if not isinstance(messages, list):
+                continue
+            for message in messages:
+                if not isinstance(message, dict):
+                    continue
+                sender = message.get("from")
+                if sender:
+                    senders.append(normalize_wa_id(str(sender)))
+    return senders
+
+
+def auto_verify_whatsapp_senders(db: Session, sender_ids: list[str]) -> int:
+    """Mark unverified WhatsApp channels verified when sender matches stored phone."""
+    if not sender_ids:
+        return 0
+    sender_set = set(sender_ids)
+    channels = db.scalars(
+        select(NotificationChannel).where(
+            NotificationChannel.channel_type == ChannelType.WHATSAPP,
+            NotificationChannel.is_verified.is_(False),
+        )
+    ).all()
+    verified = 0
+    now = datetime.now(UTC)
+    for channel in channels:
+        try:
+            plain = decrypt_pii(channel.channel_address)
+        except ValueError:
+            logger.warning("Skipping channel_id=%s — PII decrypt failed", channel.id)
+            continue
+        if normalize_wa_id(plain) in sender_set:
+            channel.is_verified = True
+            channel.verified_at = now
+            verified += 1
+    if verified:
+        db.commit()
+    return verified
 
 
 def summarize_webhook_payload(payload: dict[str, Any]) -> dict[str, Any]:

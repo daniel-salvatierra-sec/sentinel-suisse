@@ -11,6 +11,7 @@ from sentinel_suisse.config import Settings, get_settings
 from sentinel_suisse.main import app
 from sentinel_suisse.services.whatsapp_webhook import (
     WhatsAppWebhookError,
+    extract_inbound_sender_ids,
     summarize_webhook_payload,
     verify_request_signature,
     verify_subscription_challenge,
@@ -90,6 +91,24 @@ def test_summarize_webhook_payload_counts() -> None:
     assert summary["status_count"] == 1
 
 
+def test_extract_inbound_sender_ids() -> None:
+    payload = {
+        "object": "whatsapp_business_account",
+        "entry": [
+            {
+                "changes": [
+                    {
+                        "value": {
+                            "messages": [{"from": "41791234567", "id": "wamid.1", "type": "text"}]
+                        }
+                    }
+                ]
+            }
+        ],
+    }
+    assert extract_inbound_sender_ids(payload) == ["41791234567"]
+
+
 def test_webhook_get_challenge(monkeypatch: pytest.MonkeyPatch) -> None:
     verify = _ephemeral("vt")
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", verify)
@@ -142,5 +161,76 @@ def test_webhook_post_ack_without_secret(monkeypatch: pytest.MonkeyPatch) -> Non
         )
         assert response.status_code == 200
         assert response.json()["status"] == "ok"
+        assert response.json()["verified"] == 0
     finally:
+        get_settings.cache_clear()
+
+
+def test_webhook_auto_verifies_matching_whatsapp_channel(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("SIGNUP_AUTO_VERIFY", "false")
+    monkeypatch.setenv("NOTIFIER_MODE", "console")
+    monkeypatch.setenv("WHATSAPP_APP_SECRET", "")
+    monkeypatch.setenv("WHATSAPP_INBOUND_AUTO_VERIFY", "true")
+    get_settings.cache_clear()
+    client = TestClient(app)
+
+    phone_e164 = "+41791112233"
+    email = f"wa-inbound-{uuid.uuid4().hex[:10]}@example.com"
+    try:
+        signup = client.post(
+            "/api/v1/public/signup",
+            json={
+                "email": email,
+                "phone": phone_e164,
+                "locale": "fr",
+                "consent": True,
+                "query": {"listing_type": "housing", "location": "Geneva"},
+            },
+        )
+        assert signup.status_code == 201, signup.text
+        api_key = signup.json()["api_key"]
+        assert signup.json()["whatsapp_verified"] is False
+
+        inbound = {
+            "object": "whatsapp_business_account",
+            "entry": [
+                {
+                    "changes": [
+                        {
+                            "value": {
+                                "messages": [
+                                    {
+                                        "from": "41791112233",
+                                        "id": "wamid.test",
+                                        "type": "text",
+                                        "text": {"body": "ok"},
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ],
+        }
+        response = client.post("/api/v1/webhooks/whatsapp", json=inbound)
+        assert response.status_code == 200, response.text
+        assert response.json()["verified"] == 1
+
+        channels = client.get(
+            "/api/v1/notification-channels",
+            headers={"X-API-Key": api_key},
+        )
+        assert channels.status_code == 200
+        wa = next(item for item in channels.json() if item["channel_type"] == "whatsapp")
+        assert wa["is_verified"] is True
+    finally:
+        monkeypatch.delenv("SIGNUP_AUTO_VERIFY", raising=False)
+        monkeypatch.setenv("APP_ENV", "development")
         get_settings.cache_clear()

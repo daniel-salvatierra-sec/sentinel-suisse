@@ -4,11 +4,15 @@ import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from sqlalchemy.orm import Session
 
+from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import Settings, get_settings
 from sentinel_suisse.services.whatsapp_webhook import (
     WhatsAppWebhookError,
+    auto_verify_whatsapp_senders,
+    extract_inbound_sender_ids,
     summarize_webhook_payload,
     verify_request_signature,
     verify_subscription_challenge,
@@ -53,8 +57,9 @@ def whatsapp_webhook_verify(
 async def whatsapp_webhook_receive(
     request: Request,
     settings: Settings = Depends(_settings),
-) -> dict[str, str]:
-    """Acknowledge Meta webhook events (signature-checked when secret set)."""
+    db: Session = Depends(get_db),
+) -> dict[str, str | int]:
+    """Acknowledge Meta webhook events; auto-verify matching WhatsApp channels."""
     body = await request.body()
     signature = request.headers.get("X-Hub-Signature-256")
     try:
@@ -87,4 +92,12 @@ async def whatsapp_webhook_receive(
         summary.get("message_count"),
         summary.get("status_count"),
     )
-    return {"status": "ok"}
+
+    verified = 0
+    if settings.whatsapp_inbound_auto_verify:
+        senders = extract_inbound_sender_ids(payload)
+        verified = auto_verify_whatsapp_senders(db, senders)
+        if verified:
+            logger.info("whatsapp_webhook auto_verified=%s", verified)
+
+    return {"status": "ok", "verified": verified}

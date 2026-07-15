@@ -43,6 +43,8 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str = ""
     whatsapp_verify_token: str = ""
     whatsapp_app_secret: str = ""
+    # Phase 24 — mark WhatsApp channel verified when Meta delivers inbound message
+    whatsapp_inbound_auto_verify: bool = True
     # Dispatch alerts automatically after ingest when new listings are created
     ingest_dispatch_alerts: bool = False
     # Live Homegate fetch — disabled by default (legal / rate-limit review required)
