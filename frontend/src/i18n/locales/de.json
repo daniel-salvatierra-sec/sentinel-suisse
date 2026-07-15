@@ -60,5 +60,9 @@
   "verifyError": "Bestätigungslink ungültig oder abgelaufen.",
   "alertCheckEmail": "Prüfen Sie Ihr Postfach und klicken Sie auf den Bestätigungslink.",
   "alertCheckWhatsapp": "Öffnen Sie WhatsApp und tippen Sie auf den Bestätigungslink.",
-  "whatsappVerifyHint": "Mit WhatsApp-Nummer erhalten Sie den Bestätigungslink auch per Nachricht."
+  "whatsappVerifyHint": "Mit WhatsApp-Nummer erhalten Sie den Bestätigungslink auch per Nachricht.",
+  "qrTitle": "Scannen zur Registrierung",
+  "qrDesc": "Öffnen Sie diesen Link auf dem Handy, um ein Konto zu erstellen. Im LAN VITE_PUBLIC_APP_URL setzen.",
+  "qrCopy": "Link kopieren",
+  "qrCopied": "Link kopiert"
 }

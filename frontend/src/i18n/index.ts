@@ -73,6 +73,10 @@ export type Messages = {
   alertCheckEmail: string;
   alertCheckWhatsapp: string;
   whatsappVerifyHint: string;
+  qrTitle: string;
+  qrDesc: string;
+  qrCopy: string;
+  qrCopied: string;
 };
 
 import fr from "./locales/fr.json";

@@ -60,5 +60,9 @@
   "verifyError": "Confirmation link invalid or expired.",
   "alertCheckEmail": "Check your inbox and click the confirmation link.",
   "alertCheckWhatsapp": "Open WhatsApp and tap the confirmation link.",
-  "whatsappVerifyHint": "With a WhatsApp number, the confirmation link is also sent by message."
+  "whatsappVerifyHint": "With a WhatsApp number, the confirmation link is also sent by message.",
+  "qrTitle": "Scan to sign up",
+  "qrDesc": "Open this link on your phone to create an account. On a local network, set VITE_PUBLIC_APP_URL.",
+  "qrCopy": "Copy link",
+  "qrCopied": "Link copied"
 }

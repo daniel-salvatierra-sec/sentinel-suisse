@@ -3,17 +3,29 @@ import {
   deleteSavedSearch,
   fetchSavedSearches,
   getApiKey,
+  type ListingType,
   type SavedSearch,
 } from "../api";
-import type { Messages } from "../i18n";
+import type { Lang, Messages } from "../i18n";
+import { SubscribeQr } from "./SubscribeQr";
 
 type Props = {
   t: Messages;
+  locale: Lang;
+  listingType: ListingType;
+  location: string;
   refreshToken: number;
   onGoToAccount: () => void;
 };
 
-export function MyAlertsPanel({ t, refreshToken, onGoToAccount }: Props) {
+export function MyAlertsPanel({
+  t,
+  locale,
+  listingType,
+  location,
+  refreshToken,
+  onGoToAccount,
+}: Props) {
   const [searches, setSearches] = useState<SavedSearch[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,6 +57,7 @@ export function MyAlertsPanel({ t, refreshToken, onGoToAccount }: Props) {
         <button type="button" className="primary-btn" style={{ width: "100%" }} onClick={onGoToAccount}>
           {t.accountSignupCta}
         </button>
+        <SubscribeQr t={t} lang={locale} listingType={listingType} location={location} />
       </section>
     );
   }

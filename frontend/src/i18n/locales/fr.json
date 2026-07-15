@@ -60,5 +60,9 @@
   "verifyError": "Lien de confirmation invalide ou expiré.",
   "alertCheckEmail": "Consultez votre boîte mail et cliquez sur le lien de confirmation.",
   "alertCheckWhatsapp": "Ouvrez WhatsApp et cliquez sur le lien de confirmation.",
-  "whatsappVerifyHint": "Si vous ajoutez WhatsApp, le lien de confirmation sera aussi envoyé par message."
+  "whatsappVerifyHint": "Si vous ajoutez WhatsApp, le lien de confirmation sera aussi envoyé par message.",
+  "qrTitle": "Scanner pour s'inscrire",
+  "qrDesc": "Ouvrez ce lien sur votre téléphone pour créer un compte. Sur le réseau local, utilisez VITE_PUBLIC_APP_URL.",
+  "qrCopy": "Copier le lien",
+  "qrCopied": "Lien copié"
 }

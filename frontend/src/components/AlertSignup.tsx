@@ -2,6 +2,7 @@ import { useState } from "react";
 import { formatFullPhone } from "../countryCodes";
 import { subscribeAlerts, type ListingType } from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
+import { SubscribeQr } from "./SubscribeQr";
 import type { Lang, Messages } from "../i18n";
 
 type Props = {
@@ -132,6 +133,7 @@ export function AlertSignup({
       {status === "error" && errorMessage && (
         <p className="alert-feedback error">{errorMessage}</p>
       )}
+      <SubscribeQr t={t} lang={locale} listingType={listingType} location={location} />
     </section>
   );
 }

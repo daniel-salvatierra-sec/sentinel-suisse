@@ -60,5 +60,9 @@
   "verifyError": "Enlace de confirmación inválido o caducado.",
   "alertCheckEmail": "Revisa tu correo y haz clic en el enlace de confirmación.",
   "alertCheckWhatsapp": "Abre WhatsApp y pulsa el enlace de confirmación.",
-  "whatsappVerifyHint": "Con número WhatsApp, el enlace de confirmación también se envía por mensaje."
+  "whatsappVerifyHint": "Con número WhatsApp, el enlace de confirmación también se envía por mensaje.",
+  "qrTitle": "Escanea para registrarte",
+  "qrDesc": "Abre este enlace en el móvil para crear una cuenta. En red local, usa VITE_PUBLIC_APP_URL.",
+  "qrCopy": "Copiar enlace",
+  "qrCopied": "Enlace copiado"
 }

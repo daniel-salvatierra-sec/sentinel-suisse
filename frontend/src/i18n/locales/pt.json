@@ -60,5 +60,9 @@
   "verifyError": "Ligação de confirmação inválida ou expirada.",
   "alertCheckEmail": "Verifique o email e clique na ligação de confirmação.",
   "alertCheckWhatsapp": "Abra o WhatsApp e toque na ligação de confirmação.",
-  "whatsappVerifyHint": "Com número WhatsApp, a ligação de confirmação também é enviada por mensagem."
+  "whatsappVerifyHint": "Com número WhatsApp, a ligação de confirmação também é enviada por mensagem.",
+  "qrTitle": "Digitalize para se registar",
+  "qrDesc": "Abra este link no telemóvel para criar uma conta. Em rede local, use VITE_PUBLIC_APP_URL.",
+  "qrCopy": "Copiar ligação",
+  "qrCopied": "Ligação copiada"
 }

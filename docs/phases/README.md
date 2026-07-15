@@ -29,3 +29,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-19-whatsapp-verify.md](phase-19-whatsapp-verify.md) | WhatsApp channel verification |
 | [phase-20-flatfox.md](phase-20-flatfox.md) | Flatfox housing connector |
 | [phase-21-immoscout.md](phase-21-immoscout.md) | ImmoScout24 housing connector |
+| [phase-22-qr-subscribe.md](phase-22-qr-subscribe.md) | QR scan-to-subscribe deep links |

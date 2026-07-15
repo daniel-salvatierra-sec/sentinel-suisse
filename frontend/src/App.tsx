@@ -10,6 +10,7 @@ import { MapView } from "./components/MapView";
 import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
+import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 
 type Tab = "list" | "map" | "alerts" | "account";
 
@@ -24,8 +25,30 @@ export default function App() {
   const [focusId, setFocusId] = useState<number | null>(null);
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
   const [accountRefresh, setAccountRefresh] = useState(0);
+  const [deepLinkReady, setDeepLinkReady] = useState(false);
 
   const t = messages[lang];
+
+  useEffect(() => {
+    const deep = parseSubscribeDeepLink(window.location.search);
+    if (deep.lang) {
+      saveLang(deep.lang);
+      setLang(deep.lang);
+    }
+    if (deep.listingType) {
+      setCategory(deep.listingType);
+    }
+    if (deep.location != null) {
+      setQuery(deep.location);
+    }
+    if (deep.tab === "account") {
+      setTab("account");
+    }
+    if (deep.tab || deep.lang || deep.listingType || deep.location != null) {
+      stripSubscribeParamsFromUrl();
+    }
+    setDeepLinkReady(true);
+  }, []);
 
   const runSearch = useCallback(async () => {
     setLoading(true);
@@ -43,10 +66,11 @@ export default function App() {
   }, [category, query]);
 
   useEffect(() => {
+    if (!deepLinkReady) return;
     if (tab === "list" || tab === "map") {
       void runSearch();
     }
-  }, [tab, category, runSearch]);
+  }, [tab, category, runSearch, deepLinkReady]);
 
   const onSignupSuccess = () => {
     setHasSession(true);
@@ -130,6 +154,9 @@ export default function App() {
       {tab === "alerts" && (
         <MyAlertsPanel
           t={t}
+          locale={lang}
+          listingType={category}
+          location={query}
           refreshToken={accountRefresh}
           onGoToAccount={() => setTab("account")}
         />
