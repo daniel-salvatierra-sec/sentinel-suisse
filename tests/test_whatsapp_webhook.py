@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from sentinel_suisse.config import Settings, get_settings
-from sentinel_suisse.main import app
+from sentinel_suisse.main import create_app
 from sentinel_suisse.services.whatsapp_webhook import (
     WhatsAppWebhookError,
     extract_inbound_sender_ids,
@@ -146,7 +146,7 @@ def test_webhook_get_challenge(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", verify)
     monkeypatch.setenv("WHATSAPP_APP_SECRET", "")
     get_settings.cache_clear()
-    client = TestClient(app)
+    client = TestClient(create_app())
     try:
         response = client.get(
             "/api/v1/webhooks/whatsapp",
@@ -166,7 +166,7 @@ def test_webhook_get_rejects_bad_token(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", _ephemeral("vt"))
     monkeypatch.setenv("WHATSAPP_APP_SECRET", "")
     get_settings.cache_clear()
-    client = TestClient(app)
+    client = TestClient(create_app())
     try:
         response = client.get(
             "/api/v1/webhooks/whatsapp",
@@ -185,7 +185,7 @@ def test_webhook_post_ack_without_secret(monkeypatch: pytest.MonkeyPatch) -> Non
     monkeypatch.setenv("WHATSAPP_VERIFY_TOKEN", _ephemeral("vt"))
     monkeypatch.setenv("WHATSAPP_APP_SECRET", "")
     get_settings.cache_clear()
-    client = TestClient(app)
+    client = TestClient(create_app())
     try:
         response = client.post(
             "/api/v1/webhooks/whatsapp",
@@ -212,7 +212,7 @@ def test_webhook_auto_verifies_matching_whatsapp_channel(
     monkeypatch.setenv("WHATSAPP_INBOUND_AUTO_VERIFY", "true")
     monkeypatch.setenv("WHATSAPP_VERIFY_KEYWORD", "OK")
     get_settings.cache_clear()
-    client = TestClient(app)
+    client = TestClient(create_app())
 
     phone_e164 = "+41791112233"
     email = f"wa-inbound-{uuid.uuid4().hex[:10]}@example.com"

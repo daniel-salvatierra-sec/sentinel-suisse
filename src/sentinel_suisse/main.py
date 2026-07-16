@@ -2,7 +2,7 @@
 
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -23,6 +23,7 @@ from sentinel_suisse.api.routes import (
     webhooks,
 )
 from sentinel_suisse.config import Settings, get_settings
+from sentinel_suisse.services.health import check_database
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -31,7 +32,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application = FastAPI(
         title="Sentinel Suisse API",
         description="Sentinel Suisse — housing and job alerts",
-        version="0.34.0",
+        version="0.35.0",
         docs_url="/docs" if settings.app_env == "development" else None,
         redoc_url=None,
     )
@@ -41,7 +42,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.add_middleware(SlowAPIMiddleware)
 
     trusted_hosts = settings.trusted_hosts_list()
-    if trusted_hosts:
+    if settings.app_env == "production" and trusted_hosts:
         application.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
     cors_origins: list[str] = []
@@ -78,9 +79,18 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
 
     @application.get("/health")
-    @limiter.limit(lambda: get_settings().rate_limit)
-    def health(request: Request) -> dict[str, str]:
-        return {"status": "ok", "env": settings.app_env}
+    @limiter.exempt
+    def health(response: Response) -> dict[str, str]:
+        # Exempt from rate limiting — used by Docker HEALTHCHECK and monitors.
+        db_ok = check_database()
+        payload = {
+            "status": "ok" if db_ok else "degraded",
+            "env": settings.app_env,
+            "database": "ok" if db_ok else "error",
+        }
+        if not db_ok:
+            response.status_code = 503
+        return payload
 
     def custom_openapi() -> dict:
         if application.openapi_schema:

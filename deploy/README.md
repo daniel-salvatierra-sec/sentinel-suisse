@@ -66,3 +66,25 @@ Internet → Caddy (:443 TLS) → api:8000 (FastAPI + static frontend)
 - Set `TRUSTED_HOSTS` to your public hostname(s)
 - Swagger `/docs` is disabled when `APP_ENV=production`
 - Never commit `.env` with real secrets
+- Container logs rotate via `json-file` (`max-size: 10m`, `max-file: 3`)
+
+## Production hardening (Phase 35)
+
+Run these **once on the VPS** (Linux):
+
+| Script | Purpose |
+|--------|---------|
+| `deploy/setup-firewall.sh` | UFW: allow SSH + 80/443 only |
+| `deploy/fail2ban/sshd.local` | Copy to `/etc/fail2ban/jail.d/`, restart fail2ban |
+| `deploy/backup-db.sh` | Postgres dump → `./backups/` (14-day retention) |
+| `deploy/restore-db.sh` | Restore from `.sql.gz` backup |
+| `deploy/monitor-health.sh` | Exit non-zero if `/health` or DB check fails |
+
+Example cron on VPS:
+
+```bash
+0 3 * * * /opt/sentinel-suisse/deploy/backup-db.sh
+*/5 * * * * /opt/sentinel-suisse/deploy/monitor-health.sh https://your-domain.example/health
+```
+
+`/health` returns `database: ok` when Postgres is reachable; HTTP **503** when not.

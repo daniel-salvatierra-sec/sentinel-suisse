@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from sentinel_suisse.config import get_settings
-from sentinel_suisse.main import app
+from sentinel_suisse.main import create_app
 
 
 def _unique_email() -> str:
@@ -17,15 +17,17 @@ def _unique_email() -> str:
 @pytest.fixture
 def dev_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("APP_ENV", "development")
+    monkeypatch.setenv("TRUSTED_HOSTS", "")
     get_settings.cache_clear()
-    return TestClient(app)
+    return TestClient(create_app())
 
 
 @pytest.fixture
 def prod_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setenv("TRUSTED_HOSTS", "")
     get_settings.cache_clear()
-    yield TestClient(app)
+    yield TestClient(create_app())
     monkeypatch.setenv("APP_ENV", os.environ.get("APP_ENV", "development"))
     get_settings.cache_clear()
 
@@ -107,7 +109,7 @@ def test_public_signup_enabled_flag_in_production(
     monkeypatch.setenv("PUBLIC_SIGNUP_ENABLED", "true")
     monkeypatch.setenv("SIGNUP_AUTO_VERIFY", "true")
     get_settings.cache_clear()
-    client = TestClient(app)
+    client = TestClient(create_app())
     try:
         response = client.post("/api/v1/public/signup", json=_signup_payload())
         assert response.status_code == 201, response.text

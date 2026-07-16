@@ -1,0 +1,11 @@
+# Copy to VPS: /etc/fail2ban/jail.d/sentinel-sshd.local
+# Then: sudo systemctl restart fail2ban
+
+[sshd]
+enabled = true
+port = ssh
+filter = sshd
+logpath = /var/log/auth.log
+maxretry = 5
+findtime = 10m
+bantime = 1h

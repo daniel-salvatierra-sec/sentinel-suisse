@@ -9,6 +9,7 @@ from sentinel_suisse.main import create_app
 
 @pytest.fixture
 def trusted_host_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
+    monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("TRUSTED_HOSTS", "allowed.example")
     get_settings.cache_clear()
     return TestClient(create_app())
@@ -25,6 +26,7 @@ def test_trusted_host_blocks_unknown_host(trusted_host_client: TestClient) -> No
 
 
 def test_trusted_host_disabled_without_config(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("TRUSTED_HOSTS", "")
     get_settings.cache_clear()
     client = TestClient(create_app())

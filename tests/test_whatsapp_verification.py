@@ -7,7 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from sentinel_suisse.config import get_settings
-from sentinel_suisse.main import app
+from sentinel_suisse.main import create_app
 from sentinel_suisse.security.verification_tokens import create_channel_verification_token
 
 
@@ -21,7 +21,8 @@ def verification_secret(monkeypatch: pytest.MonkeyPatch) -> str:
 
 @pytest.fixture
 def dev_client(verification_secret: str) -> TestClient:  # noqa: ARG001
-    return TestClient(app)
+    get_settings.cache_clear()
+    return TestClient(create_app())
 
 
 def _unique_email() -> str:
