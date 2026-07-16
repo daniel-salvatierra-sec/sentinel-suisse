@@ -41,3 +41,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-31-provider-multiselect.md](phase-31-provider-multiselect.md) | Multi-select provider filter chips |
 | [phase-32-virtual-list.md](phase-32-virtual-list.md) | Virtualized listing list |
 | [phase-33-hosting-tls.md](phase-33-hosting-tls.md) | Hosting + TLS (Docker + Caddy) |
+| [phase-34-ci-cd-deploy.md](phase-34-ci-cd-deploy.md) | CI/CD deploy (GitHub Actions → VPS) |

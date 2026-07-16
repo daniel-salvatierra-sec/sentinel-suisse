@@ -1,0 +1,49 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            set -e
+            cd "${{ secrets.DEPLOY_PATH }}"
+
+            if [ ! -f ".env" ]; then
+              echo ".env not found on VPS at DEPLOY_PATH. Aborting."
+              exit 1
+            fi
+
+            if [ ! -f "docker-compose.prod.yml" ]; then
+              echo "docker-compose.prod.yml not found on VPS at DEPLOY_PATH. Aborting."
+              exit 1
+            fi
+
+            # Fetch latest app code (assumes repo already exists on the VPS)
+            if [ -d ".git" ]; then
+              git fetch origin main
+              git checkout main
+              git pull --ff-only origin main
+            else
+              echo "No git repo found in DEPLOY_PATH; refusing to deploy automatically."
+              exit 1
+            fi
+
+            # Build + restart stack
+            if command -v docker-compose >/dev/null 2>&1; then
+              docker-compose -f docker-compose.prod.yml up -d --build
+            else
+              docker compose -f docker-compose.prod.yml up -d --build
+            fi
+
