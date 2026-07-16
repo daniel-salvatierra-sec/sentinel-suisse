@@ -25,6 +25,8 @@ class Settings(BaseSettings):
     api_host: str = "127.0.0.1"
     api_port: int = 8000
     public_app_url: str = "http://127.0.0.1:5173"
+    # Comma-separated hostnames for TrustedHostMiddleware in production (e.g. app.example.com)
+    trusted_hosts: str = ""
     verification_token_ttl_hours: int = 48
     # None = auto (enabled in development); True/False force
     public_signup_enabled: bool | None = None
@@ -84,6 +86,11 @@ class Settings(BaseSettings):
         if self.signup_auto_verify is not None:
             return self.signup_auto_verify
         return self.app_env == "development"
+
+    def trusted_hosts_list(self) -> list[str]:
+        if not self.trusted_hosts.strip():
+            return []
+        return [host.strip() for host in self.trusted_hosts.split(",") if host.strip()]
 
 
 @lru_cache

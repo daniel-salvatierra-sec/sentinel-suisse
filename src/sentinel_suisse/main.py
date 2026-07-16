@@ -1,4 +1,4 @@
-"""FastAPI application — localhost only (Phase 2+)."""
+"""FastAPI application."""
 
 from pathlib import Path
 
@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.api.routes import (
@@ -21,86 +22,89 @@ from sentinel_suisse.api.routes import (
     users,
     webhooks,
 )
-from sentinel_suisse.config import get_settings
+from sentinel_suisse.config import Settings, get_settings
 
-settings = get_settings()
 
-app = FastAPI(
-    title="Sentinel Suisse API",
-    description="Internal API — localhost only until public launch",
-    version="0.32.0",
-    docs_url="/docs" if settings.app_env == "development" else None,
-    redoc_url=None,
-)
+def create_app(settings: Settings | None = None) -> FastAPI:
+    settings = settings or get_settings()
 
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-app.add_middleware(SlowAPIMiddleware)
-
-_cors_origins: list[str] = []
-if settings.app_env == "development":
-    _cors_origins.append("http://127.0.0.1:5173")
-_public_origin = settings.public_app_url.rstrip("/")
-if _public_origin and _public_origin not in _cors_origins:
-    _cors_origins.append(_public_origin)
-
-if _cors_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=_cors_origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
+    application = FastAPI(
+        title="Sentinel Suisse API",
+        description="Sentinel Suisse — housing and job alerts",
+        version="0.33.0",
+        docs_url="/docs" if settings.app_env == "development" else None,
+        redoc_url=None,
     )
 
-app.include_router(providers.router, prefix="/api/v1")
-app.include_router(listings.router, prefix="/api/v1")
-app.include_router(search.router, prefix="/api/v1")
-app.include_router(users.router, prefix="/api/v1")
-app.include_router(saved_searches.router, prefix="/api/v1")
-app.include_router(notification_channels.router, prefix="/api/v1")
-app.include_router(alerts.router, prefix="/api/v1")
-app.include_router(legal.router, prefix="/api/v1")
-app.include_router(public.router, prefix="/api/v1")
-app.include_router(webhooks.router, prefix="/api/v1")
+    application.state.limiter = limiter
+    application.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    application.add_middleware(SlowAPIMiddleware)
 
+    trusted_hosts = settings.trusted_hosts_list()
+    if trusted_hosts:
+        application.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
 
-def _mount_frontend() -> None:
+    cors_origins: list[str] = []
+    if settings.app_env == "development":
+        cors_origins.append("http://127.0.0.1:5173")
+    public_origin = settings.public_app_url.rstrip("/")
+    if public_origin and public_origin not in cors_origins:
+        cors_origins.append(public_origin)
+
+    if cors_origins:
+        application.add_middleware(
+            CORSMiddleware,
+            allow_origins=cors_origins,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+    application.include_router(providers.router, prefix="/api/v1")
+    application.include_router(listings.router, prefix="/api/v1")
+    application.include_router(search.router, prefix="/api/v1")
+    application.include_router(users.router, prefix="/api/v1")
+    application.include_router(saved_searches.router, prefix="/api/v1")
+    application.include_router(notification_channels.router, prefix="/api/v1")
+    application.include_router(alerts.router, prefix="/api/v1")
+    application.include_router(legal.router, prefix="/api/v1")
+    application.include_router(public.router, prefix="/api/v1")
+    application.include_router(webhooks.router, prefix="/api/v1")
+
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if dist.is_dir():
         from fastapi.staticfiles import StaticFiles
 
-        app.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
+        application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
+
+    @application.get("/health")
+    @limiter.limit(lambda: get_settings().rate_limit)
+    def health(request: Request) -> dict[str, str]:
+        return {"status": "ok", "env": settings.app_env}
+
+    def custom_openapi() -> dict:
+        if application.openapi_schema:
+            return application.openapi_schema
+        from fastapi.openapi.utils import get_openapi
+
+        schema = get_openapi(
+            title=application.title,
+            version=application.version,
+            description=application.description,
+            routes=application.routes,
+        )
+        schema.setdefault("components", {}).setdefault("securitySchemes", {})
+        schema["components"]["securitySchemes"]["X-API-Key"] = {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-API-Key",
+        }
+        application.openapi_schema = schema
+        return application.openapi_schema
+
+    application.openapi = custom_openapi  # type: ignore[method-assign]
+
+    return application
 
 
-_mount_frontend()
-
-
-def custom_openapi() -> dict:
-    if app.openapi_schema:
-        return app.openapi_schema
-    from fastapi.openapi.utils import get_openapi
-
-    schema = get_openapi(
-        title=app.title,
-        version=app.version,
-        description=app.description,
-        routes=app.routes,
-    )
-    schema.setdefault("components", {}).setdefault("securitySchemes", {})
-    schema["components"]["securitySchemes"]["X-API-Key"] = {
-        "type": "apiKey",
-        "in": "header",
-        "name": "X-API-Key",
-    }
-    app.openapi_schema = schema
-    return app.openapi_schema
-
-
-app.openapi = custom_openapi  # type: ignore[method-assign]
-
-
-@app.get("/health")
-@limiter.limit(lambda: get_settings().rate_limit)
-def health(request: Request) -> dict[str, str]:
-    return {"status": "ok", "env": settings.app_env}
+app = create_app()

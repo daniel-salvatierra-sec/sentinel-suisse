@@ -31,6 +31,10 @@ pip install -r requirements.txt
 pre-commit run --all-files
 ```
 
+## Production deployment
+
+Docker + Caddy (HTTPS): see [`deploy/README.md`](deploy/README.md) and [`docs/phases/phase-33-hosting-tls.md`](docs/phases/phase-33-hosting-tls.md).
+
 ## Project structure
 
 ```

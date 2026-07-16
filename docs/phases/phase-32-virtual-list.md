@@ -74,4 +74,5 @@ git push origin main
 
 ## Out of scope (later)
 
-- Hosting / TLS
+- CI/CD to VPS
+- Managed PaaS adapters
