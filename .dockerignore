@@ -15,8 +15,10 @@ node_modules
 frontend/node_modules
 frontend/dist
 frontend/.vite
-*.md
-docs
+# Keep legal docs in the image (privacy + terms APIs)
+docs/phases
+docs/agent-prompts
+docs/providers
 tests
 postgres_data
 redis_data

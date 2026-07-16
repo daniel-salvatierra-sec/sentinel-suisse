@@ -56,6 +56,7 @@ export type Messages = {
   noResults: string;
   loading: string;
   privacy: string;
+  terms: string;
   openSource: string;
   priceMonthly: string;
   route: string;

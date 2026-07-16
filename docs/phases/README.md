@@ -43,3 +43,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-33-hosting-tls.md](phase-33-hosting-tls.md) | Hosting + TLS (Docker + Caddy) |
 | [phase-34-ci-cd-deploy.md](phase-34-ci-cd-deploy.md) | CI/CD deploy (GitHub Actions → VPS) |
 | [phase-35-prod-hardening.md](phase-35-prod-hardening.md) | Production hardening (backups, firewall, monitoring) |
+| [phase-36-legal-model.md](phase-36-legal-model.md) | Terms of service + nLPD checklist + open/paid model |

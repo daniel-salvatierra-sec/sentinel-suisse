@@ -671,9 +671,15 @@ body {
   background: rgba(30, 107, 140, 0.08);
 }
 
+.legal-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
 .privacy-link {
   display: inline-block;
-  margin-top: 1rem;
   color: var(--lake);
 }
 

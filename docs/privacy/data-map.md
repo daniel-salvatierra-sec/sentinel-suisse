@@ -29,5 +29,11 @@
 
 - [x] Encrypt `email` and `channel_address` at rest
 - [x] Publish privacy policy (FR/DE/ES/PT/EN) — `GET /api/v1/legal/privacy?lang=fr|de|es|pt|en`
+- [x] Publish terms of service (FR/DE/ES/PT/EN) — `GET /api/v1/legal/terms?lang=fr|de|es|pt|en`
 - [x] Implement right-to-erasure (delete user cascades channels + searches)
 - [x] TTL job for `raw_payload`
+- [x] nLPD operational checklist — [`docs/legal/nlpd-checklist.md`](../legal/nlpd-checklist.md)
+- [x] Provisional open vs paid model — [`docs/legal/business-model.md`](../legal/business-model.md)
+- [ ] Real privacy contact + legal review before public launch
+- [ ] Payment processors only after Terms update (Phase 38+)
+

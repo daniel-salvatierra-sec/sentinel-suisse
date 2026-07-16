@@ -254,9 +254,14 @@ export default function App() {
         />
       )}
 
-      <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
-        {t.privacy}
-      </a>
+      <div className="legal-links">
+        <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
+          {t.privacy}
+        </a>
+        <a className="privacy-link" href={`/api/v1/legal/terms?lang=${lang}`} target="_blank" rel="noreferrer">
+          {t.terms}
+        </a>
+      </div>
 
       <GuideBot
         t={t}
