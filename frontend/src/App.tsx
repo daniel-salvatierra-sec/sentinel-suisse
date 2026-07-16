@@ -9,8 +9,8 @@ import {
   type Provider,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
-import { CategoryCards } from "./components/CategoryCards";
 import { FilterBar } from "./components/FilterBar";
+import { GoalHub } from "./components/GoalHub";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
 import { MapView } from "./components/MapView";
@@ -172,7 +172,7 @@ export default function App() {
         <p>{t.tagline}</p>
       </header>
 
-      <CategoryCards t={t} active={category} onSelect={setCategory} />
+      <GoalHub t={t} active={category} onSelect={setCategory} />
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
       <FilterBar
         t={t}
@@ -265,6 +265,8 @@ export default function App() {
 
       <GuideBot
         t={t}
+        zone={category}
+        searching={loading || loadingMore}
         onPickCategory={(type) => {
           setCategory(type);
           setTab("list");

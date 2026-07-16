@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import type { ListingType } from "../api";
 import { loadGuideSeen, saveGuideSeen } from "../guideStorage";
 import type { Messages } from "../i18n";
+import { FireflyBuddy } from "./FireflyBuddy";
 
 type Props = {
   t: Messages;
+  zone: ListingType;
+  searching: boolean;
   onPickCategory: (type: ListingType) => void;
   onOpenAlerts: () => void;
   onStartSearch: (location: string) => void;
@@ -15,7 +18,15 @@ type Step = "welcome" | "category" | "search" | "map" | "alerts" | "done";
 
 const STEPS: Step[] = ["welcome", "category", "search", "map", "alerts", "done"];
 
-export function GuideBot({ t, onPickCategory, onOpenAlerts, onStartSearch, onOpenMap }: Props) {
+export function GuideBot({
+  t,
+  zone,
+  searching,
+  onPickCategory,
+  onOpenAlerts,
+  onStartSearch,
+  onOpenMap,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("welcome");
 
@@ -64,15 +75,23 @@ export function GuideBot({ t, onPickCategory, onOpenAlerts, onStartSearch, onOpe
 
   return (
     <>
-      <button type="button" className="guide-fab" onClick={() => setOpen(true)} aria-label={t.guide}>
-        {t.guide}
-      </button>
+      <FireflyBuddy
+        zone={zone}
+        searching={searching}
+        label={t.fireflyLabel}
+        onOpen={() => setOpen(true)}
+      />
       {open && (
         <div className="modal-backdrop" role="presentation" onClick={close}>
-          <div className="guide-modal" role="dialog" aria-labelledby="guide-title" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="guide-modal"
+            role="dialog"
+            aria-labelledby="guide-title"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="guide-header">
-              <span className="guide-avatar" aria-hidden>
-                SA
+              <span className="guide-avatar firefly-avatar" aria-hidden>
+                ✦
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">

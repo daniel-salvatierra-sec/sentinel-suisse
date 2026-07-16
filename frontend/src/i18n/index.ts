@@ -18,6 +18,13 @@ export type Messages = {
   job: string;
   housingDesc: string;
   jobDesc: string;
+  goalHubLabel: string;
+  goalHome: string;
+  goalWork: string;
+  goalHomeKicker: string;
+  goalWorkKicker: string;
+  goalWorkHint: string;
+  fireflyLabel: string;
   searchPlaceholder: string;
   search: string;
   filters: string;
