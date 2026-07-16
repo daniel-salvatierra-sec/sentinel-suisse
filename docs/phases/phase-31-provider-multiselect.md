@@ -69,4 +69,5 @@ git push origin main
 ## Out of scope (later)
 
 - Hosting / TLS
-- Virtualized long lists
+
+(Virtualized long lists → Phase 32)

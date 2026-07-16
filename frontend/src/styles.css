@@ -283,6 +283,14 @@ body {
   border-color: var(--lake);
 }
 
+.virtual-list {
+  width: 100%;
+}
+
+.virtual-list-item {
+  will-change: transform;
+}
+
 .listing-card {
   background: var(--card);
   border-radius: 1rem;

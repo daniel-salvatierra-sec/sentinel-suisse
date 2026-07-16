@@ -9,16 +9,15 @@ import {
   type Provider,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
-import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { CategoryCards } from "./components/CategoryCards";
 import { FilterBar } from "./components/FilterBar";
 import { GuideBot } from "./components/GuideBot";
-import { InfiniteScrollSentinel } from "./components/InfiniteScrollSentinel";
 import { LanguageBar } from "./components/LanguageBar";
-import { ListingCard } from "./components/ListingCard";
 import { MapView } from "./components/MapView";
+import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
+import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 
@@ -216,31 +215,18 @@ export default function App() {
           {listings.length === 0 ? (
             <p className="empty">{t.noResults}</p>
           ) : (
-            listings.map((listing) => (
-              <ListingCard
-                key={listing.id}
-                listing={listing}
-                t={t}
-                selected={listing.id === focusId}
-                onSelect={() => {
-                  setFocusId(listing.id);
-                  setTab("map");
-                }}
-              />
-            ))
-          )}
-          {listings.length > 0 && hasMore && (
-            <>
-              {loadingMore && <p className="empty scroll-loading">{t.loading}</p>}
-              <InfiniteScrollSentinel
-                enabled={hasMore && !loadingMore}
-                loading={loadingMore}
-                onVisible={() => void loadMore()}
-              />
-            </>
-          )}
-          {listings.length > 0 && !hasMore && (
-            <p className="empty end-of-results">{t.endOfResults}</p>
+            <VirtualizedListingList
+              listings={listings}
+              t={t}
+              focusId={focusId}
+              onSelect={(id) => {
+                setFocusId(id);
+                setTab("map");
+              }}
+              hasMore={hasMore}
+              loadingMore={loadingMore}
+              onLoadMore={() => void loadMore()}
+            />
           )}
         </>
       )}
