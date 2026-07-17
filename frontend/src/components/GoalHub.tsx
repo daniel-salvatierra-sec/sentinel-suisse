@@ -7,7 +7,7 @@ type Props = {
   onSelect: (type: ListingType) => void;
 };
 
-/** Vertical Home / Work hub — first viewport composition for SuisseGoal. */
+/** Vertical Home / Work hub — first viewport composition for LinkSwiss. */
 export function GoalHub({ t, active, onSelect }: Props) {
   return (
     <section className="goal-hub" aria-label={t.goalHubLabel}>

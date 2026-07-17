@@ -81,7 +81,7 @@ export type SignupResponse = {
   whatsapp_verification_sent?: boolean;
 };
 
-const API_KEY_STORAGE = "suisse-alert-api-key";
+const API_KEY_STORAGE = "linkswiss-api-key";
 
 export function getApiKey(): string | null {
   return localStorage.getItem(API_KEY_STORAGE);

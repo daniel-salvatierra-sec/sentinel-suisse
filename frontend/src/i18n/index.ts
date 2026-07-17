@@ -113,7 +113,7 @@ import en from "./locales/en.json";
 
 export const messages: Record<Lang, Messages> = { fr, de, es, pt, en };
 
-const STORAGE_KEY = "suisse-alert-lang";
+const STORAGE_KEY = "linkswiss-lang";
 
 export function loadLang(): Lang {
   const saved = localStorage.getItem(STORAGE_KEY) as Lang | null;
