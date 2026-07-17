@@ -72,16 +72,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(public.router, prefix="/api/v1")
     application.include_router(webhooks.router, prefix="/api/v1")
 
-    dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
-    if dist.is_dir():
-        from fastapi.staticfiles import StaticFiles
-
-        application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
-
     @application.get("/health")
     @limiter.exempt
     def health(response: Response) -> dict[str, str]:
         # Exempt from rate limiting — used by Docker HEALTHCHECK and monitors.
+        # Must be registered BEFORE the frontend StaticFiles mount at "/".
         db_ok = check_database()
         payload = {
             "status": "ok" if db_ok else "degraded",
@@ -91,6 +86,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if not db_ok:
             response.status_code = 503
         return payload
+
+    dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    if dist.is_dir():
+        from fastapi.staticfiles import StaticFiles
+
+        application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
 
     def custom_openapi() -> dict:
         if application.openapi_schema:
