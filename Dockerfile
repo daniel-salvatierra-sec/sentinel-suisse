@@ -20,6 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY pyproject.toml alembic.ini ./
 COPY alembic/ ./alembic/
 COPY src/ ./src/
+COPY fixtures/ ./fixtures/
 COPY docs/privacy/ ./docs/privacy/
 COPY docs/legal/ ./docs/legal/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
