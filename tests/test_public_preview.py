@@ -85,6 +85,32 @@ def test_public_search_pagination_and_price_filter(dev_client: TestClient) -> No
     assert bad.status_code == 422
 
 
+def test_public_search_housing_and_job_filters(dev_client: TestClient) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    housing = dev_client.get(
+        "/api/v1/public/search?listing_type=housing"
+        "&rooms_min=2.5&property_type=apartment&has_parking=true&limit=50"
+    )
+    assert housing.status_code == 200, housing.text
+    assert isinstance(housing.json(), list)
+
+    jobs = dev_client.get(
+        "/api/v1/public/search?listing_type=job"
+        "&job_category=it&employment_type=permanent"
+        "&workload_min=80&workload_max=100&limit=50"
+    )
+    assert jobs.status_code == 200, jobs.text
+    assert isinstance(jobs.json(), list)
+
+    bad_workload = dev_client.get(
+        "/api/v1/public/search?listing_type=job&workload_min=90&workload_max=40"
+    )
+    assert bad_workload.status_code == 422
+
+
 def test_public_providers_and_provider_filter(dev_client: TestClient) -> None:
     settings = get_settings()
     if not settings.database_url:

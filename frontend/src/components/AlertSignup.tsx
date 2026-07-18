@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { formatFullPhone } from "../countryCodes";
-import { subscribeAlerts, type ListingType } from "../api";
+import { subscribeAlerts, type ListingType, type SearchQueryParams } from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
 import { SubscribeQr } from "./SubscribeQr";
 import type { Lang, Messages } from "../i18n";
@@ -10,6 +10,7 @@ type Props = {
   locale: Lang;
   listingType: ListingType;
   location: string;
+  searchQuery?: Omit<SearchQueryParams, "limit" | "offset">;
   onSuccess?: () => void;
   showHeader?: boolean;
 };
@@ -21,6 +22,7 @@ export function AlertSignup({
   locale,
   listingType,
   location,
+  searchQuery,
   onSuccess,
   showHeader = true,
 }: Props) {
@@ -53,8 +55,10 @@ export function AlertSignup({
         email: email.trim(),
         phone: fullPhone || undefined,
         locale,
-        listing_type: listingType,
-        location,
+        query: searchQuery ?? {
+          listing_type: listingType,
+          location,
+        },
       });
       if (result.verification_email_sent || result.verification_pending) {
         setPendingWhatsApp(Boolean(result.whatsapp_verification_sent));

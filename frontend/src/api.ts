@@ -1,4 +1,11 @@
 export type ListingType = "housing" | "job";
+export type PropertyType = "studio" | "apartment" | "house" | "room" | "other";
+export type EmploymentType =
+  | "permanent"
+  | "temporary"
+  | "internship"
+  | "freelance"
+  | "other";
 
 export type Listing = {
   id: number;
@@ -9,33 +16,32 @@ export type Listing = {
   source_url: string;
   description?: string | null;
   provider_id?: number;
+  rooms?: number | null;
+  property_type?: PropertyType | null;
+  has_parking?: boolean | null;
+  job_category?: string | null;
+  employment_type?: EmploymentType | null;
+  workload_min?: number | null;
+  workload_max?: number | null;
 };
 
-export type Provider = {
-  id: number;
-  name: string;
-  slug: string;
-  base_url: string;
-  is_active: boolean;
-};
-
-export async function fetchProviders(): Promise<Provider[]> {
-  const response = await fetch("/api/v1/public/providers");
-  if (!response.ok) {
-    throw new Error("providers failed");
-  }
-  return response.json();
-}
-
-export async function searchListings(params: {
+export type SearchQueryParams = {
   listing_type: ListingType;
   location?: string;
   price_min?: number;
   price_max?: number;
-  provider_ids?: number[];
+  rooms_min?: number;
+  property_type?: PropertyType;
+  has_parking?: boolean;
+  job_category?: string;
+  employment_type?: EmploymentType;
+  workload_min?: number;
+  workload_max?: number;
   limit?: number;
   offset?: number;
-}): Promise<Listing[]> {
+};
+
+export async function searchListings(params: SearchQueryParams): Promise<Listing[]> {
   const query = new URLSearchParams();
   query.set("listing_type", params.listing_type);
   if (params.location?.trim()) {
@@ -47,10 +53,26 @@ export async function searchListings(params: {
   if (params.price_max != null && !Number.isNaN(params.price_max)) {
     query.set("price_max", String(params.price_max));
   }
-  if (params.provider_ids?.length) {
-    for (const id of params.provider_ids) {
-      query.append("provider_ids", String(id));
-    }
+  if (params.rooms_min != null && !Number.isNaN(params.rooms_min)) {
+    query.set("rooms_min", String(params.rooms_min));
+  }
+  if (params.property_type) {
+    query.set("property_type", params.property_type);
+  }
+  if (params.has_parking === true) {
+    query.set("has_parking", "true");
+  }
+  if (params.job_category) {
+    query.set("job_category", params.job_category);
+  }
+  if (params.employment_type) {
+    query.set("employment_type", params.employment_type);
+  }
+  if (params.workload_min != null) {
+    query.set("workload_min", String(params.workload_min));
+  }
+  if (params.workload_max != null) {
+    query.set("workload_max", String(params.workload_max));
   }
   query.set("limit", String(params.limit ?? 20));
   query.set("offset", String(params.offset ?? 0));
@@ -190,8 +212,7 @@ export async function subscribeAlerts(params: {
   email: string;
   phone?: string;
   locale: string;
-  listing_type: ListingType;
-  location?: string;
+  query: Omit<SearchQueryParams, "limit" | "offset">;
 }): Promise<SignupResponse> {
   const response = await fetch("/api/v1/public/signup", {
     method: "POST",
@@ -202,8 +223,17 @@ export async function subscribeAlerts(params: {
       locale: params.locale,
       consent: true,
       query: {
-        listing_type: params.listing_type,
-        location: params.location?.trim() || undefined,
+        listing_type: params.query.listing_type,
+        location: params.query.location?.trim() || undefined,
+        price_min: params.query.price_min,
+        price_max: params.query.price_max,
+        rooms_min: params.query.rooms_min,
+        property_type: params.query.property_type,
+        has_parking: params.query.has_parking,
+        job_category: params.query.job_category,
+        employment_type: params.query.employment_type,
+        workload_min: params.query.workload_min,
+        workload_max: params.query.workload_max,
       },
     }),
   });

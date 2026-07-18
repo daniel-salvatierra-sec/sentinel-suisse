@@ -50,6 +50,13 @@ class IngestService:
                     description=item.description,
                     location=item.location,
                     price=item.price,
+                    rooms=item.rooms,
+                    property_type=item.property_type,
+                    has_parking=item.has_parking,
+                    job_category=item.job_category,
+                    employment_type=item.employment_type,
+                    workload_min=item.workload_min,
+                    workload_max=item.workload_max,
                     source_url=str(item.source_url),
                     content_hash=content_hash,
                     raw_payload=item.raw_payload,
@@ -69,6 +76,13 @@ class IngestService:
             existing.description = item.description
             existing.location = item.location
             existing.price = item.price
+            existing.rooms = item.rooms
+            existing.property_type = item.property_type
+            existing.has_parking = item.has_parking
+            existing.job_category = item.job_category
+            existing.employment_type = item.employment_type
+            existing.workload_min = item.workload_min
+            existing.workload_max = item.workload_max
             existing.source_url = str(item.source_url)
             existing.content_hash = content_hash
             existing.raw_payload = item.raw_payload

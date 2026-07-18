@@ -6,6 +6,9 @@
     "description": "Sunny flatshare-style listing in central Geneva. Pilot fixture — not a live scrape.",
     "location": "Geneva, 1205",
     "price": "1950.00",
+    "rooms": "2.5",
+    "property_type": "apartment",
+    "has_parking": false,
     "source_url": "https://flatfox.ch/en/flat/123456/",
     "raw_payload": {"source": "fixture", "pilot": true}
   },
@@ -16,6 +19,9 @@
     "description": "Short-term friendly, tram nearby.",
     "location": "Geneva, 1207",
     "price": "1650.00",
+    "rooms": "1",
+    "property_type": "studio",
+    "has_parking": true,
     "source_url": "https://flatfox.ch/en/flat/789012/",
     "raw_payload": {"source": "fixture", "pilot": true}
   }

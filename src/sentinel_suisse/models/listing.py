@@ -3,11 +3,13 @@ from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import (
+    Boolean,
     DateTime,
     Enum,
     ForeignKey,
     Index,
     Numeric,
+    SmallInteger,
     String,
     Text,
     UniqueConstraint,
@@ -17,7 +19,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from sentinel_suisse.db.base import Base
-from sentinel_suisse.models.enums import ListingType, enum_values
+from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType, enum_values
 
 if TYPE_CHECKING:
     from sentinel_suisse.models.provider import Provider
@@ -51,6 +53,29 @@ class Listing(Base):
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
     price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    rooms: Mapped[Decimal | None] = mapped_column(Numeric(3, 1), nullable=True)
+    property_type: Mapped[PropertyType | None] = mapped_column(
+        Enum(
+            PropertyType,
+            name="property_type",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=True,
+    )
+    has_parking: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    job_category: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    employment_type: Mapped[EmploymentType | None] = mapped_column(
+        Enum(
+            EmploymentType,
+            name="employment_type",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=True,
+    )
+    workload_min: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
+    workload_max: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     source_url: Mapped[str] = mapped_column(String(1000), nullable=False)
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     raw_payload: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

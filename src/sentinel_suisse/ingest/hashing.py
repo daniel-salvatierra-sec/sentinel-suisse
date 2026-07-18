@@ -15,6 +15,13 @@ def compute_content_hash(listing: RawListing) -> str:
         "description": listing.description,
         "location": listing.location,
         "price": str(listing.price) if listing.price is not None else None,
+        "rooms": str(listing.rooms) if listing.rooms is not None else None,
+        "property_type": listing.property_type.value if listing.property_type else None,
+        "has_parking": listing.has_parking,
+        "job_category": listing.job_category,
+        "employment_type": listing.employment_type.value if listing.employment_type else None,
+        "workload_min": listing.workload_min,
+        "workload_max": listing.workload_max,
         "source_url": str(listing.source_url),
         "listing_type": listing.listing_type.value,
     }

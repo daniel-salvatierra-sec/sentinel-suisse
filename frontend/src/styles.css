@@ -454,11 +454,19 @@ body {
   padding: 0.55rem 0.65rem;
 }
 
+.filter-chips,
 .provider-chips {
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem;
   margin-bottom: 0.65rem;
+}
+
+.filter-group-label {
+  margin: 0.35rem 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft, #4a5560);
 }
 
 .chip {

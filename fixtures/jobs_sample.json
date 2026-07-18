@@ -6,6 +6,10 @@
     "description": "Backend development for Swiss fintech. Pilot fixture.",
     "location": "Geneva",
     "price": null,
+    "job_category": "it",
+    "employment_type": "permanent",
+    "workload_min": 80,
+    "workload_max": 100,
     "source_url": "https://www.jobs.ch/en/vacancies/detail/jc-demo-001/",
     "raw_payload": {"source": "fixture", "pilot": true}
   },
@@ -16,6 +20,10 @@
     "description": "Hôpital universitaire — équipe de jour.",
     "location": "Lausanne",
     "price": null,
+    "job_category": "healthcare",
+    "employment_type": "temporary",
+    "workload_min": 60,
+    "workload_max": 80,
     "source_url": "https://www.jobs.ch/en/vacancies/detail/jc-demo-002/",
     "raw_payload": {"source": "fixture", "pilot": true}
   }

@@ -10,6 +10,22 @@ class ListingType(enum.StrEnum):
     JOB = "job"
 
 
+class PropertyType(enum.StrEnum):
+    STUDIO = "studio"
+    APARTMENT = "apartment"
+    HOUSE = "house"
+    ROOM = "room"
+    OTHER = "other"
+
+
+class EmploymentType(enum.StrEnum):
+    PERMANENT = "permanent"
+    TEMPORARY = "temporary"
+    INTERNSHIP = "internship"
+    FREELANCE = "freelance"
+    OTHER = "other"
+
+
 class ChannelType(enum.StrEnum):
     WHATSAPP = "whatsapp"
     EMAIL = "email"

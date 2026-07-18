@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
-from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
@@ -76,6 +76,13 @@ def public_search(
     location: str | None = Query(default=None, min_length=1, max_length=200),
     price_min: float | None = Query(default=None, ge=0),
     price_max: float | None = Query(default=None, ge=0),
+    rooms_min: float | None = Query(default=None, ge=0, le=20),
+    property_type: PropertyType | None = Query(default=None),
+    has_parking: bool | None = Query(default=None),
+    job_category: str | None = Query(default=None, min_length=1, max_length=80),
+    employment_type: EmploymentType | None = Query(default=None),
+    workload_min: int | None = Query(default=None, ge=0, le=100),
+    workload_max: int | None = Query(default=None, ge=0, le=100),
     provider_id: int | None = Query(default=None, gt=0),
     provider_ids: list[int] | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
@@ -88,13 +95,20 @@ def public_search(
             location=location,
             price_min=price_min,
             price_max=price_max,
+            rooms_min=rooms_min,
+            property_type=property_type,
+            has_parking=has_parking,
+            job_category=job_category,
+            employment_type=employment_type,
+            workload_min=workload_min,
+            workload_max=workload_max,
             provider_id=provider_id,
             provider_ids=provider_ids,
         )
     except ValidationError as exc:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="price_min cannot be greater than price_max",
+            detail="invalid search filters",
         ) from exc
     return search_listings(db, filters, limit=limit, offset=offset)
 

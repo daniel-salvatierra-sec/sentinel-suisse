@@ -9,6 +9,7 @@ import {
   type AlertLog,
   type ListingType,
   type SavedSearch,
+  type SearchQueryParams,
   type UserProfile,
 } from "../api";
 import { AlertSignup } from "./AlertSignup";
@@ -20,6 +21,7 @@ type Props = {
   locale: Lang;
   listingType: ListingType;
   location: string;
+  searchQuery?: Omit<SearchQueryParams, "limit" | "offset">;
   refreshToken: number;
   onSignupSuccess: () => void;
   onLoggedOut: () => void;
@@ -30,6 +32,7 @@ export function AccountPanel({
   locale,
   listingType,
   location,
+  searchQuery,
   refreshToken,
   onSignupSuccess,
   onLoggedOut,
@@ -77,6 +80,7 @@ export function AccountPanel({
         locale={locale}
         listingType={listingType}
         location={location}
+        searchQuery={searchQuery}
         onSuccess={onSignupSuccess}
       />
     );

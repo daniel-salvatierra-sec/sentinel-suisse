@@ -1,9 +1,9 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
 
-from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
 
 
 class ListingCreate(BaseModel):
@@ -14,9 +14,27 @@ class ListingCreate(BaseModel):
     description: str | None = Field(default=None, max_length=10000)
     location: str | None = Field(default=None, max_length=200)
     price: Decimal | None = Field(default=None, ge=0)
+    rooms: Decimal | None = Field(default=None, ge=0, le=20)
+    property_type: PropertyType | None = None
+    has_parking: bool | None = None
+    job_category: str | None = Field(default=None, min_length=1, max_length=80)
+    employment_type: EmploymentType | None = None
+    workload_min: int | None = Field(default=None, ge=0, le=100)
+    workload_max: int | None = Field(default=None, ge=0, le=100)
     source_url: HttpUrl
     content_hash: str = Field(min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$")
     fetched_at: datetime
+
+    @model_validator(mode="after")
+    def validate_workload_range(self) -> "ListingCreate":
+        if (
+            self.workload_min is not None
+            and self.workload_max is not None
+            and self.workload_min > self.workload_max
+        ):
+            msg = "workload_min cannot be greater than workload_max"
+            raise ValueError(msg)
+        return self
 
 
 class ListingUpdate(BaseModel):
@@ -26,6 +44,13 @@ class ListingUpdate(BaseModel):
     description: str | None = Field(default=None, max_length=10000)
     location: str | None = Field(default=None, max_length=200)
     price: Decimal | None = Field(default=None, ge=0)
+    rooms: Decimal | None = Field(default=None, ge=0, le=20)
+    property_type: PropertyType | None = None
+    has_parking: bool | None = None
+    job_category: str | None = Field(default=None, min_length=1, max_length=80)
+    employment_type: EmploymentType | None = None
+    workload_min: int | None = Field(default=None, ge=0, le=100)
+    workload_max: int | None = Field(default=None, ge=0, le=100)
     source_url: HttpUrl | None = None
     content_hash: str | None = Field(
         default=None, min_length=64, max_length=64, pattern=r"^[a-f0-9]{64}$"
@@ -44,6 +69,13 @@ class ListingRead(BaseModel):
     description: str | None
     location: str | None
     price: Decimal | None
+    rooms: Decimal | None = None
+    property_type: PropertyType | None = None
+    has_parking: bool | None = None
+    job_category: str | None = None
+    employment_type: EmploymentType | None = None
+    workload_min: int | None = None
+    workload_max: int | None = None
     source_url: str
     content_hash: str
     fetched_at: datetime

@@ -1,15 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import {
-  fetchProviders,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
+  type EmploymentType,
   type Listing,
   type ListingType,
-  type Provider,
+  type PropertyType,
+  type SearchQueryParams,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
-import { FilterBar } from "./components/FilterBar";
+import {
+  FilterBar,
+  type JobCategory,
+  type RoomsChoice,
+  type WorkloadChoice,
+} from "./components/FilterBar";
 import { GoalHub } from "./components/GoalHub";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
@@ -31,16 +37,42 @@ function parseOptionalPrice(value: string): number | undefined {
   return n;
 }
 
+function roomsToFilters(choice: RoomsChoice): {
+  rooms_min?: number;
+  property_type?: PropertyType;
+} {
+  if (choice === "") return {};
+  if (choice === "studio") return { property_type: "studio" };
+  return { rooms_min: Number(choice) };
+}
+
+function workloadToFilters(choice: WorkloadChoice): {
+  workload_min?: number;
+  workload_max?: number;
+} {
+  if (choice === "40-60") return { workload_min: 40, workload_max: 60 };
+  if (choice === "80-100") return { workload_min: 80, workload_max: 100 };
+  return {};
+}
+
 export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
   const [category, setCategory] = useState<ListingType>("housing");
   const [query, setQuery] = useState("");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
+  const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
+  const [hasParking, setHasParking] = useState(false);
+  const [jobCategory, setJobCategory] = useState<JobCategory | "">("");
+  const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
+  const [workloadChoice, setWorkloadChoice] = useState<WorkloadChoice>("");
   const [appliedPriceMin, setAppliedPriceMin] = useState("");
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [providerIds, setProviderIds] = useState<number[]>([]);
+  const [appliedRoomsChoice, setAppliedRoomsChoice] = useState<RoomsChoice>("");
+  const [appliedHasParking, setAppliedHasParking] = useState(false);
+  const [appliedJobCategory, setAppliedJobCategory] = useState<JobCategory | "">("");
+  const [appliedEmploymentType, setAppliedEmploymentType] = useState<EmploymentType | "">("");
+  const [appliedWorkloadChoice, setAppliedWorkloadChoice] = useState<WorkloadChoice>("");
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -53,6 +85,40 @@ export default function App() {
   const [deepLinkReady, setDeepLinkReady] = useState(false);
 
   const t = messages[lang];
+
+  const buildSearchParams = useCallback(
+    (offset: number): SearchQueryParams => {
+      const rooms = roomsToFilters(appliedRoomsChoice);
+      const workload = workloadToFilters(appliedWorkloadChoice);
+      return {
+        listing_type: category,
+        location: query,
+        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
+        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        rooms_min: category === "housing" ? rooms.rooms_min : undefined,
+        property_type: category === "housing" ? rooms.property_type : undefined,
+        has_parking: category === "housing" && appliedHasParking ? true : undefined,
+        job_category: category === "job" && appliedJobCategory ? appliedJobCategory : undefined,
+        employment_type:
+          category === "job" && appliedEmploymentType ? appliedEmploymentType : undefined,
+        workload_min: category === "job" ? workload.workload_min : undefined,
+        workload_max: category === "job" ? workload.workload_max : undefined,
+        limit: SEARCH_PAGE_SIZE,
+        offset,
+      };
+    },
+    [
+      category,
+      query,
+      appliedPriceMin,
+      appliedPriceMax,
+      appliedRoomsChoice,
+      appliedHasParking,
+      appliedJobCategory,
+      appliedEmploymentType,
+      appliedWorkloadChoice,
+    ],
+  );
 
   useEffect(() => {
     const deep = parseSubscribeDeepLink(window.location.search);
@@ -75,25 +141,11 @@ export default function App() {
     setDeepLinkReady(true);
   }, []);
 
-  useEffect(() => {
-    void fetchProviders()
-      .then(setProviders)
-      .catch(() => setProviders([]));
-  }, []);
-
   const runSearch = useCallback(async () => {
     setLoading(true);
     setError(false);
     try {
-      const results = await searchListings({
-        listing_type: category,
-        location: query,
-        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
-        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
-        provider_ids: providerIds.length ? providerIds : undefined,
-        limit: SEARCH_PAGE_SIZE,
-        offset: 0,
-      });
+      const results = await searchListings(buildSearchParams(0));
       setListings(results);
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
       setFocusId(results[0]?.id ?? null);
@@ -104,21 +156,13 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax, providerIds]);
+  }, [buildSearchParams]);
 
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
     setError(false);
     try {
-      const results = await searchListings({
-        listing_type: category,
-        location: query,
-        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
-        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
-        provider_ids: providerIds.length ? providerIds : undefined,
-        limit: SEARCH_PAGE_SIZE,
-        offset: listings.length,
-      });
+      const results = await searchListings(buildSearchParams(listings.length));
       setListings((prev) => [...prev, ...results]);
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
     } catch {
@@ -126,11 +170,16 @@ export default function App() {
     } finally {
       setLoadingMore(false);
     }
-  }, [category, query, appliedPriceMin, appliedPriceMax, providerIds, listings.length]);
+  }, [buildSearchParams, listings.length]);
 
   const applyFilters = () => {
     setAppliedPriceMin(priceMin);
     setAppliedPriceMax(priceMax);
+    setAppliedRoomsChoice(roomsChoice);
+    setAppliedHasParking(hasParking);
+    setAppliedJobCategory(jobCategory);
+    setAppliedEmploymentType(employmentType);
+    setAppliedWorkloadChoice(workloadChoice);
   };
 
   useEffect(() => {
@@ -150,6 +199,8 @@ export default function App() {
     setHasSession(false);
     setTab("list");
   };
+
+  const alertQuery = buildSearchParams(0);
 
   return (
     <div className="app">
@@ -188,14 +239,21 @@ export default function App() {
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
       <FilterBar
         t={t}
-        showPrice={category === "housing"}
-        providers={providers}
-        providerIds={providerIds}
-        onProviderIdsChange={setProviderIds}
+        category={category}
+        roomsChoice={roomsChoice}
+        onRoomsChoiceChange={setRoomsChoice}
+        hasParking={hasParking}
+        onHasParkingChange={setHasParking}
         priceMin={priceMin}
         priceMax={priceMax}
         onPriceMinChange={setPriceMin}
         onPriceMaxChange={setPriceMax}
+        jobCategory={jobCategory}
+        onJobCategoryChange={setJobCategory}
+        employmentType={employmentType}
+        onEmploymentTypeChange={setEmploymentType}
+        workloadChoice={workloadChoice}
+        onWorkloadChoiceChange={setWorkloadChoice}
         onApply={applyFilters}
       />
 
@@ -260,6 +318,7 @@ export default function App() {
           locale={lang}
           listingType={category}
           location={query}
+          searchQuery={alertQuery}
           refreshToken={accountRefresh}
           onSignupSuccess={onSignupSuccess}
           onLoggedOut={onLoggedOut}
