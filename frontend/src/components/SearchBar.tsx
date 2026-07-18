@@ -10,6 +10,7 @@ type Props = {
 export function SearchBar({ t, value, onChange, onSearch }: Props) {
   return (
     <form
+      id="search-panel"
       className="search-box"
       onSubmit={(event) => {
         event.preventDefault();

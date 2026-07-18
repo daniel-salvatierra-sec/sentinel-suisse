@@ -172,7 +172,19 @@ export default function App() {
         <p>{t.tagline}</p>
       </header>
 
-      <GoalHub t={t} active={category} onSelect={setCategory} />
+      <GoalHub
+        t={t}
+        active={category}
+        onSelect={(type) => {
+          setCategory(type);
+          window.requestAnimationFrame(() => {
+            document.getElementById("search-panel")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          });
+        }}
+      />
       <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
       <FilterBar
         t={t}

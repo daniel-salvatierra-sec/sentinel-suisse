@@ -1,6 +1,6 @@
 {
   "appName": "LinkSwiss",
-  "tagline": "Ton lien en Suisse",
+  "tagline": "Logement et emploi. Ton lien en Suisse.",
   "chooseLang": "Choisissez votre langue",
   "housing": "Logement",
   "job": "Emploi",
@@ -11,7 +11,7 @@
   "goalWork": "Work",
   "goalHomeKicker": "Logement",
   "goalWorkKicker": "Emploi",
-  "goalWorkHint": "Arrivez avec votre CV",
+  "goalWorkHint": "Trouvez votre emploi",
   "fireflyLabel": "Ouvrir le guide LinkSwiss",
   "searchPlaceholder": "Ville, quartier, mot-clé…",
   "search": "Rechercher",

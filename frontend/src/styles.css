@@ -85,10 +85,16 @@ body {
 }
 
 .hero p {
-  margin: 0.4rem 0 1.05rem;
-  opacity: 0.82;
-  font-size: 1.02rem;
+  margin: 0.45rem 0 1.15rem;
   max-width: 22rem;
+  font-family: "Fraunces", "DM Sans", Georgia, serif;
+  font-size: clamp(1.05rem, 3.8vw, 1.28rem);
+  font-weight: 550;
+  font-style: italic;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  color: var(--mountain);
+  opacity: 1;
 }
 
 /* Full-bleed climb → home composition (/hub/hero.png) */
@@ -127,23 +133,42 @@ body {
     linear-gradient(90deg, rgba(8, 18, 24, 0.55) 0%, transparent 55%);
 }
 
-.goal-hub-climb {
+.goal-hub-divider {
   position: relative;
-  z-index: 2;
-  display: grid;
-  place-items: center;
-  height: 0;
-  margin: -0.15rem 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0 0.85rem;
+  margin: -0.35rem 0;
+  pointer-events: none;
+}
+
+.goal-hub-divider-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.85) 20%,
+    rgba(232, 196, 106, 0.95) 50%,
+    rgba(255, 255, 255, 0.85) 80%,
+    transparent
+  );
+  box-shadow: 0 0 12px rgba(232, 196, 106, 0.45);
 }
 
 .goal-hub-climb-arrow {
-  width: 2.35rem;
-  height: 2.35rem;
+  flex: 0 0 auto;
+  width: 2.45rem;
+  height: 2.45rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
   position: relative;
   animation: climb-pulse 2.2s ease-in-out infinite;
+  transition: transform 0.35s ease;
 }
 
 .goal-hub-climb-arrow::before {
@@ -155,7 +180,13 @@ body {
   height: 0.55rem;
   border-left: 2.5px solid var(--lake);
   border-top: 2.5px solid var(--lake);
-  transform: translateY(2px) rotate(45deg);
+  transform: translateY(3px) rotate(45deg);
+  transition: transform 0.35s ease;
+}
+
+/* Home selected → arrow points up (toward Home). Work selected → points down. */
+.goal-hub-divider.point-down .goal-hub-climb-arrow::before {
+  transform: translateY(-1px) rotate(225deg);
 }
 
 .goal-zone {
