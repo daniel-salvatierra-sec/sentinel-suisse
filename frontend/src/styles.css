@@ -91,173 +91,159 @@ body {
   max-width: 22rem;
 }
 
+/* Full-bleed climb → home composition (/hub/hero.png) */
 .goal-hub {
   position: relative;
   display: flex;
   flex-direction: column;
-  min-height: min(58vh, 460px);
-  border-radius: 1.35rem;
+  min-height: min(72vh, 560px);
+  border-radius: 1.5rem;
   overflow: hidden;
-  margin-bottom: 1.1rem;
+  margin: 0 -0.15rem 1.15rem;
   box-shadow: var(--shadow);
   isolation: isolate;
+  background-color: #1a2a32;
+  background-size: cover;
+  background-position: center top;
+  background-repeat: no-repeat;
+  transition: background-position 0.7s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Soft “Vacaciones” horizon — aspiration above Home, not a third panel */
-.goal-hub-dream {
-  position: absolute;
-  top: 0.55rem;
-  right: 0.9rem;
-  z-index: 2;
-  width: 2.4rem;
-  height: 1.15rem;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(232, 196, 106, 0.15), rgba(255, 255, 255, 0.55));
-  box-shadow: 0 0 0 1px rgba(232, 196, 106, 0.25);
-  opacity: 0.7;
-  animation: dream-drift 6s ease-in-out infinite;
+.goal-hub.focus-home {
+  background-position: center 18%;
 }
 
-.goal-zone {
-  position: relative;
-  flex: 1;
-  display: flex;
-  align-items: stretch;
-  gap: 0.75rem;
-  border: none;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
-  color: var(--text);
-  overflow: hidden;
-  transition: flex 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+.goal-hub.focus-work {
+  background-position: center 78%;
 }
 
-.goal-zone-art {
+.goal-hub-veil {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+  background:
+    linear-gradient(180deg, rgba(10, 24, 32, 0.28) 0%, transparent 28%, transparent 55%, rgba(8, 16, 22, 0.55) 100%),
+    linear-gradient(90deg, rgba(8, 18, 24, 0.55) 0%, transparent 55%);
 }
 
-.goal-zone-copy {
+.goal-hub-climb {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  height: 0;
+  margin: -0.15rem 0;
+}
+
+.goal-hub-climb-arrow {
+  width: 2.35rem;
+  height: 2.35rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  position: relative;
+  animation: climb-pulse 2.2s ease-in-out infinite;
+}
+
+.goal-hub-climb-arrow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-left: 2.5px solid var(--lake);
+  border-top: 2.5px solid var(--lake);
+  transform: translateY(2px) rotate(45deg);
+}
+
+.goal-zone {
   position: relative;
   z-index: 1;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: flex-start;
-  gap: 0.28rem;
-  padding: 1.35rem 1.4rem;
-  max-width: 68%;
+  gap: 0.2rem;
+  border: none;
+  padding: 1.35rem 1.25rem 1.45rem;
+  text-align: left;
+  cursor: pointer;
+  color: #f7fafb;
+  background: transparent;
+  transition: flex 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.35s ease;
 }
 
 .goal-zone.home {
-  background: linear-gradient(160deg, #7eb8c9 0%, #b8d9e4 42%, #f3efe4 100%);
-}
-
-.goal-zone.home .home-art {
-  background:
-    radial-gradient(ellipse 55% 40% at 78% 28%, rgba(255, 236, 180, 0.55), transparent 70%),
-    linear-gradient(180deg, transparent 48%, rgba(47, 106, 69, 0.18) 48%, rgba(47, 106, 69, 0.28) 100%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' fill='none'%3E%3Cpath d='M150 95 L175 70 L200 95 V130 H150 Z' fill='%23f7f1e6' fill-opacity='0.9'/%3E%3Cpath d='M158 95 V80 H168 V95' fill='%23c47b4a' fill-opacity='0.85'/%3E%3Ccircle cx='188' cy='48' r='10' fill='%23e8c46a' fill-opacity='0.75'/%3E%3Cpath d='M40 130 L90 78 L130 130 Z' fill='%232f6a45' fill-opacity='0.22'/%3E%3Cpath d='M95 130 L145 88 L185 130 Z' fill='%231a6f8a' fill-opacity='0.18'/%3E%3C/svg%3E")
-      right -0.25rem bottom -0.35rem / min(72%, 220px) no-repeat;
+  justify-content: flex-start;
+  padding-top: 1.5rem;
 }
 
 .goal-zone.work {
-  background: linear-gradient(165deg, #3d6b58 0%, #6a9a7a 45%, #dfece3 100%);
-  border-top: 1px solid rgba(255, 255, 255, 0.28);
-}
-
-.goal-zone.work .work-art {
-  background:
-    radial-gradient(ellipse 50% 45% at 82% 70%, rgba(232, 196, 106, 0.2), transparent 65%),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' fill='none'%3E%3Cpath d='M170 140 L195 95 L210 140 Z' fill='%231c2d28' fill-opacity='0.2'/%3E%3Cpath d='M145 140 C155 110 175 95 200 85' stroke='%23f3efe4' stroke-opacity='0.55' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='200' cy='85' r='5' fill='%23e8c46a'/%3E%3Crect x='48' y='70' width='42' height='55' rx='3' fill='%231c2d28' fill-opacity='0.18'/%3E%3Crect x='70' y='48' width='28' height='77' rx='2' fill='%231c2d28' fill-opacity='0.22'/%3E%3Cpath d='M55 70 L69 48 L84 70' fill='%231c2d28' fill-opacity='0.2'/%3E%3C/svg%3E")
-      right -0.15rem bottom -0.2rem / min(78%, 240px) no-repeat;
-}
-
-.goal-zone.work .goal-zone-copy {
-  color: #f4faf6;
-}
-
-.goal-zone.work:not(.active) .goal-zone-copy {
-  color: #e8f3ec;
+  justify-content: flex-end;
 }
 
 .goal-zone.active {
-  flex: 1.55;
-  filter: none;
-}
-
-.goal-zone.active .goal-zone-art {
-  transform: scale(1.04);
+  flex: 1.45;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 70%);
 }
 
 .goal-zone:not(.active) {
-  filter: saturate(0.88) brightness(0.97);
-}
-
-.goal-zone:not(.active) .goal-zone-art {
-  opacity: 0.88;
+  opacity: 0.92;
 }
 
 .goal-zone-kicker {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--lake);
-  opacity: 0.9;
-}
-
-.goal-zone.work .goal-zone-kicker {
-  color: rgba(232, 196, 106, 0.95);
+  color: rgba(255, 236, 190, 0.95);
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
 
 .goal-zone-title {
   font-family: "Fraunces", "DM Sans", Georgia, serif;
-  font-size: 1.95rem;
-  font-weight: 600;
+  font-size: clamp(2rem, 8vw, 2.4rem);
+  font-weight: 650;
   line-height: 1.05;
-  animation: title-rise 0.55s ease both;
-}
-
-.goal-zone.active .goal-zone-title {
-  animation: title-rise 0.45s ease both;
+  color: #fff;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
+  animation: title-rise 0.5s ease both;
 }
 
 .goal-zone-desc {
-  font-size: 0.9rem;
-  opacity: 0.82;
-  max-width: 15.5rem;
+  font-size: 0.92rem;
+  opacity: 0.92;
+  max-width: 15rem;
   line-height: 1.35;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
 }
 
 .goal-zone-hint {
-  margin-top: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 600;
+  margin-top: 0.35rem;
+  font-size: 0.82rem;
+  font-weight: 700;
   color: var(--sun);
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
 }
 
-@keyframes dream-drift {
+@keyframes climb-pulse {
   0%,
   100% {
-    transform: translateX(0);
-    opacity: 0.55;
+    transform: translateY(0);
   }
   50% {
-    transform: translateX(-6px);
-    opacity: 0.85;
+    transform: translateY(-5px);
   }
 }
 
 @keyframes title-rise {
   from {
-    opacity: 0.55;
-    transform: translateY(4px);
+    opacity: 0.5;
+    transform: translateY(6px);
   }
   to {
     opacity: 1;

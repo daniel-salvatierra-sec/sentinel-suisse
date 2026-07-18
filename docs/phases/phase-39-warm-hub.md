@@ -1,6 +1,8 @@
 # Phase 39 — Warm alpine hub (Home / Work)
 
-**Goal:** Present LinkSwiss hub in a warm, trustworthy alpine illustration style (not neon/cyberpunk): effort at Work (bottom) → stability at Home (top), with a soft Vacaciones horizon hint.
+**Goal:** Present LinkSwiss hub as a **modern full-bleed illustration**: effort/climb at Work (bottom) → home/stability at Home (top), matching the “hombre subiendo” narrative (not flat SVG placeholders).
+
+**Asset:** `frontend/public/hub/hero.png`
 
 ## Check
 
