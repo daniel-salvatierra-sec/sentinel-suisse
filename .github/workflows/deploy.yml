@@ -15,9 +15,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           port: ${{ secrets.SSH_PORT || 22 }}
           script_stop: true
+          command_timeout: 20m
           script: |
             set -e
             cd "${{ secrets.DEPLOY_PATH }}"
