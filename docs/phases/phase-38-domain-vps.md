@@ -152,3 +152,46 @@ git push origin main
 - Off-site backups
 - WhatsApp Meta webhook go-live
 - Payments
+
+---
+
+## Resume later — CI/CD status (2026-07-18)
+
+**Live site:** https://linkswiss.ch (Docker + Caddy TLS + UFW OK).
+
+**GitHub Actions secrets (set):** `SSH_HOST`, `SSH_USER`, `SSH_PRIVATE_KEY` (use `~/.ssh/linkswiss_github_deploy` **without** passphrase), `DEPLOY_PATH=/opt/sentinel-suisse`. Do **not** keep `SSH_PASSPHRASE` for the deploy key.
+
+**Personal SSH (Windows):** `linkswiss_ed25519` (passphrase) — daily use.  
+**CI SSH:** `linkswiss_github_deploy` — tested OK with `OK-DEPLOY-KEY`.
+
+**Last Deploy to VPS failure (after SSH worked):**
+
+```text
+M deploy/backup-db.sh
+M deploy/docker-entrypoint.sh
+M deploy/monitor-health.sh
+M deploy/restore-db.sh
+M deploy/setup-firewall.sh
+Already up to date.
+Process exited with status 1
+```
+
+Likely causes to fix next session:
+
+1. **Dirty tree on VPS** under `/opt/sentinel-suisse` (local mods / CRLF on `deploy/*.sh`) blocking a clean checkout/pull path or confusing the script.
+2. **`docker compose` step** may have exited 1 with little log — re-run with more logging.
+
+**Next commands on VPS (when resuming):**
+
+```bash
+cd /opt/sentinel-suisse
+git status
+git checkout -- deploy/
+git pull --ff-only origin main
+docker compose -f docker-compose.prod.yml up -d --build
+curl -sS https://linkswiss.ch/health; echo
+```
+
+Then **Re-run** Actions → Deploy to VPS, or push a tiny docs commit to `main`.
+
+Optional workflow harden: before `git pull`, add `git reset --hard origin/main` (only if no uncommitted work should be kept on the VPS — `.env` is untracked and safe).
