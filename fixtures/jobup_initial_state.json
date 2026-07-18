@@ -1,0 +1,33 @@
+{
+  "props": {
+    "pageProps": {
+      "searchResult": {
+        "vacancies": [
+          {
+            "id": "ju-state-001",
+            "title": "DevOps Engineer 80-100%",
+            "company": {"name": "Cloud SA"},
+            "place": "Geneva",
+            "description": "Kubernetes and CI/CD.",
+            "category": "it",
+            "employmentType": "permanent",
+            "workloadMin": 80,
+            "workloadMax": 100,
+            "url": "/fr/emplois/detail/ju-state-001/"
+          },
+          {
+            "id": "ju-state-002",
+            "title": "Aide-soignant·e",
+            "company": {"name": "Clinique Lac"},
+            "place": "Nyon",
+            "category": "healthcare",
+            "employmentType": "temporary",
+            "workloadMin": 60,
+            "workloadMax": 80,
+            "url": "https://www.jobup.ch/fr/emplois/detail/ju-state-002/"
+          }
+        ]
+      }
+    }
+  }
+}

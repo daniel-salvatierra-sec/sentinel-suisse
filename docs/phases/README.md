@@ -47,3 +47,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-37-suisegoal-hub.md](phase-37-suisegoal-hub.md) | SuisseGoal hub Home/Work + firefly guide |
 | [phase-38-domain-vps.md](phase-38-domain-vps.md) | LinkSwiss brand + linkswiss.ch + VPS checklist |
 | [phase-39-warm-hub.md](phase-39-warm-hub.md) | Warm alpine Home/Work hub presentation |
+| [phase-40-ch-providers.md](phase-40-ch-providers.md) | More CH providers (newhome, anibis, jobup) |

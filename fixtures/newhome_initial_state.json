@@ -1,0 +1,28 @@
+{
+  "search": {
+    "results": [
+      {
+        "id": "900111222",
+        "title": "Appartement 3.5 pièces à Genève",
+        "description": "Lumineux, proche des transports.",
+        "address": {"city": "Genève", "zip": "1204"},
+        "rent": 2350,
+        "rooms": 3.5,
+        "propertyType": "apartment",
+        "hasParking": true,
+        "url": "/fr/louer/detail/900111222"
+      },
+      {
+        "id": "900333444",
+        "title": "Studio à Meyrin",
+        "description": "Idéal pour une personne.",
+        "address": {"city": "Meyrin", "zip": "1217"},
+        "rent": 1250,
+        "rooms": 1,
+        "propertyType": "studio",
+        "hasParking": false,
+        "url": "/fr/louer/detail/900333444"
+      }
+    ]
+  }
+}

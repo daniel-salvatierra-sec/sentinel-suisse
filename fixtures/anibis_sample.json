@@ -1,0 +1,28 @@
+[
+  {
+    "external_id": "ab-demo-001",
+    "listing_type": "housing",
+    "title": "3 rooms furnished Onex",
+    "description": "Quiet neighbourhood, bus nearby. Pilot fixture — not a live scrape.",
+    "location": "Onex, 1213",
+    "price": "2100.00",
+    "rooms": "3",
+    "property_type": "apartment",
+    "has_parking": true,
+    "source_url": "https://www.anibis.ch/fr/d/ab-demo-001",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "ab-demo-002",
+    "listing_type": "housing",
+    "title": "Studio Lancy",
+    "description": "Available next month.",
+    "location": "Lancy, 1212",
+    "price": "1400.00",
+    "rooms": "1",
+    "property_type": "studio",
+    "has_parking": false,
+    "source_url": "https://www.anibis.ch/fr/d/ab-demo-002",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  }
+]

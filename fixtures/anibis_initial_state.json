@@ -1,0 +1,28 @@
+{
+  "search": {
+    "results": [
+      {
+        "id": "700111222",
+        "title": "Appartement 2.5 pièces à Carouge",
+        "description": "Proche du centre.",
+        "address": {"city": "Carouge", "postalCode": "1227"},
+        "price": 1900,
+        "rooms": 2.5,
+        "propertyType": "apartment",
+        "parking": false,
+        "url": "/fr/d/700111222"
+      },
+      {
+        "id": "700333444",
+        "title": "Studio à Vernier",
+        "description": "Petit budget, calme.",
+        "address": {"city": "Vernier", "postalCode": "1214"},
+        "price": 1100,
+        "rooms": 1,
+        "category": "studio",
+        "hasParking": true,
+        "url": "/fr/d/700333444"
+      }
+    ]
+  }
+}

@@ -57,6 +57,9 @@ class Settings(BaseSettings):
     ingest_jobs_live: bool = False
     ingest_flatfox_live: bool = False
     ingest_immoscout_live: bool = False
+    ingest_newhome_live: bool = False
+    ingest_anibis_live: bool = False
+    ingest_jobup_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
@@ -65,6 +68,9 @@ class Settings(BaseSettings):
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
     flatfox_search_url: str = "https://flatfox.ch/en/search/?place=Geneva"
     immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
+    newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
+    anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"
+    jobup_search_url: str = "https://www.jobup.ch/fr/emplois/?location=Gen%C3%A8ve"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

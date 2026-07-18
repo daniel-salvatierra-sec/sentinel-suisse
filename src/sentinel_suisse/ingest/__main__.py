@@ -6,6 +6,13 @@ from pathlib import Path
 
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.db.session import SessionLocal
+from sentinel_suisse.ingest.connectors.anibis import (
+    AnibisDisabledError,
+    AnibisFetchError,
+)
+from sentinel_suisse.ingest.connectors.anibis import (
+    fetch_search_listings as fetch_anibis_listings,
+)
 from sentinel_suisse.ingest.connectors.fixture import load_fixture
 from sentinel_suisse.ingest.connectors.flatfox import (
     FlatfoxDisabledError,
@@ -35,6 +42,20 @@ from sentinel_suisse.ingest.connectors.jobs import (
 from sentinel_suisse.ingest.connectors.jobs import (
     fetch_search_listings as fetch_jobs_listings,
 )
+from sentinel_suisse.ingest.connectors.jobup import (
+    JobupDisabledError,
+    JobupFetchError,
+)
+from sentinel_suisse.ingest.connectors.jobup import (
+    fetch_search_listings as fetch_jobup_listings,
+)
+from sentinel_suisse.ingest.connectors.newhome import (
+    NewhomeDisabledError,
+    NewhomeFetchError,
+)
+from sentinel_suisse.ingest.connectors.newhome import (
+    fetch_search_listings as fetch_newhome_listings,
+)
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
 
@@ -43,6 +64,9 @@ _LIVE_CONNECTORS = {
     "jobs": fetch_jobs_listings,
     "flatfox": fetch_flatfox_listings,
     "immoscout": fetch_immoscout_listings,
+    "newhome": fetch_newhome_listings,
+    "anibis": fetch_anibis_listings,
+    "jobup": fetch_jobup_listings,
 }
 
 
@@ -51,7 +75,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, jobs, flatfox, immoscout)",
+        help="Provider slug (e.g. homegate, newhome, anibis, jobup)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -98,6 +122,12 @@ def main() -> None:
         FlatfoxFetchError,
         ImmoscoutDisabledError,
         ImmoscoutFetchError,
+        NewhomeDisabledError,
+        NewhomeFetchError,
+        AnibisDisabledError,
+        AnibisFetchError,
+        JobupDisabledError,
+        JobupFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)
