@@ -32,20 +32,19 @@ jobs:
               exit 1
             fi
 
-            # Fetch latest app code (assumes repo already exists on the VPS)
-            if [ -d ".git" ]; then
-              git fetch origin main
-              git checkout main
-              git pull --ff-only origin main
-            else
+            if [ ! -d ".git" ]; then
               echo "No git repo found in DEPLOY_PATH; refusing to deploy automatically."
               exit 1
             fi
 
-            # Build + restart stack
-            if command -v docker-compose >/dev/null 2>&1; then
-              docker-compose -f docker-compose.prod.yml up -d --build
-            else
-              docker compose -f docker-compose.prod.yml up -d --build
-            fi
+            # Discard local edits on tracked files (keeps untracked .env).
+            # VPS often shows dirty deploy/*.sh from CRLF / chmod noise.
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
 
+            echo "Deploying commit: $(git rev-parse --short HEAD)"
+
+            docker compose -f docker-compose.prod.yml up -d --build
+
+            echo "Deploy finished OK"
