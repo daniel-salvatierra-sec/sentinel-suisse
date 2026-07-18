@@ -1,14 +1,18 @@
 :root {
-  --lake: #1e6b8c;
-  --mountain: #2d5a3d;
-  --mist: #f4f7f5;
-  --jet: #4a9fd8;
-  --text: #1a2e1a;
+  --lake: #1a6f8a;
+  --mountain: #2f6a45;
+  --mist: #eef6f4;
+  --jet: #3d9bc4;
+  --sun: #e8c46a;
+  --clay: #c47b4a;
+  --text: #1c2d28;
   --card: #ffffff;
-  --shadow: 0 8px 24px rgba(26, 46, 26, 0.08);
+  --shadow: 0 10px 28px rgba(28, 45, 40, 0.1);
   font-family: "DM Sans", system-ui, sans-serif;
   color: var(--text);
-  background: linear-gradient(180deg, #e8f4f8 0%, var(--mist) 40%, #eef5ef 100%);
+  background:
+    radial-gradient(120% 80% at 80% -10%, rgba(232, 196, 106, 0.22), transparent 55%),
+    linear-gradient(180deg, #dceef4 0%, var(--mist) 42%, #e7f2ea 100%);
 }
 
 * {
@@ -74,99 +78,191 @@ body {
 .hero h1 {
   margin: 0;
   font-family: "Fraunces", "DM Sans", Georgia, serif;
-  font-size: 2rem;
-  letter-spacing: -0.02em;
+  font-size: clamp(2.1rem, 7vw, 2.45rem);
+  letter-spacing: -0.03em;
   color: var(--lake);
+  line-height: 1.05;
 }
 
 .hero p {
-  margin: 0.35rem 0 1rem;
-  opacity: 0.85;
+  margin: 0.4rem 0 1.05rem;
+  opacity: 0.82;
+  font-size: 1.02rem;
+  max-width: 22rem;
 }
 
 .goal-hub {
+  position: relative;
   display: flex;
   flex-direction: column;
-  min-height: min(52vh, 420px);
-  border-radius: 1.25rem;
+  min-height: min(58vh, 460px);
+  border-radius: 1.35rem;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 1.1rem;
   box-shadow: var(--shadow);
-  border: 1px solid rgba(30, 107, 140, 0.12);
+  isolation: isolate;
+}
+
+/* Soft “Vacaciones” horizon — aspiration above Home, not a third panel */
+.goal-hub-dream {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.9rem;
+  z-index: 2;
+  width: 2.4rem;
+  height: 1.15rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(232, 196, 106, 0.15), rgba(255, 255, 255, 0.55));
+  box-shadow: 0 0 0 1px rgba(232, 196, 106, 0.25);
+  opacity: 0.7;
+  animation: dream-drift 6s ease-in-out infinite;
 }
 
 .goal-zone {
+  position: relative;
   flex: 1;
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+  overflow: hidden;
+  transition: flex 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+.goal-zone-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+}
+
+.goal-zone-copy {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  gap: 0.25rem;
-  border: none;
-  padding: 1.25rem 1.35rem;
-  text-align: left;
-  cursor: pointer;
-  color: var(--text);
-  transition: flex 0.35s ease, filter 0.25s ease;
+  gap: 0.28rem;
+  padding: 1.35rem 1.4rem;
+  max-width: 68%;
 }
 
 .goal-zone.home {
+  background: linear-gradient(160deg, #7eb8c9 0%, #b8d9e4 42%, #f3efe4 100%);
+}
+
+.goal-zone.home .home-art {
   background:
-    linear-gradient(135deg, rgba(232, 244, 248, 0.95), rgba(255, 255, 255, 0.7)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%231e6b8c' fill-opacity='0.06' d='M40 12 L68 40 H54 V60 H26 V40 H12 Z'/%3E%3C/svg%3E")
-      right 1rem center / 72px no-repeat;
+    radial-gradient(ellipse 55% 40% at 78% 28%, rgba(255, 236, 180, 0.55), transparent 70%),
+    linear-gradient(180deg, transparent 48%, rgba(47, 106, 69, 0.18) 48%, rgba(47, 106, 69, 0.28) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' fill='none'%3E%3Cpath d='M150 95 L175 70 L200 95 V130 H150 Z' fill='%23f7f1e6' fill-opacity='0.9'/%3E%3Cpath d='M158 95 V80 H168 V95' fill='%23c47b4a' fill-opacity='0.85'/%3E%3Ccircle cx='188' cy='48' r='10' fill='%23e8c46a' fill-opacity='0.75'/%3E%3Cpath d='M40 130 L90 78 L130 130 Z' fill='%232f6a45' fill-opacity='0.22'/%3E%3Cpath d='M95 130 L145 88 L185 130 Z' fill='%231a6f8a' fill-opacity='0.18'/%3E%3C/svg%3E")
+      right -0.25rem bottom -0.35rem / min(72%, 220px) no-repeat;
 }
 
 .goal-zone.work {
+  background: linear-gradient(165deg, #3d6b58 0%, #6a9a7a 45%, #dfece3 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+}
+
+.goal-zone.work .work-art {
   background:
-    linear-gradient(135deg, rgba(238, 245, 239, 0.95), rgba(255, 255, 255, 0.75)),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect x='22' y='28' width='36' height='28' rx='3' fill='%232d5a3d' fill-opacity='0.08'/%3E%3Cpath fill='%232d5a3d' fill-opacity='0.1' d='M30 28 V24 H50 V28'/%3E%3C/svg%3E")
-      right 1rem center / 72px no-repeat;
-  border-top: 1px solid rgba(45, 90, 61, 0.12);
+    radial-gradient(ellipse 50% 45% at 82% 70%, rgba(232, 196, 106, 0.2), transparent 65%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160' fill='none'%3E%3Cpath d='M170 140 L195 95 L210 140 Z' fill='%231c2d28' fill-opacity='0.2'/%3E%3Cpath d='M145 140 C155 110 175 95 200 85' stroke='%23f3efe4' stroke-opacity='0.55' stroke-width='3' stroke-linecap='round' fill='none'/%3E%3Ccircle cx='200' cy='85' r='5' fill='%23e8c46a'/%3E%3Crect x='48' y='70' width='42' height='55' rx='3' fill='%231c2d28' fill-opacity='0.18'/%3E%3Crect x='70' y='48' width='28' height='77' rx='2' fill='%231c2d28' fill-opacity='0.22'/%3E%3Cpath d='M55 70 L69 48 L84 70' fill='%231c2d28' fill-opacity='0.2'/%3E%3C/svg%3E")
+      right -0.15rem bottom -0.2rem / min(78%, 240px) no-repeat;
+}
+
+.goal-zone.work .goal-zone-copy {
+  color: #f4faf6;
+}
+
+.goal-zone.work:not(.active) .goal-zone-copy {
+  color: #e8f3ec;
 }
 
 .goal-zone.active {
-  flex: 1.35;
+  flex: 1.55;
   filter: none;
-  outline: 2px solid var(--jet);
-  outline-offset: -2px;
+}
+
+.goal-zone.active .goal-zone-art {
+  transform: scale(1.04);
 }
 
 .goal-zone:not(.active) {
-  filter: saturate(0.85);
+  filter: saturate(0.88) brightness(0.97);
+}
+
+.goal-zone:not(.active) .goal-zone-art {
+  opacity: 0.88;
 }
 
 .goal-zone-kicker {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--lake);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .goal-zone.work .goal-zone-kicker {
-  color: var(--mountain);
+  color: rgba(232, 196, 106, 0.95);
 }
 
 .goal-zone-title {
   font-family: "Fraunces", "DM Sans", Georgia, serif;
-  font-size: 1.85rem;
+  font-size: 1.95rem;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.05;
+  animation: title-rise 0.55s ease both;
+}
+
+.goal-zone.active .goal-zone-title {
+  animation: title-rise 0.45s ease both;
 }
 
 .goal-zone-desc {
   font-size: 0.9rem;
-  opacity: 0.75;
-  max-width: 16rem;
+  opacity: 0.82;
+  max-width: 15.5rem;
+  line-height: 1.35;
 }
 
 .goal-zone-hint {
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--mountain);
+  color: var(--sun);
+  letter-spacing: 0.01em;
+}
+
+@keyframes dream-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateX(-6px);
+    opacity: 0.85;
+  }
+}
+
+@keyframes title-rise {
+  from {
+    opacity: 0.55;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .firefly-buddy {
