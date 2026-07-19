@@ -65,6 +65,7 @@ def create_listing(
         title=payload.title,
         description=payload.description,
         location=payload.location,
+        country=payload.country,
         price=payload.price,
         rooms=payload.rooms,
         property_type=payload.property_type,

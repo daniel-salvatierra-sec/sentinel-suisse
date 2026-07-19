@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
-from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
+from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
@@ -74,6 +74,7 @@ def public_search(
     _: None = Depends(_require_public_search),
     listing_type: ListingType | None = Query(default=None),
     location: str | None = Query(default=None, min_length=1, max_length=200),
+    country: CountryCode | None = Query(default=None),
     price_min: float | None = Query(default=None, ge=0),
     price_max: float | None = Query(default=None, ge=0),
     rooms_min: float | None = Query(default=None, ge=0, le=20),
@@ -93,6 +94,7 @@ def public_search(
         filters = SearchQuery(
             listing_type=listing_type,
             location=location,
+            country=country,
             price_min=price_min,
             price_max=price_max,
             rooms_min=rooms_min,

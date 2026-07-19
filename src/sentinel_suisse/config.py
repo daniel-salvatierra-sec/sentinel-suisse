@@ -60,6 +60,8 @@ class Settings(BaseSettings):
     ingest_newhome_live: bool = False
     ingest_anibis_live: bool = False
     ingest_jobup_live: bool = False
+    ingest_leboncoin_live: bool = False
+    ingest_indeed_fr_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
@@ -71,6 +73,11 @@ class Settings(BaseSettings):
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"
     jobup_search_url: str = "https://www.jobup.ch/fr/emplois/?location=Gen%C3%A8ve"
+    leboncoin_search_url: str = (
+        "https://www.leboncoin.fr/recherche"
+        "?category=10&locations=Annemasse_74100__45.9024_6.2364_5000"
+    )
+    indeed_fr_search_url: str = "https://fr.indeed.com/jobs?q=&l=Annemasse+%2874%29&radius=25"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

@@ -1,0 +1,32 @@
+[
+  {
+    "external_id": "ind-demo-001",
+    "listing_type": "job",
+    "title": "Analyste SOC Niveau 1",
+    "description": "Veille et triage d'alertes — Annemasse / télétravail partiel. Pilot fixture.",
+    "location": "Annemasse (74)",
+    "country": "FR",
+    "price": null,
+    "job_category": "it",
+    "employment_type": "permanent",
+    "workload_min": 80,
+    "workload_max": 100,
+    "source_url": "https://fr.indeed.com/viewjob?jk=ind-demo-001",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "ind-demo-002",
+    "listing_type": "job",
+    "title": "Infirmier·ère H/F — hôpital frontalier",
+    "description": "CDD 6 mois, équipe de jour.",
+    "location": "Saint-Julien-en-Genevois (74)",
+    "country": "FR",
+    "price": null,
+    "job_category": "healthcare",
+    "employment_type": "temporary",
+    "workload_min": 60,
+    "workload_max": 80,
+    "source_url": "https://fr.indeed.com/viewjob?jk=ind-demo-002",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  }
+]

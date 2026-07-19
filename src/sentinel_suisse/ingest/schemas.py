@@ -4,7 +4,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field, HttpUrl, model_validator
 
-from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
+from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
 
 
 class RawListing(BaseModel):
@@ -13,6 +13,7 @@ class RawListing(BaseModel):
     title: str = Field(min_length=1, max_length=300)
     description: str | None = Field(default=None, max_length=10000)
     location: str | None = Field(default=None, max_length=200)
+    country: CountryCode = CountryCode.CH
     price: Decimal | None = Field(default=None, ge=0)
     rooms: Decimal | None = Field(default=None, ge=0, le=20)
     property_type: PropertyType | None = None

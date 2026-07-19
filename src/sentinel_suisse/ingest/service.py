@@ -49,6 +49,7 @@ class IngestService:
                     title=item.title,
                     description=item.description,
                     location=item.location,
+                    country=item.country,
                     price=item.price,
                     rooms=item.rooms,
                     property_type=item.property_type,
@@ -75,6 +76,7 @@ class IngestService:
             existing.title = item.title
             existing.description = item.description
             existing.location = item.location
+            existing.country = item.country
             existing.price = item.price
             existing.rooms = item.rooms
             existing.property_type = item.property_type

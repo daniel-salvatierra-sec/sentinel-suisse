@@ -24,6 +24,8 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
         stmt = stmt.where(Listing.listing_type == filters.listing_type)
     if filters.location is not None:
         stmt = stmt.where(Listing.location.ilike(f"%{filters.location}%"))
+    if filters.country is not None:
+        stmt = stmt.where(Listing.country == filters.country)
     if filters.price_min is not None:
         stmt = stmt.where(Listing.price >= filters.price_min)
     if filters.price_max is not None:

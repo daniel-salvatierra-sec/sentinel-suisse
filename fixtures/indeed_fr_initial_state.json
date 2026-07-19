@@ -1,0 +1,28 @@
+{
+  "props": {
+    "pageProps": {
+      "jobList": [
+        {
+          "jobkey": "abc111fr",
+          "title": "Développeur Python H/F",
+          "company": "Tech Frontier SAS",
+          "formattedLocation": "Annemasse (74)",
+          "snippet": "Backend API, CDI.",
+          "jobCategory": "it",
+          "jobTypes": ["CDI"],
+          "viewJobLink": "/viewjob?jk=abc111fr"
+        },
+        {
+          "jobkey": "abc222fr",
+          "title": "Serveur·euse restaurant",
+          "company": "Brasserie Léman",
+          "formattedLocation": "Thonon-les-Bains (74)",
+          "snippet": "Intérim soirées.",
+          "category": "hospitality",
+          "employmentType": "temporary",
+          "url": "https://fr.indeed.com/viewjob?jk=abc222fr"
+        }
+      ]
+    }
+  }
+}

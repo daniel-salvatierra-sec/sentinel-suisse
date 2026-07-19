@@ -12,6 +12,8 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
             return False
         if filters.location.lower() not in listing.location.lower():
             return False
+    if filters.country is not None and listing.country != filters.country:
+        return False
     if filters.price_min is not None:
         if listing.price is None or listing.price < filters.price_min:
             return False

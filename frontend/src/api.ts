@@ -1,4 +1,5 @@
 export type ListingType = "housing" | "job";
+export type CountryCode = "CH" | "FR";
 export type PropertyType = "studio" | "apartment" | "house" | "room" | "other";
 export type EmploymentType =
   | "permanent"
@@ -11,6 +12,7 @@ export type Listing = {
   id: number;
   title: string;
   location: string | null;
+  country?: CountryCode;
   price: number | null;
   listing_type: ListingType;
   source_url: string;
@@ -28,6 +30,7 @@ export type Listing = {
 export type SearchQueryParams = {
   listing_type: ListingType;
   location?: string;
+  country?: CountryCode;
   price_min?: number;
   price_max?: number;
   rooms_min?: number;
@@ -46,6 +49,9 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   query.set("listing_type", params.listing_type);
   if (params.location?.trim()) {
     query.set("location", params.location.trim());
+  }
+  if (params.country) {
+    query.set("country", params.country);
   }
   if (params.price_min != null && !Number.isNaN(params.price_min)) {
     query.set("price_min", String(params.price_min));
@@ -225,6 +231,7 @@ export async function subscribeAlerts(params: {
       query: {
         listing_type: params.query.listing_type,
         location: params.query.location?.trim() || undefined,
+        country: params.query.country,
         price_min: params.query.price_min,
         price_max: params.query.price_max,
         rooms_min: params.query.rooms_min,

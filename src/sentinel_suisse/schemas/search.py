@@ -2,7 +2,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, Field, model_validator
 
-from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
+from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
 
 
 class SearchQuery(BaseModel):
@@ -10,6 +10,7 @@ class SearchQuery(BaseModel):
 
     listing_type: ListingType | None = None
     location: str | None = Field(default=None, min_length=1, max_length=200)
+    country: CountryCode | None = None
     price_min: Decimal | None = Field(default=None, ge=0)
     price_max: Decimal | None = Field(default=None, ge=0)
     rooms_min: Decimal | None = Field(default=None, ge=0, le=20)

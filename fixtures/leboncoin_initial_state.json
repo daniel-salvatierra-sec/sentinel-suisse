@@ -1,0 +1,31 @@
+{
+  "props": {
+    "pageProps": {
+      "ads": [
+        {
+          "list_id": 2500111222,
+          "subject": "T2 à louer Annemasse centre",
+          "body": "Proche tram, charges comprises.",
+          "location": {"city": "Annemasse", "zipcode": "74100"},
+          "price": [850],
+          "attributes": [
+            {"key": "rooms", "value": "2"},
+            {"key": "parking", "value": "true"}
+          ],
+          "category_name": "Locations",
+          "url": "/ad/locations/2500111222.htm"
+        },
+        {
+          "list_id": 2500333444,
+          "subject": "Studio Saint-Genis-Pouilly",
+          "body": "Calme, proche CERN.",
+          "location": {"city": "Saint-Genis-Pouilly", "zipcode": "01630"},
+          "price": [650],
+          "attributes": [{"key": "rooms", "value": "1"}],
+          "real_estate_type": "studio",
+          "url": "/ad/locations/2500333444.htm"
+        }
+      ]
+    }
+  }
+}

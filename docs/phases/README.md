@@ -48,3 +48,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-38-domain-vps.md](phase-38-domain-vps.md) | LinkSwiss brand + linkswiss.ch + VPS checklist |
 | [phase-39-warm-hub.md](phase-39-warm-hub.md) | Warm alpine Home/Work hub presentation |
 | [phase-40-ch-providers.md](phase-40-ch-providers.md) | More CH providers (newhome, anibis, jobup) |
+| [phase-41-france-border.md](phase-41-france-border.md) | France border (Leboncoin + Indeed FR + zone filter) |

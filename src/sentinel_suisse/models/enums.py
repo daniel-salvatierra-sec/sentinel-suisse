@@ -10,6 +10,11 @@ class ListingType(enum.StrEnum):
     JOB = "job"
 
 
+class CountryCode(enum.StrEnum):
+    CH = "CH"
+    FR = "FR"
+
+
 class PropertyType(enum.StrEnum):
     STUDIO = "studio"
     APARTMENT = "apartment"

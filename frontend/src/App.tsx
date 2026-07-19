@@ -15,6 +15,7 @@ import {
   type JobCategory,
   type RoomsChoice,
   type WorkloadChoice,
+  type ZoneChoice,
 } from "./components/FilterBar";
 import { GoalHub } from "./components/GoalHub";
 import { GuideBot } from "./components/GuideBot";
@@ -59,6 +60,7 @@ export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
   const [category, setCategory] = useState<ListingType>("housing");
   const [query, setQuery] = useState("");
+  const [zoneChoice, setZoneChoice] = useState<ZoneChoice>("");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
@@ -66,6 +68,7 @@ export default function App() {
   const [jobCategory, setJobCategory] = useState<JobCategory | "">("");
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
   const [workloadChoice, setWorkloadChoice] = useState<WorkloadChoice>("");
+  const [appliedZoneChoice, setAppliedZoneChoice] = useState<ZoneChoice>("");
   const [appliedPriceMin, setAppliedPriceMin] = useState("");
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [appliedRoomsChoice, setAppliedRoomsChoice] = useState<RoomsChoice>("");
@@ -93,6 +96,7 @@ export default function App() {
       return {
         listing_type: category,
         location: query,
+        country: appliedZoneChoice || undefined,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
         rooms_min: category === "housing" ? rooms.rooms_min : undefined,
@@ -110,6 +114,7 @@ export default function App() {
     [
       category,
       query,
+      appliedZoneChoice,
       appliedPriceMin,
       appliedPriceMax,
       appliedRoomsChoice,
@@ -173,6 +178,7 @@ export default function App() {
   }, [buildSearchParams, listings.length]);
 
   const applyFilters = () => {
+    setAppliedZoneChoice(zoneChoice);
     setAppliedPriceMin(priceMin);
     setAppliedPriceMax(priceMax);
     setAppliedRoomsChoice(roomsChoice);
@@ -240,6 +246,8 @@ export default function App() {
       <FilterBar
         t={t}
         category={category}
+        zoneChoice={zoneChoice}
+        onZoneChoiceChange={setZoneChoice}
         roomsChoice={roomsChoice}
         onRoomsChoiceChange={setRoomsChoice}
         hasParking={hasParking}

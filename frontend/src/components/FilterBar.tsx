@@ -1,8 +1,9 @@
 import type { Messages } from "../i18n";
-import type { EmploymentType, ListingType } from "../api";
+import type { CountryCode, EmploymentType, ListingType } from "../api";
 
 export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4";
 export type WorkloadChoice = "" | "40-60" | "80-100";
+export type ZoneChoice = "" | CountryCode;
 
 export const JOB_CATEGORIES = [
   "it",
@@ -18,6 +19,8 @@ export type JobCategory = (typeof JOB_CATEGORIES)[number];
 type Props = {
   t: Messages;
   category: ListingType;
+  zoneChoice: ZoneChoice;
+  onZoneChoiceChange: (value: ZoneChoice) => void;
   roomsChoice: RoomsChoice;
   onRoomsChoiceChange: (value: RoomsChoice) => void;
   hasParking: boolean;
@@ -83,6 +86,8 @@ function employmentLabel(t: Messages, type: EmploymentType): string {
 export function FilterBar({
   t,
   category,
+  zoneChoice,
+  onZoneChoiceChange,
   roomsChoice,
   onRoomsChoiceChange,
   hasParking,
@@ -102,6 +107,34 @@ export function FilterBar({
   return (
     <div className="filter-bar">
       <p className="filter-bar-label">{t.filters}</p>
+
+      <p className="filter-group-label">{t.zoneLabel}</p>
+      <div className="filter-chips" role="group" aria-label={t.zoneLabel}>
+        <button
+          type="button"
+          className={zoneChoice === "" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === ""}
+          onClick={() => onZoneChoiceChange("")}
+        >
+          {t.zoneBoth}
+        </button>
+        <button
+          type="button"
+          className={zoneChoice === "CH" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === "CH"}
+          onClick={() => onZoneChoiceChange(zoneChoice === "CH" ? "" : "CH")}
+        >
+          {t.zoneCH}
+        </button>
+        <button
+          type="button"
+          className={zoneChoice === "FR" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === "FR"}
+          onClick={() => onZoneChoiceChange(zoneChoice === "FR" ? "" : "FR")}
+        >
+          {t.zoneFR}
+        </button>
+      </div>
 
       {category === "housing" && (
         <>

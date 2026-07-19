@@ -3,7 +3,7 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType
+from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.matching import listing_matches_query
@@ -12,6 +12,7 @@ from sentinel_suisse.services.matching import listing_matches_query
 def _sample_listing(
     *,
     location: str = "Geneva",
+    country: CountryCode = CountryCode.CH,
     price: str = "2400",
     listing_type: ListingType = ListingType.HOUSING,
     rooms: str | None = None,
@@ -29,6 +30,7 @@ def _sample_listing(
         listing_type=listing_type,
         title="Apartment",
         location=location,
+        country=country,
         price=Decimal(price) if listing_type == ListingType.HOUSING else None,
         rooms=Decimal(rooms) if rooms is not None else None,
         property_type=property_type,
@@ -109,3 +111,9 @@ def test_provider_ids_filter() -> None:
     listing = _sample_listing()
     assert listing_matches_query(listing, SearchQuery(provider_ids=[1, 2])) is True
     assert listing_matches_query(listing, SearchQuery(provider_ids=[9])) is False
+
+
+def test_country_filter() -> None:
+    listing = _sample_listing(country=CountryCode.FR, location="Annemasse")
+    assert listing_matches_query(listing, SearchQuery(country=CountryCode.FR)) is True
+    assert listing_matches_query(listing, SearchQuery(country=CountryCode.CH)) is False

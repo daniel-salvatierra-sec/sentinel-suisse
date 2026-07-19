@@ -1,0 +1,30 @@
+[
+  {
+    "external_id": "lbc-demo-001",
+    "listing_type": "housing",
+    "title": "T3 Annemasse proche tram Genève",
+    "description": "Appartement rénové, 10 min de Genève. Pilot fixture — not a live scrape.",
+    "location": "Annemasse, 74100",
+    "country": "FR",
+    "price": "980.00",
+    "rooms": "3",
+    "property_type": "apartment",
+    "has_parking": true,
+    "source_url": "https://www.leboncoin.fr/ad/lbc-demo-001",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "lbc-demo-002",
+    "listing_type": "housing",
+    "title": "Studio Ferney-Voltaire",
+    "description": "Idéal frontaliers, bus vers Genève.",
+    "location": "Ferney-Voltaire, 01210",
+    "country": "FR",
+    "price": "720.00",
+    "rooms": "1",
+    "property_type": "studio",
+    "has_parking": false,
+    "source_url": "https://www.leboncoin.fr/ad/lbc-demo-002",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  }
+]

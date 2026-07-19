@@ -35,6 +35,13 @@ from sentinel_suisse.ingest.connectors.immoscout import (
 from sentinel_suisse.ingest.connectors.immoscout import (
     fetch_search_listings as fetch_immoscout_listings,
 )
+from sentinel_suisse.ingest.connectors.indeed_fr import (
+    IndeedFrDisabledError,
+    IndeedFrFetchError,
+)
+from sentinel_suisse.ingest.connectors.indeed_fr import (
+    fetch_search_listings as fetch_indeed_fr_listings,
+)
 from sentinel_suisse.ingest.connectors.jobs import (
     JobsDisabledError,
     JobsFetchError,
@@ -48,6 +55,13 @@ from sentinel_suisse.ingest.connectors.jobup import (
 )
 from sentinel_suisse.ingest.connectors.jobup import (
     fetch_search_listings as fetch_jobup_listings,
+)
+from sentinel_suisse.ingest.connectors.leboncoin import (
+    LeboncoinDisabledError,
+    LeboncoinFetchError,
+)
+from sentinel_suisse.ingest.connectors.leboncoin import (
+    fetch_search_listings as fetch_leboncoin_listings,
 )
 from sentinel_suisse.ingest.connectors.newhome import (
     NewhomeDisabledError,
@@ -67,6 +81,8 @@ _LIVE_CONNECTORS = {
     "newhome": fetch_newhome_listings,
     "anibis": fetch_anibis_listings,
     "jobup": fetch_jobup_listings,
+    "leboncoin": fetch_leboncoin_listings,
+    "indeed_fr": fetch_indeed_fr_listings,
 }
 
 
@@ -75,7 +91,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, newhome, anibis, jobup)",
+        help="Provider slug (e.g. homegate, leboncoin, indeed_fr)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -128,6 +144,10 @@ def main() -> None:
         AnibisFetchError,
         JobupDisabledError,
         JobupFetchError,
+        LeboncoinDisabledError,
+        LeboncoinFetchError,
+        IndeedFrDisabledError,
+        IndeedFrFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

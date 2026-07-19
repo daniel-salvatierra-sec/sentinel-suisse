@@ -19,7 +19,13 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from sentinel_suisse.db.base import Base
-from sentinel_suisse.models.enums import EmploymentType, ListingType, PropertyType, enum_values
+from sentinel_suisse.models.enums import (
+    CountryCode,
+    EmploymentType,
+    ListingType,
+    PropertyType,
+    enum_values,
+)
 
 if TYPE_CHECKING:
     from sentinel_suisse.models.provider import Provider
@@ -33,6 +39,7 @@ class Listing(Base):
         UniqueConstraint("provider_id", "external_id", name="uq_listing_provider_external"),
         Index("ix_listings_listing_type", "listing_type"),
         Index("ix_listings_content_hash", "content_hash"),
+        Index("ix_listings_country", "country"),
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)
@@ -52,6 +59,16 @@ class Listing(Base):
     title: Mapped[str] = mapped_column(String(300), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     location: Mapped[str | None] = mapped_column(String(200), nullable=True)
+    country: Mapped[CountryCode] = mapped_column(
+        Enum(
+            CountryCode,
+            name="country_code",
+            create_type=False,
+            values_callable=enum_values,
+        ),
+        nullable=False,
+        default=CountryCode.CH,
+    )
     price: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
     rooms: Mapped[Decimal | None] = mapped_column(Numeric(3, 1), nullable=True)
     property_type: Mapped[PropertyType | None] = mapped_column(

@@ -29,6 +29,10 @@ export type Messages = {
   search: string;
   filters: string;
   filterAny: string;
+  zoneLabel: string;
+  zoneBoth: string;
+  zoneCH: string;
+  zoneFR: string;
   roomsLabel: string;
   roomsStudio: string;
   rooms15: string;
