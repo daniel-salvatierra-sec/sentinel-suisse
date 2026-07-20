@@ -194,6 +194,40 @@ export function fetchSavedSearches(): Promise<SavedSearch[]> {
   return apiFetch<SavedSearch[]>("/api/v1/saved-searches");
 }
 
+export async function createSavedSearch(payload: {
+  name: string;
+  query: Omit<SearchQueryParams, "limit" | "offset">;
+  is_active?: boolean;
+}): Promise<SavedSearch> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch("/api/v1/saved-searches", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": apiKey,
+    },
+    body: JSON.stringify({
+      name: payload.name,
+      query: payload.query,
+      is_active: payload.is_active ?? true,
+    }),
+  });
+  if (!response.ok) {
+    let message = `request failed: ${response.status}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.json() as Promise<SavedSearch>;
+}
+
 export function deleteSavedSearch(id: number): Promise<void> {
   return apiFetch<void>(`/api/v1/saved-searches/${id}`, { method: "DELETE" });
 }

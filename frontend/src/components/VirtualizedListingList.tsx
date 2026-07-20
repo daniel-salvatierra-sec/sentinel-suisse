@@ -78,6 +78,7 @@ export function VirtualizedListingList({
                 t={t}
                 selected={listing.id === focusId}
                 onSelect={() => onSelect(listing.id)}
+                onShowOnMap={() => onSelect(listing.id)}
                 signals={computeListingSignals(listing, listings, signalContext)}
               />
             </div>

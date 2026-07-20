@@ -9,10 +9,18 @@ type Props = {
   t: Messages;
   selected: boolean;
   onSelect: () => void;
+  onShowOnMap: () => void;
   signals?: ListingSignals;
 };
 
-export function ListingCard({ listing, t, selected, onSelect, signals }: Props) {
+export function ListingCard({
+  listing,
+  t,
+  selected,
+  onSelect,
+  onShowOnMap,
+  signals,
+}: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
@@ -27,7 +35,12 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
     .filter(Boolean)
     .join(" ");
 
-  const openListing = (event: MouseEvent) => {
+  const openDetail = (event?: MouseEvent) => {
+    event?.stopPropagation();
+    setDetailOpen(true);
+  };
+
+  const goToAd = (event: MouseEvent) => {
     event.stopPropagation();
     if (isDemo) {
       setDetailOpen(true);
@@ -41,9 +54,9 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
       <article
         className={accentClass}
         style={selected ? { outline: "2px solid var(--jet)" } : undefined}
-        onClick={onSelect}
+        onClick={() => openDetail()}
         onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") onSelect();
+          if (event.key === "Enter" || event.key === " ") openDetail();
         }}
         role="button"
         tabIndex={0}
@@ -71,10 +84,25 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
             {goodMatch ? <span className="signal signal-match-tag">{t.signalGoodMatch}</span> : null}
           </div>
         )}
-        <button type="button" className="listing-open-btn" onClick={openListing}>
-          {t.openSource}
+        <button type="button" className="apply-btn listing-interested-btn" onClick={goToAd}>
+          {t.interested}
         </button>
-        <a href={mapsDirectionsUrl(coords)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
+        <button
+          type="button"
+          className="listing-open-btn"
+          onClick={(event) => {
+            event.stopPropagation();
+            openDetail(event);
+          }}
+        >
+          {t.listingMoreDetails}
+        </button>
+        <a
+          href={mapsDirectionsUrl(coords)}
+          target="_blank"
+          rel="noreferrer"
+          onClick={(e) => e.stopPropagation()}
+        >
           {t.route}
         </a>
       </article>
@@ -116,6 +144,29 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
             </p>
             {isDemo ? <p className="listing-detail-demo-note">{t.listingDemoNote}</p> : null}
             <div className="listing-detail-actions">
+              {!isDemo && (
+                <button
+                  type="button"
+                  className="apply-btn"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    window.open(listing.source_url, "_blank", "noopener,noreferrer");
+                  }}
+                >
+                  {t.interestedGoToAd}
+                </button>
+              )}
+              <button
+                type="button"
+                className="secondary-btn"
+                onClick={() => {
+                  setDetailOpen(false);
+                  onShowOnMap();
+                  onSelect();
+                }}
+              >
+                {t.showOnMap}
+              </button>
               <a
                 className="secondary-btn share-link-btn"
                 href={mapsDirectionsUrl(coords)}
@@ -124,7 +175,7 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
               >
                 {t.route}
               </a>
-              <button type="button" className="apply-btn" onClick={() => setDetailOpen(false)}>
+              <button type="button" className="secondary-btn" onClick={() => setDetailOpen(false)}>
                 {t.guideClose}
               </button>
             </div>

@@ -9,7 +9,7 @@ type Props = {
   zone: ListingType;
   searching: boolean;
   onPickCategory: (type: ListingType) => void;
-  onOpenAlerts: () => void;
+  onOpenAlerts: (type?: ListingType) => void;
   onStartSearch: (location: string) => void;
   onOpenMap: () => void;
 };
@@ -28,6 +28,7 @@ export function GuideBot({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [needsIntro, setNeedsIntro] = useState(false);
+  const [pickingAlertType, setPickingAlertType] = useState(false);
 
   useEffect(() => {
     if (!loadGuideSeen()) {
@@ -39,6 +40,7 @@ export function GuideBot({
   const close = () => {
     saveGuideSeen();
     setNeedsIntro(false);
+    setPickingAlertType(false);
     setOpen(false);
   };
 
@@ -75,7 +77,13 @@ export function GuideBot({
               </div>
             </div>
 
-            <p className="guide-message">{needsIntro ? t.guideHello : radarMessage}</p>
+            <p className="guide-message">
+              {needsIntro
+                ? t.guideHello
+                : pickingAlertType
+                  ? t.alertsAskType
+                  : radarMessage}
+            </p>
 
             {needsIntro ? (
               <div className="guide-actions">
@@ -100,6 +108,29 @@ export function GuideBot({
                   }}
                 >
                   {t.guideJob}
+                </button>
+              </div>
+            ) : pickingAlertType ? (
+              <div className="guide-actions">
+                <button
+                  type="button"
+                  className="option"
+                  onClick={() => {
+                    onOpenAlerts("housing");
+                    close();
+                  }}
+                >
+                  {t.housing}
+                </button>
+                <button
+                  type="button"
+                  className="option"
+                  onClick={() => {
+                    onOpenAlerts("job");
+                    close();
+                  }}
+                >
+                  {t.job}
                 </button>
               </div>
             ) : (
@@ -127,10 +158,7 @@ export function GuideBot({
                 <button
                   type="button"
                   className="chip active"
-                  onClick={() => {
-                    onOpenAlerts();
-                    close();
-                  }}
+                  onClick={() => setPickingAlertType(true)}
                 >
                   {t.guideChipAlert}
                 </button>

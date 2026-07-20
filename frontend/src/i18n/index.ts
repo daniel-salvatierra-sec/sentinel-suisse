@@ -144,6 +144,15 @@ export type Messages = {
   privacy: string;
   terms: string;
   openSource: string;
+  interested: string;
+  interestedGoToAd: string;
+  listingMoreDetails: string;
+  showOnMap: string;
+  alertsAskType: string;
+  alertsCreateFromSearch: string;
+  alertsRecentSearches: string;
+  alertsRememberHint: string;
+  alertsSaveCurrent: string;
   demoBadge: string;
   signalLabel: string;
   signalGoodPrice: string;

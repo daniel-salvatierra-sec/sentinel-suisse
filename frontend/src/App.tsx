@@ -29,6 +29,8 @@ import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
 import type { ListingSignalContext } from "./listingSignals";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
+import { rememberSearch } from "./searchHistory";
+import type { RememberedSearch } from "./searchHistory";
 
 type Tab = "list" | "map" | "alerts" | "account";
 
@@ -194,10 +196,13 @@ export default function App() {
     setLoading(true);
     setError(false);
     try {
-      const results = await searchListings(buildSearchParams(0));
+      const params = buildSearchParams(0);
+      const results = await searchListings(params);
       setListings(results);
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
       setFocusId(results[0]?.id ?? null);
+      const { limit: _l, offset: _o, ...remembered } = params;
+      rememberSearch(remembered);
     } catch {
       setError(true);
       setListings([]);
@@ -239,16 +244,29 @@ export default function App() {
     if (tab === "list" || tab === "map") {
       void runSearch();
     }
-  }, [tab, category, runSearch, deepLinkReady]);
+  }, [tab, category, query, runSearch, deepLinkReady]);
 
   const onSignupSuccess = () => {
     setHasSession(true);
     setAccountRefresh((value) => value + 1);
-    setTab("account");
+    setTab("alerts");
   };
 
   const onLoggedOut = () => {
     setHasSession(false);
+    setTab("list");
+  };
+
+  const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
+    setCategory(saved.listing_type);
+    setQuery(saved.location ?? "");
+    if (saved.country === "CH" || saved.country === "FR") {
+      setZoneChoice(saved.country);
+      setAppliedZoneChoice(saved.country);
+    } else {
+      setZoneChoice("");
+      setAppliedZoneChoice("");
+    }
     setTab("list");
   };
 
@@ -282,13 +300,23 @@ export default function App() {
           </button>
         </div>
       )}
-      <LanguageBar
-        lang={lang}
-        onChange={(code) => {
-          saveLang(code);
-          setLang(code);
-        }}
-      />
+      <div className="app-topbar">
+        <LanguageBar
+          lang={lang}
+          onChange={(code) => {
+            saveLang(code);
+            setLang(code);
+          }}
+        />
+        <button
+          type="button"
+          className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
+          onClick={() => setTab("account")}
+        >
+          {t.account}
+          {hasSession && <span className="tab-dot" aria-hidden />}
+        </button>
+      </div>
       <header className="hero">
         <h1>{t.appName}</h1>
         <p>{t.tagline}</p>
@@ -345,10 +373,6 @@ export default function App() {
         <button type="button" className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>
           {t.alerts}
         </button>
-        <button type="button" className={tab === "account" ? "active" : ""} onClick={() => setTab("account")}>
-          {t.account}
-          {hasSession && <span className="tab-dot" aria-hidden />}
-        </button>
       </div>
 
       {loading && (tab === "list" || tab === "map") && <p className="empty">{t.loading}</p>}
@@ -386,7 +410,11 @@ export default function App() {
           locale={lang}
           listingType={category}
           location={query}
+          searchQuery={alertQuery}
           refreshToken={accountRefresh}
+          onPickCategory={setCategory}
+          onApplyRemembered={applyRememberedSearch}
+          onSignupSuccess={onSignupSuccess}
           onGoToAccount={() => setTab("account")}
         />
       )}
@@ -421,8 +449,9 @@ export default function App() {
           setCategory(type);
           setTab("list");
         }}
-        onOpenAlerts={() => {
-          setTab(hasSession ? "alerts" : "account");
+        onOpenAlerts={(type) => {
+          if (type) setCategory(type);
+          setTab("alerts");
         }}
         onStartSearch={(location) => {
           setQuery(location);
