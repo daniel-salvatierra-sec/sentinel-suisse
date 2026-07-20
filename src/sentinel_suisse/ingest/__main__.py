@@ -82,7 +82,7 @@ _LIVE_CONNECTORS = {
     "anibis": fetch_anibis_listings,
     "jobup": fetch_jobup_listings,
     "leboncoin": fetch_leboncoin_listings,
-    "indeed_fr": fetch_indeed_fr_listings,
+    "indeed-fr": fetch_indeed_fr_listings,
 }
 
 
@@ -91,7 +91,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, leboncoin, indeed_fr)",
+        help="Provider slug (e.g. homegate, leboncoin, indeed-fr)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(

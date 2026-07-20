@@ -18,8 +18,8 @@
 ## CLI
 
 ```powershell
-python -m sentinel_suisse.ingest --provider indeed_fr --fixture fixtures/indeed_fr_sample.json
-python -m sentinel_suisse.ingest --provider indeed_fr --live
+python -m sentinel_suisse.ingest --provider indeed-fr --fixture fixtures/indeed_fr_sample.json
+python -m sentinel_suisse.ingest --provider indeed-fr --live
 ```
 
 ## Limitations (MVP)

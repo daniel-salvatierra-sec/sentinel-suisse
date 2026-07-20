@@ -9,7 +9,7 @@
 | Slug | Type | Country | Fixture |
 |------|------|---------|---------|
 | `leboncoin` | housing | FR | `fixtures/leboncoin_sample.json` |
-| `indeed_fr` | job | FR | `fixtures/indeed_fr_sample.json` |
+| `indeed-fr` | job | FR | `fixtures/indeed_fr_sample.json` |
 
 ## Product
 
@@ -29,7 +29,7 @@ docker compose -f docker-compose.prod.yml exec -T api \
   python -m sentinel_suisse.ingest --provider leboncoin --fixture fixtures/leboncoin_sample.json
 
 docker compose -f docker-compose.prod.yml exec -T api \
-  python -m sentinel_suisse.ingest --provider indeed_fr --fixture fixtures/indeed_fr_sample.json
+  python -m sentinel_suisse.ingest --provider indeed-fr --fixture fixtures/indeed_fr_sample.json
 ```
 
 ---
