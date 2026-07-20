@@ -81,6 +81,7 @@ class Listing(Base):
         nullable=True,
     )
     has_parking: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    is_under_construction: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
     job_category: Mapped[str | None] = mapped_column(String(80), nullable=True)
     employment_type: Mapped[EmploymentType | None] = mapped_column(
         Enum(

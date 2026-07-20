@@ -50,7 +50,14 @@ export function ListingCard({ listing, t, selected, onSelect, signals }: Props) 
       >
         <div className="listing-card-title-row">
           <h3>{listing.title}</h3>
-          {isDemo ? <span className="listing-demo-badge">{t.demoBadge}</span> : null}
+          <span className="listing-badges">
+            {isDemo ? <span className="listing-demo-badge">{t.demoBadge}</span> : null}
+            {listing.is_under_construction ? (
+              <span className="listing-demo-badge listing-construction-badge">
+                {t.constructionBadge}
+              </span>
+            ) : null}
+          </span>
         </div>
         <div className="meta">
           {listing.location ?? "—"}

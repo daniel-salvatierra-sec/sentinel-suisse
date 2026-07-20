@@ -21,6 +21,7 @@ export type Listing = {
   rooms?: number | null;
   property_type?: PropertyType | null;
   has_parking?: boolean | null;
+  is_under_construction?: boolean | null;
   job_category?: string | null;
   employment_type?: EmploymentType | null;
   workload_min?: number | null;
@@ -37,6 +38,7 @@ export type SearchQueryParams = {
   rooms_min?: number;
   property_type?: PropertyType;
   has_parking?: boolean;
+  is_under_construction?: boolean;
   job_category?: string;
   employment_type?: EmploymentType;
   workload_min?: number;
@@ -68,6 +70,9 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   }
   if (params.has_parking === true) {
     query.set("has_parking", "true");
+  }
+  if (params.is_under_construction === true) {
+    query.set("is_under_construction", "true");
   }
   if (params.job_category) {
     query.set("job_category", params.job_category);
@@ -241,6 +246,7 @@ export async function subscribeAlerts(params: {
         rooms_min: params.query.rooms_min,
         property_type: params.query.property_type,
         has_parking: params.query.has_parking,
+        is_under_construction: params.query.is_under_construction,
         job_category: params.query.job_category,
         employment_type: params.query.employment_type,
         workload_min: params.query.workload_min,

@@ -188,5 +188,16 @@
   "premiumBadge": "Premium",
   "premiumWhatsapp": "WhatsApp requiere Premium (próximamente).",
   "alertLimitReached": "Has alcanzado el límite de alertas del plan gratuito.",
-  "alertQuota": "Alertas: {count}/{limit}"
+  "alertQuota": "Alertas: {count}/{limit}",
+  "searchFreeHint": "Buscar es siempre gratis, sin obligación.",
+  "premiumUpsellTitle": "Alertas Premium",
+  "premiumUpsellDesc": "Cuando no encuentres lo que buscas, activa alertas de pago: empleos cada día, pisos libres y en construcción.",
+  "premiumUpsellPrice": "Desde CHF 9.90 / mes (Stripe + TWINT — próximamente)",
+  "premiumBenefitJobs": "Alertas de empleo diarias",
+  "premiumBenefitHousing": "Pisos libres cerca de ti",
+  "premiumBenefitConstruction": "Pisos en construcción / sobre plano",
+  "premiumBenefitWhatsapp": "WhatsApp + más de 1 alerta guardada",
+  "premiumComingSoon": "Pago pronto (Stripe / TWINT)",
+  "underConstructionFilter": "En construcción",
+  "constructionBadge": "En obra"
 }

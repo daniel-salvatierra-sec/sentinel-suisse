@@ -54,6 +54,7 @@ class IngestService:
                     rooms=item.rooms,
                     property_type=item.property_type,
                     has_parking=item.has_parking,
+                    is_under_construction=item.is_under_construction,
                     job_category=item.job_category,
                     employment_type=item.employment_type,
                     workload_min=item.workload_min,
@@ -81,6 +82,7 @@ class IngestService:
             existing.rooms = item.rooms
             existing.property_type = item.property_type
             existing.has_parking = item.has_parking
+            existing.is_under_construction = item.is_under_construction
             existing.job_category = item.job_category
             existing.employment_type = item.employment_type
             existing.workload_min = item.workload_min

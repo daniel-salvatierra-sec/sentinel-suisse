@@ -50,5 +50,33 @@
     "has_parking": true,
     "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-004",
     "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "nh-demo-005",
+    "listing_type": "housing",
+    "title": "3.5 pièces — Lancy (en construction)",
+    "description": "Programme neuf, livraison prévue 2027. Réservation sur plans. Parking inclus.",
+    "location": "Lancy",
+    "price": "2200.00",
+    "rooms": "3.5",
+    "property_type": "apartment",
+    "has_parking": true,
+    "is_under_construction": true,
+    "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-005",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "nh-demo-006",
+    "listing_type": "housing",
+    "title": "4.5 pièces — Vernier VE (VEFA)",
+    "description": "Immeuble en cours — achat/location sur plan. Visite du showroom possible.",
+    "location": "Vernier",
+    "price": "2750.00",
+    "rooms": "4.5",
+    "property_type": "apartment",
+    "has_parking": true,
+    "is_under_construction": true,
+    "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-006",
+    "raw_payload": {"source": "fixture", "pilot": true}
   }
 ]

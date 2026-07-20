@@ -41,6 +41,15 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
         stmt = stmt.where(or_(Listing.has_parking.is_(None), Listing.has_parking.is_(True)))
     elif filters.has_parking is False:
         stmt = stmt.where(or_(Listing.has_parking.is_(None), Listing.has_parking.is_(False)))
+    if filters.is_under_construction is True:
+        stmt = stmt.where(Listing.is_under_construction.is_(True))
+    elif filters.is_under_construction is False:
+        stmt = stmt.where(
+            or_(
+                Listing.is_under_construction.is_(None),
+                Listing.is_under_construction.is_(False),
+            )
+        )
     if filters.job_category is not None:
         related = _related_job_categories(filters.job_category)
         stmt = stmt.where(

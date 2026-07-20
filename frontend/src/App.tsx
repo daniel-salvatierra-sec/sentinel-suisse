@@ -67,6 +67,7 @@ export default function App() {
   const [priceMax, setPriceMax] = useState("");
   const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
   const [hasParking, setHasParking] = useState(false);
+  const [underConstruction, setUnderConstruction] = useState(false);
   const [jobField, setJobField] = useState<JobField | "">("");
   const [jobBranch, setJobBranch] = useState("");
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
@@ -76,6 +77,7 @@ export default function App() {
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [appliedRoomsChoice, setAppliedRoomsChoice] = useState<RoomsChoice>("");
   const [appliedHasParking, setAppliedHasParking] = useState(false);
+  const [appliedUnderConstruction, setAppliedUnderConstruction] = useState(false);
   const [appliedJobField, setAppliedJobField] = useState<JobField | "">("");
   const [appliedJobBranch, setAppliedJobBranch] = useState("");
   const [appliedEmploymentType, setAppliedEmploymentType] = useState<EmploymentType | "">("");
@@ -123,6 +125,8 @@ export default function App() {
         rooms_min: category === "housing" ? rooms.rooms_min : undefined,
         property_type: category === "housing" ? rooms.property_type : undefined,
         has_parking: category === "housing" && appliedHasParking ? true : undefined,
+        is_under_construction:
+          category === "housing" && appliedUnderConstruction ? true : undefined,
         job_category:
           category === "job"
             ? resolveJobCategory(appliedJobField, appliedJobBranch)
@@ -143,6 +147,7 @@ export default function App() {
       appliedPriceMax,
       appliedRoomsChoice,
       appliedHasParking,
+      appliedUnderConstruction,
       appliedJobField,
       appliedJobBranch,
       appliedEmploymentType,
@@ -208,6 +213,7 @@ export default function App() {
     setAppliedPriceMax(priceMax);
     setAppliedRoomsChoice(roomsChoice);
     setAppliedHasParking(hasParking);
+    setAppliedUnderConstruction(underConstruction);
     setAppliedJobField(jobField);
     setAppliedJobBranch(jobBranch);
     setAppliedEmploymentType(employmentType);
@@ -279,6 +285,8 @@ export default function App() {
         onRoomsChoiceChange={setRoomsChoice}
         hasParking={hasParking}
         onHasParkingChange={setHasParking}
+        underConstruction={underConstruction}
+        onUnderConstructionChange={setUnderConstruction}
         priceMin={priceMin}
         priceMax={priceMax}
         onPriceMinChange={setPriceMin}

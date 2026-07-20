@@ -25,6 +25,7 @@ class ListingCreate(BaseModel):
     rooms: Decimal | None = Field(default=None, ge=0, le=20)
     property_type: PropertyType | None = None
     has_parking: bool | None = None
+    is_under_construction: bool | None = None
     job_category: str | None = Field(default=None, min_length=1, max_length=80)
     employment_type: EmploymentType | None = None
     workload_min: int | None = Field(default=None, ge=0, le=100)
@@ -56,6 +57,7 @@ class ListingUpdate(BaseModel):
     rooms: Decimal | None = Field(default=None, ge=0, le=20)
     property_type: PropertyType | None = None
     has_parking: bool | None = None
+    is_under_construction: bool | None = None
     job_category: str | None = Field(default=None, min_length=1, max_length=80)
     employment_type: EmploymentType | None = None
     workload_min: int | None = Field(default=None, ge=0, le=100)
@@ -82,6 +84,7 @@ class ListingRead(BaseModel):
     rooms: Decimal | None = None
     property_type: PropertyType | None = None
     has_parking: bool | None = None
+    is_under_construction: bool | None = None
     job_category: str | None = None
     employment_type: EmploymentType | None = None
     workload_min: int | None = None

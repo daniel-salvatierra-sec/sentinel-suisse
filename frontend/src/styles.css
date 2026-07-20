@@ -801,6 +801,13 @@ body {
   font-size: 1rem;
 }
 
+.listing-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  flex: 0 0 auto;
+  justify-content: flex-end;
+}
 .listing-demo-badge {
   flex: 0 0 auto;
   font-size: 0.7rem;
@@ -812,6 +819,55 @@ body {
   border-radius: 999px;
   padding: 0.2rem 0.55rem;
   line-height: 1.2;
+}
+
+.listing-construction-badge {
+  color: var(--clay);
+  background: rgba(196, 123, 74, 0.14);
+}
+
+.premium-upsell {
+  background: rgba(47, 106, 69, 0.06);
+  border: 1px solid rgba(47, 106, 69, 0.22);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.premium-upsell.is-compact {
+  padding: 0.7rem 0.85rem;
+}
+
+.premium-upsell-title {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+  color: var(--mountain);
+}
+
+.premium-upsell-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.premium-upsell-list {
+  margin: 0 0 0.55rem;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.premium-upsell-price {
+  margin: 0 0 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--lake);
+}
+
+.premium-upsell .apply-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  filter: none;
 }
 
 .listing-card h3 {

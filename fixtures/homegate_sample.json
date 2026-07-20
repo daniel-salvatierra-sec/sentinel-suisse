@@ -76,5 +76,19 @@
     "has_parking": false,
     "source_url": "https://www.homegate.ch/rent/hg-demo-006",
     "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "hg-demo-007",
+    "listing_type": "housing",
+    "title": "2.5 pièces — Meyrin (chantier)",
+    "description": "Appartement sur plan, livrable fin 2026. Proche tram CERN.",
+    "location": "Meyrin",
+    "price": "1890.00",
+    "rooms": "2.5",
+    "property_type": "apartment",
+    "has_parking": false,
+    "is_under_construction": true,
+    "source_url": "https://www.homegate.ch/rent/hg-demo-007",
+    "raw_payload": {"source": "fixture", "pilot": true}
   }
 ]

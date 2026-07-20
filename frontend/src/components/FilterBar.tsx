@@ -19,6 +19,8 @@ type Props = {
   onRoomsChoiceChange: (value: RoomsChoice) => void;
   hasParking: boolean;
   onHasParkingChange: (value: boolean) => void;
+  underConstruction: boolean;
+  onUnderConstructionChange: (value: boolean) => void;
   priceMin: string;
   priceMax: string;
   onPriceMinChange: (value: string) => void;
@@ -99,6 +101,8 @@ export function FilterBar({
   onRoomsChoiceChange,
   hasParking,
   onHasParkingChange,
+  underConstruction,
+  onUnderConstructionChange,
   priceMin,
   priceMax,
   onPriceMinChange,
@@ -182,6 +186,14 @@ export function FilterBar({
               onClick={() => onHasParkingChange(!hasParking)}
             >
               {t.parkingLabel}
+            </button>
+            <button
+              type="button"
+              className={underConstruction ? "chip active" : "chip"}
+              aria-pressed={underConstruction}
+              onClick={() => onUnderConstructionChange(!underConstruction)}
+            >
+              {t.underConstructionFilter}
             </button>
           </div>
 

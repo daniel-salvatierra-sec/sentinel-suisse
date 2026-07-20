@@ -31,6 +31,7 @@
   "rooms4plus": "4+",
   "rooms5plus": "5+",
   "parkingLabel": "Com estacionamento",
+  "underConstructionFilter": "Em construção",
   "jobCategoryLabel": "Área",
   "jobCatIt": "IT",
   "jobCatHealthcare": "Saúde",
@@ -188,5 +189,16 @@
   "premiumBadge": "Premium",
   "premiumWhatsapp": "WhatsApp requer Premium (em breve).",
   "alertLimitReached": "Atingiu o limite de alertas do plano gratuito.",
-  "alertQuota": "Alertas: {count}/{limit}"
+  "alertQuota": "Alertas: {count}/{limit}",
+  "searchFreeHint": "Pesquisar é sempre grátis, sem compromisso.",
+  "premiumUpsellTitle": "Alertas Premium",
+  "premiumUpsellDesc": "Se não encontrares, ativa alertas pagas: empregos diários, apartamentos livres e em construção.",
+  "premiumUpsellPrice": "Desde CHF 9.90 / mês (Stripe + TWINT — em breve)",
+  "premiumBenefitJobs": "Alertas de emprego diárias",
+  "premiumBenefitHousing": "Apartamentos livres perto de ti",
+  "premiumBenefitConstruction": "Em construção / sobre planta",
+  "premiumBenefitWhatsapp": "WhatsApp + mais de 1 alerta guardada",
+  "premiumComingSoon": "Pagamento em breve (Stripe / TWINT)",
+  "underConstructionFilter": "Em construção",
+  "constructionBadge": "Em obra"
 }

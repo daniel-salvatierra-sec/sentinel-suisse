@@ -188,5 +188,16 @@
   "premiumBadge": "Premium",
   "premiumWhatsapp": "WhatsApp requires Premium (coming soon).",
   "alertLimitReached": "You have reached the free plan alert limit.",
-  "alertQuota": "Alerts: {count}/{limit}"
+  "alertQuota": "Alerts: {count}/{limit}",
+  "searchFreeHint": "Search is always free — no commitment.",
+  "premiumUpsellTitle": "Premium alerts",
+  "premiumUpsellDesc": "When you do not find a match, activate paid alerts: daily jobs, free flats, and homes under construction.",
+  "premiumUpsellPrice": "From CHF 9.90 / month (Stripe + TWINT — coming soon)",
+  "premiumBenefitJobs": "Daily job alerts",
+  "premiumBenefitHousing": "Available apartments near you",
+  "premiumBenefitConstruction": "Under-construction / off-plan homes",
+  "premiumBenefitWhatsapp": "WhatsApp + more than 1 saved alert",
+  "premiumComingSoon": "Payments soon (Stripe / TWINT)",
+  "underConstructionFilter": "Under construction",
+  "constructionBadge": "Off-plan"
 }

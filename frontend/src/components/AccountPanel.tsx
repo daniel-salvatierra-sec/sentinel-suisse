@@ -13,6 +13,7 @@ import {
   type UserProfile,
 } from "../api";
 import { AlertSignup } from "./AlertSignup";
+import { PremiumUpsell } from "./PremiumUpsell";
 import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useState } from "react";
 
@@ -127,7 +128,16 @@ export function AccountPanel({
       {(profile.saved_search_count ?? searches.length) >=
         (profile.saved_search_limit ?? 1) &&
         !profile.is_premium && (
-          <p className="alert-feedback pending">{t.alertLimitReached}</p>
+          <>
+            <p className="alert-feedback pending">{t.alertLimitReached}</p>
+            <PremiumUpsell t={t} />
+          </>
+        )}
+
+      {!profile.is_premium &&
+        (profile.saved_search_count ?? searches.length) <
+          (profile.saved_search_limit ?? 1) && (
+          <p className="plan-hint">{t.searchFreeHint}</p>
         )}
 
       <h3>{t.accountSearches}</h3>

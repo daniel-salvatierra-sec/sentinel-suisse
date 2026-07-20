@@ -31,6 +31,7 @@
   "rooms4plus": "4+",
   "rooms5plus": "5+",
   "parkingLabel": "Mit Parkplatz",
+  "underConstructionFilter": "Im Bau",
   "jobCategoryLabel": "Bereich",
   "jobCatIt": "IT",
   "jobCatHealthcare": "Gesundheit",
@@ -188,5 +189,16 @@
   "premiumBadge": "Premium",
   "premiumWhatsapp": "WhatsApp erfordert Premium (demnächst).",
   "alertLimitReached": "Sie haben das Alert-Limit des kostenlosen Plans erreicht.",
-  "alertQuota": "Alerts: {count}/{limit}"
+  "alertQuota": "Alerts: {count}/{limit}",
+  "searchFreeHint": "Suchen ist immer kostenlos — ohne Verpflichtung.",
+  "premiumUpsellTitle": "Premium-Alerts",
+  "premiumUpsellDesc": "Wenn du nichts findest, aktiviere bezahlte Alerts: tägliche Jobs, freie Wohnungen und Objekte im Bau.",
+  "premiumUpsellPrice": "Ab CHF 9.90 / Monat (Stripe + TWINT — bald)",
+  "premiumBenefitJobs": "Tägliche Job-Alerts",
+  "premiumBenefitHousing": "Freie Wohnungen in deiner Nähe",
+  "premiumBenefitConstruction": "Im Bau / auf Plan",
+  "premiumBenefitWhatsapp": "WhatsApp + mehr als 1 gespeicherter Alert",
+  "premiumComingSoon": "Zahlung bald (Stripe / TWINT)",
+  "underConstructionFilter": "Im Bau",
+  "constructionBadge": "Im Bau"
 }

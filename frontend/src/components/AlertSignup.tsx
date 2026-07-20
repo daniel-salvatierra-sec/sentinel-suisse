@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { subscribeAlerts, type ListingType, type SearchQueryParams } from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
+import { PremiumUpsell } from "./PremiumUpsell";
 import { SubscribeQr } from "./SubscribeQr";
 import type { Lang, Messages } from "../i18n";
 
@@ -88,7 +89,9 @@ export function AlertSignup({
           <p>{t.accountSignupDesc}</p>
         </>
       )}
+      <p className="plan-hint">{t.searchFreeHint}</p>
       <p className="plan-hint">{t.freePlanHint}</p>
+      <PremiumUpsell t={t} compact />
       <label>
         {t.email}
         <input

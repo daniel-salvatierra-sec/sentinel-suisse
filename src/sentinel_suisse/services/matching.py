@@ -31,6 +31,12 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         return False
     if filters.has_parking is False and listing.has_parking is True:
         return False
+    if filters.is_under_construction is True:
+        if listing.is_under_construction is not True:
+            return False
+    if filters.is_under_construction is False:
+        if listing.is_under_construction is True:
+            return False
     if filters.job_category is not None:
         if not job_category_matches(listing.job_category, filters.job_category):
             return False

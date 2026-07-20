@@ -7,6 +7,7 @@ import {
   type SavedSearch,
 } from "../api";
 import type { Lang, Messages } from "../i18n";
+import { PremiumUpsell } from "./PremiumUpsell";
 import { SubscribeQr } from "./SubscribeQr";
 
 type Props = {
@@ -53,7 +54,9 @@ export function MyAlertsPanel({
     return (
       <section className="alert-panel">
         <h2 style={{ marginTop: 0 }}>{t.alertsTitle}</h2>
+        <p>{t.searchFreeHint}</p>
         <p>{t.alertsGoToAccount}</p>
+        <PremiumUpsell t={t} compact />
         <button type="button" className="primary-btn" style={{ width: "100%" }} onClick={onGoToAccount}>
           {t.accountSignupCta}
         </button>

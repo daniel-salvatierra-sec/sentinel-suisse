@@ -31,6 +31,7 @@
   "rooms4plus": "4+",
   "rooms5plus": "5+",
   "parkingLabel": "Avec parking",
+  "underConstructionFilter": "En construction",
   "jobCategoryLabel": "Domaine",
   "jobBranchLabel": "Spécialité",
   "jobCatIt": "IT",
@@ -188,5 +189,16 @@
   "premiumBadge": "Premium",
   "premiumWhatsapp": "WhatsApp nécessite Premium (bientôt).",
   "alertLimitReached": "Vous avez atteint la limite d'alertes de l'offre gratuite.",
-  "alertQuota": "Alertes : {count}/{limit}"
+  "alertQuota": "Alertes : {count}/{limit}",
+  "searchFreeHint": "La recherche est toujours gratuite, sans engagement.",
+  "premiumUpsellTitle": "Alertes Premium",
+  "premiumUpsellDesc": "Si tu ne trouves pas, active les alertes payantes : emplois chaque jour, logements libres et en construction.",
+  "premiumUpsellPrice": "Dès CHF 9.90 / mois (Stripe + TWINT — bientôt)",
+  "premiumBenefitJobs": "Alertes emploi quotidiennes",
+  "premiumBenefitHousing": "Logements libres près de toi",
+  "premiumBenefitConstruction": "Logements en construction / sur plan",
+  "premiumBenefitWhatsapp": "WhatsApp + plus d'une alerte enregistrée",
+  "premiumComingSoon": "Paiement bientôt (Stripe / TWINT)",
+  "underConstructionFilter": "En construction",
+  "constructionBadge": "Sur plan"
 }

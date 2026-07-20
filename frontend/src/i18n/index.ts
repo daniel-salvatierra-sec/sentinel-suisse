@@ -43,6 +43,7 @@ export type Messages = {
   rooms4plus: string;
   rooms5plus: string;
   parkingLabel: string;
+  underConstructionFilter: string;
   jobCategoryLabel: string;
   jobBranchLabel: string;
   jobCatIt: string;
@@ -201,6 +202,16 @@ export type Messages = {
   premiumWhatsapp: string;
   alertLimitReached: string;
   alertQuota: string;
+  searchFreeHint: string;
+  premiumUpsellTitle: string;
+  premiumUpsellDesc: string;
+  premiumUpsellPrice: string;
+  premiumBenefitJobs: string;
+  premiumBenefitHousing: string;
+  premiumBenefitConstruction: string;
+  premiumBenefitWhatsapp: string;
+  premiumComingSoon: string;
+  constructionBadge: string;
 };
 
 import fr from "./locales/fr.json";

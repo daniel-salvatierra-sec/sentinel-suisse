@@ -1,51 +1,52 @@
-# Business model — open vs paid (Phase 36)
+# Business model — open vs paid (Phase 36 → 38)
 
-**Status:** Provisional decision for product direction (not a legal opinion)  
-**Date:** 2026-07-16
+**Status:** Active product direction (not a legal opinion)  
+**Updated:** 2026-07-20
 
-## Decision (recommended)
+## Decision
 
 | Choice | Status |
 |--------|--------|
-| **Source code** | Open / inspectable (community + portfolio learning) |
-| **Core alerts** | Free for end users while pre-production |
-| **Funding** | Optional later: sponsorships, donations, or freemium |
-| **Payments now** | **Deferred** (Twint / Revolut / crypto wallets → Phase 38+) |
+| **Search (housing + jobs)** | **Always free** — no account required |
+| **Alerts** | Freemium stub now → **paid Premium** (Stripe + TWINT) |
+| **Source code** | Open / inspectable |
+| **Payments** | **Phase B** (Stripe Checkout + TWINT via Stripe; PCI via PSP) |
 
-### Why this first
+### Why
 
-1. Swiss nLPD and Terms must be clear **before** taking money.
-2. Integrating Twint/Revolut/crypto early locks you into compliance (merchant KYC, invoicing, refunds) before product-market fit.
-3. Open code + free core builds trust for a Swiss housing/job alert tool and still allows later paid tiers (e.g. more channels, higher frequency, team accounts).
+1. Users explore without obligation; payment only when they want ongoing alerts.
+2. Swiss nLPD / Terms must stay clear before charging; Stripe/TWINT handle PCI-DSS — we never store card PANs.
+3. Company stack research (Stripe, TWINT, webhooks, Docker/GHA, Sentry, refunds) applies to **alerts billing**, not event ticketing (no pkpass / wallet tickets in LinkSwiss).
 
-## Alternatives considered
+## Alert products (Premium)
 
-| Model | Pros | Cons |
-|-------|------|------|
-| Fully paid SaaS from day 1 | Clear revenue | Needs payments + stronger legal/tax setup first |
-| Closed source + free app | Simpler IP story | Less portfolio/transparency value |
-| Donations only | Low friction | Unpredictable; still needs ToS/privacy |
+- Daily **job** alerts  
+- **Available** apartments  
+- Apartments **under construction** / off-plan (`is_under_construction`)  
+- WhatsApp channel + up to 5 saved searches  
 
-## Funding / aides (Switzerland & open projects)
+**Free trial today:** 1 email alert (signup). WhatsApp and extra searches require Premium.
 
-Possible **later** avenues (research case-by-case; not guarantees):
+## Payment rails (Phase B — when Stripe account is ready)
 
-- Open-source sponsorships (GitHub Sponsors, Liberapay, etc.)
-- Local innovation / digital society programmes (cantonal or federal — check eligibility)
-- In-kind help (code review, hosting credits) rather than cash
+1. **Stripe Checkout** (CHF) → webhook → `users.is_premium = true`  
+2. **TWINT** as Stripe payment method / Link for CH users  
+3. Store only `stripe_customer_id` / `subscription_id` (no PAN)  
+4. Short **refund policy** + optional **Sentry** DSN for production errors  
+5. Hosting remains **CH/EU** (current VPS)
 
-**Paid product** remains valid once Terms, privacy contact, and accounting are ready.
+Do **not** go live with charges until Terms, privacy contact, and refund text are updated.
 
-## Payment rails (future phase)
+## Compliance notes (from enterprise review)
 
-When ready, evaluate in this order for CH users:
+| Topic | LinkSwiss approach |
+|-------|-------------------|
+| PCI-DSS | Via Stripe (no card data on our servers) |
+| nLPD / GDPR | Existing privacy/terms; erasure endpoints |
+| Progressive deploy | Docker + compose; migrate then rebuild |
+| Refunds | Document before first charge |
+| Monitoring | Add Sentry with Phase B payments |
 
-1. **Twint** — local ubiquity  
-2. **Card / Revolut Business** (or similar PSP) — EU/CH cards  
-3. **Crypto wallets** — optional niche; higher AML/compliance burden  
+## Out of scope
 
-Do **not** wire payment APIs until this document is updated to “Active”.
-
-## User confirmation
-
-Confirm or override this provisional decision before Phase 38 (payments).
+Billetterie features (signed entry QR, Apple/Google Wallet passes, offline scanners).
