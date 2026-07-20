@@ -2,8 +2,8 @@
   {
     "external_id": "ab-demo-001",
     "listing_type": "housing",
-    "title": "3 rooms furnished Onex",
-    "description": "Quiet neighbourhood, bus nearby. Pilot fixture — not a live scrape.",
+    "title": "3 pièces meublé — Onex",
+    "description": "Quartier calme, bus à proximité, parking inclus.",
     "location": "Onex, 1213",
     "price": "2100.00",
     "rooms": "3",
@@ -15,14 +15,27 @@
   {
     "external_id": "ab-demo-002",
     "listing_type": "housing",
-    "title": "Studio Lancy",
-    "description": "Available next month.",
+    "title": "Studio — Lancy",
+    "description": "Disponible le mois prochain. Idéal stage / premier logement.",
     "location": "Lancy, 1212",
     "price": "1400.00",
     "rooms": "1",
     "property_type": "studio",
     "has_parking": false,
     "source_url": "https://www.anibis.ch/fr/d/ab-demo-002",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "ab-demo-003",
+    "listing_type": "housing",
+    "title": "4.5 pièces — Vernier",
+    "description": "Grand séjour, balcon, cave. Bon rapport prix/espace.",
+    "location": "Vernier",
+    "price": "2480.00",
+    "rooms": "4.5",
+    "property_type": "apartment",
+    "has_parking": true,
+    "source_url": "https://www.anibis.ch/fr/d/ab-demo-003",
     "raw_payload": {"source": "fixture", "pilot": true}
   }
 ]

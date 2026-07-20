@@ -2,8 +2,8 @@
   {
     "external_id": "nh-demo-001",
     "listing_type": "housing",
-    "title": "4.5 rooms apartment Servette, Geneva",
-    "description": "Family flat with balcony. Pilot fixture — not a live scrape.",
+    "title": "4.5 pièces — Servette",
+    "description": "Appartement familial avec balcon et cave. Ascenseur, proche écoles.",
     "location": "Geneva, 1202",
     "price": "2800.00",
     "rooms": "4.5",
@@ -15,14 +15,40 @@
   {
     "external_id": "nh-demo-002",
     "listing_type": "housing",
-    "title": "2 rooms near Cornavin",
-    "description": "Compact flat, tram at the door.",
+    "title": "2 pièces près Cornavin",
+    "description": "Compact, tram à la porte, idéal pendulaire.",
     "location": "Geneva, 1201",
     "price": "1850.00",
     "rooms": "2",
     "property_type": "apartment",
     "has_parking": false,
     "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-002",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "nh-demo-003",
+    "listing_type": "housing",
+    "title": "6.5 pièces — Collonge-Bellerive",
+    "description": "Grande villa avec jardin et vue lac. Double garage, 5+ pièces.",
+    "location": "Collonge-Bellerive",
+    "price": "6500.00",
+    "rooms": "6.5",
+    "property_type": "house",
+    "has_parking": true,
+    "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-003",
+    "raw_payload": {"source": "fixture", "pilot": true}
+  },
+  {
+    "external_id": "nh-demo-004",
+    "listing_type": "housing",
+    "title": "3.5 pièces — Nyon",
+    "description": "Rénové 2023, place de parc, 20 min Genève CFF.",
+    "location": "Nyon",
+    "price": "2300.00",
+    "rooms": "3.5",
+    "property_type": "apartment",
+    "has_parking": true,
+    "source_url": "https://www.newhome.ch/fr/louer/detail/nh-demo-004",
     "raw_payload": {"source": "fixture", "pilot": true}
   }
 ]
