@@ -1,20 +1,33 @@
 import type { Listing } from "../api";
 import { coordsForLocation, mapsDirectionsUrl } from "../geo";
 import type { Messages } from "../i18n";
+import type { ListingSignals } from "../listingSignals";
 
 type Props = {
   listing: Listing;
   t: Messages;
   selected: boolean;
   onSelect: () => void;
+  signals?: ListingSignals;
 };
 
-export function ListingCard({ listing, t, selected, onSelect }: Props) {
+export function ListingCard({ listing, t, selected, onSelect, signals }: Props) {
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
+  const goodPrice = Boolean(signals?.goodPrice);
+  const goodMatch = Boolean(signals?.goodMatch);
+  const accentClass = [
+    "listing-card",
+    isDemo ? "is-demo" : "",
+    goodPrice ? "signal-price" : "",
+    goodMatch ? "signal-match" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <article
-      className={`listing-card${isDemo ? " is-demo" : ""}`}
+      className={accentClass}
       style={selected ? { outline: "2px solid var(--jet)" } : undefined}
       onClick={onSelect}
       onKeyDown={(event) => {
@@ -33,6 +46,12 @@ export function ListingCard({ listing, t, selected, onSelect }: Props) {
           <> · {listing.price} {t.priceMonthly}</>
         )}
       </div>
+      {(goodPrice || goodMatch) && (
+        <div className="listing-signals" aria-label={t.signalLabel}>
+          {goodPrice ? <span className="signal signal-price-tag">{t.signalGoodPrice}</span> : null}
+          {goodMatch ? <span className="signal signal-match-tag">{t.signalGoodMatch}</span> : null}
+        </div>
+      )}
       {!isDemo ? (
         <a href={listing.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
           {t.openSource}

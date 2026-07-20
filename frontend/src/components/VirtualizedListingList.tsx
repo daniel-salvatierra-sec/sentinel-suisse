@@ -2,6 +2,10 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import type { Listing } from "../api";
 import type { Messages } from "../i18n";
+import {
+  computeListingSignals,
+  type ListingSignalContext,
+} from "../listingSignals";
 import { InfiniteScrollSentinel } from "./InfiniteScrollSentinel";
 import { ListingCard } from "./ListingCard";
 
@@ -13,6 +17,7 @@ type Props = {
   hasMore: boolean;
   loadingMore: boolean;
   onLoadMore: () => void;
+  signalContext: ListingSignalContext;
 };
 
 /** Window-scrolled virtual list — only mounts visible cards (+ overscan). */
@@ -24,6 +29,7 @@ export function VirtualizedListingList({
   hasMore,
   loadingMore,
   onLoadMore,
+  signalContext,
 }: Props) {
   const listRef = useRef<HTMLDivElement | null>(null);
   const [scrollMargin, setScrollMargin] = useState(0);
@@ -72,6 +78,7 @@ export function VirtualizedListingList({
                 t={t}
                 selected={listing.id === focusId}
                 onSelect={() => onSelect(listing.id)}
+                signals={computeListingSignals(listing, listings, signalContext)}
               />
             </div>
           );

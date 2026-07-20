@@ -27,6 +27,7 @@ import { ShareAppButton } from "./components/ShareAppButton";
 import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
+import type { ListingSignalContext } from "./listingSignals";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 
 type Tab = "list" | "map" | "alerts" | "account";
@@ -91,6 +92,23 @@ export default function App() {
   const [deepLinkReady, setDeepLinkReady] = useState(false);
 
   const t = messages[lang];
+
+  const signalContext: ListingSignalContext = (() => {
+    const rooms = roomsToFilters(appliedRoomsChoice);
+    const workload = workloadToFilters(appliedWorkloadChoice);
+    return {
+      searchQuery: query,
+      priceMin: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
+      priceMax: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+      roomsMin: category === "housing" ? rooms.rooms_min : undefined,
+      hasParking: category === "housing" && appliedHasParking,
+      jobField: category === "job" ? appliedJobField : "",
+      jobBranch: category === "job" ? appliedJobBranch : "",
+      employmentType: category === "job" ? appliedEmploymentType : "",
+      workloadMin: category === "job" ? workload.workload_min : undefined,
+      workloadMax: category === "job" ? workload.workload_max : undefined,
+    };
+  })();
 
   const buildSearchParams = useCallback(
     (offset: number): SearchQueryParams => {
@@ -315,6 +333,7 @@ export default function App() {
               hasMore={hasMore}
               loadingMore={loadingMore}
               onLoadMore={() => void loadMore()}
+              signalContext={signalContext}
             />
           )}
         </>

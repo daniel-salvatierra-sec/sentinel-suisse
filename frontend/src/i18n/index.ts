@@ -144,6 +144,9 @@ export type Messages = {
   terms: string;
   openSource: string;
   demoBadge: string;
+  signalLabel: string;
+  signalGoodPrice: string;
+  signalGoodMatch: string;
   priceMonthly: string;
   route: string;
   consentLabel: string;
