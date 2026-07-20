@@ -40,12 +40,8 @@ export function ListingCard({
     setDetailOpen(true);
   };
 
-  const goToAd = (event: MouseEvent) => {
-    event.stopPropagation();
-    if (isDemo) {
-      setDetailOpen(true);
-      return;
-    }
+  const goToAd = () => {
+    if (isDemo) return;
     window.open(listing.source_url, "_blank", "noopener,noreferrer");
   };
 
@@ -84,27 +80,26 @@ export function ListingCard({
             {goodMatch ? <span className="signal signal-match-tag">{t.signalGoodMatch}</span> : null}
           </div>
         )}
-        <button type="button" className="apply-btn listing-interested-btn" onClick={goToAd}>
-          {t.interested}
-        </button>
-        <button
-          type="button"
-          className="listing-open-btn"
-          onClick={(event) => {
-            event.stopPropagation();
-            openDetail(event);
-          }}
-        >
-          {t.listingMoreDetails}
-        </button>
-        <a
-          href={mapsDirectionsUrl(coords)}
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {t.route}
-        </a>
+        <div className="listing-card-actions">
+          <button
+            type="button"
+            className="listing-open-btn"
+            onClick={(event) => {
+              event.stopPropagation();
+              openDetail(event);
+            }}
+          >
+            {t.listingMoreDetails}
+          </button>
+          <a
+            href={mapsDirectionsUrl(coords)}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {t.route}
+          </a>
+        </div>
       </article>
 
       {detailOpen && (
@@ -143,19 +138,7 @@ export function ListingCard({
               {listing.description?.trim() || t.listingNoDescription}
             </p>
             {isDemo ? <p className="listing-detail-demo-note">{t.listingDemoNote}</p> : null}
-            <div className="listing-detail-actions">
-              {!isDemo && (
-                <button
-                  type="button"
-                  className="apply-btn"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    window.open(listing.source_url, "_blank", "noopener,noreferrer");
-                  }}
-                >
-                  {t.interestedGoToAd}
-                </button>
-              )}
+            <div className="listing-detail-actions listing-detail-actions-col">
               <button
                 type="button"
                 className="secondary-btn"
@@ -167,14 +150,15 @@ export function ListingCard({
               >
                 {t.showOnMap}
               </button>
-              <a
-                className="secondary-btn share-link-btn"
-                href={mapsDirectionsUrl(coords)}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                className="apply-btn"
+                disabled={isDemo}
+                title={isDemo ? t.listingDemoNote : t.interested}
+                onClick={goToAd}
               >
-                {t.route}
-              </a>
+                {t.interested}
+              </button>
               <button type="button" className="secondary-btn" onClick={() => setDetailOpen(false)}>
                 {t.guideClose}
               </button>

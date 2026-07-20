@@ -379,7 +379,13 @@ export default function App() {
       {error && (tab === "list" || tab === "map") && <p className="empty">{t.noResults}</p>}
 
       {tab === "map" && !loading && !error && listings.length > 0 && (
-        <MapView listings={listings} focusId={focusId} searchQuery={query} />
+        <MapView
+          listings={listings}
+          focusId={focusId}
+          searchQuery={query}
+          t={t}
+          onSelect={setFocusId}
+        />
       )}
 
       {tab === "list" && !loading && !error && (
