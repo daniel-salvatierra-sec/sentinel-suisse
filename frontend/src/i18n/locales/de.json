@@ -88,6 +88,8 @@
   "signalLabel": "Signale",
   "signalGoodPrice": "Guter Preis",
   "signalGoodMatch": "Guter Match",
+  "listingNoDescription": "Keine Beschreibung verfügbar.",
+  "listingDemoNote": "Beispielinserat — der externe Link ist nicht verfügbar.",
   "priceMonthly": "CHF / Monat",
   "route": "Route",
   "consentLabel": "Ich akzeptiere die Datenschutzerklärung und die Nutzungsbedingungen",

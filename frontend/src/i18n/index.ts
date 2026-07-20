@@ -147,6 +147,8 @@ export type Messages = {
   signalLabel: string;
   signalGoodPrice: string;
   signalGoodMatch: string;
+  listingNoDescription: string;
+  listingDemoNote: string;
   priceMonthly: string;
   route: string;
   consentLabel: string;

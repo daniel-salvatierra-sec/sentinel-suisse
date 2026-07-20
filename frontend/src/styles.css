@@ -831,6 +831,41 @@ body {
   margin-right: 0.75rem;
 }
 
+.listing-open-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-right: 0.75rem;
+  color: var(--lake);
+  font-weight: 600;
+  font: inherit;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.listing-detail-sheet .listing-detail-meta {
+  margin: 0.35rem 0 0.75rem;
+}
+
+.listing-detail-body {
+  margin: 0 0 0.75rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+}
+
+.listing-detail-demo-note {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: #5a6b66;
+}
+
+.listing-detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
 .map-wrap {
   height: 260px;
   border-radius: 1rem;

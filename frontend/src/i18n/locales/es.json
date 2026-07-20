@@ -135,6 +135,8 @@
   "signalLabel": "Señales",
   "signalGoodPrice": "Buen precio",
   "signalGoodMatch": "Buen match",
+  "listingNoDescription": "Sin descripción disponible.",
+  "listingDemoNote": "Anuncio de ejemplo — el enlace externo no está disponible.",
   "priceMonthly": "CHF / mes",
   "route": "Ruta",
   "consentLabel": "Acepto la política de privacidad y las condiciones de uso",
