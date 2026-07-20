@@ -23,6 +23,7 @@ class User(Base):
     api_token_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     locale: Mapped[str] = mapped_column(String(5), nullable=False, default="fr")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
+    is_premium: Mapped[bool] = mapped_column(nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

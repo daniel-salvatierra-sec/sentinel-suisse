@@ -12,11 +12,16 @@ from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.erasure import UserErasureReport
 from sentinel_suisse.schemas.user import UserCreate, UserCreated, UserRead, UserUpdate, to_user_read
-from sentinel_suisse.security.pii import decrypt_pii, email_lookup, encrypt_pii
+from sentinel_suisse.security.pii import email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
+from sentinel_suisse.services.entitlements import count_saved_searches
 from sentinel_suisse.services.erasure import erase_user
 
 router = APIRouter(prefix="/users", tags=["users"])
+
+
+def _user_read(db: Session, user: User) -> UserRead:
+    return to_user_read(user, saved_search_count=count_saved_searches(db, user))
 
 
 @router.get("", response_model=list[UserRead])
@@ -27,7 +32,7 @@ def list_users(
     _: str = Depends(verify_admin),
 ) -> list[UserRead]:
     users = list(db.scalars(select(User).order_by(User.id)).all())
-    return [to_user_read(user) for user in users]
+    return [_user_read(db, user) for user in users]
 
 
 @router.delete("/me", response_model=UserErasureReport)
@@ -51,10 +56,11 @@ def erase_current_user(
 @limiter.limit(lambda: get_settings().rate_limit)
 def get_current_user_profile(
     request: Request,
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> UserRead:
     """Return the authenticated user's profile."""
-    return to_user_read(current_user)
+    return _user_read(db, current_user)
 
 
 @router.get("/{user_id}", response_model=UserRead)
@@ -68,7 +74,7 @@ def get_user(
     user = db.get(User, user_id)
     if user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
-    return to_user_read(user)
+    return _user_read(db, user)
 
 
 @router.post("", response_model=UserCreated, status_code=status.HTTP_201_CREATED)
@@ -86,6 +92,7 @@ def create_user(
         email=encrypt_pii(plain_email),
         is_active=payload.is_active,
         locale=payload.locale,
+        is_premium=payload.is_premium,
         api_token_hash=hash_api_token(api_key),
     )
     db.add(user)
@@ -98,14 +105,8 @@ def create_user(
             detail="User with this email already exists",
         ) from exc
     db.refresh(user)
-    return UserCreated(
-        id=user.id,
-        email=plain_email,
-        locale=user.locale,  # type: ignore[arg-type]
-        is_active=user.is_active,
-        created_at=user.created_at,
-        api_key=api_key,
-    )
+    base = _user_read(db, user)
+    return UserCreated(**base.model_dump(), api_key=api_key)
 
 
 @router.patch("/{user_id}", response_model=UserRead)
@@ -140,7 +141,7 @@ def update_user(
             detail="User with this email already exists",
         ) from exc
     db.refresh(user)
-    return to_user_read(user)
+    return _user_read(db, user)
 
 
 @router.delete("/{user_id}", response_model=UserErasureReport)
@@ -181,11 +182,5 @@ def regenerate_api_key(
     user.api_token_hash = hash_api_token(api_key)
     db.commit()
     db.refresh(user)
-    return UserCreated(
-        id=user.id,
-        email=decrypt_pii(user.email),
-        locale=user.locale,  # type: ignore[arg-type]
-        is_active=user.is_active,
-        created_at=user.created_at,
-        api_key=api_key,
-    )
+    base = _user_read(db, user)
+    return UserCreated(**base.model_dump(), api_key=api_key)

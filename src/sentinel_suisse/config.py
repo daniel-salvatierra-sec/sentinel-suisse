@@ -78,6 +78,9 @@ class Settings(BaseSettings):
         "?category=10&locations=Annemasse_74100__45.9024_6.2364_5000"
     )
     indeed_fr_search_url: str = "https://fr.indeed.com/jobs?q=&l=Annemasse+%2874%29&radius=25"
+    # Freemium stub (no payments) — free vs premium saved-search / channel limits
+    free_max_saved_searches: int = 1
+    premium_max_saved_searches: int = 5
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)

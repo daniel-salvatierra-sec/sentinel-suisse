@@ -114,7 +114,21 @@ export function AccountPanel({
       <h2 style={{ marginTop: 0 }}>{t.accountTitle}</h2>
       <p className="account-email">
         {profile.email} · {profile.locale.toUpperCase()}
+        {" · "}
+        <span className="plan-badge">
+          {profile.is_premium ? t.premiumBadge : t.freeBadge}
+        </span>
       </p>
+      <p className="plan-hint">
+        {t.alertQuota
+          .replace("{count}", String(profile.saved_search_count ?? searches.length))
+          .replace("{limit}", String(profile.saved_search_limit ?? 1))}
+      </p>
+      {(profile.saved_search_count ?? searches.length) >=
+        (profile.saved_search_limit ?? 1) &&
+        !profile.is_premium && (
+          <p className="alert-feedback pending">{t.alertLimitReached}</p>
+        )}
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (

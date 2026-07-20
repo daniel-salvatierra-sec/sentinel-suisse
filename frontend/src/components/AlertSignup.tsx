@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { formatFullPhone } from "../countryCodes";
 import { subscribeAlerts, type ListingType, type SearchQueryParams } from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
 import { SubscribeQr } from "./SubscribeQr";
@@ -34,8 +33,6 @@ export function AlertSignup({
   const [pendingWhatsApp, setPendingWhatsApp] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const fullPhone = formatFullPhone(dial, phoneLocal);
-
   const handleSubmit = async () => {
     if (!email.trim()) {
       setErrorMessage(t.emailRequired);
@@ -51,9 +48,9 @@ export function AlertSignup({
     setStatus("loading");
     setErrorMessage("");
     try {
+      // Free tier: email only — never send phone on public signup.
       const result = await subscribeAlerts({
         email: email.trim(),
-        phone: fullPhone || undefined,
         locale,
         query: searchQuery ?? {
           listing_type: listingType,
@@ -70,9 +67,15 @@ export function AlertSignup({
       onSuccess?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
-      setErrorMessage(
-        message.includes("already exists") ? t.alertErrorDuplicate : t.alertErrorGeneric,
-      );
+      if (message.includes("whatsapp_requires_premium")) {
+        setErrorMessage(t.premiumWhatsapp);
+      } else if (message.includes("saved_search_limit")) {
+        setErrorMessage(t.alertLimitReached);
+      } else if (message.includes("already exists")) {
+        setErrorMessage(t.alertErrorDuplicate);
+      } else {
+        setErrorMessage(t.alertErrorGeneric);
+      }
       setStatus("error");
     }
   };
@@ -85,9 +88,7 @@ export function AlertSignup({
           <p>{t.accountSignupDesc}</p>
         </>
       )}
-      {phoneLocal.trim() && (
-        <p className="whatsapp-hint">{t.whatsappVerifyHint}</p>
-      )}
+      <p className="plan-hint">{t.freePlanHint}</p>
       <label>
         {t.email}
         <input
@@ -98,14 +99,21 @@ export function AlertSignup({
           placeholder="you@example.com"
         />
       </label>
-      <CountryCodePicker
-        lang={locale}
-        t={t}
-        dial={dial}
-        local={phoneLocal}
-        onDialChange={setDial}
-        onLocalChange={setPhoneLocal}
-      />
+      <div className="premium-channel-block">
+        <p className="premium-channel-label">
+          {t.phone} <span className="listing-demo-badge">{t.premiumBadge}</span>
+        </p>
+        <p className="whatsapp-hint">{t.premiumWhatsapp}</p>
+        <CountryCodePicker
+          lang={locale}
+          t={t}
+          dial={dial}
+          local={phoneLocal}
+          onDialChange={setDial}
+          onLocalChange={setPhoneLocal}
+          disabled
+        />
+      </div>
       <label className="consent-row">
         <input
           type="checkbox"

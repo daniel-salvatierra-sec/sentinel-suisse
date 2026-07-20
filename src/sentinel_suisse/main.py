@@ -32,7 +32,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application = FastAPI(
         title="Sentinel Suisse API",
         description="Sentinel Suisse — housing and job alerts",
-        version="0.42.0",
+        version="0.43.0",
         docs_url="/docs" if settings.app_env == "development" else None,
         redoc_url=None,
     )

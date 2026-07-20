@@ -27,6 +27,7 @@ from sentinel_suisse.services.email_verification import (
     verify_channel_by_token,
     verify_email_channel,
 )
+from sentinel_suisse.services.entitlements import EntitlementError
 from sentinel_suisse.services.public_signup import subscribe_public_alert
 from sentinel_suisse.services.search import search_listings
 
@@ -134,6 +135,11 @@ def public_signup(
             payload,
             auto_verify_channels=auto_verify,
         )
+    except EntitlementError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.code,
+        ) from exc
     except IntegrityError as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

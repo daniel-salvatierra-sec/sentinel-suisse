@@ -17,6 +17,7 @@ from sentinel_suisse.schemas.saved_search import (
     SavedSearchRead,
     SavedSearchUpdate,
 )
+from sentinel_suisse.services.entitlements import EntitlementError, assert_can_create_saved_search
 
 router = APIRouter(prefix="/saved-searches", tags=["saved-searches"])
 
@@ -54,6 +55,13 @@ def create_saved_search(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> SavedSearch:
+    try:
+        assert_can_create_saved_search(db, current_user)
+    except EntitlementError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=exc.code,
+        ) from exc
     now = datetime.now(UTC)
     saved_search = SavedSearch(
         user_id=current_user.id,

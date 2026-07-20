@@ -9,9 +9,18 @@ type Props = {
   local: string;
   onDialChange: (dial: string) => void;
   onLocalChange: (local: string) => void;
+  disabled?: boolean;
 };
 
-export function CountryCodePicker({ lang, t, dial, local, onDialChange, onLocalChange }: Props) {
+export function CountryCodePicker({
+  lang,
+  t,
+  dial,
+  local,
+  onDialChange,
+  onLocalChange,
+  disabled = false,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -19,19 +28,22 @@ export function CountryCodePicker({ lang, t, dial, local, onDialChange, onLocalC
   const filtered = useMemo(() => filterCountries(search, lang), [search, lang]);
 
   return (
-    <div className="phone-field">
+    <div className={`phone-field${disabled ? " is-disabled" : ""}`}>
       <label>{t.phone}</label>
       <div className="phone-row">
         <div className="country-picker">
           <button
             type="button"
             className="country-trigger"
-            onClick={() => setOpen((value) => !value)}
+            onClick={() => {
+              if (!disabled) setOpen((value) => !value);
+            }}
             aria-expanded={open}
+            disabled={disabled}
           >
             {selected.iso} {selected.dial}
           </button>
-          {open && (
+          {open && !disabled && (
             <div className="country-dropdown">
               <input
                 type="search"
@@ -67,6 +79,7 @@ export function CountryCodePicker({ lang, t, dial, local, onDialChange, onLocalC
           onChange={(event) => onLocalChange(event.target.value)}
           placeholder="79 123 45 67"
           inputMode="tel"
+          disabled={disabled}
         />
       </div>
     </div>

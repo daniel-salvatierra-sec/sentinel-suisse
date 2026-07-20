@@ -182,5 +182,11 @@
   "guideChipBestMatch": "Mais perto de ti",
   "guideChipBestOpp": "Melhores oportunidades",
   "guideChipBestFit": "Melhor encaixe para ti",
-  "guideChipAlert": "Ativar alerta"
+  "guideChipAlert": "Ativar alerta",
+  "freePlanHint": "Plano gratuito: 1 alerta por e-mail. WhatsApp é Premium.",
+  "freeBadge": "Free",
+  "premiumBadge": "Premium",
+  "premiumWhatsapp": "WhatsApp requer Premium (em breve).",
+  "alertLimitReached": "Atingiu o limite de alertas do plano gratuito.",
+  "alertQuota": "Alertas: {count}/{limit}"
 }

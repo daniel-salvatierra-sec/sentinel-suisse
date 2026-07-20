@@ -150,6 +150,9 @@ export type UserProfile = {
   email: string;
   locale: string;
   is_active: boolean;
+  is_premium?: boolean;
+  saved_search_limit?: number;
+  saved_search_count?: number;
   created_at: string;
 };
 

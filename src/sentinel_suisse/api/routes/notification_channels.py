@@ -11,6 +11,7 @@ from sentinel_suisse.api.auth import get_current_user, verify_admin
 from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
+from sentinel_suisse.models.enums import ChannelType
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.notification_channel import (
@@ -20,6 +21,7 @@ from sentinel_suisse.schemas.notification_channel import (
     to_channel_read,
 )
 from sentinel_suisse.security.pii import encrypt_pii
+from sentinel_suisse.services.entitlements import EntitlementError, assert_can_use_whatsapp
 
 router = APIRouter(prefix="/notification-channels", tags=["notification-channels"])
 
@@ -47,6 +49,14 @@ def create_channel(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> NotificationChannelRead:
+    if payload.channel_type == ChannelType.WHATSAPP:
+        try:
+            assert_can_use_whatsapp(current_user)
+        except EntitlementError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=exc.code,
+            ) from exc
     channel = NotificationChannel(
         user_id=current_user.id,
         channel_type=payload.channel_type,

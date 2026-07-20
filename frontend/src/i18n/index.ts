@@ -195,6 +195,12 @@ export type Messages = {
   shareWhatsApp: string;
   shareEmail: string;
   shareSms: string;
+  freePlanHint: string;
+  freeBadge: string;
+  premiumBadge: string;
+  premiumWhatsapp: string;
+  alertLimitReached: string;
+  alertQuota: string;
 };
 
 import fr from "./locales/fr.json";

@@ -1266,6 +1266,38 @@ body {
   text-decoration: none;
 }
 
+.phone-field.is-disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.plan-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  color: #5a6b66;
+}
+
+.plan-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mountain);
+}
+
+.premium-channel-block {
+  margin: 0.5rem 0 0.75rem;
+}
+
+.premium-channel-label {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
 .legal-links {
   display: flex;
   gap: 1rem;

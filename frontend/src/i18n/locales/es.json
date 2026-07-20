@@ -182,5 +182,11 @@
   "shareNative": "Compartir…",
   "shareWhatsApp": "WhatsApp",
   "shareEmail": "Email",
-  "shareSms": "SMS"
+  "shareSms": "SMS",
+  "freePlanHint": "Plan gratuito: 1 alerta por email. WhatsApp es Premium.",
+  "freeBadge": "Free",
+  "premiumBadge": "Premium",
+  "premiumWhatsapp": "WhatsApp requiere Premium (próximamente).",
+  "alertLimitReached": "Has alcanzado el límite de alertas del plan gratuito.",
+  "alertQuota": "Alertas: {count}/{limit}"
 }
