@@ -1,4 +1,4 @@
-# Sentinel Suisse
+# LinkSwiss
 
 Swiss housing and job listing aggregator with multi-channel alerts (WhatsApp, email).
 
