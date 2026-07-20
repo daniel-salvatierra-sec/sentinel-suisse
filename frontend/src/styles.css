@@ -870,6 +870,56 @@ body {
   filter: none;
 }
 
+.premium-upsell-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: var(--clay);
+}
+
+.premium-upsell-refund {
+  margin: 0.55rem 0 0;
+  font-size: 0.78rem;
+}
+
+.premium-upsell-refund a {
+  color: var(--lake);
+}
+
+.premium-return-banner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0.5rem 1rem 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.65rem;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.premium-return-banner.is-success {
+  background: rgba(47, 106, 69, 0.12);
+  border: 1px solid rgba(47, 106, 69, 0.28);
+}
+
+.premium-return-banner.is-cancel {
+  background: rgba(196, 123, 74, 0.12);
+  border: 1px solid rgba(196, 123, 74, 0.28);
+}
+
+.premium-return-banner p {
+  margin: 0;
+}
+
+.premium-return-banner button {
+  border: none;
+  background: transparent;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
 .listing-card h3 {
   margin: 0 0 0.35rem;
   font-size: 1rem;

@@ -10,7 +10,7 @@
 | **Search (housing + jobs)** | **Always free** — no account required |
 | **Alerts** | Freemium stub now → **paid Premium** (Stripe + TWINT) |
 | **Source code** | Open / inspectable |
-| **Payments** | **Phase B** (Stripe Checkout + TWINT via Stripe; PCI via PSP) |
+| **Payments** | **Phase B live in code** — enable with Stripe env vars (Checkout + TWINT; PCI via PSP) |
 
 ### Why
 
@@ -27,15 +27,16 @@
 
 **Free trial today:** 1 email alert (signup). WhatsApp and extra searches require Premium.
 
-## Payment rails (Phase B — when Stripe account is ready)
+## Payment rails (Phase B)
 
-1. **Stripe Checkout** (CHF) → webhook → `users.is_premium = true`  
-2. **TWINT** as Stripe payment method / Link for CH users  
-3. Store only `stripe_customer_id` / `subscription_id` (no PAN)  
-4. Short **refund policy** + optional **Sentry** DSN for production errors  
-5. Hosting remains **CH/EU** (current VPS)
+1. **Stripe Checkout** (CHF) → `POST /api/v1/webhooks/stripe` → `users.is_premium = true`  
+2. **TWINT** via `STRIPE_ENABLE_TWINT` + Stripe Dashboard payment methods  
+3. Store only `stripe_customer_id` / `stripe_subscription_id` (no PAN)  
+4. Refund draft: [`docs/legal/refunds.md`](refunds.md) → `GET /api/v1/legal/refunds`  
+5. Optional **Sentry** via `SENTRY_DSN`  
+6. Hosting remains **CH/EU** (current VPS)
 
-Do **not** go live with charges until Terms, privacy contact, and refund text are updated.
+Do **not** fill live Stripe keys until Terms, privacy contact, and refund text are counsel-reviewed.
 
 ## Compliance notes (from enterprise review)
 

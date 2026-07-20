@@ -211,6 +211,13 @@ export type Messages = {
   premiumBenefitConstruction: string;
   premiumBenefitWhatsapp: string;
   premiumComingSoon: string;
+  premiumPayCta: string;
+  premiumPaying: string;
+  premiumLoginFirst: string;
+  premiumCheckoutError: string;
+  premiumSuccessBanner: string;
+  premiumCancelBanner: string;
+  premiumRefundsLink: string;
   constructionBadge: string;
 };
 

@@ -22,3 +22,9 @@ class TermsOfServiceRead(BaseModel):
     content: str
     privacy_endpoint: str = Field(default="/api/v1/legal/privacy")
     supported_languages: list[str] = Field(default_factory=lambda: sorted(SUPPORTED_LANGUAGES))
+
+
+class RefundPolicyRead(BaseModel):
+    version: str
+    content: str
+    endpoint: str = Field(default="/api/v1/legal/refunds")

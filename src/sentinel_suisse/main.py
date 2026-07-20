@@ -12,6 +12,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.api.routes import (
     alerts,
+    billing,
     legal,
     listings,
     notification_channels,
@@ -19,6 +20,7 @@ from sentinel_suisse.api.routes import (
     public,
     saved_searches,
     search,
+    stripe_webhooks,
     users,
     webhooks,
 )
@@ -26,13 +28,32 @@ from sentinel_suisse.config import Settings, get_settings
 from sentinel_suisse.services.health import check_database
 
 
+def _init_sentry(settings: Settings) -> None:
+    if not settings.sentry_dsn:
+        return
+    import sentry_sdk
+    from sentry_sdk.integrations.fastapi import FastApiIntegration
+    from sentry_sdk.integrations.starlette import StarletteIntegration
+
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.app_env,
+        traces_sample_rate=settings.sentry_traces_sample_rate,
+        integrations=[
+            StarletteIntegration(transaction_style="endpoint"),
+            FastApiIntegration(transaction_style="endpoint"),
+        ],
+    )
+
+
 def create_app(settings: Settings | None = None) -> FastAPI:
     settings = settings or get_settings()
+    _init_sentry(settings)
 
     application = FastAPI(
         title="Sentinel Suisse API",
         description="Sentinel Suisse — housing and job alerts",
-        version="0.44.0",
+        version="0.45.0",
         docs_url="/docs" if settings.app_env == "development" else None,
         redoc_url=None,
     )
@@ -68,9 +89,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(saved_searches.router, prefix="/api/v1")
     application.include_router(notification_channels.router, prefix="/api/v1")
     application.include_router(alerts.router, prefix="/api/v1")
+    application.include_router(billing.router, prefix="/api/v1")
     application.include_router(legal.router, prefix="/api/v1")
     application.include_router(public.router, prefix="/api/v1")
     application.include_router(webhooks.router, prefix="/api/v1")
+    application.include_router(stripe_webhooks.router, prefix="/api/v1")
 
     @application.get("/health")
     @limiter.exempt

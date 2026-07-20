@@ -92,6 +92,7 @@ export default function App() {
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
+  const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
 
   const t = messages[lang];
 
@@ -169,6 +170,19 @@ export default function App() {
     }
     if (deep.tab === "account") {
       setTab("account");
+    }
+    const params = new URLSearchParams(window.location.search);
+    const premium = params.get("premium");
+    if (premium === "success" || premium === "cancel") {
+      setPremiumBanner(premium);
+      if (premium === "success") {
+        setTab("account");
+        setAccountRefresh((value) => value + 1);
+      }
+      params.delete("premium");
+      const next = params.toString();
+      const path = window.location.pathname;
+      window.history.replaceState({}, "", next ? `${path}?${next}` : path);
     }
     if (deep.tab || deep.lang || deep.listingType || deep.location != null) {
       stripSubscribeParamsFromUrl();
@@ -249,6 +263,25 @@ export default function App() {
           setTab("account");
         }}
       />
+      {premiumBanner && (
+        <div
+          className={`premium-return-banner is-${premiumBanner}`}
+          role="status"
+        >
+          <p>
+            {premiumBanner === "success"
+              ? t.premiumSuccessBanner
+              : t.premiumCancelBanner}
+          </p>
+          <button
+            type="button"
+            className="linkish"
+            onClick={() => setPremiumBanner(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
       <LanguageBar
         lang={lang}
         onChange={(code) => {

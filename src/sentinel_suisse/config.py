@@ -78,15 +78,26 @@ class Settings(BaseSettings):
         "?category=10&locations=Annemasse_74100__45.9024_6.2364_5000"
     )
     indeed_fr_search_url: str = "https://fr.indeed.com/jobs?q=&l=Annemasse+%2874%29&radius=25"
-    # Freemium stub (no payments) — free vs premium saved-search / channel limits
+    # Freemium — free vs premium saved-search / channel limits
     free_max_saved_searches: int = 1
     premium_max_saved_searches: int = 5
+    # Stripe Checkout — leave empty to disable payments UI
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_price_id: str = ""
+    stripe_enable_twint: bool = True
+    # Optional production error tracking
+    sentry_dsn: str = ""
+    sentry_traces_sample_rate: float = 0.0
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)
 
     def whatsapp_is_configured(self) -> bool:
         return bool(self.whatsapp_token and self.whatsapp_phone_number_id)
+
+    def stripe_payments_enabled(self) -> bool:
+        return bool(self.stripe_secret_key and self.stripe_price_id)
 
     def public_signup_is_enabled(self) -> bool:
         if self.public_signup_enabled is not None:

@@ -24,6 +24,8 @@ class User(Base):
     locale: Mapped[str] = mapped_column(String(5), nullable=False, default="fr")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     is_premium: Mapped[bool] = mapped_column(nullable=False, default=False)
+    stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    stripe_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
