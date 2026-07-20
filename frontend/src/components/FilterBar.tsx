@@ -6,7 +6,7 @@ import {
   type JobField,
 } from "../jobTaxonomy";
 
-export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4";
+export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "5";
 export type WorkloadChoice = "" | "40-60" | "80-100";
 export type ZoneChoice = "" | CountryCode;
 
@@ -42,6 +42,7 @@ const ROOM_OPTIONS: { value: RoomsChoice; labelKey: keyof Messages }[] = [
   { value: "3", labelKey: "rooms3" },
   { value: "3.5", labelKey: "rooms35" },
   { value: "4", labelKey: "rooms4plus" },
+  { value: "5", labelKey: "rooms5plus" },
 ];
 
 const EMPLOYMENT_OPTIONS: EmploymentType[] = [
@@ -213,7 +214,7 @@ export function FilterBar({
                 placeholder="5000"
               />
             </label>
-            <button type="submit" className="secondary-btn">
+            <button type="submit" className="apply-btn">
               {t.applyFilters}
             </button>
           </form>
@@ -338,7 +339,7 @@ export function FilterBar({
           </div>
 
           <div className="filter-row">
-            <button type="button" className="secondary-btn" onClick={onApply}>
+            <button type="button" className="apply-btn" onClick={onApply}>
               {t.applyFilters}
             </button>
           </div>

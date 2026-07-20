@@ -33,13 +33,11 @@ export function ListingCard({ listing, t, selected, onSelect }: Props) {
           <> · {listing.price} {t.priceMonthly}</>
         )}
       </div>
-      {isDemo ? (
-        <span className="listing-demo-note">{t.demoLinkUnavailable}</span>
-      ) : (
+      {!isDemo ? (
         <a href={listing.source_url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
           {t.openSource}
         </a>
-      )}
+      ) : null}
       <a href={mapsDirectionsUrl(coords)} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>
         {t.route}
       </a>

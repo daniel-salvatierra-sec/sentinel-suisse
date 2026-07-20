@@ -41,6 +41,7 @@ export type Messages = {
   rooms3: string;
   rooms35: string;
   rooms4plus: string;
+  rooms5plus: string;
   parkingLabel: string;
   jobCategoryLabel: string;
   jobBranchLabel: string;
@@ -130,9 +131,12 @@ export type Messages = {
   guideAlerts: string;
   guideClose: string;
   guideRadarHint: string;
-  guideRadarMessage: string;
+  guideRadarMessageHousing: string;
+  guideRadarMessageJob: string;
   guideChipBestPrice: string;
   guideChipBestMatch: string;
+  guideChipBestOpp: string;
+  guideChipBestFit: string;
   guideChipAlert: string;
   noResults: string;
   loading: string;
@@ -140,7 +144,6 @@ export type Messages = {
   terms: string;
   openSource: string;
   demoBadge: string;
-  demoLinkUnavailable: string;
   priceMonthly: string;
   route: string;
   consentLabel: string;
@@ -179,6 +182,14 @@ export type Messages = {
   qrDesc: string;
   qrCopy: string;
   qrCopied: string;
+  shareApp: string;
+  shareTitle: string;
+  shareDesc: string;
+  shareText: string;
+  shareNative: string;
+  shareWhatsApp: string;
+  shareEmail: string;
+  shareSms: string;
 };
 
 import fr from "./locales/fr.json";

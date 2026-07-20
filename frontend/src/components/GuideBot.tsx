@@ -15,8 +15,7 @@ type Props = {
 };
 
 /**
- * Sentinel companion: dock FAB + bottom sheet with 3 primary actions.
- * First visit still offers Home / Work once, then radar chips.
+ * Sentinel companion: dock FAB + bottom sheet with zone-specific radar chips.
  */
 export function GuideBot({
   t,
@@ -42,6 +41,10 @@ export function GuideBot({
     setNeedsIntro(false);
     setOpen(false);
   };
+
+  const radarMessage = zone === "job" ? t.guideRadarMessageJob : t.guideRadarMessageHousing;
+  const chipPrimary = zone === "job" ? t.guideChipBestOpp : t.guideChipBestPrice;
+  const chipSecondary = zone === "job" ? t.guideChipBestFit : t.guideChipBestMatch;
 
   return (
     <>
@@ -72,9 +75,7 @@ export function GuideBot({
               </div>
             </div>
 
-            <p className="guide-message">
-              {needsIntro ? t.guideHello : t.guideRadarMessage}
-            </p>
+            <p className="guide-message">{needsIntro ? t.guideHello : radarMessage}</p>
 
             {needsIntro ? (
               <div className="guide-actions">
@@ -111,7 +112,7 @@ export function GuideBot({
                     close();
                   }}
                 >
-                  {t.guideChipBestPrice}
+                  {chipPrimary}
                 </button>
                 <button
                   type="button"
@@ -121,7 +122,7 @@ export function GuideBot({
                     close();
                   }}
                 >
-                  {t.guideChipBestMatch}
+                  {chipSecondary}
                 </button>
                 <button
                   type="button"

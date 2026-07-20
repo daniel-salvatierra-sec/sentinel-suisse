@@ -23,6 +23,7 @@ import { MapView } from "./components/MapView";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
+import { ShareAppButton } from "./components/ShareAppButton";
 import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
@@ -234,6 +235,7 @@ export default function App() {
       <header className="hero">
         <h1>{t.appName}</h1>
         <p>{t.tagline}</p>
+        <ShareAppButton t={t} />
       </header>
 
       <GoalHub

@@ -775,13 +775,6 @@ body {
   line-height: 1.2;
 }
 
-.listing-demo-note {
-  display: inline-block;
-  font-size: 0.85rem;
-  color: #5a6b66;
-  margin-right: 0.75rem;
-}
-
 .listing-card h3 {
   margin: 0 0 0.35rem;
   font-size: 1rem;
@@ -1152,6 +1145,51 @@ body {
 
 .secondary-btn:hover {
   background: rgba(30, 107, 140, 0.08);
+}
+
+.apply-btn {
+  border: none;
+  background: var(--mountain);
+  color: #fff;
+  border-radius: 0.65rem;
+  padding: 0.55rem 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(47, 106, 69, 0.28);
+}
+
+.apply-btn:hover {
+  filter: brightness(1.06);
+}
+
+.share-app-trigger {
+  margin-top: 0.35rem;
+  border: 1px solid rgba(26, 111, 138, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--lake);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-sheet .share-qr-img {
+  display: block;
+  margin: 0.75rem auto 1rem;
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.share-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.share-link-btn {
+  text-align: center;
+  text-decoration: none;
 }
 
 .legal-links {
