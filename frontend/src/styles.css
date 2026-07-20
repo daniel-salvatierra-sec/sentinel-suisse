@@ -296,6 +296,100 @@ body {
   transition: top 0.55s cubic-bezier(0.22, 1, 0.36, 1), bottom 0.55s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+.sentinel-buddy {
+  position: fixed;
+  right: 1rem;
+  bottom: 5.5rem;
+  z-index: 1000;
+  width: 3.4rem;
+  height: 3.4rem;
+  border: none;
+  border-radius: 999px;
+  background: #12141a;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(18, 20, 26, 0.28);
+  transition: transform 0.25s ease, bottom 0.4s ease;
+}
+
+.sentinel-buddy:hover {
+  transform: translateY(-2px);
+}
+
+.sentinel-buddy.searching {
+  animation: sentinel-pulse 0.9s ease-in-out infinite;
+}
+
+.sentinel-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 999px;
+  border: 1px solid rgba(196, 92, 74, 0.45);
+  pointer-events: none;
+}
+
+.sentinel-body {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+@keyframes sentinel-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.sheet-backdrop {
+  align-items: flex-end;
+}
+
+.guide-sheet {
+  width: min(480px, 100%);
+  background: #fff;
+  border-radius: 1.1rem 1.1rem 0 0;
+  padding: 0.65rem 1rem 1.1rem;
+  box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.12);
+  animation: sheet-up 0.28s ease;
+}
+
+.guide-sheet-handle {
+  width: 2.5rem;
+  height: 0.28rem;
+  border-radius: 999px;
+  background: #d5d9e0;
+  margin: 0.2rem auto 0.75rem;
+}
+
+.guide-avatar.sentinel-avatar {
+  background: #12141a;
+  color: #fff;
+  display: grid;
+  place-items: center;
+}
+
+.guide-chip-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0.75rem 0 0.25rem;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0.5;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 .firefly-buddy.zone-housing {
   top: 28%;
   bottom: auto;

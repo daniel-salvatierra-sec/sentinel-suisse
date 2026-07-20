@@ -12,7 +12,6 @@ import {
 import { AccountPanel } from "./components/AccountPanel";
 import {
   FilterBar,
-  type JobCategory,
   type RoomsChoice,
   type WorkloadChoice,
   type ZoneChoice,
@@ -26,6 +25,7 @@ import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
 import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
+import { resolveJobCategory, type JobField } from "./jobTaxonomy";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 
 type Tab = "list" | "map" | "alerts" | "account";
@@ -65,7 +65,8 @@ export default function App() {
   const [priceMax, setPriceMax] = useState("");
   const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
   const [hasParking, setHasParking] = useState(false);
-  const [jobCategory, setJobCategory] = useState<JobCategory | "">("");
+  const [jobField, setJobField] = useState<JobField | "">("");
+  const [jobBranch, setJobBranch] = useState("");
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
   const [workloadChoice, setWorkloadChoice] = useState<WorkloadChoice>("");
   const [appliedZoneChoice, setAppliedZoneChoice] = useState<ZoneChoice>("");
@@ -73,7 +74,8 @@ export default function App() {
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [appliedRoomsChoice, setAppliedRoomsChoice] = useState<RoomsChoice>("");
   const [appliedHasParking, setAppliedHasParking] = useState(false);
-  const [appliedJobCategory, setAppliedJobCategory] = useState<JobCategory | "">("");
+  const [appliedJobField, setAppliedJobField] = useState<JobField | "">("");
+  const [appliedJobBranch, setAppliedJobBranch] = useState("");
   const [appliedEmploymentType, setAppliedEmploymentType] = useState<EmploymentType | "">("");
   const [appliedWorkloadChoice, setAppliedWorkloadChoice] = useState<WorkloadChoice>("");
   const [listings, setListings] = useState<Listing[]>([]);
@@ -102,7 +104,10 @@ export default function App() {
         rooms_min: category === "housing" ? rooms.rooms_min : undefined,
         property_type: category === "housing" ? rooms.property_type : undefined,
         has_parking: category === "housing" && appliedHasParking ? true : undefined,
-        job_category: category === "job" && appliedJobCategory ? appliedJobCategory : undefined,
+        job_category:
+          category === "job"
+            ? resolveJobCategory(appliedJobField, appliedJobBranch)
+            : undefined,
         employment_type:
           category === "job" && appliedEmploymentType ? appliedEmploymentType : undefined,
         workload_min: category === "job" ? workload.workload_min : undefined,
@@ -119,7 +124,8 @@ export default function App() {
       appliedPriceMax,
       appliedRoomsChoice,
       appliedHasParking,
-      appliedJobCategory,
+      appliedJobField,
+      appliedJobBranch,
       appliedEmploymentType,
       appliedWorkloadChoice,
     ],
@@ -183,7 +189,8 @@ export default function App() {
     setAppliedPriceMax(priceMax);
     setAppliedRoomsChoice(roomsChoice);
     setAppliedHasParking(hasParking);
-    setAppliedJobCategory(jobCategory);
+    setAppliedJobField(jobField);
+    setAppliedJobBranch(jobBranch);
     setAppliedEmploymentType(employmentType);
     setAppliedWorkloadChoice(workloadChoice);
   };
@@ -256,8 +263,10 @@ export default function App() {
         priceMax={priceMax}
         onPriceMinChange={setPriceMin}
         onPriceMaxChange={setPriceMax}
-        jobCategory={jobCategory}
-        onJobCategoryChange={setJobCategory}
+        jobField={jobField}
+        onJobFieldChange={setJobField}
+        jobBranch={jobBranch}
+        onJobBranchChange={setJobBranch}
         employmentType={employmentType}
         onEmploymentTypeChange={setEmploymentType}
         workloadChoice={workloadChoice}

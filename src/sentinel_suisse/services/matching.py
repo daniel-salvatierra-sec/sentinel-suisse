@@ -2,6 +2,7 @@
 
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.job_taxonomy import job_category_matches
 
 
 def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
@@ -30,8 +31,8 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         return False
     if filters.has_parking is False and listing.has_parking is True:
         return False
-    if filters.job_category is not None and listing.job_category is not None:
-        if listing.job_category != filters.job_category:
+    if filters.job_category is not None:
+        if not job_category_matches(listing.job_category, filters.job_category):
             return False
     if filters.employment_type is not None and listing.employment_type is not None:
         if listing.employment_type != filters.employment_type:

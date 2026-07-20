@@ -1,20 +1,14 @@
 import type { Messages } from "../i18n";
 import type { CountryCode, EmploymentType, ListingType } from "../api";
+import {
+  JOB_BRANCHES,
+  JOB_FIELDS,
+  type JobField,
+} from "../jobTaxonomy";
 
 export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4";
 export type WorkloadChoice = "" | "40-60" | "80-100";
 export type ZoneChoice = "" | CountryCode;
-
-export const JOB_CATEGORIES = [
-  "it",
-  "healthcare",
-  "hospitality",
-  "admin",
-  "construction",
-  "other",
-] as const;
-
-export type JobCategory = (typeof JOB_CATEGORIES)[number];
 
 type Props = {
   t: Messages;
@@ -29,8 +23,10 @@ type Props = {
   priceMax: string;
   onPriceMinChange: (value: string) => void;
   onPriceMaxChange: (value: string) => void;
-  jobCategory: JobCategory | "";
-  onJobCategoryChange: (value: JobCategory | "") => void;
+  jobField: JobField | "";
+  onJobFieldChange: (value: JobField | "") => void;
+  jobBranch: string;
+  onJobBranchChange: (value: string) => void;
   employmentType: EmploymentType | "";
   onEmploymentTypeChange: (value: EmploymentType | "") => void;
   workloadChoice: WorkloadChoice;
@@ -60,16 +56,26 @@ const WORKLOAD_OPTIONS: { value: WorkloadChoice; labelKey: keyof Messages }[] = 
   { value: "80-100", labelKey: "workload80100" },
 ];
 
-function jobCategoryLabel(t: Messages, category: JobCategory): string {
-  const map: Record<JobCategory, string> = {
+function fieldLabel(t: Messages, field: JobField): string {
+  const map: Record<JobField, string> = {
     it: t.jobCatIt,
     healthcare: t.jobCatHealthcare,
+    construction: t.jobCatConstruction,
     hospitality: t.jobCatHospitality,
     admin: t.jobCatAdmin,
-    construction: t.jobCatConstruction,
+    finance: t.jobCatFinance,
+    sales: t.jobCatSales,
+    education: t.jobCatEducation,
+    logistics: t.jobCatLogistics,
     other: t.jobCatOther,
   };
-  return map[category];
+  return map[field];
+}
+
+function branchLabel(t: Messages, branch: string): string {
+  const key = `jobBranch_${branch}` as keyof Messages;
+  const value = t[key];
+  return typeof value === "string" ? value : branch;
 }
 
 function employmentLabel(t: Messages, type: EmploymentType): string {
@@ -96,14 +102,18 @@ export function FilterBar({
   priceMax,
   onPriceMinChange,
   onPriceMaxChange,
-  jobCategory,
-  onJobCategoryChange,
+  jobField,
+  onJobFieldChange,
+  jobBranch,
+  onJobBranchChange,
   employmentType,
   onEmploymentTypeChange,
   workloadChoice,
   onWorkloadChoiceChange,
   onApply,
 }: Props) {
+  const branches = jobField ? JOB_BRANCHES[jobField] : [];
+
   return (
     <div className="filter-bar">
       <p className="filter-bar-label">{t.filters}</p>
@@ -216,24 +226,64 @@ export function FilterBar({
           <div className="filter-chips" role="group" aria-label={t.jobCategoryLabel}>
             <button
               type="button"
-              className={jobCategory === "" ? "chip active" : "chip"}
-              aria-pressed={jobCategory === ""}
-              onClick={() => onJobCategoryChange("")}
+              className={jobField === "" ? "chip active" : "chip"}
+              aria-pressed={jobField === ""}
+              onClick={() => {
+                onJobFieldChange("");
+                onJobBranchChange("");
+              }}
             >
               {t.filterAny}
             </button>
-            {JOB_CATEGORIES.map((cat) => (
+            {JOB_FIELDS.map((field) => (
               <button
-                key={cat}
+                key={field}
                 type="button"
-                className={jobCategory === cat ? "chip active" : "chip"}
-                aria-pressed={jobCategory === cat}
-                onClick={() => onJobCategoryChange(jobCategory === cat ? "" : cat)}
+                className={jobField === field ? "chip active" : "chip"}
+                aria-pressed={jobField === field}
+                onClick={() => {
+                  if (jobField === field) {
+                    onJobFieldChange("");
+                    onJobBranchChange("");
+                  } else {
+                    onJobFieldChange(field);
+                    onJobBranchChange("");
+                  }
+                }}
               >
-                {jobCategoryLabel(t, cat)}
+                {fieldLabel(t, field)}
               </button>
             ))}
           </div>
+
+          {branches.length > 0 && (
+            <>
+              <p className="filter-group-label">{t.jobBranchLabel}</p>
+              <div className="filter-chips" role="group" aria-label={t.jobBranchLabel}>
+                <button
+                  type="button"
+                  className={jobBranch === "" ? "chip active" : "chip"}
+                  aria-pressed={jobBranch === ""}
+                  onClick={() => onJobBranchChange("")}
+                >
+                  {t.filterAny}
+                </button>
+                {branches.map((branch) => (
+                  <button
+                    key={branch}
+                    type="button"
+                    className={jobBranch === branch ? "chip active" : "chip"}
+                    aria-pressed={jobBranch === branch}
+                    onClick={() =>
+                      onJobBranchChange(jobBranch === branch ? "" : branch)
+                    }
+                  >
+                    {branchLabel(t, branch)}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
 
           <p className="filter-group-label">{t.employmentTypeLabel}</p>
           <div className="filter-chips" role="group" aria-label={t.employmentTypeLabel}>

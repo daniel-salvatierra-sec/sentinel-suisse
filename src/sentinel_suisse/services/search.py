@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.job_taxonomy import BRANCH_PARENT
 
 
 def search_listings(
@@ -41,10 +42,11 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     elif filters.has_parking is False:
         stmt = stmt.where(or_(Listing.has_parking.is_(None), Listing.has_parking.is_(False)))
     if filters.job_category is not None:
+        related = _related_job_categories(filters.job_category)
         stmt = stmt.where(
             or_(
                 Listing.job_category.is_(None),
-                Listing.job_category == filters.job_category,
+                Listing.job_category.in_(related),
             )
         )
     if filters.employment_type is not None:
@@ -71,3 +73,13 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     if provider_ids is not None:
         stmt = stmt.where(Listing.provider_id.in_(provider_ids))
     return stmt
+
+
+def _related_job_categories(filter_category: str) -> list[str]:
+    parent = BRANCH_PARENT.get(filter_category, filter_category)
+    related: set[str] = {filter_category, parent}
+    for branch, field in BRANCH_PARENT.items():
+        if field == parent or field == filter_category:
+            related.add(branch)
+            related.add(field)
+    return sorted(related)

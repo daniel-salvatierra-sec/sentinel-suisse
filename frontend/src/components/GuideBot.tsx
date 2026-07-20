@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { ListingType } from "../api";
 import { loadGuideSeen, saveGuideSeen } from "../guideStorage";
 import type { Messages } from "../i18n";
-import { FireflyBuddy } from "./FireflyBuddy";
+import { SentinelBuddy } from "./SentinelBuddy";
 
 type Props = {
   t: Messages;
@@ -14,10 +14,10 @@ type Props = {
   onOpenMap: () => void;
 };
 
-type Step = "welcome" | "category" | "search" | "map" | "alerts" | "done";
-
-const STEPS: Step[] = ["welcome", "category", "search", "map", "alerts", "done"];
-
+/**
+ * Sentinel companion: dock FAB + bottom sheet with 3 primary actions.
+ * First visit still offers Home / Work once, then radar chips.
+ */
 export function GuideBot({
   t,
   zone,
@@ -28,95 +28,66 @@ export function GuideBot({
   onOpenMap,
 }: Props) {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<Step>("welcome");
+  const [needsIntro, setNeedsIntro] = useState(false);
 
   useEffect(() => {
     if (!loadGuideSeen()) {
+      setNeedsIntro(true);
       setOpen(true);
     }
   }, []);
 
   const close = () => {
     saveGuideSeen();
+    setNeedsIntro(false);
     setOpen(false);
-    setStep("welcome");
-  };
-
-  const stepIndex = STEPS.indexOf(step);
-
-  const goNext = () => {
-    const next = STEPS[stepIndex + 1];
-    if (next) setStep(next);
-  };
-
-  const goBack = () => {
-    const prev = STEPS[stepIndex - 1];
-    if (prev) setStep(prev);
-  };
-
-  const stepMessage = (): string => {
-    switch (step) {
-      case "welcome":
-        return t.guideHello;
-      case "category":
-        return t.guideStepCategory;
-      case "search":
-        return t.guideStepSearch;
-      case "map":
-        return t.guideStepMap;
-      case "alerts":
-        return t.guideStepAlerts;
-      case "done":
-        return t.guideStepDone;
-      default:
-        return t.guideHello;
-    }
   };
 
   return (
     <>
-      <FireflyBuddy
+      <SentinelBuddy
         zone={zone}
         searching={searching}
         label={t.fireflyLabel}
         onOpen={() => setOpen(true)}
       />
       {open && (
-        <div className="modal-backdrop" role="presentation" onClick={close}>
+        <div className="modal-backdrop sheet-backdrop" role="presentation" onClick={close}>
           <div
-            className="guide-modal"
+            className="guide-sheet"
             role="dialog"
             aria-labelledby="guide-title"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
+            <div className="guide-sheet-handle" aria-hidden />
             <div className="guide-header">
-              <span className="guide-avatar firefly-avatar" aria-hidden>
-                ✦
+              <span className="guide-avatar sentinel-avatar" aria-hidden>
+                <svg viewBox="0 0 40 40" width="36" height="36">
+                  <rect x="8" y="10" width="24" height="22" rx="4" fill="#12141a" />
+                  <circle cx="20" cy="19" r="3.2" fill="#c45c4a" />
+                </svg>
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">
                   {t.guide}
                 </h2>
-                <p className="guide-step-label">
-                  {stepIndex + 1} / {STEPS.length}
-                </p>
+                <p className="guide-step-label">{t.guideRadarHint}</p>
               </div>
             </div>
-            <div className="guide-dots" aria-hidden>
-              {STEPS.map((item, index) => (
-                <span key={item} className={index <= stepIndex ? "active" : ""} />
-              ))}
-            </div>
-            <p className="guide-message">{stepMessage()}</p>
 
-            {step === "category" && (
+            <p className="guide-message">
+              {needsIntro ? t.guideHello : t.guideRadarMessage}
+            </p>
+
+            {needsIntro ? (
               <div className="guide-actions">
                 <button
                   type="button"
                   className="option"
                   onClick={() => {
                     onPickCategory("housing");
-                    goNext();
+                    setNeedsIntro(false);
+                    saveGuideSeen();
                   }}
                 >
                   {t.guideHousing}
@@ -126,74 +97,52 @@ export function GuideBot({
                   className="option"
                   onClick={() => {
                     onPickCategory("job");
-                    goNext();
+                    setNeedsIntro(false);
+                    saveGuideSeen();
                   }}
                 >
                   {t.guideJob}
                 </button>
               </div>
-            )}
-
-            {step === "search" && (
-              <button
-                type="button"
-                className="primary-btn guide-cta"
-                onClick={() => {
-                  onStartSearch("Geneva");
-                  goNext();
-                }}
-              >
-                {t.guideSearchCta}
-              </button>
-            )}
-
-            {step === "map" && (
-              <button
-                type="button"
-                className="primary-btn guide-cta"
-                onClick={() => {
-                  onOpenMap();
-                  goNext();
-                }}
-              >
-                {t.guideMapCta}
-              </button>
-            )}
-
-            {step === "alerts" && (
-              <button
-                type="button"
-                className="primary-btn guide-cta"
-                onClick={() => {
-                  onOpenAlerts();
-                  goNext();
-                }}
-              >
-                {t.guideAlertsCta}
-              </button>
+            ) : (
+              <div className="guide-chip-actions">
+                <button
+                  type="button"
+                  className="chip active"
+                  onClick={() => {
+                    onStartSearch("Geneva");
+                    close();
+                  }}
+                >
+                  {t.guideChipBestPrice}
+                </button>
+                <button
+                  type="button"
+                  className="chip active"
+                  onClick={() => {
+                    onOpenMap();
+                    close();
+                  }}
+                >
+                  {t.guideChipBestMatch}
+                </button>
+                <button
+                  type="button"
+                  className="chip active"
+                  onClick={() => {
+                    onOpenAlerts();
+                    close();
+                  }}
+                >
+                  {t.guideChipAlert}
+                </button>
+              </div>
             )}
 
             <div className="guide-nav">
-              {stepIndex > 0 && step !== "done" && (
-                <button type="button" className="secondary-btn" onClick={goBack}>
-                  {t.guideBack}
-                </button>
-              )}
-              {step === "welcome" && (
-                <button type="button" className="primary-btn" onClick={goNext}>
-                  {t.guideNext}
-                </button>
-              )}
-              {step === "done" && (
-                <button type="button" className="primary-btn" style={{ flex: 1 }} onClick={close}>
-                  {t.guideClose}
-                </button>
-              )}
-              {step !== "done" && (
-                <button type="button" className="guide-skip" onClick={close}>
-                  {t.guideSkip}
-                </button>
-              )}
+              <button type="button" className="guide-skip" onClick={close}>
+                {t.guideClose}
+              </button>
             </div>
           </div>
         </div>
