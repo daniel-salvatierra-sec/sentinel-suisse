@@ -1,9 +1,16 @@
 from datetime import datetime
 from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl, model_validator
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl, computed_field, model_validator
 
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
+
+
+def listing_is_demo(raw_payload: dict | None) -> bool:
+    """True for fixture/pilot listings (fake source URLs)."""
+    if not isinstance(raw_payload, dict):
+        return False
+    return raw_payload.get("pilot") is True or raw_payload.get("source") == "fixture"
 
 
 class ListingCreate(BaseModel):
@@ -82,3 +89,10 @@ class ListingRead(BaseModel):
     source_url: str
     content_hash: str
     fetched_at: datetime
+    # Loaded from ORM for is_demo; never exposed in JSON.
+    raw_payload: dict | None = Field(default=None, exclude=True)
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def is_demo(self) -> bool:
+        return listing_is_demo(self.raw_payload)

@@ -25,6 +25,7 @@ export type Listing = {
   employment_type?: EmploymentType | null;
   workload_min?: number | null;
   workload_max?: number | null;
+  is_demo?: boolean;
 };
 
 export type SearchQueryParams = {

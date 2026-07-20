@@ -127,6 +127,8 @@
   "privacy": "Privacy",
   "terms": "Terms",
   "openSource": "View listing",
+  "demoBadge": "Demo",
+  "demoLinkUnavailable": "Preview — link not available",
   "priceMonthly": "CHF / month",
   "route": "Directions",
   "consentLabel": "I accept the privacy policy and terms of service",

@@ -83,6 +83,8 @@
   "privacy": "Confidentialité",
   "terms": "Conditions",
   "openSource": "Voir l'annonce",
+  "demoBadge": "Exemple",
+  "demoLinkUnavailable": "Aperçu — lien non disponible",
   "priceMonthly": "CHF / mois",
   "route": "Itinéraire",
   "consentLabel": "J'accepte la politique de confidentialité et les conditions d'utilisation",

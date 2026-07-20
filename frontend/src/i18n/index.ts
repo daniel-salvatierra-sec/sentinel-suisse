@@ -139,6 +139,8 @@ export type Messages = {
   privacy: string;
   terms: string;
   openSource: string;
+  demoBadge: string;
+  demoLinkUnavailable: string;
   priceMonthly: string;
   route: string;
   consentLabel: string;
