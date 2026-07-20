@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import type { ListingType } from "../api";
 import { loadGuideSeen, saveGuideSeen } from "../guideStorage";
 import type { Messages } from "../i18n";
-import { SentinelBuddy } from "./SentinelBuddy";
+import { SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
 type Props = {
   t: Messages;
@@ -62,10 +62,7 @@ export function GuideBot({
             <div className="guide-sheet-handle" aria-hidden />
             <div className="guide-header">
               <span className="guide-avatar sentinel-avatar" aria-hidden>
-                <svg viewBox="0 0 40 40" width="36" height="36">
-                  <rect x="8" y="10" width="24" height="22" rx="4" fill="#12141a" />
-                  <circle cx="20" cy="19" r="3.2" fill="#c45c4a" />
-                </svg>
+                <SentinelFace size={36} />
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">
