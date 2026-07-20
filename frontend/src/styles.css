@@ -1116,20 +1116,6 @@ body {
   color: #5a6b66;
 }
 
-.listing-detail-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.85rem;
-}
-
-.listing-detail-actions .apply-btn,
-.listing-detail-actions .secondary-btn {
-  flex: 1 1 auto;
-  text-align: center;
-  text-decoration: none;
-}
-
 .map-wrap {
   height: 260px;
   border-radius: 1rem;
