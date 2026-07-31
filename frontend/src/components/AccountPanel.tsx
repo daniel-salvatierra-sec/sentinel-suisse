@@ -1,5 +1,6 @@
 import {
   clearApiKey,
+  createPortalSession,
   deleteAccount,
   deleteSavedSearch,
   fetchAlerts,
@@ -44,6 +45,8 @@ export function AccountPanel({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [portalBusy, setPortalBusy] = useState(false);
+  const [portalError, setPortalError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!getApiKey()) {
@@ -110,6 +113,18 @@ export function AccountPanel({
     onLoggedOut();
   };
 
+  const handleManageSubscription = async () => {
+    setPortalBusy(true);
+    setPortalError(null);
+    try {
+      const { portal_url } = await createPortalSession();
+      window.location.assign(portal_url);
+    } catch {
+      setPortalError(t.premiumPortalError);
+      setPortalBusy(false);
+    }
+  };
+
   return (
     <section className="account-panel">
       <h2 style={{ marginTop: 0 }}>{t.accountTitle}</h2>
@@ -125,6 +140,20 @@ export function AccountPanel({
           .replace("{count}", String(profile.saved_search_count ?? searches.length))
           .replace("{limit}", String(profile.saved_search_limit ?? 1))}
       </p>
+      {profile.is_premium && (
+        <>
+          <button
+            type="button"
+            className="apply-btn"
+            style={{ width: "100%", marginBottom: "0.75rem" }}
+            disabled={portalBusy}
+            onClick={() => void handleManageSubscription()}
+          >
+            {portalBusy ? t.premiumPaying : t.premiumManageCta}
+          </button>
+          {portalError && <p className="premium-upsell-error">{portalError}</p>}
+        </>
+      )}
       {(profile.saved_search_count ?? searches.length) >=
         (profile.saved_search_limit ?? 1) &&
         !profile.is_premium && (

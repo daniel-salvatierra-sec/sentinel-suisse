@@ -212,6 +212,8 @@
   "premiumPaying": "Weiterleitung…",
   "premiumLoginFirst": "Zuerst Alert-Konto erstellen, dann zahlen",
   "premiumCheckoutError": "Checkout konnte nicht gestartet werden. Später erneut versuchen.",
+  "premiumManageCta": "Abo verwalten",
+  "premiumPortalError": "Stripe-Portal konnte nicht geöffnet werden. Später erneut versuchen.",
   "premiumSuccessBanner": "Zahlung eingegangen — Premium aktiviert sich nach Stripe-Bestätigung (meist Sekunden).",
   "premiumCancelBanner": "Checkout abgebrochen. Du kannst es jederzeit erneut versuchen.",
   "premiumRefundsLink": "Rückerstattungsrichtlinie",

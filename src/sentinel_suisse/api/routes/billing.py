@@ -9,7 +9,11 @@ from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.user import User
-from sentinel_suisse.services.stripe_billing import BillingError, create_checkout_session
+from sentinel_suisse.services.stripe_billing import (
+    BillingError,
+    create_billing_portal_session,
+    create_checkout_session,
+)
 
 router = APIRouter(prefix="/billing", tags=["billing"])
 
@@ -27,6 +31,10 @@ class BillingStatus(BaseModel):
 
 class CheckoutResponse(BaseModel):
     checkout_url: str
+
+
+class PortalResponse(BaseModel):
+    portal_url: str
 
 
 @router.get("/config", response_model=BillingConfig)
@@ -77,3 +85,23 @@ def start_checkout(
             detail=exc.code,
         ) from exc
     return CheckoutResponse(checkout_url=url)
+
+
+@router.post("/portal", response_model=PortalResponse)
+@limiter.limit("10/minute")
+def start_portal(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+) -> PortalResponse:
+    """Open Stripe Customer Portal (cancel / update payment method)."""
+    settings = get_settings()
+    try:
+        url = create_billing_portal_session(current_user, settings)
+    except BillingError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            if exc.code == "payments_disabled"
+            else status.HTTP_400_BAD_REQUEST,
+            detail=exc.code,
+        ) from exc
+    return PortalResponse(portal_url=url)

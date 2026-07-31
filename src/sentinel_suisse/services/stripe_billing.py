@@ -62,6 +62,28 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
     return str(url)
 
 
+def create_billing_portal_session(user: User, settings: Settings) -> str:
+    """Create a Stripe Customer Portal session so the user can manage/cancel Premium."""
+    if not settings.stripe_payments_enabled():
+        raise BillingError("payments_disabled", "Stripe payments are not configured.")
+    if not user.stripe_customer_id:
+        raise BillingError(
+            "no_stripe_customer",
+            "No Stripe customer linked to this account.",
+        )
+
+    _configure_stripe(settings)
+    base = settings.public_app_url.rstrip("/")
+    session = stripe.billing_portal.Session.create(
+        customer=user.stripe_customer_id,
+        return_url=f"{base}/?tab=account&premium=portal",
+    )
+    url = session.url
+    if not url:
+        raise BillingError("portal_failed", "Stripe did not return a portal URL.")
+    return str(url)
+
+
 def apply_checkout_completed(db: Session, session_obj: dict[str, Any]) -> User | None:
     """Mark user premium from checkout.session.completed payload."""
     metadata = session_obj.get("metadata") or {}

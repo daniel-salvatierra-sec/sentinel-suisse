@@ -10,7 +10,7 @@ Applies to **LinkSwiss Premium** subscriptions paid via Stripe (card and TWINT w
 ## Cooling-off / refunds
 
 1. You may request a refund within **14 days** of the first charge if you have not used Premium features beyond signup (no WhatsApp channel added, no more than the free trial alert).
-2. After the cooling-off period, subscriptions renew until cancelled in Stripe Customer Portal / support.
+2. After the cooling-off period, subscriptions renew until cancelled via **Compte → Gérer l’abonnement** (Stripe Customer Portal) or support.
 3. Refunds are processed via Stripe to the original payment method (typically 5–10 business days).
 
 ## How to request

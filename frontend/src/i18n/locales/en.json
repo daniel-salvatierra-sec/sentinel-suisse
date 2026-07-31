@@ -211,6 +211,8 @@
   "premiumPaying": "Redirecting…",
   "premiumLoginFirst": "Create an alert account first, then pay",
   "premiumCheckoutError": "Could not start checkout. Try again later.",
+  "premiumManageCta": "Manage subscription",
+  "premiumPortalError": "Could not open the Stripe portal. Try again later.",
   "premiumSuccessBanner": "Payment received — Premium activates after Stripe confirms (usually seconds).",
   "premiumCancelBanner": "Checkout cancelled. You can try again anytime.",
   "premiumRefundsLink": "Refund policy",

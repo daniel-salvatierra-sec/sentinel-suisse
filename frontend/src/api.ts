@@ -283,6 +283,28 @@ export async function createCheckoutSession(): Promise<{ checkout_url: string }>
   return response.json() as Promise<{ checkout_url: string }>;
 }
 
+export async function createPortalSession(): Promise<{ portal_url: string }> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch("/api/v1/billing/portal", {
+    method: "POST",
+    headers: { "X-API-Key": apiKey },
+  });
+  if (!response.ok) {
+    let message = `request failed: ${response.status}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.json() as Promise<{ portal_url: string }>;
+}
+
 export async function verifyChannelToken(
   token: string,
 ): Promise<{ channel_type: string }> {

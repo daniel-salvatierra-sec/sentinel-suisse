@@ -212,6 +212,8 @@
   "premiumPaying": "A redirecionar…",
   "premiumLoginFirst": "Cria primeiro uma conta de alertas e depois paga",
   "premiumCheckoutError": "Não foi possível iniciar o pagamento. Tenta mais tarde.",
+  "premiumManageCta": "Gerir assinatura",
+  "premiumPortalError": "Não foi possível abrir o portal Stripe. Tenta mais tarde.",
   "premiumSuccessBanner": "Pagamento recebido — o Premium ativa-se após confirmação Stripe (geralmente segundos).",
   "premiumCancelBanner": "Checkout cancelado. Podes tentar de novo quando quiseres.",
   "premiumRefundsLink": "Política de reembolso",

@@ -224,6 +224,8 @@ export type Messages = {
   premiumPaying: string;
   premiumLoginFirst: string;
   premiumCheckoutError: string;
+  premiumManageCta: string;
+  premiumPortalError: string;
   premiumSuccessBanner: string;
   premiumCancelBanner: string;
   premiumRefundsLink: string;

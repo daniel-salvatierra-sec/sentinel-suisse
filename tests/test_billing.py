@@ -227,3 +227,79 @@ def test_checkout_creates_stripe_session(
     kwargs = create_mock.call_args.kwargs
     assert kwargs["mode"] == "subscription"
     assert kwargs["payment_method_types"] == ["card", "twint"]
+
+
+def test_portal_requires_stripe_customer(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_test")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={
+            "email": _email("portal-no-cus"),
+            "is_active": True,
+            "locale": "fr",
+            "is_premium": True,
+        },
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    response = client.post("/api/v1/billing/portal", headers=headers)
+    assert response.status_code == 400
+    assert response.json()["detail"] == "no_stripe_customer"
+
+
+def test_portal_creates_stripe_session(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_test")
+    monkeypatch.setenv("PUBLIC_APP_URL", "https://linkswiss.ch")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("portal"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    db = SessionLocal()
+    try:
+        apply_checkout_completed(
+            db,
+            {
+                "metadata": {"user_id": str(user_id)},
+                "customer": "cus_portal_1",
+                "subscription": "sub_portal_1",
+            },
+        )
+    finally:
+        db.close()
+
+    mock_session = MagicMock()
+    mock_session.url = "https://billing.stripe.com/p/session/test_portal"
+
+    with patch(
+        "sentinel_suisse.services.stripe_billing.stripe.billing_portal.Session.create",
+        return_value=mock_session,
+    ) as create_mock:
+        response = client.post("/api/v1/billing/portal", headers=headers)
+
+    assert response.status_code == 200, response.text
+    assert response.json()["portal_url"].startswith("https://billing.stripe.com/")
+    create_mock.assert_called_once()
+    kwargs = create_mock.call_args.kwargs
+    assert kwargs["customer"] == "cus_portal_1"
+    assert kwargs["return_url"] == "https://linkswiss.ch/?tab=account&premium=portal"
