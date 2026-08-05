@@ -18,7 +18,7 @@ export function GoalHub({ t, active, onSelect }: Props) {
     <section
       className={`goal-hub${active === "housing" ? " focus-home" : " focus-work"}`}
       aria-label={t.goalHubLabel}
-      style={{ backgroundImage: "url(/hub/hero.png?v=2)" }}
+      style={{ backgroundImage: "url(/hub/hero.png?v=3)" }}
     >
       <div className="goal-hub-veil" aria-hidden="true" />
       <button
