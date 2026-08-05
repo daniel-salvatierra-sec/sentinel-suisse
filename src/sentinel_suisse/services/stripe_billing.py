@@ -52,8 +52,10 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
     if settings.stripe_enable_twint:
         # Card + TWINT (CH) when enabled in the Stripe Dashboard.
         params["payment_method_types"] = ["card", "twint"]
-    else:
-        params["automatic_payment_methods"] = {"enabled": True}
+    # else: omit payment_method_types entirely so Stripe uses whatever
+    # payment methods are enabled in the Dashboard (e.g. card only while
+    # TWINT is pending approval). Checkout Sessions don't accept the
+    # PaymentIntent-only "automatic_payment_methods" parameter.
 
     session = stripe.checkout.Session.create(**params)
     url = session.url
