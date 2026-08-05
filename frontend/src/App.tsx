@@ -311,7 +311,15 @@ export default function App() {
         <button
           type="button"
           className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
-          onClick={() => setTab("account")}
+          onClick={() => {
+            setTab("account");
+            window.requestAnimationFrame(() => {
+              document.getElementById("tabs-panel")?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            });
+          }}
         >
           {t.account}
           {hasSession && <span className="tab-dot" aria-hidden />}
@@ -363,7 +371,7 @@ export default function App() {
         onApply={applyFilters}
       />
 
-      <div className="tabs">
+      <div className="tabs" id="tabs-panel">
         <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
           {t.list}
         </button>
