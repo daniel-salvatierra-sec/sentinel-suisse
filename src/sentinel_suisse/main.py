@@ -1,5 +1,7 @@
 """FastAPI application."""
 
+import logging
+import os
 from pathlib import Path
 
 from fastapi import FastAPI, Response
@@ -26,6 +28,16 @@ from sentinel_suisse.api.routes import (
 )
 from sentinel_suisse.config import Settings, get_settings
 from sentinel_suisse.services.health import check_database
+
+# Uvicorn only configures its own "uvicorn"/"uvicorn.error"/"uvicorn.access"
+# loggers — it never touches the root logger. Without this, every
+# `logging.getLogger(__name__).info(...)` call in the app (e.g. the SMTP
+# fallback that logs magic-login/verification links) is silently dropped
+# because the root logger has no handler and defaults to WARNING.
+logging.basicConfig(
+    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
 
 
 def _init_sentry(settings: Settings) -> None:
