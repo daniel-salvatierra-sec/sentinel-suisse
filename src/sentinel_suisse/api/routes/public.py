@@ -13,6 +13,12 @@ from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingTyp
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
+from sentinel_suisse.schemas.login import (
+    MagicLoginConfirm,
+    MagicLoginConfirmResponse,
+    MagicLoginRequest,
+    MagicLoginRequestResponse,
+)
 from sentinel_suisse.schemas.provider import ProviderRead
 from sentinel_suisse.schemas.public_signup import (
     ChannelVerificationResponse,
@@ -28,6 +34,11 @@ from sentinel_suisse.services.email_verification import (
     verify_email_channel,
 )
 from sentinel_suisse.services.entitlements import EntitlementError
+from sentinel_suisse.services.magic_login import (
+    MagicLoginError,
+    confirm_magic_login,
+    request_magic_login,
+)
 from sentinel_suisse.services.public_signup import subscribe_public_alert
 from sentinel_suisse.services.search import search_listings
 
@@ -223,3 +234,37 @@ def public_verify_email(
 
     response = _verify_channel_response(channel)
     return EmailVerificationResponse(**response.model_dump())
+
+
+@router.post("/login", response_model=MagicLoginRequestResponse)
+@limiter.limit("5/minute")
+def public_request_login(
+    request: Request,
+    payload: MagicLoginRequest,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_signup),
+) -> MagicLoginRequestResponse:
+    """Send a passwordless login link if the email has an account.
+
+    Always returns success, whether or not the email is known, so we don't
+    leak account existence.
+    """
+    settings = get_settings()
+    request_magic_login(db, settings, str(payload.email), payload.locale)
+    return MagicLoginRequestResponse(sent=True)
+
+
+@router.post("/login/confirm", response_model=MagicLoginConfirmResponse)
+@limiter.limit("10/minute")
+def public_confirm_login(
+    request: Request,
+    payload: MagicLoginConfirm,
+    db: Session = Depends(get_db),
+) -> MagicLoginConfirmResponse:
+    """Exchange a magic-login token for a fresh API key."""
+    settings = get_settings()
+    try:
+        result = confirm_magic_login(db, settings, payload.token)
+    except MagicLoginError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.code) from exc
+    return MagicLoginConfirmResponse(api_key=result.api_key, user_id=result.user.id)

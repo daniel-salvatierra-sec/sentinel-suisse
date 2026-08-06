@@ -217,5 +217,13 @@
   "premiumCancelBanner": "Pago cancelado. Puedes intentarlo cuando quieras.",
   "premiumRefundsLink": "Política de reembolso",
   "underConstructionFilter": "En construcción",
-  "constructionBadge": "En obra"
+  "constructionBadge": "En obra",
+  "loginTitle": "Iniciar sesión",
+  "loginDesc": "Escribe tu email y te mandamos un enlace para volver a entrar — sin contraseña.",
+  "loginCta": "Enviar enlace de acceso",
+  "loginEmailSent": "¡Enlace enviado! Revisa tu correo y haz clic para iniciar sesión.",
+  "loginError": "Este enlace de acceso ya no es válido. Pide uno nuevo.",
+  "loginBackToSignup": "← Crear una cuenta en su lugar",
+  "loginAlreadyHaveAccount": "¿Ya tienes cuenta? Iniciar sesión",
+  "loginSuccess": "¡Sesión iniciada correctamente!"
 }

@@ -218,5 +218,13 @@
   "premiumCancelBanner": "Checkout abgebrochen. Du kannst es jederzeit erneut versuchen.",
   "premiumRefundsLink": "Rückerstattungsrichtlinie",
   "underConstructionFilter": "Im Bau",
-  "constructionBadge": "Im Bau"
+  "constructionBadge": "Im Bau",
+  "loginTitle": "Anmelden",
+  "loginDesc": "Gib deine E-Mail ein, wir schicken dir einen Link zum Anmelden — ohne Passwort.",
+  "loginCta": "Anmeldelink senden",
+  "loginEmailSent": "Link gesendet! Prüfe dein Postfach und klicke darauf, um dich anzumelden.",
+  "loginError": "Dieser Anmeldelink ist nicht mehr gültig. Fordere einen neuen an.",
+  "loginBackToSignup": "← Stattdessen ein Konto erstellen",
+  "loginAlreadyHaveAccount": "Bereits registriert? Anmelden",
+  "loginSuccess": "Erfolgreich angemeldet!"
 }

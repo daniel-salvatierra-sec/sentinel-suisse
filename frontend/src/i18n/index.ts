@@ -230,6 +230,14 @@ export type Messages = {
   premiumCancelBanner: string;
   premiumRefundsLink: string;
   constructionBadge: string;
+  loginTitle: string;
+  loginDesc: string;
+  loginCta: string;
+  loginEmailSent: string;
+  loginError: string;
+  loginBackToSignup: string;
+  loginAlreadyHaveAccount: string;
+  loginSuccess: string;
 };
 
 import fr from "./locales/fr.json";

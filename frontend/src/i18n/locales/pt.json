@@ -218,5 +218,13 @@
   "premiumCancelBanner": "Checkout cancelado. Podes tentar de novo quando quiseres.",
   "premiumRefundsLink": "Política de reembolso",
   "underConstructionFilter": "Em construção",
-  "constructionBadge": "Em obra"
+  "constructionBadge": "Em obra",
+  "loginTitle": "Iniciar sessão",
+  "loginDesc": "Escreve o teu email e enviamos uma ligação para entrares de novo — sem palavra-passe.",
+  "loginCta": "Enviar ligação de acesso",
+  "loginEmailSent": "Ligação enviada! Verifica o teu email e clica para iniciar sessão.",
+  "loginError": "Esta ligação de acesso já não é válida. Pede uma nova.",
+  "loginBackToSignup": "← Criar uma conta em vez disso",
+  "loginAlreadyHaveAccount": "Já tens conta? Iniciar sessão",
+  "loginSuccess": "Sessão iniciada com sucesso!"
 }

@@ -217,5 +217,13 @@
   "premiumCancelBanner": "Checkout cancelled. You can try again anytime.",
   "premiumRefundsLink": "Refund policy",
   "underConstructionFilter": "Under construction",
-  "constructionBadge": "Off-plan"
+  "constructionBadge": "Off-plan",
+  "loginTitle": "Log in",
+  "loginDesc": "Enter your email and we'll send you a link to log back in — no password needed.",
+  "loginCta": "Send login link",
+  "loginEmailSent": "Link sent! Check your inbox and click it to log in.",
+  "loginError": "This login link is no longer valid. Request a new one.",
+  "loginBackToSignup": "← Create an account instead",
+  "loginAlreadyHaveAccount": "Already have an account? Log in",
+  "loginSuccess": "Logged in successfully!"
 }

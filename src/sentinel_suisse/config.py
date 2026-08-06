@@ -28,6 +28,7 @@ class Settings(BaseSettings):
     # Comma-separated hostnames for TrustedHostMiddleware in production (e.g. app.example.com)
     trusted_hosts: str = ""
     verification_token_ttl_hours: int = 48
+    login_token_ttl_minutes: int = 20
     # None = auto (enabled in development); True/False force
     public_signup_enabled: bool | None = None
     public_search_enabled: bool | None = None
@@ -64,7 +65,7 @@ class Settings(BaseSettings):
     ingest_indeed_fr_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
-        "SentinelSuisse/0.14 " "(+github.com/daniel-salvatierra-sec/sentinel-suisse)"
+        "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"
     )
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"

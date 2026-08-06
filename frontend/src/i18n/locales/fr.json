@@ -79,7 +79,7 @@
   "jobBranch_transport": "Transport",
   "jobBranch_purchasing": "Achats",
   "employmentTypeLabel": "Contrat",
-  "employmentPermanent": "CDI",
+  "employmentPermanent": "CDI (fixe)",
   "employmentTemporary": "Temporaire",
   "employmentInternship": "Stage",
   "employmentFreelance": "Freelance",
@@ -218,5 +218,13 @@
   "premiumCancelBanner": "Paiement annulé. Tu peux réessayer quand tu veux.",
   "premiumRefundsLink": "Politique de remboursement",
   "underConstructionFilter": "En construction",
-  "constructionBadge": "Sur plan"
+  "constructionBadge": "Sur plan",
+  "loginTitle": "Se connecter",
+  "loginDesc": "Indique ton e-mail, on t'envoie un lien pour te reconnecter — sans mot de passe.",
+  "loginCta": "Envoyer le lien de connexion",
+  "loginEmailSent": "Lien envoyé ! Vérifie ta boîte mail et clique dessus pour te connecter.",
+  "loginError": "Ce lien de connexion n'est plus valide. Demandes-en un nouveau.",
+  "loginBackToSignup": "← Créer un compte à la place",
+  "loginAlreadyHaveAccount": "Déjà inscrit ? Se connecter",
+  "loginSuccess": "Connexion réussie !"
 }

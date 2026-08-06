@@ -367,3 +367,42 @@ export async function subscribeAlerts(params: {
   saveApiKey(data.api_key);
   return data;
 }
+
+export async function requestMagicLogin(email: string, locale: string): Promise<void> {
+  const response = await fetch("/api/v1/public/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, locale }),
+  });
+  if (!response.ok) {
+    let message = "login request failed";
+    try {
+      const body = await response.json();
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+}
+
+export async function confirmMagicLogin(token: string): Promise<{ api_key: string; user_id: number }> {
+  const response = await fetch("/api/v1/public/login/confirm", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) {
+    let message = "login_failed";
+    try {
+      const body = await response.json();
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  const data = (await response.json()) as { api_key: string; user_id: number };
+  saveApiKey(data.api_key);
+  return data;
+}

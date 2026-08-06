@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { subscribeAlerts, type ListingType, type SearchQueryParams } from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
+import { LoginPanel } from "./LoginPanel";
 import { PremiumUpsell } from "./PremiumUpsell";
 import { SubscribeQr } from "./SubscribeQr";
 import type { Lang, Messages } from "../i18n";
@@ -33,6 +34,8 @@ export function AlertSignup({
   const [status, setStatus] = useState<Status>("idle");
   const [pendingWhatsApp, setPendingWhatsApp] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showLogin, setShowLogin] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   const handleSubmit = async () => {
     if (!email.trim()) {
@@ -48,6 +51,7 @@ export function AlertSignup({
 
     setStatus("loading");
     setErrorMessage("");
+    setIsDuplicate(false);
     try {
       // Free tier: email only — never send phone on public signup.
       const result = await subscribeAlerts({
@@ -74,12 +78,21 @@ export function AlertSignup({
         setErrorMessage(t.alertLimitReached);
       } else if (message.includes("already exists")) {
         setErrorMessage(t.alertErrorDuplicate);
+        setIsDuplicate(true);
       } else {
         setErrorMessage(t.alertErrorGeneric);
       }
       setStatus("error");
     }
   };
+
+  if (showLogin) {
+    return (
+      <section className="alert-panel" id="signup">
+        <LoginPanel t={t} locale={locale} onBackToSignup={() => setShowLogin(false)} />
+      </section>
+    );
+  }
 
   return (
     <section className="alert-panel" id="signup">
@@ -92,6 +105,13 @@ export function AlertSignup({
       <p className="plan-hint">{t.searchFreeHint}</p>
       <p className="plan-hint">{t.freePlanHint}</p>
       <PremiumUpsell t={t} compact />
+      <button
+        type="button"
+        className="linkish"
+        onClick={() => setShowLogin(true)}
+      >
+        {t.loginAlreadyHaveAccount}
+      </button>
       <label>
         {t.email}
         <input
@@ -146,7 +166,21 @@ export function AlertSignup({
         </>
       )}
       {status === "error" && errorMessage && (
-        <p className="alert-feedback error">{errorMessage}</p>
+        <p className="alert-feedback error">
+          {errorMessage}
+          {isDuplicate && (
+            <>
+              {" "}
+              <button
+                type="button"
+                className="linkish"
+                onClick={() => setShowLogin(true)}
+              >
+                {t.loginCta}
+              </button>
+            </>
+          )}
+        </p>
       )}
       <SubscribeQr t={t} lang={locale} listingType={listingType} location={location} />
     </section>

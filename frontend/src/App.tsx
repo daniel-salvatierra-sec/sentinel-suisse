@@ -19,6 +19,7 @@ import {
 import { GoalHub } from "./components/GoalHub";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
+import { LoginBanner } from "./components/LoginBanner";
 import { MapView } from "./components/MapView";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { SearchBar } from "./components/SearchBar";
@@ -277,6 +278,14 @@ export default function App() {
       <VerifyBanner
         t={t}
         onVerified={() => {
+          setAccountRefresh((value) => value + 1);
+          setTab("account");
+        }}
+      />
+      <LoginBanner
+        t={t}
+        onLoggedIn={() => {
+          setHasSession(true);
           setAccountRefresh((value) => value + 1);
           setTab("account");
         }}
