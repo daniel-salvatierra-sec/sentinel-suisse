@@ -25,6 +25,24 @@ def test_trusted_host_blocks_unknown_host(trusted_host_client: TestClient) -> No
     assert response.status_code == 400
 
 
+@pytest.mark.parametrize("host", ["127.0.0.1", "localhost"])
+def test_trusted_host_allows_docker_healthcheck_hosts(
+    trusted_host_client: TestClient, host: str
+) -> None:
+    # The Docker HEALTHCHECK hits http://127.0.0.1:8000/health from inside
+    # the container, so these hosts must always be accepted even when
+    # TRUSTED_HOSTS is configured to real production domains only.
+    response = trusted_host_client.get("/health", headers={"Host": host})
+    assert response.status_code == 200, response.text
+
+
+def test_trusted_host_blocks_unknown_host_alongside_healthcheck_hosts(
+    trusted_host_client: TestClient,
+) -> None:
+    response = trusted_host_client.get("/health", headers={"Host": "evil.example.com"})
+    assert response.status_code == 400
+
+
 def test_trusted_host_disabled_without_config(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("TRUSTED_HOSTS", "")

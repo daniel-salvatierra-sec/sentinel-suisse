@@ -76,7 +76,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     trusted_hosts = settings.trusted_hosts_list()
     if settings.app_env == "production" and trusted_hosts:
-        application.add_middleware(TrustedHostMiddleware, allowed_hosts=trusted_hosts)
+        # Include 127.0.0.1/localhost so the Docker HEALTHCHECK (which hits
+        # http://127.0.0.1:8000/health from inside the container) isn't
+        # rejected with 400. Safe because the api container's port 8000 is
+        # only exposed on the internal Docker network (see docker-compose
+        # .prod.yml `expose:`), not published to the host/public internet —
+        # Caddy is the only service with published ports.
+        application.add_middleware(
+            TrustedHostMiddleware,
+            allowed_hosts=[*trusted_hosts, "127.0.0.1", "localhost"],
+        )
 
     cors_origins: list[str] = []
     if settings.app_env == "development":
