@@ -58,8 +58,8 @@ body {
   .sentinel-buddy {
     right: 1.5rem;
     bottom: 2rem;
-    width: 4.25rem;
-    height: 4.25rem;
+    width: 5.75rem;
+    height: 5.75rem;
   }
 }
 
@@ -70,6 +70,11 @@ body {
 
   .goal-hub {
     min-height: min(70vh, 720px);
+  }
+
+  .sentinel-buddy {
+    width: 6.5rem;
+    height: 6.5rem;
   }
 }
 
@@ -377,8 +382,8 @@ body {
   right: 1rem;
   bottom: 5.5rem;
   z-index: 1000;
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 5rem;
+  height: 5rem;
   padding: 0;
   border: none;
   border-radius: 999px;
