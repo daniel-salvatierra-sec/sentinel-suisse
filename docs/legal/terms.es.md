@@ -57,3 +57,5 @@ La fecha de `version` y la API se actualizarán.
 ## 11. Contacto
 
 daninohemyshoping2020@gmail.com
+
+Identidad del operador del sitio: ver el [Aviso legal](/api/v1/legal/mentions-legales).

@@ -66,3 +66,5 @@ La date de `version` et la réponse API seront mises à jour. L'usage continu pe
 ## 11. Contact
 
 privacy: daninohemyshoping2020@gmail.com
+
+Identité de l'exploitant du site : voir les [Mentions légales](/api/v1/legal/mentions-legales).

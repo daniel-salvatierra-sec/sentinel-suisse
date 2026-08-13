@@ -11,6 +11,7 @@ from sentinel_suisse.legal.privacy import POLICY_VERSION, load_privacy_policy
 from sentinel_suisse.legal.terms import TERMS_VERSION, load_terms_of_service
 from sentinel_suisse.schemas.legal import (
     LegalLanguage,
+    MentionsLegalesRead,
     PrivacyPolicyRead,
     RefundPolicyRead,
     TermsOfServiceRead,
@@ -18,8 +19,10 @@ from sentinel_suisse.schemas.legal import (
 
 router = APIRouter(prefix="/legal", tags=["legal"])
 
-_REFUNDS_VERSION = "2026-07-20"
+_REFUNDS_VERSION = "2026-08-13"
 _REFUNDS_PATH = Path(__file__).resolve().parents[4] / "docs" / "legal" / "refunds.md"
+_MENTIONS_VERSION = "2026-08-13"
+_MENTIONS_PATH = Path(__file__).resolve().parents[4] / "docs" / "legal" / "mentions-legales.md"
 
 
 @router.get("/privacy", response_model=PrivacyPolicyRead)
@@ -66,3 +69,15 @@ def get_refund_policy(request: Request) -> RefundPolicyRead:
         else "# Refund policy\n\nDocument pending.\n"
     )
     return RefundPolicyRead(version=_REFUNDS_VERSION, content=content)
+
+
+@router.get("/mentions-legales", response_model=MentionsLegalesRead)
+@limiter.limit(lambda: get_settings().rate_limit)
+def get_mentions_legales(request: Request) -> MentionsLegalesRead:
+    """Return the legal notice / impressum (operator identity, address, hosting)."""
+    content = (
+        _MENTIONS_PATH.read_text(encoding="utf-8")
+        if _MENTIONS_PATH.is_file()
+        else "# Mentions légales\n\nDocument pending.\n"
+    )
+    return MentionsLegalesRead(version=_MENTIONS_VERSION, content=content)

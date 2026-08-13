@@ -143,6 +143,7 @@ export type Messages = {
   loading: string;
   privacy: string;
   terms: string;
+  mentionsLegales: string;
   openSource: string;
   interested: string;
   interestedGoToAd: string;

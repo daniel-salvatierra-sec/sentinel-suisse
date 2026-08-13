@@ -68,3 +68,5 @@ We may update these Terms. The `version` date in this document and the API respo
 ## 11. Contact
 
 Legal / privacy contact: daninohemyshoping2020@gmail.com
+
+Site operator identity: see the [Legal Notice](/api/v1/legal/mentions-legales).

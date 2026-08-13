@@ -462,6 +462,9 @@ export default function App() {
         <a className="privacy-link" href={`/api/v1/legal/terms?lang=${lang}`} target="_blank" rel="noreferrer">
           {t.terms}
         </a>
+        <a className="privacy-link" href="/api/v1/legal/mentions-legales" target="_blank" rel="noreferrer">
+          {t.mentionsLegales}
+        </a>
       </div>
 
       <GuideBot

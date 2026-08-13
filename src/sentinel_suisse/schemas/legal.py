@@ -28,3 +28,9 @@ class RefundPolicyRead(BaseModel):
     version: str
     content: str
     endpoint: str = Field(default="/api/v1/legal/refunds")
+
+
+class MentionsLegalesRead(BaseModel):
+    version: str
+    content: str
+    endpoint: str = Field(default="/api/v1/legal/mentions-legales")

@@ -34,9 +34,9 @@
 ## If / when serving users in France or the EU
 
 - [ ] Confirm GDPR applies in parallel with the nLPD for French/EU users (Art. 3(2) GDPR) — Swiss adequacy only covers EU→CH transfers, not the reverse
-- [ ] Get counsel's view on whether a GDPR Art. 27 EU representative is required
-- [ ] Add a "Mentions légales / Legal Notice" page (legal entity name, form, address, UID, VAT number once registered) — also closes the Swiss UWG Art. 3(1)(s) e-commerce disclosure gap
-- [ ] Have counsel review the refund policy's "not yet used" condition against French droit de rétractation (Code de la consommation Art. L221-18/L221-28)
+- [ ] **Decision (2026-08-13): deferred.** No GDPR Art. 27 EU representative hired yet — accepted risk while French/EU user volume is low. Revisit once subscriber count from France/EU grows or a complaint/DPA inquiry occurs.
+- [x] Add a "Mentions légales / Legal Notice" page — published at `GET /api/v1/legal/mentions-legales` (`docs/legal/mentions-legales.md`, 2026-08-13). Operator: Daniel Alberto Salvatierra Tamayo, individual sole trader (not yet registered — below the CHF 100k Commercial Registry threshold), 2 Place des Eaux-Vives, 1207 Genève. No UID/VAT yet — update this page once registered. This closes the Swiss UWG Art. 3(1)(s) e-commerce disclosure gap.
+- [x] Refund policy updated to an **unconditional 14-day refund** (removed the "not yet used" condition) to align with French droit de rétractation (Code de la consommation Art. L221-18/L221-28), 2026-08-13.
 
 ## Open source
 

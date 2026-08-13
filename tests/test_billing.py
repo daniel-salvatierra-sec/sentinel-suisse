@@ -194,6 +194,16 @@ def test_refunds_endpoint(client: TestClient) -> None:
     assert body["version"]
 
 
+def test_mentions_legales_endpoint(client: TestClient) -> None:
+    response = client.get("/api/v1/legal/mentions-legales")
+    assert response.status_code == 200
+    body = response.json()
+    assert "Salvatierra Tamayo" in body["content"]
+    assert "Genève" in body["content"]
+    assert body["version"]
+    assert body["endpoint"] == "/api/v1/legal/mentions-legales"
+
+
 def test_checkout_creates_stripe_session(
     client: TestClient, admin_auth: tuple[str, str], monkeypatch
 ) -> None:
