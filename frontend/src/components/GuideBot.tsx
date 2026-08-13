@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import type { ListingType } from "../api";
+import { fetchAssistantConfig, type ListingType } from "../api";
 import { loadGuideSeen, saveGuideSeen } from "../guideStorage";
 import type { Messages } from "../i18n";
+import { AssistantChat } from "./AssistantChat";
 import { SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
 type Props = {
   t: Messages;
+  lang: string;
   zone: ListingType;
   searching: boolean;
   onPickCategory: (type: ListingType) => void;
@@ -19,6 +21,7 @@ type Props = {
  */
 export function GuideBot({
   t,
+  lang,
   zone,
   searching,
   onPickCategory,
@@ -29,6 +32,8 @@ export function GuideBot({
   const [open, setOpen] = useState(false);
   const [needsIntro, setNeedsIntro] = useState(false);
   const [pickingAlertType, setPickingAlertType] = useState(false);
+  const [chatMode, setChatMode] = useState(false);
+  const [assistantEnabled, setAssistantEnabled] = useState(false);
 
   useEffect(() => {
     if (!loadGuideSeen()) {
@@ -37,10 +42,17 @@ export function GuideBot({
     }
   }, []);
 
+  useEffect(() => {
+    fetchAssistantConfig()
+      .then((config) => setAssistantEnabled(config.enabled))
+      .catch(() => setAssistantEnabled(false));
+  }, []);
+
   const close = () => {
     saveGuideSeen();
     setNeedsIntro(false);
     setPickingAlertType(false);
+    setChatMode(false);
     setOpen(false);
   };
 
@@ -77,99 +89,114 @@ export function GuideBot({
               </div>
             </div>
 
-            <p className="guide-message">
-              {needsIntro
-                ? t.guideHello
-                : pickingAlertType
-                  ? t.alertsAskType
-                  : radarMessage}
-            </p>
-
-            {needsIntro ? (
-              <div className="guide-actions">
-                <button
-                  type="button"
-                  className="option"
-                  onClick={() => {
-                    onPickCategory("housing");
-                    setNeedsIntro(false);
-                    saveGuideSeen();
-                  }}
-                >
-                  {t.guideHousing}
-                </button>
-                <button
-                  type="button"
-                  className="option"
-                  onClick={() => {
-                    onPickCategory("job");
-                    setNeedsIntro(false);
-                    saveGuideSeen();
-                  }}
-                >
-                  {t.guideJob}
-                </button>
-              </div>
-            ) : pickingAlertType ? (
-              <div className="guide-actions">
-                <button
-                  type="button"
-                  className="option"
-                  onClick={() => {
-                    onOpenAlerts("housing");
-                    close();
-                  }}
-                >
-                  {t.housing}
-                </button>
-                <button
-                  type="button"
-                  className="option"
-                  onClick={() => {
-                    onOpenAlerts("job");
-                    close();
-                  }}
-                >
-                  {t.job}
-                </button>
-              </div>
+            {chatMode ? (
+              <AssistantChat t={t} lang={lang} onBack={() => setChatMode(false)} />
             ) : (
-              <div className="guide-chip-actions">
-                <button
-                  type="button"
-                  className="chip active"
-                  onClick={() => {
-                    onStartSearch("Geneva");
-                    close();
-                  }}
-                >
-                  {chipPrimary}
-                </button>
-                <button
-                  type="button"
-                  className="chip active"
-                  onClick={() => {
-                    onOpenMap();
-                    close();
-                  }}
-                >
-                  {chipSecondary}
-                </button>
-                <button
-                  type="button"
-                  className="chip active"
-                  onClick={() => setPickingAlertType(true)}
-                >
-                  {t.guideChipAlert}
-                </button>
-              </div>
-            )}
+              <>
+                <p className="guide-message">
+                  {needsIntro
+                    ? t.guideHello
+                    : pickingAlertType
+                      ? t.alertsAskType
+                      : radarMessage}
+                </p>
 
-            <div className="guide-nav">
-              <button type="button" className="guide-skip" onClick={close}>
-                {t.guideClose}
-              </button>
-            </div>
+                {needsIntro ? (
+                  <div className="guide-actions">
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onPickCategory("housing");
+                        setNeedsIntro(false);
+                        saveGuideSeen();
+                      }}
+                    >
+                      {t.guideHousing}
+                    </button>
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onPickCategory("job");
+                        setNeedsIntro(false);
+                        saveGuideSeen();
+                      }}
+                    >
+                      {t.guideJob}
+                    </button>
+                  </div>
+                ) : pickingAlertType ? (
+                  <div className="guide-actions">
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onOpenAlerts("housing");
+                        close();
+                      }}
+                    >
+                      {t.housing}
+                    </button>
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onOpenAlerts("job");
+                        close();
+                      }}
+                    >
+                      {t.job}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="guide-chip-actions">
+                    <button
+                      type="button"
+                      className="chip active"
+                      onClick={() => {
+                        onStartSearch("Geneva");
+                        close();
+                      }}
+                    >
+                      {chipPrimary}
+                    </button>
+                    <button
+                      type="button"
+                      className="chip active"
+                      onClick={() => {
+                        onOpenMap();
+                        close();
+                      }}
+                    >
+                      {chipSecondary}
+                    </button>
+                    <button
+                      type="button"
+                      className="chip active"
+                      onClick={() => setPickingAlertType(true)}
+                    >
+                      {t.guideChipAlert}
+                    </button>
+                    {assistantEnabled && (
+                      <button
+                        type="button"
+                        className="chip active assistant-chip"
+                        onClick={() => setChatMode(true)}
+                      >
+                        {t.assistantChatCta}
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                <div className="guide-nav">
+                  <button type="button" className="guide-skip" onClick={close}>
+                    {t.guideClose}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -4,7 +4,7 @@ from sentinel_suisse.config import PROJECT_DIR
 from sentinel_suisse.i18n import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 
 PRIVACY_DIR = PROJECT_DIR / "docs" / "privacy"
-POLICY_VERSION = "2026-07-13"
+POLICY_VERSION = "2026-08-13"
 SUPPORTED_LANGS = SUPPORTED_LANGUAGES
 
 

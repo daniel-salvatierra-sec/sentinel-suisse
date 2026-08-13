@@ -469,6 +469,7 @@ export default function App() {
 
       <GuideBot
         t={t}
+        lang={lang}
         zone={category}
         searching={loading || loadingMore}
         onPickCategory={(type) => {

@@ -406,3 +406,45 @@ export async function confirmMagicLogin(token: string): Promise<{ api_key: strin
   saveApiKey(data.api_key);
   return data;
 }
+
+export type AssistantConfig = {
+  enabled: boolean;
+  max_input_chars: number;
+};
+
+export type AssistantChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export async function fetchAssistantConfig(): Promise<AssistantConfig> {
+  const response = await fetch("/api/v1/assistant/config");
+  if (!response.ok) {
+    throw new Error(`request failed: ${response.status}`);
+  }
+  return response.json() as Promise<AssistantConfig>;
+}
+
+export async function sendAssistantMessage(
+  message: string,
+  lang: string,
+  history: AssistantChatMessage[],
+): Promise<string> {
+  const response = await fetch("/api/v1/assistant/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message, lang, history }),
+  });
+  if (!response.ok) {
+    let messageDetail = "assistant_error";
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") messageDetail = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(messageDetail);
+  }
+  const data = (await response.json()) as { reply: string };
+  return data.reply;
+}

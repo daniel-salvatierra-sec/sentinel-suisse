@@ -90,6 +90,14 @@ class Settings(BaseSettings):
     # Optional production error tracking
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.0
+    # Optional AI assistant (free-form chat) — leave openai_api_key empty to disable
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    assistant_max_output_tokens: int = 300
+    assistant_max_input_chars: int = 500
+    assistant_max_history_messages: int = 6
+    # slowapi rate string, e.g. "20/day" — keeps API costs bounded
+    assistant_rate_limit: str = "20/day"
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)
@@ -99,6 +107,9 @@ class Settings(BaseSettings):
 
     def stripe_payments_enabled(self) -> bool:
         return bool(self.stripe_secret_key and self.stripe_price_id)
+
+    def assistant_is_enabled(self) -> bool:
+        return bool(self.openai_api_key)
 
     def public_signup_is_enabled(self) -> bool:
         if self.public_signup_enabled is not None:

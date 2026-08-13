@@ -1,6 +1,6 @@
 # Datenschutzerklärung — Sentinel Suisse
 
-**Version:** 2026-07-13  
+**Version:** 2026-08-13  
 **Status:** Persönliches Projekt / Vorproduktion (Entwurf — vor öffentlichem Start rechtlich prüfen)
 
 ## 1. Verantwortliche Stelle
@@ -41,7 +41,9 @@ Aggregierte Inserate stammen aus öffentlichen Drittquellen; Alert-Inhalte entha
 
 ## 6. Auftragsbearbeiter und Übermittlungen
 
-Je nach Konfiguration: SMTP-Anbieter (z. B. Mailtrap in der Entwicklung), WhatsApp Cloud API (Meta), Datenbank-Hosting. Keine Übermittlung ausserhalb der Schweiz/des EWR ohne vorherige Information.
+Je nach Konfiguration: SMTP-Anbieter (z. B. Mailtrap in der Entwicklung), WhatsApp Cloud API (Meta), Datenbank-Hosting.
+
+**KI-Assistent (optionale Funktion):** Wenn Sie das freie Textfeld im Guide nutzen, wird der Text Ihrer Nachricht (plus die letzten 6 Nachrichten Ihrer Unterhaltung, als Kontext) an unseren KI-Anbieter (derzeit OpenAI, USA) gesendet, um eine Antwort zu erzeugen. Diese Nachrichten werden nach Ihrer Sitzung **nicht auf unseren Servern gespeichert** (kein Datenbank-Verlauf); der KI-Anbieter wendet seine eigene Aufbewahrungsrichtlinie an. Dies ist eine **Übermittlung ausserhalb der Schweiz/des EWR**, abgesichert durch die Standardvertragsklauseln des Anbieters. Geben Sie in diesem Chat keine sensiblen Informationen ein.
 
 ## 7. Ihre Rechte
 

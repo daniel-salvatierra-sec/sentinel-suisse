@@ -14,6 +14,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.api.routes import (
     alerts,
+    assistant,
     billing,
     legal,
     listings,
@@ -111,6 +112,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(notification_channels.router, prefix="/api/v1")
     application.include_router(alerts.router, prefix="/api/v1")
     application.include_router(billing.router, prefix="/api/v1")
+    application.include_router(assistant.router, prefix="/api/v1")
     application.include_router(legal.router, prefix="/api/v1")
     application.include_router(public.router, prefix="/api/v1")
     application.include_router(webhooks.router, prefix="/api/v1")

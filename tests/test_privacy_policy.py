@@ -20,7 +20,7 @@ def test_privacy_policy_all_languages(client: TestClient, lang: str) -> None:
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["lang"] == lang
-    assert data["version"] == "2026-07-13"
+    assert data["version"] == "2026-08-13"
     assert CONTENT_MARKERS[lang] in data["content"]
     assert data["erasure_endpoint"] == "/api/v1/users/me"
     assert set(data["supported_languages"]) == set(ALL_LANGUAGES)

@@ -1,6 +1,6 @@
 # Política de privacidad — Sentinel Suisse
 
-**Versión:** 2026-07-13  
+**Versión:** 2026-08-13  
 **Estado:** Proyecto personal / preproducción (borrador — revisión legal antes del lanzamiento público)
 
 ## 1. Responsable del tratamiento
@@ -41,7 +41,9 @@ Los anuncios agregados provienen de fuentes públicas de terceros; no almacenamo
 
 ## 6. Encargados y transferencias
 
-Según configuración: proveedor SMTP (p. ej. Mailtrap en desarrollo), WhatsApp Cloud API (Meta), hosting de base de datos. No se prevén transferencias fuera de Suiza/EEE sin información previa.
+Según configuración: proveedor SMTP (p. ej. Mailtrap en desarrollo), WhatsApp Cloud API (Meta), hosting de base de datos.
+
+**Asistente de IA (función opcional):** si usas el campo de texto libre del guía, el texto de tu mensaje (más los últimos 6 mensajes de tu conversación, como contexto) se envía a nuestro proveedor de IA (actualmente OpenAI, EE. UU.) para generar una respuesta. Estos mensajes **no se guardan** en nuestros servidores después de tu sesión (sin historial en base de datos); el proveedor de IA aplica su propia política de conservación. Se trata de una **transferencia fuera de Suiza/EEE**, amparada por las cláusulas contractuales tipo del proveedor. No escribas información sensible en este chat.
 
 ## 7. Sus derechos
 

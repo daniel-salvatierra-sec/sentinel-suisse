@@ -139,6 +139,13 @@ export type Messages = {
   guideChipBestOpp: string;
   guideChipBestFit: string;
   guideChipAlert: string;
+  assistantChatCta: string;
+  assistantIntro: string;
+  assistantPlaceholder: string;
+  assistantSend: string;
+  assistantThinking: string;
+  assistantError: string;
+  assistantBack: string;
   noResults: string;
   loading: string;
   privacy: string;
