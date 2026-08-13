@@ -15,6 +15,7 @@ from sentinel_suisse.i18n.verification import (
     format_verification_whatsapp,
 )
 from sentinel_suisse.models.notification_channel import NotificationChannel
+from sentinel_suisse.notifications.email_html import build_html_email
 from sentinel_suisse.security.verification_tokens import (
     VerificationTokenError,
     create_channel_verification_token,
@@ -85,6 +86,7 @@ def send_channel_verification_email(
             message["From"] = settings.smtp_from
             message["To"] = email
             message.set_content(body)
+            message.add_alternative(build_html_email(body, url), subtype="html")
             with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
                 if settings.smtp_use_tls:
                     smtp.starttls()

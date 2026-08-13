@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.config import Settings
 from sentinel_suisse.i18n.login import format_login_email
 from sentinel_suisse.models.user import User
+from sentinel_suisse.notifications.email_html import build_html_email
 from sentinel_suisse.security.pii import email_lookup
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
 from sentinel_suisse.security.verification_tokens import (
@@ -87,6 +88,7 @@ def request_magic_login(db: Session, settings: Settings, email: str, locale: str
             message["From"] = settings.smtp_from
             message["To"] = email
             message.set_content(body)
+            message.add_alternative(build_html_email(body, url), subtype="html")
             with smtplib.SMTP(settings.smtp_host, settings.smtp_port, timeout=30) as smtp:
                 if settings.smtp_use_tls:
                     smtp.starttls()
