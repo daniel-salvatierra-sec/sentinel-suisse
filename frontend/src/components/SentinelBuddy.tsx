@@ -5,7 +5,7 @@ type Props = {
   onOpen: () => void;
 };
 
-const FACE_SRC = "/hub/sentinel-buddy.png";
+const FACE_SRC = "/hub/sentinel-buddy.png?v=2";
 
 /** Photoreal companion face — reused in dock + sheet. */
 export function SentinelFace({ size = 40 }: { size?: number }) {
