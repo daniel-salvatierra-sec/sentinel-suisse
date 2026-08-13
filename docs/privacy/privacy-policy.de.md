@@ -6,7 +6,7 @@
 ## 1. Verantwortliche Stelle
 
 Sentinel Suisse (persönliches Projekt)  
-Datenschutz-Kontakt: privacy@sentinel-suisse.example *(vor Produktion ersetzen)*
+Datenschutz-Kontakt: daninohemyshoping2020@gmail.com
 
 ## 2. Erhobene Personendaten
 
@@ -56,7 +56,7 @@ X-API-Key: <Ihr API-Schlüssel>
 
 Die Löschung ist **unwiderruflich** und entfernt kaskadiert Kanäle, gespeicherte Suchen und zugehörige Alert-Protokolle.
 
-Anfragen an: privacy@sentinel-suisse.example
+Anfragen an: daninohemyshoping2020@gmail.com
 
 ## 8. Änderungen
 

@@ -50,11 +50,12 @@ Listings come from external portals (e.g. Homegate, Flatfox, ImmoScout24, jobs.c
 
 Personal data is processed under Swiss nLPD as described in the Privacy Policy. Summary: encryption at rest for emails/phones, right to erasure, limited retention of raw listing payloads.
 
-## 8. Open source and funding (current intent)
+## 8. Paid plan and billing
 
 - Source code is intended to remain **inspectable / open** for learning and community review.
-- Core alert features are intended to remain **free** for personal use while the project is pre-production.
-- Optional **paid plans, sponsorships, or donations** (e.g. Twint, Revolut, crypto) may be introduced later; they are **not active** until a dedicated payment phase and updated Terms are published.
+- Basic email alerts remain **free** (1 alert on signup).
+- **LinkSwiss Premium** (CHF 9.90/month, card and TWINT via Stripe) is **active**: WhatsApp alerts, up to 5 saved searches, under-construction listings. The subscription **renews automatically every month** until cancelled.
+- Cancel at any time from **Account → Manage subscription** (Stripe Customer Portal) or by contacting us. See the [Refund Policy](/api/v1/legal/refunds).
 
 ## 9. Disclaimer
 
@@ -66,4 +67,4 @@ We may update these Terms. The `version` date in this document and the API respo
 
 ## 11. Contact
 
-Legal / privacy contact: privacy@sentinel-suisse.example *(replace before production)*
+Legal / privacy contact: daninohemyshoping2020@gmail.com

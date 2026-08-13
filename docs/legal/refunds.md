@@ -1,7 +1,7 @@
 # Refund policy — LinkSwiss Premium (provisional)
 
-**Status:** Draft until first live charge  
-**Date:** 2026-07-20
+**Status:** Live — LinkSwiss Premium is billed via Stripe in live mode  
+**Date:** 2026-08-13
 
 ## Scope
 

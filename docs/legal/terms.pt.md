@@ -39,11 +39,12 @@ Entrega segundo o **melhor esforço**. Pode desativar canais ou apagar dados qua
 
 Tratamento conforme a nLPD — ver Política de privacidade.
 
-## 8. Open source e financiamento (intenção atual)
+## 8. Plano pago e faturação
 
 - Código destinado a permanecer **aberto / auditável**.
-- Alertas básicos **gratuitos** em pré-produção.
-- Planos pagos, patrocínio ou donativos (Twint, Revolut, crypto, etc.) **ainda não ativos**.
+- Os alertas básicos por email continuam **gratuitos** (1 alerta no registo).
+- **LinkSwiss Premium** (9,90 CHF/mês, cartão e TWINT via Stripe) está **ativo**: alertas por WhatsApp, até 5 pesquisas guardadas, imóveis em construção. A subscrição **renova-se automaticamente todos os meses** até ser cancelada.
+- Cancele em qualquer momento em **Conta → Gerir subscrição** (portal de cliente Stripe) ou contactando-nos. Ver a [Política de reembolso](/api/v1/legal/refunds).
 
 ## 9. Limitação de responsabilidade
 
@@ -55,4 +56,4 @@ A data de `version` e a API serão atualizadas.
 
 ## 11. Contacto
 
-privacy@sentinel-suisse.example *(substituir antes da produção)*
+daninohemyshoping2020@gmail.com

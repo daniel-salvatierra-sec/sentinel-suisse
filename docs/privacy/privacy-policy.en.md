@@ -6,7 +6,7 @@
 ## 1. Data controller
 
 Sentinel Suisse (personal project)  
-Privacy contact: privacy@sentinel-suisse.example *(replace before production)*
+Privacy contact: daninohemyshoping2020@gmail.com
 
 ## 2. Personal data collected
 
@@ -56,7 +56,7 @@ X-API-Key: <your API key>
 
 Deletion is **permanent** and cascade-removes channels, saved searches, and related alert logs.
 
-Requests: privacy@sentinel-suisse.example
+Requests: daninohemyshoping2020@gmail.com
 
 ## 8. Changes
 

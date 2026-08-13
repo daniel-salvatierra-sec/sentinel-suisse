@@ -39,11 +39,12 @@ Zustellung nach bestem Bemühen. Kanäle/Daten jederzeit deaktivierbar/löschbar
 
 Verarbeitung nach nDSG — siehe Datenschutzerklärung.
 
-## 8. Open Source und Finanzierung (aktuelle Absicht)
+## 8. Bezahlplan und Abrechnung
 
 - Code soll **offen/einsehbar** bleiben.
-- Kern-Alerts in der Vorproduktion **kostenlos**.
-- Bezahlpläne/Spenden (Twint, Revolut, Krypto usw.) **noch nicht aktiv**.
+- Basis-E-Mail-Alerts bleiben **kostenlos** (1 Alert bei Anmeldung).
+- **LinkSwiss Premium** (CHF 9.90/Monat, Karte und TWINT via Stripe) ist **aktiv**: WhatsApp-Alerts, bis zu 5 gespeicherte Suchen, Neubauprojekte. Das Abonnement **verlängert sich automatisch jeden Monat** bis zur Kündigung.
+- Jederzeit kündbar über **Konto → Abonnement verwalten** (Stripe Kundenportal) oder per Kontakt. Siehe [Rückerstattungsrichtlinie](/api/v1/legal/refunds).
 
 ## 9. Haftung
 
@@ -55,4 +56,4 @@ Versionsdatum und API-Antwort werden aktualisiert.
 
 ## 11. Kontakt
 
-privacy@sentinel-suisse.example *(vor Produktion ersetzen)*
+daninohemyshoping2020@gmail.com

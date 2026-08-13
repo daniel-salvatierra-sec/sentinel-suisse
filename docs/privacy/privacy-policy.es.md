@@ -6,7 +6,7 @@
 ## 1. Responsable del tratamiento
 
 Sentinel Suisse (proyecto personal)  
-Contacto privacidad: privacy@sentinel-suisse.example *(sustituir antes de producción)*
+Contacto privacidad: daninohemyshoping2020@gmail.com
 
 ## 2. Datos personales recopilados
 
@@ -56,7 +56,7 @@ X-API-Key: <su clave API>
 
 La eliminación es **definitiva** y suprime en cascada canales, búsquedas guardadas y registros de alertas asociados.
 
-Consultas: privacy@sentinel-suisse.example
+Consultas: daninohemyshoping2020@gmail.com
 
 ## 8. Cambios
 
