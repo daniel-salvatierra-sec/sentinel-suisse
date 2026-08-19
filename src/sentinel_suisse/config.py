@@ -97,7 +97,13 @@ class Settings(BaseSettings):
     assistant_api_key: str = ""
     assistant_api_base_url: str = "https://api.openai.com/v1/chat/completions"
     assistant_model: str = "gpt-4o-mini"
-    assistant_max_output_tokens: int = 300
+    assistant_max_output_tokens: int = 700
+    # Optional: "minimal" | "low" | "medium" | "high". Reasoning ("thinking") models
+    # like Gemini 3 count their internal reasoning tokens against max_output_tokens,
+    # which can truncate the visible reply — set this to keep more budget for the
+    # answer. Leave empty for non-reasoning models (e.g. OpenAI's gpt-4o-mini), which
+    # reject this parameter.
+    assistant_reasoning_effort: str = ""
     assistant_max_input_chars: int = 500
     assistant_max_history_messages: int = 6
     # slowapi rate string, e.g. "20/day" — keeps API costs bounded

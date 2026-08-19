@@ -81,12 +81,14 @@ def ask_assistant(
     if not settings.assistant_is_enabled():
         raise AssistantError("assistant_disabled")
 
-    payload = {
+    payload: dict[str, object] = {
         "model": settings.assistant_model,
         "messages": _build_messages(message, lang, history, settings),
         "max_tokens": settings.assistant_max_output_tokens,
         "temperature": 0.4,
     }
+    if settings.assistant_reasoning_effort:
+        payload["reasoning_effort"] = settings.assistant_reasoning_effort
     headers = {
         "Authorization": f"Bearer {settings.assistant_api_key}",
         "Content-Type": "application/json",
