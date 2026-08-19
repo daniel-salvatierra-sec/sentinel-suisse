@@ -6,6 +6,7 @@ gives an app_id/app_key pair — see docs/providers/adzuna.md. Covers both Switz
 (country code "ch") and France ("fr"), so this single connector can be reused for both.
 """
 
+import re
 import time
 from decimal import Decimal
 from typing import Any
@@ -32,7 +33,8 @@ _CONTRACT_TYPE_MAP: dict[str, EmploymentType] = {
 # Schweiz") regardless of query language. The rest of the app (jobs.ch, jobup,
 # Homegate, etc. fixtures) consistently uses English "Geneva" for search matching
 # (services/search.py does a plain ILIKE substring match, no cross-language lookup),
-# so normalize known Swiss city names here to keep listings findable.
+# so normalize known Swiss canton/city names here to keep listings findable and avoid
+# mixing German scaffolding words ("Kanton", "Schweiz") with the translated name.
 _LOCATION_TRANSLATIONS: dict[str, str] = {
     "Genf": "Geneva",
     "Zürich": "Zurich",
@@ -40,12 +42,22 @@ _LOCATION_TRANSLATIONS: dict[str, str] = {
     "Waadt": "Vaud",
 }
 
+# "Kanton Genf, Schweiz" (canton-level only, no specific city known) -> just "Geneva".
+_CANTON_ONLY_RE = re.compile(r"^Kanton (?P<canton>[\w\s\-]+), Schweiz$")
+
 
 def _translate_location(display_name: str) -> str:
+    canton_match = _CANTON_ONLY_RE.match(display_name)
+    if canton_match:
+        canton = canton_match.group("canton")
+        return _LOCATION_TRANSLATIONS.get(canton, canton)
+
     translated = display_name
     for german, english in _LOCATION_TRANSLATIONS.items():
         translated = translated.replace(german, english)
-    return translated
+    # Drop a leftover trailing ", Schweiz" for any other pattern we didn't anticipate,
+    # rather than shipping a name that's half-translated.
+    return re.sub(r",?\s*Schweiz$", "", translated).strip()
 
 
 class AdzunaFetchError(RuntimeError):
