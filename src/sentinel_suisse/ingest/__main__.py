@@ -6,6 +6,13 @@ from pathlib import Path
 
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.db.session import SessionLocal
+from sentinel_suisse.ingest.connectors.adzuna import (
+    AdzunaDisabledError,
+    AdzunaFetchError,
+)
+from sentinel_suisse.ingest.connectors.adzuna import (
+    fetch_search_listings as fetch_adzuna_listings,
+)
 from sentinel_suisse.ingest.connectors.anibis import (
     AnibisDisabledError,
     AnibisFetchError,
@@ -91,6 +98,7 @@ _LIVE_CONNECTORS = {
     "leboncoin": fetch_leboncoin_listings,
     "indeed-fr": fetch_indeed_fr_listings,
     "france-travail": fetch_france_travail_listings,
+    "adzuna": fetch_adzuna_listings,
 }
 
 
@@ -99,7 +107,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail)",
+        help="Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -158,6 +166,8 @@ def main() -> None:
         IndeedFrFetchError,
         FranceTravailDisabledError,
         FranceTravailFetchError,
+        AdzunaDisabledError,
+        AdzunaFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

@@ -69,6 +69,14 @@ class Settings(BaseSettings):
     france_travail_client_secret: str = ""
     france_travail_departement: str = "74"
     france_travail_keywords: str = ""
+    # Adzuna — official self-serve job-board aggregator API (developer.adzuna.com), built
+    # specifically for redistributing job ads on third-party sites. Not scraping.
+    ingest_adzuna_live: bool = False
+    adzuna_app_id: str = ""
+    adzuna_app_key: str = ""
+    adzuna_country: str = "ch"
+    adzuna_keywords: str = ""
+    adzuna_location: str = "Geneve"
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

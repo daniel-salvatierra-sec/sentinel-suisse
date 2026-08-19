@@ -1,0 +1,34 @@
+{
+  "results": [
+    {
+      "id": "4812345678",
+      "title": "Développeur Full Stack",
+      "description": "Rejoignez une équipe dynamique pour développer des applications web modernes.",
+      "redirect_url": "https://www.adzuna.ch/land/ad/4812345678?v=abc",
+      "location": {
+        "area": ["Switzerland", "Geneve"],
+        "display_name": "Genève"
+      },
+      "company": { "display_name": "Exemple SA" },
+      "category": { "label": "IT Jobs", "tag": "it-jobs" },
+      "contract_type": "permanent",
+      "salary_min": 90000,
+      "salary_max": 110000,
+      "created": "2026-08-01T10:00:00Z"
+    },
+    {
+      "id": "4812345679",
+      "title": "Assistant·e Administratif·ve",
+      "description": "Mission temporaire au sein d'un service RH.",
+      "redirect_url": "https://www.adzuna.ch/land/ad/4812345679?v=def",
+      "location": {
+        "area": ["Switzerland", "Vaud"],
+        "display_name": "Lausanne"
+      },
+      "company": { "display_name": "Interim Plus" },
+      "category": { "label": "Admin Jobs", "tag": "admin-jobs" },
+      "contract_type": "contract",
+      "created": "2026-08-02T09:00:00Z"
+    }
+  ]
+}
