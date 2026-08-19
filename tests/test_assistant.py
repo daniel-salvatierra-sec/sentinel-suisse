@@ -15,7 +15,7 @@ def test_assistant_config_disabled_by_default(client: TestClient) -> None:
 
 
 def test_assistant_chat_returns_503_when_disabled(client: TestClient, monkeypatch) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", "")
+    monkeypatch.setenv("ASSISTANT_API_KEY", "")
     from sentinel_suisse.config import get_settings
 
     get_settings.cache_clear()
@@ -29,7 +29,7 @@ def test_assistant_chat_returns_503_when_disabled(client: TestClient, monkeypatc
 
 
 def test_assistant_chat_success(client: TestClient, monkeypatch) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-fake")
+    monkeypatch.setenv("ASSISTANT_API_KEY", "sk-test-fake")
     from sentinel_suisse.config import get_settings
 
     get_settings.cache_clear()
@@ -62,7 +62,7 @@ def test_assistant_chat_success(client: TestClient, monkeypatch) -> None:
 
 
 def test_assistant_chat_upstream_error_returns_502(client: TestClient, monkeypatch) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-fake")
+    monkeypatch.setenv("ASSISTANT_API_KEY", "sk-test-fake")
     from sentinel_suisse.config import get_settings
 
     get_settings.cache_clear()
@@ -83,7 +83,7 @@ def test_assistant_chat_upstream_error_returns_502(client: TestClient, monkeypat
 
 
 def test_assistant_chat_rejects_empty_message(client: TestClient, monkeypatch) -> None:
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test-fake")
+    monkeypatch.setenv("ASSISTANT_API_KEY", "sk-test-fake")
     from sentinel_suisse.config import get_settings
 
     get_settings.cache_clear()

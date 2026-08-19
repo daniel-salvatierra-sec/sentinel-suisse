@@ -1,8 +1,10 @@
 """AI assistant service — calls an OpenAI-compatible chat completion API.
 
-Kept intentionally stateless (no server-side chat history storage) and scoped
-to LinkSwiss topics via the system prompt. Cost is bounded by the caller
-(rate limiting, max_output_tokens, input length) — see api/routes/assistant.py.
+Works with OpenAI itself or any OpenAI-compatible endpoint (e.g. Google Gemini's
+compatibility API) — see Settings.assistant_api_base_url. Kept intentionally
+stateless (no server-side chat history storage) and scoped to LinkSwiss topics
+via the system prompt. Cost is bounded by the caller (rate limiting,
+max_output_tokens, input length) — see api/routes/assistant.py.
 """
 
 import logging
@@ -12,8 +14,6 @@ import httpx
 from sentinel_suisse.config import Settings
 
 logger = logging.getLogger(__name__)
-
-_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions"
 
 _LANGUAGE_NAMES = {
     "fr": "French",
@@ -82,19 +82,19 @@ def ask_assistant(
         raise AssistantError("assistant_disabled")
 
     payload = {
-        "model": settings.openai_model,
+        "model": settings.assistant_model,
         "messages": _build_messages(message, lang, history, settings),
         "max_tokens": settings.assistant_max_output_tokens,
         "temperature": 0.4,
     }
     headers = {
-        "Authorization": f"Bearer {settings.openai_api_key}",
+        "Authorization": f"Bearer {settings.assistant_api_key}",
         "Content-Type": "application/json",
     }
 
     try:
         response = httpx.post(
-            _CHAT_COMPLETIONS_URL,
+            settings.assistant_api_base_url,
             json=payload,
             headers=headers,
             timeout=20.0,

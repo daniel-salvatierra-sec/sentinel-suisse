@@ -90,9 +90,13 @@ class Settings(BaseSettings):
     # Optional production error tracking
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.0
-    # Optional AI assistant (free-form chat) — leave openai_api_key empty to disable
-    openai_api_key: str = ""
-    openai_model: str = "gpt-4o-mini"
+    # Optional AI assistant (free-form chat) — leave assistant_api_key empty to disable.
+    # Works with any OpenAI-compatible chat completions endpoint: OpenAI itself, or
+    # Google Gemini's compatibility endpoint (https://ai.google.dev/gemini-api/docs/openai) —
+    # just swap the base URL, key, and model name below.
+    assistant_api_key: str = ""
+    assistant_api_base_url: str = "https://api.openai.com/v1/chat/completions"
+    assistant_model: str = "gpt-4o-mini"
     assistant_max_output_tokens: int = 300
     assistant_max_input_chars: int = 500
     assistant_max_history_messages: int = 6
@@ -109,7 +113,7 @@ class Settings(BaseSettings):
         return bool(self.stripe_secret_key and self.stripe_price_id)
 
     def assistant_is_enabled(self) -> bool:
-        return bool(self.openai_api_key)
+        return bool(self.assistant_api_key)
 
     def public_signup_is_enabled(self) -> bool:
         if self.public_signup_enabled is not None:
