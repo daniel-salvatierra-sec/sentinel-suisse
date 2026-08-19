@@ -25,11 +25,14 @@ def test_parse_search_response_from_fixture() -> None:
     assert len(listings) == 2
     assert listings[0].external_id == "4812345678"
     assert listings[0].country == CountryCode.CH
-    assert listings[0].location == "Genève"
+    # Adzuna returns Swiss location names in German ("Kanton Genf, Schweiz") — the
+    # connector must translate them to match the app's "Geneva" search convention.
+    assert listings[0].location == "Kanton Geneva, Schweiz"
     assert listings[0].job_category == "IT Jobs"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert listings[0].price == Decimal("90000")
     assert str(listings[0].source_url).startswith("https://www.adzuna.ch/")
+    assert listings[1].location == "Lausanne, Vaud"
     assert listings[1].employment_type == EmploymentType.TEMPORARY
     assert listings[1].price is None
 

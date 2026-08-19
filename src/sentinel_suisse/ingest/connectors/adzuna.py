@@ -28,6 +28,25 @@ _CONTRACT_TYPE_MAP: dict[str, EmploymentType] = {
     "contract": EmploymentType.TEMPORARY,
 }
 
+# Adzuna's Swiss location names come back in German (e.g. "Genf", "Kanton Genf,
+# Schweiz") regardless of query language. The rest of the app (jobs.ch, jobup,
+# Homegate, etc. fixtures) consistently uses English "Geneva" for search matching
+# (services/search.py does a plain ILIKE substring match, no cross-language lookup),
+# so normalize known Swiss city names here to keep listings findable.
+_LOCATION_TRANSLATIONS: dict[str, str] = {
+    "Genf": "Geneva",
+    "Zürich": "Zurich",
+    "Basel-Stadt": "Basel",
+    "Waadt": "Vaud",
+}
+
+
+def _translate_location(display_name: str) -> str:
+    translated = display_name
+    for german, english in _LOCATION_TRANSLATIONS.items():
+        translated = translated.replace(german, english)
+    return translated
+
 
 class AdzunaFetchError(RuntimeError):
     """Adzuna API HTTP or parse failure."""
@@ -58,6 +77,8 @@ def _map_job(job: dict[str, Any], country: CountryCode) -> RawListing | None:
 
     location = job.get("location")
     display_name = location.get("display_name") if isinstance(location, dict) else None
+    if display_name:
+        display_name = _translate_location(str(display_name))
 
     company = job.get("company")
     company_name = company.get("display_name") if isinstance(company, dict) else None
