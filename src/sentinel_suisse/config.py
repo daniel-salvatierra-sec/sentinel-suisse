@@ -63,6 +63,12 @@ class Settings(BaseSettings):
     ingest_jobup_live: bool = False
     ingest_leboncoin_live: bool = False
     ingest_indeed_fr_live: bool = False
+    # France Travail — official OAuth2 REST API (francetravail.io), not scraping.
+    ingest_france_travail_live: bool = False
+    france_travail_client_id: str = ""
+    france_travail_client_secret: str = ""
+    france_travail_departement: str = "74"
+    france_travail_keywords: str = ""
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

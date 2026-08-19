@@ -21,6 +21,13 @@ from sentinel_suisse.ingest.connectors.flatfox import (
 from sentinel_suisse.ingest.connectors.flatfox import (
     fetch_search_listings as fetch_flatfox_listings,
 )
+from sentinel_suisse.ingest.connectors.france_travail import (
+    FranceTravailDisabledError,
+    FranceTravailFetchError,
+)
+from sentinel_suisse.ingest.connectors.france_travail import (
+    fetch_search_listings as fetch_france_travail_listings,
+)
 from sentinel_suisse.ingest.connectors.homegate import (
     HomegateDisabledError,
     HomegateFetchError,
@@ -83,6 +90,7 @@ _LIVE_CONNECTORS = {
     "jobup": fetch_jobup_listings,
     "leboncoin": fetch_leboncoin_listings,
     "indeed-fr": fetch_indeed_fr_listings,
+    "france-travail": fetch_france_travail_listings,
 }
 
 
@@ -91,7 +99,7 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, leboncoin, indeed-fr)",
+        help="Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail)",
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -148,6 +156,8 @@ def main() -> None:
         LeboncoinFetchError,
         IndeedFrDisabledError,
         IndeedFrFetchError,
+        FranceTravailDisabledError,
+        FranceTravailFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

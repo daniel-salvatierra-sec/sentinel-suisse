@@ -1,0 +1,35 @@
+{
+  "resultats": [
+    {
+      "id": "048KLTP",
+      "intitule": "Développeur Web Full Stack",
+      "description": "Rejoignez notre équipe pour développer des applications web modernes.",
+      "lieuTravail": {
+        "libelle": "74 - ANNEMASSE",
+        "latitude": 46.1931,
+        "longitude": 6.2375
+      },
+      "romeLibelle": "Développement informatique",
+      "typeContrat": "CDI",
+      "entreprise": { "nom": "Exemple SAS" },
+      "origineOffre": {
+        "origine": "1",
+        "urlOrigine": "https://candidat.francetravail.fr/offres/recherche/detail/048KLTP"
+      }
+    },
+    {
+      "id": "049ABCD",
+      "intitule": "Assistant·e Administratif·ve",
+      "description": "Mission de 6 mois au sein d'un service RH.",
+      "lieuTravail": {
+        "libelle": "74 - GAILLARD"
+      },
+      "romeLibelle": "Assistanat de direction",
+      "typeContrat": "MIS",
+      "entreprise": { "nom": "Interim Plus" },
+      "origineOffre": {
+        "origine": "2"
+      }
+    }
+  ]
+}
