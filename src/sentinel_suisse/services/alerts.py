@@ -16,6 +16,7 @@ from sentinel_suisse.notifications.base import AlertMessage, Notifier
 from sentinel_suisse.notifications.factory import get_notifier_for_channel
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.security.pii import decrypt_pii
+from sentinel_suisse.services.entitlements import can_receive_alerts
 from sentinel_suisse.services.matching import listing_matches_query
 
 
@@ -49,6 +50,11 @@ class AlertService:
                 continue
 
             stats.matched += 1
+            user = self.db.get(User, saved_search.user_id)
+            if user is None or not can_receive_alerts(user):
+                stats.skipped += 1
+                continue
+
             channel = self._primary_verified_channel(saved_search.user_id)
             if channel is None:
                 stats.failed += 1
@@ -64,7 +70,6 @@ class AlertService:
                 channel_type=channel.channel_type.value,
                 status=AlertStatus.PENDING,
             )
-            user = self.db.get(User, saved_search.user_id)
             user_locale = user.locale if user is not None else "fr"
             try:
                 alert_message = AlertMessage(

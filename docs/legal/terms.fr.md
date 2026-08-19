@@ -1,6 +1,6 @@
 # Conditions d'utilisation — Sentinel Suisse
 
-**Version :** 2026-07-16  
+**Version :** 2026-08-19  
 **Statut :** Brouillon — revue juridique recommandée avant mise en ligne publique  
 **Droit applicable :** Suisse (nLPD)
 
@@ -51,7 +51,8 @@ Traitement selon la nLPD — voir la Politique de confidentialité.
 ## 8. Offre payante et facturation
 
 - Code destiné à rester **ouvert / inspectable**.
-- Les alertes e-mail de base restent **gratuites** (1 alerte à l'inscription).
+- La **recherche** (logements + emplois) reste gratuite et illimitée, sans compte.
+- L'**envoi automatique d'alertes** (e-mail ou WhatsApp à chaque nouvelle annonce correspondante) nécessite **LinkSwiss Premium**. Sans abonnement, rien n'est envoyé automatiquement : il faut revenir chercher manuellement. Les comptes créés avant le 19.08.2026 conservent leurs alertes e-mail gratuites déjà actives.
 - **LinkSwiss Premium** (9,90 CHF/mois, carte et TWINT via Stripe) est **actif** : alertes WhatsApp, jusqu'à 5 recherches enregistrées, logements en construction. L'abonnement se **renouvelle automatiquement chaque mois** jusqu'à annulation.
 - Annulation à tout moment depuis **Compte → Gérer l'abonnement** (portail client Stripe) ou en nous contactant. Voir la [Politique de remboursement](/api/v1/legal/refunds).
 

@@ -8,6 +8,7 @@ from sentinel_suisse.config import Settings
 from sentinel_suisse.services.entitlements import (
     EntitlementError,
     assert_can_use_whatsapp,
+    can_receive_alerts,
     max_saved_searches,
 )
 
@@ -27,3 +28,13 @@ def test_whatsapp_requires_premium() -> None:
         assert_can_use_whatsapp(free)  # type: ignore[arg-type]
     assert exc.value.code == "whatsapp_requires_premium"
     assert_can_use_whatsapp(premium)  # type: ignore[arg-type]
+
+
+def test_can_receive_alerts_gates_new_free_signups() -> None:
+    premium = SimpleNamespace(is_premium=True, free_alerts_grandfathered=False)
+    grandfathered_free = SimpleNamespace(is_premium=False, free_alerts_grandfathered=True)
+    new_free = SimpleNamespace(is_premium=False, free_alerts_grandfathered=False)
+
+    assert can_receive_alerts(premium) is True  # type: ignore[arg-type]
+    assert can_receive_alerts(grandfathered_free) is True  # type: ignore[arg-type]
+    assert can_receive_alerts(new_free) is False  # type: ignore[arg-type]

@@ -25,7 +25,11 @@
 - Apartments **under construction** / off-plan (`is_under_construction`)  
 - WhatsApp channel + up to 5 saved searches  
 
-**Free trial today:** 1 email alert (signup). WhatsApp and extra searches require Premium.
+**Since 2026-08-19:** search stays free forever, but automatic alert delivery (email or \
+WhatsApp) requires Premium. A free account can still save 1 search, but no email/WhatsApp is \
+sent for it unless the user upgrades — they must come back and search manually. Users who \
+registered before 2026-08-19 keep their pre-existing free email alerts (`users.free_alerts_\
+grandfathered`), to avoid cutting off people who already relied on them.
 
 ## Payment rails (Phase B)
 

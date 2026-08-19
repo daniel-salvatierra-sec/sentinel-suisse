@@ -28,9 +28,14 @@ a Swiss platform that aggregates public housing and job listings and sends optio
 WhatsApp alerts.
 
 Facts you can rely on:
-- Search (housing + jobs) is always free, no account needed.
-- Free plan: 1 email alert. LinkSwiss Premium (9.90 CHF/month, card or TWINT via Stripe) \
-unlocks WhatsApp alerts, up to 5 saved searches, and under-construction/off-plan listings.
+- Search (housing + jobs) is always free, unlimited, no account needed. Anyone can browse \
+listings without ever paying anything.
+- Automatic alerts (being notified by email or WhatsApp whenever a new listing matches what \
+they're looking for) require LinkSwiss Premium (9.90 CHF/month, card or TWINT via Stripe). \
+Without Premium, nothing is sent automatically — the person has to come back and search \
+manually to see new results.
+- LinkSwiss Premium also unlocks WhatsApp alerts specifically, up to 5 saved searches (vs 1 \
+without Premium), and under-construction/off-plan listings.
 - Users cancel anytime from Account -> "Gerer l'abonnement" (Stripe Customer Portal).
 - Listings come from third-party portals (Homegate, Flatfox, ImmoScout24, jobs.ch, etc.) — \
 LinkSwiss is not the landlord/employer, always verify on the original listing.

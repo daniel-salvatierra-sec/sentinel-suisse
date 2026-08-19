@@ -55,3 +55,14 @@ def assert_can_use_whatsapp(user: User) -> None:
             "whatsapp_requires_premium",
             "WhatsApp alerts require Premium.",
         )
+
+
+def can_receive_alerts(user: User) -> bool:
+    """Whether automatic alert delivery (email or WhatsApp) is allowed for this user.
+
+    Search stays free for everyone. Since 2026-08-19, new free-tier signups can still
+    save a search, but do not get automatic alerts sent to them — only Premium users
+    do. Users who registered before that date keep receiving free email alerts
+    (``free_alerts_grandfathered``).
+    """
+    return user.is_premium or user.free_alerts_grandfathered

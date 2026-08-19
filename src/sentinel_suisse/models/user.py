@@ -24,6 +24,10 @@ class User(Base):
     locale: Mapped[str] = mapped_column(String(5), nullable=False, default="fr")
     is_active: Mapped[bool] = mapped_column(nullable=False, default=True)
     is_premium: Mapped[bool] = mapped_column(nullable=False, default=False)
+    # Free-tier alert delivery was cut off for new signups on 2026-08-19 (search stays
+    # free, but ongoing email/WhatsApp alerts now require Premium). Users who already
+    # had a verified channel before that date keep their free alerts (grandfathered).
+    free_alerts_grandfathered: Mapped[bool] = mapped_column(nullable=False, default=False)
     stripe_customer_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     stripe_subscription_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
