@@ -127,19 +127,19 @@ export function FilterBar({
       <div className="filter-chips" role="group" aria-label={t.zoneLabel}>
         <button
           type="button"
-          className={zoneChoice === "" ? "chip active" : "chip"}
-          aria-pressed={zoneChoice === ""}
-          onClick={() => onZoneChoiceChange("")}
-        >
-          {t.zoneBoth}
-        </button>
-        <button
-          type="button"
           className={zoneChoice === "CH" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "CH"}
           onClick={() => onZoneChoiceChange(zoneChoice === "CH" ? "" : "CH")}
         >
           {t.zoneCH}
+        </button>
+        <button
+          type="button"
+          className={zoneChoice === "" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === ""}
+          onClick={() => onZoneChoiceChange("")}
+        >
+          {t.zoneBoth}
         </button>
         <button
           type="button"
