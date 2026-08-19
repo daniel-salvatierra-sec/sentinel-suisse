@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { sendAssistantMessage, type AssistantChatMessage } from "../api";
+import { matchFaq } from "../assistantFaq";
 import type { Messages } from "../i18n";
 
 type Props = {
@@ -34,6 +35,16 @@ export function AssistantChat({ t, lang, onBack }: Props) {
     setMessages(nextMessages);
     setInput("");
     setError(false);
+
+    // Answer common questions instantly from a canned phrase bank — no AI call, no
+    // tokens spent, no network round-trip, and the answer is always accurate.
+    const cannedReply = matchFaq(text, lang);
+    if (cannedReply) {
+      setMessages((prev) => [...prev, { role: "assistant", content: cannedReply }]);
+      scrollToBottom();
+      return;
+    }
+
     setSending(true);
     scrollToBottom();
 
