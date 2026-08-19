@@ -1,0 +1,49 @@
+{
+  "offset": 0,
+  "limit": 100,
+  "totalFound": 3,
+  "content": [
+    {
+      "id": "744000144240249",
+      "name": "Infirmier ou Infirmière en soins palliatifs - 80% à 100%",
+      "company": { "identifier": "HUG", "name": "Hôpitaux Universitaires de Genève" },
+      "location": {
+        "city": "Genève",
+        "region": "GE",
+        "country": "ch",
+        "fullLocation": "Genève, GE, Switzerland"
+      },
+      "industry": { "id": "hospital_and_health_care", "label": "Hospital And Health Care" },
+      "typeOfEmployment": { "id": "permanent", "label": "Full-time" },
+      "releasedDate": "2026-08-19T07:02:18.388Z"
+    },
+    {
+      "id": "744000144025560",
+      "name": "Stage - Data Analyst",
+      "company": { "identifier": "HUG", "name": "Hôpitaux Universitaires de Genève" },
+      "location": {
+        "city": "Genève",
+        "region": "GE",
+        "country": "ch",
+        "fullLocation": "Genève, GE, Switzerland"
+      },
+      "industry": { "id": "hospital_and_health_care", "label": "Hospital And Health Care" },
+      "typeOfEmployment": { "id": "intern", "label": "Internship" },
+      "releasedDate": "2026-08-18T09:30:02.212Z"
+    },
+    {
+      "id": "744000144025999",
+      "name": "Regional Sales Manager",
+      "company": { "identifier": "HUG", "name": "Hôpitaux Universitaires de Genève" },
+      "location": {
+        "city": "Berlin",
+        "region": "BE",
+        "country": "de",
+        "fullLocation": "Berlin, Germany"
+      },
+      "industry": { "id": "hospital_and_health_care", "label": "Hospital And Health Care" },
+      "typeOfEmployment": { "id": "permanent", "label": "Full-time" },
+      "releasedDate": "2026-08-17T09:30:02.212Z"
+    }
+  ]
+}

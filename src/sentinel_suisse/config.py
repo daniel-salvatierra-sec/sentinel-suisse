@@ -77,6 +77,11 @@ class Settings(BaseSettings):
     adzuna_country: str = "ch"
     adzuna_keywords: str = ""
     adzuna_location: str = "Geneve"
+    # SmartRecruiters — official, keyless Postings API used by several large Geneva
+    # employers (e.g. HUG, SGS) for their public career sites. Not scraping.
+    ingest_smartrecruiters_live: bool = False
+    smartrecruiters_companies: str = "HUG,SGS"
+    smartrecruiters_fetch_details: bool = True
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

@@ -84,6 +84,13 @@ from sentinel_suisse.ingest.connectors.newhome import (
 from sentinel_suisse.ingest.connectors.newhome import (
     fetch_search_listings as fetch_newhome_listings,
 )
+from sentinel_suisse.ingest.connectors.smartrecruiters import (
+    SmartRecruitersDisabledError,
+    SmartRecruitersFetchError,
+)
+from sentinel_suisse.ingest.connectors.smartrecruiters import (
+    fetch_search_listings as fetch_smartrecruiters_listings,
+)
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
 
@@ -99,6 +106,7 @@ _LIVE_CONNECTORS = {
     "indeed-fr": fetch_indeed_fr_listings,
     "france-travail": fetch_france_travail_listings,
     "adzuna": fetch_adzuna_listings,
+    "smartrecruiters": fetch_smartrecruiters_listings,
 }
 
 
@@ -107,7 +115,10 @@ def main() -> None:
     parser.add_argument(
         "--provider",
         required=True,
-        help="Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna)",
+        help=(
+            "Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna, "
+            "smartrecruiters)"
+        ),
     )
     source = parser.add_mutually_exclusive_group(required=True)
     source.add_argument(
@@ -168,6 +179,8 @@ def main() -> None:
         FranceTravailFetchError,
         AdzunaDisabledError,
         AdzunaFetchError,
+        SmartRecruitersDisabledError,
+        SmartRecruitersFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)
