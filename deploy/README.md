@@ -79,12 +79,19 @@ Run these **once on the VPS** (Linux):
 | `deploy/backup-db.sh` | Postgres dump → `./backups/` (14-day retention) |
 | `deploy/restore-db.sh` | Restore from `.sql.gz` backup |
 | `deploy/monitor-health.sh` | Exit non-zero if `/health` or DB check fails |
+| `deploy/run-ingest.sh <provider>` | Run a live ingest connector inside the `api` container + dispatch alerts |
 
 Example cron on VPS:
 
 ```bash
 0 3 * * * /opt/sentinel-suisse/deploy/backup-db.sh
 */5 * * * * /opt/sentinel-suisse/deploy/monitor-health.sh https://your-domain.example/health
+0 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna >> /var/log/linkswiss-ingest.log 2>&1
+15 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh france-travail >> /var/log/linkswiss-ingest.log 2>&1
 ```
+
+`run-ingest.sh` only works for connectors enabled via `INGEST_<PROVIDER>_LIVE=true` in
+`.env` — it's a no-op error (nonzero exit, logged) otherwise, so a disabled connector's
+cron entry stays harmless.
 
 `/health` returns `database: ok` when Postgres is reachable; HTTP **503** when not.
