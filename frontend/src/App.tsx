@@ -92,6 +92,9 @@ export default function App() {
   const [error, setError] = useState(false);
   const [tab, setTab] = useState<Tab>("list");
   const [focusId, setFocusId] = useState<number | null>(null);
+  // True when the user explicitly asked to see ONE listing on the map (vs. browsing
+  // the map tab freely) — in that case we show only that listing's pin, not every result.
+  const [mapIsolate, setMapIsolate] = useState(false);
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
@@ -384,7 +387,14 @@ export default function App() {
         <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
           {t.list}
         </button>
-        <button type="button" className={tab === "map" ? "active" : ""} onClick={() => setTab("map")}>
+        <button
+          type="button"
+          className={tab === "map" ? "active" : ""}
+          onClick={() => {
+            setMapIsolate(false);
+            setTab("map");
+          }}
+        >
           {t.map}
         </button>
         <button type="button" className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>
@@ -397,7 +407,11 @@ export default function App() {
 
       {tab === "map" && !loading && !error && listings.length > 0 && (
         <MapView
-          listings={listings}
+          listings={
+            mapIsolate && focusId != null
+              ? listings.filter((listing) => listing.id === focusId)
+              : listings
+          }
           focusId={focusId}
           searchQuery={query}
           t={t}
@@ -416,6 +430,7 @@ export default function App() {
               focusId={focusId}
               onSelect={(id) => {
                 setFocusId(id);
+                setMapIsolate(true);
                 setTab("map");
               }}
               hasMore={hasMore}
