@@ -90,6 +90,9 @@ class Settings(BaseSettings):
     # (lombardodier.wd3.myworkdayjobs.com/Lombard_Odier_Careers). Not scraping.
     ingest_lombard_odier_live: bool = False
     lombard_odier_extra_location_hints: str = ""
+    # STMicroelectronics — public Eightfold SmartApply JSON API (same one
+    # stmicroelectronics.eightfold.ai's own UI calls). Not scraping.
+    ingest_stmicroelectronics_live: bool = False
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

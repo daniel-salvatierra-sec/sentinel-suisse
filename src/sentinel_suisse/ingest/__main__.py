@@ -105,6 +105,13 @@ from sentinel_suisse.ingest.connectors.smartrecruiters import (
 from sentinel_suisse.ingest.connectors.smartrecruiters import (
     fetch_search_listings as fetch_smartrecruiters_listings,
 )
+from sentinel_suisse.ingest.connectors.stmicroelectronics import (
+    STMicroelectronicsDisabledError,
+    STMicroelectronicsFetchError,
+)
+from sentinel_suisse.ingest.connectors.stmicroelectronics import (
+    fetch_search_listings as fetch_stmicroelectronics_listings,
+)
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
 
@@ -123,6 +130,7 @@ _LIVE_CONNECTORS = {
     "smartrecruiters": fetch_smartrecruiters_listings,
     "richemont": fetch_richemont_listings,
     "lombard-odier": fetch_lombard_odier_listings,
+    "stmicroelectronics": fetch_stmicroelectronics_listings,
 }
 
 
@@ -133,7 +141,7 @@ def main() -> None:
         required=True,
         help=(
             "Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna, "
-            "smartrecruiters, richemont, lombard-odier)"
+            "smartrecruiters, richemont, lombard-odier, stmicroelectronics)"
         ),
     )
     source = parser.add_mutually_exclusive_group(required=True)
@@ -201,6 +209,8 @@ def main() -> None:
         RichemontFetchError,
         LombardOdierDisabledError,
         LombardOdierFetchError,
+        STMicroelectronicsDisabledError,
+        STMicroelectronicsFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)
