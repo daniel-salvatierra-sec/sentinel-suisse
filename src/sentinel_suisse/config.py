@@ -94,6 +94,10 @@ class Settings(BaseSettings):
     # (logitech.wd5.myworkdayjobs.com/Logitech). Not scraping.
     ingest_logitech_live: bool = False
     logitech_extra_location_hints: str = ""
+    # Procter & Gamble — same public Workday CXS API as Richemont
+    # (pg.wd5.myworkdayjobs.com/1000; Geneva European HQ). Not scraping.
+    ingest_procter_gamble_live: bool = False
+    procter_gamble_extra_location_hints: str = ""
     # STMicroelectronics — public Eightfold SmartApply JSON API (same one
     # stmicroelectronics.eightfold.ai's own UI calls). Not scraping.
     ingest_stmicroelectronics_live: bool = False

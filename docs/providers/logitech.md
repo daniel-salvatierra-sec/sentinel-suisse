@@ -21,7 +21,6 @@ JSON API the site's own JavaScript calls.
 |---|---|---|
 | dsm-firmenich | Eightfold PCSX | List JSON returns HTTP 403 `Not authorized for PCSX` |
 | Givaudan (Vernier HQ) | Phenom People | SPA, no public jobs JSON |
-| P&G | Workday `pg.wd5` / site `1000` | Few Geneva roles vs Logitech Lausanne HQ |
 
 ## Before enabling live ingest
 

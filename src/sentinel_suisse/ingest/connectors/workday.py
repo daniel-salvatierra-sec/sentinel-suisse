@@ -3,8 +3,8 @@
 Every Workday-hosted career site is a client-side app calling a public, keyless JSON
 API. Reading it directly is what the site's own JavaScript does, minus the HTML shell.
 
-Used by the Richemont, Lombard Odier, and Logitech connectors. Tenant/shard/site come from each
-employer's public career URL:
+Used by the Richemont, Lombard Odier, Logitech, and P&G connectors. Tenant/shard/site come
+from each employer's public career URL:
 
     https://{tenant}.{shard}.myworkdayjobs.com/{locale}/{site}
 
@@ -49,6 +49,9 @@ LOCATION_HINTS: frozenset[str] = frozenset(
         "MEYRIN",
         "PLAN-LES-OUATES",
         "CAROUGE",
+        "LANCY",
+        "PETIT-LANCY",
+        "SCHLIEREN",
         "VERNIER",
         "BELLEVUE",
         "NYON",

@@ -27,7 +27,7 @@ and occasional Geneva HQ roles. India/Singapore/US are dropped using the list-le
 | MSC Cruises | Phenom + SuccessFactors | No keyless jobs JSON |
 | dsm-firmenich | Eightfold PCSX | List JSON returns HTTP 403 (`Not authorized for PCSX`) |
 | État de Genève | Portal ge.ch | Custom SIRH |
-| P&G | Workday (`pg.wd5` / site `1000`) | Few Geneva roles vs ST France volume |
+| P&G | Workday (`pg.wd5` / site `1000`) | See `docs/providers/procter-gamble.md` |
 
 ## Before enabling live ingest
 
