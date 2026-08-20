@@ -77,6 +77,13 @@ from sentinel_suisse.ingest.connectors.leboncoin import (
 from sentinel_suisse.ingest.connectors.leboncoin import (
     fetch_search_listings as fetch_leboncoin_listings,
 )
+from sentinel_suisse.ingest.connectors.logitech import (
+    LogitechDisabledError,
+    LogitechFetchError,
+)
+from sentinel_suisse.ingest.connectors.logitech import (
+    fetch_search_listings as fetch_logitech_listings,
+)
 from sentinel_suisse.ingest.connectors.lombard_odier import (
     LombardOdierDisabledError,
     LombardOdierFetchError,
@@ -130,6 +137,7 @@ _LIVE_CONNECTORS = {
     "smartrecruiters": fetch_smartrecruiters_listings,
     "richemont": fetch_richemont_listings,
     "lombard-odier": fetch_lombard_odier_listings,
+    "logitech": fetch_logitech_listings,
     "stmicroelectronics": fetch_stmicroelectronics_listings,
 }
 
@@ -141,7 +149,7 @@ def main() -> None:
         required=True,
         help=(
             "Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna, "
-            "smartrecruiters, richemont, lombard-odier, stmicroelectronics)"
+            "smartrecruiters, richemont, lombard-odier, logitech, stmicroelectronics)"
         ),
     )
     source = parser.add_mutually_exclusive_group(required=True)
@@ -209,6 +217,8 @@ def main() -> None:
         RichemontFetchError,
         LombardOdierDisabledError,
         LombardOdierFetchError,
+        LogitechDisabledError,
+        LogitechFetchError,
         STMicroelectronicsDisabledError,
         STMicroelectronicsFetchError,
         ValueError,

@@ -54,3 +54,4 @@ Register the provider once via the admin API before the first run:
 - **Pictet** — SAP SuccessFactors (`career5.successfactors.eu?company=banquepict`).
   Legacy career portal, no documented public jobs JSON API. Skip for now.
 - **BCGE** — Adequasys (`jobs.bcge.ch`). ~5 openings, proprietary HTML. Skip.
+- **Logitech** — Workday CXS (`logitech.wd5` / site `Logitech`); see `docs/providers/logitech.md`.

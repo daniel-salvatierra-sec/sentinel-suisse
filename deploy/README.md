@@ -89,6 +89,7 @@ Example cron on VPS:
 0 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna >> /var/log/linkswiss-ingest.log 2>&1
 15 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh france-travail >> /var/log/linkswiss-ingest.log 2>&1
 30 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh smartrecruiters >> /var/log/linkswiss-ingest.log 2>&1
+40 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh logitech >> /var/log/linkswiss-ingest.log 2>&1
 45 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh richemont >> /var/log/linkswiss-ingest.log 2>&1
 50 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh lombard-odier >> /var/log/linkswiss-ingest.log 2>&1
 55 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh stmicroelectronics >> /var/log/linkswiss-ingest.log 2>&1

@@ -25,7 +25,7 @@ and occasional Geneva HQ roles. India/Singapore/US are dropped using the list-le
 | Rolex / JTI / SIG | Oracle Taleo | No public jobs JSON API |
 | Pictet / ICRC | SAP SuccessFactors | Legacy portal, no public jobs JSON |
 | MSC Cruises | Phenom + SuccessFactors | No keyless jobs JSON |
-| dsm-firmenich | Eightfold/Phenom | Same family as ST; can be added later as a second tenant |
+| dsm-firmenich | Eightfold PCSX | List JSON returns HTTP 403 (`Not authorized for PCSX`) |
 | État de Genève | Portal ge.ch | Custom SIRH |
 | P&G | Workday (`pg.wd5` / site `1000`) | Few Geneva roles vs ST France volume |
 
