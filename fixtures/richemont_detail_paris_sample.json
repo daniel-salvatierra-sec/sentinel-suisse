@@ -1,0 +1,20 @@
+{
+  "jobPostingInfo": {
+    "id": "d3a45ad3151d1001eb9b1eb26db80002",
+    "title": "Retail Training Senior Project Manager",
+    "jobDescription": "<p>Join the Retail Training team in Paris.</p>",
+    "location": "PARIS",
+    "postedOn": "Posted Today",
+    "timeType": "Full time",
+    "jobReqId": "JR132013",
+    "jobPostingSiteId": "broadbean_external",
+    "country": { "descriptor": "France", "id": "abc123" },
+    "jobRequisitionLocation": {
+      "descriptor": "Richemont HQ Paris",
+      "country": { "descriptor": "France", "id": "abc123", "alpha2Code": "FR" }
+    },
+    "remoteType": "On-Site",
+    "externalUrl": "https://richemont.wd3.myworkdayjobs.com/broadbean_external/job/PARIS/Retail-Training-Senior-Project-Manager_JR132013-3"
+  },
+  "hiringOrganization": { "name": "Richemont", "url": "" }
+}

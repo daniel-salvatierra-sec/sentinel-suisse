@@ -1,0 +1,22 @@
+{
+  "total": 2,
+  "jobPostings": [
+    {
+      "title": "Stage - Assistant(e) Institutional Architecture",
+      "externalPath": "/job/GENEVA/Stage---Assistant-e--Design-Innovation_JR129879-1",
+      "timeType": "Full time",
+      "locationsText": "GENEVA",
+      "postedOn": "Posted Yesterday",
+      "bulletFields": ["JR129879"]
+    },
+    {
+      "title": "Retail Training Senior Project Manager",
+      "externalPath": "/job/PARIS/Retail-Training-Senior-Project-Manager_JR132013-3",
+      "timeType": "Full time",
+      "locationsText": "PARIS",
+      "postedOn": "Posted Today",
+      "bulletFields": ["JR132013"]
+    }
+  ],
+  "facets": []
+}

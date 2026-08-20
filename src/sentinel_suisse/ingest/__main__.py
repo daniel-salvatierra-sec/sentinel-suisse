@@ -84,6 +84,13 @@ from sentinel_suisse.ingest.connectors.newhome import (
 from sentinel_suisse.ingest.connectors.newhome import (
     fetch_search_listings as fetch_newhome_listings,
 )
+from sentinel_suisse.ingest.connectors.richemont import (
+    RichemontDisabledError,
+    RichemontFetchError,
+)
+from sentinel_suisse.ingest.connectors.richemont import (
+    fetch_search_listings as fetch_richemont_listings,
+)
 from sentinel_suisse.ingest.connectors.smartrecruiters import (
     SmartRecruitersDisabledError,
     SmartRecruitersFetchError,
@@ -107,6 +114,7 @@ _LIVE_CONNECTORS = {
     "france-travail": fetch_france_travail_listings,
     "adzuna": fetch_adzuna_listings,
     "smartrecruiters": fetch_smartrecruiters_listings,
+    "richemont": fetch_richemont_listings,
 }
 
 
@@ -181,6 +189,8 @@ def main() -> None:
         AdzunaFetchError,
         SmartRecruitersDisabledError,
         SmartRecruitersFetchError,
+        RichemontDisabledError,
+        RichemontFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

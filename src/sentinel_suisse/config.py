@@ -82,6 +82,10 @@ class Settings(BaseSettings):
     ingest_smartrecruiters_live: bool = False
     smartrecruiters_companies: str = "HUG,SGS"
     smartrecruiters_fetch_details: bool = True
+    # Richemont — public Workday "Candidate Experience" JSON API (same one the group's
+    # own careers.richemont.com career site calls). Not scraping.
+    ingest_richemont_live: bool = False
+    richemont_extra_location_hints: str = ""
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

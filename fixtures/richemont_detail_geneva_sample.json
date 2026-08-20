@@ -1,0 +1,24 @@
+{
+  "jobPostingInfo": {
+    "id": "d3a45ad3151d1001eb9b1eb26db80001",
+    "title": "Stage - Assistant(e) Institutional Architecture",
+    "jobDescription": "<p>Who are we?</p><p>A High Jewelry Maison with a strong heritage.</p><h2><b>Profile</b></h2><p>Student in design or architecture.</p>",
+    "location": "GENEVA",
+    "postedOn": "Posted Yesterday",
+    "timeType": "Full time",
+    "jobReqId": "JR129879",
+    "jobPostingSiteId": "broadbean_external",
+    "country": { "descriptor": "Switzerland", "id": "187134fccb084a0ea9b4b95f23890dbe" },
+    "jobRequisitionLocation": {
+      "descriptor": "Office VCA - GENEVA Rue du Rhone 19 (CHGE0054)",
+      "country": {
+        "descriptor": "Switzerland",
+        "id": "187134fccb084a0ea9b4b95f23890dbe",
+        "alpha2Code": "CH"
+      }
+    },
+    "remoteType": "On-Site",
+    "externalUrl": "https://richemont.wd3.myworkdayjobs.com/broadbean_external/job/GENEVA/Stage---Assistant-e--Design-Innovation_JR129879-1"
+  },
+  "hiringOrganization": { "name": "C231 Van Cleef & Arpels", "url": "" }
+}

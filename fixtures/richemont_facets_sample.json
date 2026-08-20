@@ -1,0 +1,28 @@
+{
+  "total": 419,
+  "jobPostings": [],
+  "facets": [
+    { "facetParameter": "jobFamilyGroup", "descriptor": "Job Category", "values": [] },
+    {
+      "facetParameter": "locationMainGroup",
+      "values": [
+        {
+          "facetParameter": "locations",
+          "descriptor": "Locations",
+          "values": [
+            { "descriptor": "GENEVA", "id": "loc-geneva", "count": 8 },
+            { "descriptor": "MEYRIN", "id": "loc-meyrin", "count": 5 },
+            { "descriptor": "PARIS", "id": "loc-paris", "count": 100 },
+            { "descriptor": "DUBAI", "id": "loc-dubai", "count": 10 },
+            { "descriptor": "NEW YORK", "id": "loc-newyork", "count": 42 },
+            {
+              "descriptor": "Manufacture CAR - PARIS 10 Rue Saint-Georges 0-5 (FRPA0150)",
+              "id": "loc-paris-manufacture",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
