@@ -126,6 +126,13 @@ from sentinel_suisse.ingest.connectors.stmicroelectronics import (
 from sentinel_suisse.ingest.connectors.stmicroelectronics import (
     fetch_search_listings as fetch_stmicroelectronics_listings,
 )
+from sentinel_suisse.ingest.connectors.temenos import (
+    TemenosDisabledError,
+    TemenosFetchError,
+)
+from sentinel_suisse.ingest.connectors.temenos import (
+    fetch_search_listings as fetch_temenos_listings,
+)
 from sentinel_suisse.ingest.service import IngestService
 from sentinel_suisse.services.alerts import AlertService
 
@@ -147,6 +154,7 @@ _LIVE_CONNECTORS = {
     "logitech": fetch_logitech_listings,
     "procter-gamble": fetch_procter_gamble_listings,
     "stmicroelectronics": fetch_stmicroelectronics_listings,
+    "temenos": fetch_temenos_listings,
 }
 
 
@@ -158,7 +166,7 @@ def main() -> None:
         help=(
             "Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna, "
             "smartrecruiters, richemont, lombard-odier, logitech, procter-gamble, "
-            "stmicroelectronics)"
+            "stmicroelectronics, temenos)"
         ),
     )
     source = parser.add_mutually_exclusive_group(required=True)
@@ -232,6 +240,8 @@ def main() -> None:
         ProcterGambleFetchError,
         STMicroelectronicsDisabledError,
         STMicroelectronicsFetchError,
+        TemenosDisabledError,
+        TemenosFetchError,
         ValueError,
     ) as exc:
         print(exc, file=sys.stderr)

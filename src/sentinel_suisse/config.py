@@ -98,6 +98,10 @@ class Settings(BaseSettings):
     # (pg.wd5.myworkdayjobs.com/1000; Geneva European HQ). Not scraping.
     ingest_procter_gamble_live: bool = False
     procter_gamble_extra_location_hints: str = ""
+    # Temenos — same public Workday CXS API as Richemont
+    # (temenos.wd103.myworkdayjobs.com/Temenoscareers; Geneva HQ). Not scraping.
+    ingest_temenos_live: bool = False
+    temenos_extra_location_hints: str = ""
     # STMicroelectronics — public Eightfold SmartApply JSON API (same one
     # stmicroelectronics.eightfold.ai's own UI calls). Not scraping.
     ingest_stmicroelectronics_live: bool = False
