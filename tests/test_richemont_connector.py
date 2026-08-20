@@ -79,7 +79,7 @@ def test_pick_candidate_location_ids_raises_on_unexpected_shape() -> None:
         pick_candidate_location_ids({"unexpected": True}, Settings())
 
 
-@patch("sentinel_suisse.ingest.connectors.richemont.httpx.get")
+@patch("sentinel_suisse.ingest.connectors.workday.httpx.get")
 def test_parse_search_page_enriches_with_detail_and_filters_country(
     mock_get: MagicMock,
 ) -> None:
@@ -116,7 +116,7 @@ def test_parse_search_page_enriches_with_detail_and_filters_country(
     assert paris_listing.employment_type == EmploymentType.PERMANENT
 
 
-@patch("sentinel_suisse.ingest.connectors.richemont.httpx.get")
+@patch("sentinel_suisse.ingest.connectors.workday.httpx.get")
 def test_parse_search_page_skips_when_detail_fetch_fails(mock_get: MagicMock) -> None:
     mock_get.side_effect = httpx.ConnectError("network down")
     search_payload = json.loads(_SEARCH_FIXTURE.read_text(encoding="utf-8"))
@@ -136,8 +136,8 @@ def test_fetch_raises_when_live_disabled() -> None:
         fetch_search_listings(settings)
 
 
-@patch("sentinel_suisse.ingest.connectors.richemont.httpx.get")
-@patch("sentinel_suisse.ingest.connectors.richemont.httpx.post")
+@patch("sentinel_suisse.ingest.connectors.workday.httpx.get")
+@patch("sentinel_suisse.ingest.connectors.workday.httpx.post")
 def test_fetch_search_listings_end_to_end(mock_post: MagicMock, mock_get: MagicMock) -> None:
     facets_payload = json.loads(_FACETS_FIXTURE.read_text(encoding="utf-8"))
     search_payload = json.loads(_SEARCH_FIXTURE.read_text(encoding="utf-8"))

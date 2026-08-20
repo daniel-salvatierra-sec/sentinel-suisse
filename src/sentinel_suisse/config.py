@@ -86,6 +86,10 @@ class Settings(BaseSettings):
     # own careers.richemont.com career site calls). Not scraping.
     ingest_richemont_live: bool = False
     richemont_extra_location_hints: str = ""
+    # Lombard Odier — same public Workday CXS API as Richemont
+    # (lombardodier.wd3.myworkdayjobs.com/Lombard_Odier_Careers). Not scraping.
+    ingest_lombard_odier_live: bool = False
+    lombard_odier_extra_location_hints: str = ""
     ingest_rate_limit_seconds: float = 3.0
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"

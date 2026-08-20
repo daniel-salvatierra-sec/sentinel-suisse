@@ -5,11 +5,12 @@ keyless, no scraping.** No signup, no API key.
 
 ## Why this connector is different
 
-`careers.richemont.com` is a Workday-hosted career site. Every Workday career site is a
-client-side app that calls a public, keyless JSON API underneath ("Candidate Experience
-Service", CXS) — reading it directly is exactly what the site's own JavaScript does,
-just without executing a browser. Confirmed by decomposing a real job link from the
-public site:
+`careers.richemont.com` is a Workday-hosted career site. The shared client lives in
+`src/sentinel_suisse/ingest/connectors/workday.py` (also used by Lombard Odier). Every
+Workday career site is a client-side app that calls a public, keyless JSON API
+underneath ("Candidate Experience Service", CXS) — reading it directly is exactly what
+the site's own JavaScript does, just without executing a browser. Confirmed by
+decomposing a real job link from the public site:
 
 ```
 POST https://richemont.wd3.myworkdayjobs.com/wday/cxs/richemont/broadbean_external/jobs
@@ -35,7 +36,7 @@ to Switzerland/France:
    (`jobRequisitionLocation.country.alpha2Code`) on the **per-posting detail** endpoint.
 2. So the connector first fetches the "locations" facet (one lightweight request) and
    matches its descriptors against a curated list of known CH/FR place names
-   (`_LOCATION_HINTS` in `richemont.py`) to build a candidate list of location IDs.
+   (`LOCATION_HINTS` in `workday.py`) to build a candidate list of location IDs.
 3. It then pages through only those locations via `appliedFacets.locations`.
 4. For every candidate posting it fetches the detail endpoint anyway (needed for the
    full job description), and uses that response's authoritative country code as the

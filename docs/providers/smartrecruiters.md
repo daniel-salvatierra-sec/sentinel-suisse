@@ -36,7 +36,9 @@ connectors, see Limitations below):
 - CERN — proprietary careers portal at `careers.cern`.
 - Richemont — Workday (`careers.richemont.com`), requires a different connector
   (Workday's CXS JSON endpoint, `POST {domain}/wday/cxs/{tenant}/{site}/jobs`).
-- Pictet, Lombard Odier, BCGE — proprietary career portals, ATS not yet identified.
+- Pictet — SAP SuccessFactors (no public jobs JSON API).
+- Lombard Odier — Workday CXS; see `docs/providers/lombard-odier.md`.
+- BCGE — Adequasys (`jobs.bcge.ch`), proprietary HTML, skip.
 
 ## Before enabling live ingest
 

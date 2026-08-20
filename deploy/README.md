@@ -90,6 +90,7 @@ Example cron on VPS:
 15 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh france-travail >> /var/log/linkswiss-ingest.log 2>&1
 30 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh smartrecruiters >> /var/log/linkswiss-ingest.log 2>&1
 45 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh richemont >> /var/log/linkswiss-ingest.log 2>&1
+50 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh lombard-odier >> /var/log/linkswiss-ingest.log 2>&1
 ```
 
 `run-ingest.sh` only works for connectors enabled via `INGEST_<PROVIDER>_LIVE=true` in
