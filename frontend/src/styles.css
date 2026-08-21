@@ -683,6 +683,34 @@ body {
   font-size: 0.95rem;
 }
 
+.post-listing form {
+  display: grid;
+  gap: 0.55rem;
+  margin-bottom: 0.75rem;
+}
+
+.post-listing label {
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.post-listing input,
+.post-listing textarea {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--mist, #ccc);
+  border-radius: 0.5rem;
+}
+
+.post-listing .checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
 .account-email {
   opacity: 0.85;
   margin: 0 0 0.5rem;

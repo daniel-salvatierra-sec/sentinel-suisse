@@ -1,6 +1,6 @@
 # Conditions d'utilisation — Sentinel Suisse
 
-**Version :** 2026-08-19  
+**Version :** 2026-08-21  
 **Statut :** Brouillon — revue juridique recommandée avant mise en ligne publique  
 **Droit applicable :** Suisse (nLPD)
 
@@ -38,7 +38,11 @@ Les comptes en infraction peuvent être suspendus.
 
 ## 5. Annonces tierces
 
-Les annonces proviennent de portails externes. Nous ne sommes **pas** le bailleur, l'employeur ni l'éditeur. Vérifiez toujours sur l'URL source. Aucune garantie d'exactitude.
+La plupart des annonces proviennent de portails externes. Nous ne sommes **pas** le bailleur, l'employeur ni l'éditeur. Vérifiez toujours sur l'URL source. Aucune garantie d'exactitude.
+
+## 5b. Annonces que vous publiez
+
+Si vous publiez un logement depuis votre compte, **vous** êtes l'annonceur. LinkSwiss affiche la fiche et envoie les personnes intéressées vers l'URL de contact que vous indiquez. Nous ne collectons ni CV ni candidatures. Vous devez avoir le droit de publier le bien ; spam, fausses annonces et discrimination sont interdits. Nous pouvons retirer les annonces qui violent ces règles. Elles sont supprimées avec votre compte.
 
 ## 6. Alertes
 

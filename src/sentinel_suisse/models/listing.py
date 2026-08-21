@@ -29,6 +29,7 @@ from sentinel_suisse.models.enums import (
 
 if TYPE_CHECKING:
     from sentinel_suisse.models.provider import Provider
+    from sentinel_suisse.models.user import User
 
 
 class Listing(Base):
@@ -98,11 +99,17 @@ class Listing(Base):
     content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
     raw_payload: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    owner_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
     provider: Mapped["Provider"] = relationship(back_populates="listings")
+    owner: Mapped["User | None"] = relationship(back_populates="direct_listings")
 
     def __repr__(self) -> str:
         return f"<Listing provider_id={self.provider_id} external_id={self.external_id!r}>"

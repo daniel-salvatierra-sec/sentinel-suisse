@@ -1,0 +1,156 @@
+import { useEffect, useState, type FormEvent } from "react";
+import {
+  createMyListing,
+  deleteMyListing,
+  fetchMyListings,
+  type Listing,
+} from "../api";
+import type { Messages } from "../i18n";
+
+type Props = {
+  t: Messages;
+};
+
+export function PostListingForm({ t }: Props) {
+  const [mine, setMine] = useState<Listing[]>([]);
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [price, setPrice] = useState("");
+  const [rooms, setRooms] = useState("");
+  const [parking, setParking] = useState(false);
+  const [contactUrl, setContactUrl] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  const reload = () => {
+    void fetchMyListings()
+      .then(setMine)
+      .catch(() => setMine([]));
+  };
+
+  useEffect(() => {
+    reload();
+  }, []);
+
+  const onSubmit = async (event: FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    setSaved(false);
+    try {
+      const priceNum = Number(price);
+      const roomsNum = rooms.trim() === "" ? undefined : Number(rooms);
+      await createMyListing({
+        title: title.trim(),
+        location: location.trim(),
+        price: priceNum,
+        rooms: roomsNum,
+        has_parking: parking,
+        contact_url: contactUrl.trim(),
+        description: description.trim() || undefined,
+      });
+      setTitle("");
+      setLocation("");
+      setPrice("");
+      setRooms("");
+      setParking(false);
+      setContactUrl("");
+      setDescription("");
+      setSaved(true);
+      reload();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "";
+      setError(message.includes("Maximum") ? t.postListingLimit : t.postListingError);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="post-listing">
+      <h3>{t.postListingTitle}</h3>
+      <p className="plan-hint">{t.postListingHint}</p>
+      <form onSubmit={(event) => void onSubmit(event)}>
+        <label>
+          {t.postListingTitleField}
+          <input value={title} onChange={(e) => setTitle(e.target.value)} required minLength={8} />
+        </label>
+        <label>
+          {t.postListingLocation}
+          <input value={location} onChange={(e) => setLocation(e.target.value)} required />
+        </label>
+        <label>
+          {t.postListingPrice}
+          <input
+            type="number"
+            min={1}
+            step="1"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          {t.postListingRooms}
+          <input
+            type="number"
+            min={0}
+            max={20}
+            step="0.5"
+            value={rooms}
+            onChange={(e) => setRooms(e.target.value)}
+          />
+        </label>
+        <label className="checkbox-row">
+          <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} />
+          {t.parkingLabel}
+        </label>
+        <label>
+          {t.postListingContact}
+          <input
+            type="url"
+            placeholder="https://"
+            value={contactUrl}
+            onChange={(e) => setContactUrl(e.target.value)}
+            required
+          />
+        </label>
+        <p className="plan-hint">{t.postListingContactHint}</p>
+        <label>
+          {t.postListingDescription}
+          <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+        </label>
+        <button type="submit" className="apply-btn" disabled={busy} style={{ width: "100%" }}>
+          {t.postListingCta}
+        </button>
+      </form>
+      {saved ? <p className="alert-feedback">{t.postListingSaved}</p> : null}
+      {error ? <p className="alert-feedback error">{error}</p> : null}
+      <h4>{t.postListingMine}</h4>
+      {mine.length === 0 ? (
+        <p className="empty">{t.postListingEmpty}</p>
+      ) : (
+        mine.map((item) => (
+          <article key={item.id} className="listing-card account-search">
+            <h4>{item.title}</h4>
+            <div className="meta">
+              {item.location}
+              {item.price != null ? ` · ${item.price}` : ""}
+            </div>
+            <button
+              type="button"
+              className="danger-btn"
+              onClick={() => {
+                void deleteMyListing(item.id).then(reload);
+              }}
+            >
+              {t.postListingDelete}
+            </button>
+          </article>
+        ))
+      )}
+    </section>
+  );
+}

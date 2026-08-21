@@ -116,6 +116,8 @@ class Settings(BaseSettings):
     )
     # Hide listings not seen in ingest for this many hours (0 = keep forever).
     listing_fresh_hours: int = 48
+    # Free cap of landlord-posted housing ads per account.
+    direct_max_listings: int = 5
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
     flatfox_search_url: str = "https://flatfox.ch/en/search/?place=Geneva"

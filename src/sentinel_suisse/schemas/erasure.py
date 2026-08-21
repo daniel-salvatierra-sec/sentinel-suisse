@@ -8,3 +8,4 @@ class UserErasureReport(BaseModel):
     notification_channels_removed: int
     saved_searches_removed: int
     alert_logs_removed: int
+    listings_removed: int = 0

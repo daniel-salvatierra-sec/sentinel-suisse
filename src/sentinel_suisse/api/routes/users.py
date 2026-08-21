@@ -49,6 +49,7 @@ def erase_current_user(
         notification_channels_removed=result.notification_channels_removed,
         saved_searches_removed=result.saved_searches_removed,
         alert_logs_removed=result.alert_logs_removed,
+        listings_removed=result.listings_removed,
     )
 
 
@@ -163,6 +164,7 @@ def erase_user_by_admin(
         notification_channels_removed=result.notification_channels_removed,
         saved_searches_removed=result.saved_searches_removed,
         alert_logs_removed=result.alert_logs_removed,
+        listings_removed=result.listings_removed,
     )
 
 

@@ -1,6 +1,6 @@
 # Nutzungsbedingungen — Sentinel Suisse
 
-**Version:** 2026-08-19  
+**Version:** 2026-08-21  
 **Status:** Entwurf — juristische Prüfung vor öffentlichem Launch empfohlen  
 **Anwendbares Recht:** Schweiz (nDSG / nLPD)
 
@@ -29,7 +29,11 @@ Untersagt: Rate-Limits umgehen, unbefugter Zugriff, Spam/Belästigung, widerrech
 
 ## 5. Drittanbieter-Anzeigen
 
-Anzeigen stammen von externen Portalen. Wir sind **nicht** Vermieter/Arbeitgeber/Herausgeber. Immer Quell-URL prüfen.
+Die meisten Anzeigen stammen von externen Portalen. Wir sind **nicht** Vermieter/Arbeitgeber/Herausgeber. Immer Quell-URL prüfen.
+
+## 5b. Von Ihnen inserierte Anzeigen
+
+Wenn Sie über Ihr Konto eine Wohnung inserieren, sind **Sie** der Inserent. LinkSwiss zeigt die Karte und leitet Interessierte auf die von Ihnen angegebene Kontakt-URL. Wir nehmen keine Bewerbungen entgegen. Sie müssen berechtigt sein, die Immobilie zu inserieren; Spam, falsche oder diskriminierende Anzeigen sind verboten. Wir können Anzeigen entfernen. Beim Löschen des Kontos werden sie gelöscht.
 
 ## 6. Alerts
 

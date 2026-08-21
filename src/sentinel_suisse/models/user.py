@@ -7,6 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sentinel_suisse.db.base import Base
 
 if TYPE_CHECKING:
+    from sentinel_suisse.models.listing import Listing
     from sentinel_suisse.models.notification_channel import NotificationChannel
     from sentinel_suisse.models.saved_search import SavedSearch
 
@@ -40,6 +41,10 @@ class User(Base):
     )
     saved_searches: Mapped[list["SavedSearch"]] = relationship(
         back_populates="user",
+        passive_deletes=True,
+    )
+    direct_listings: Mapped[list["Listing"]] = relationship(
+        back_populates="owner",
         passive_deletes=True,
     )
 

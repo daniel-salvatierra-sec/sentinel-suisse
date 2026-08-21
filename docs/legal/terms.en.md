@@ -1,6 +1,6 @@
 # Terms of Service — Sentinel Suisse
 
-**Version:** 2026-08-19  
+**Version:** 2026-08-21  
 **Status:** Draft — legal review recommended before public launch  
 **Governing law:** Switzerland (Swiss Federal Act on Data Protection — nFADP / nLPD)
 
@@ -38,7 +38,11 @@ We may suspend accounts that violate these rules.
 
 ## 5. Third-party listings
 
-Listings come from external portals (e.g. Homegate, Flatfox, ImmoScout24, jobs.ch). We are **not** the landlord, employer, or publisher. Always verify offers on the original source URL. We do not guarantee accuracy or availability of third-party data.
+Most listings come from external portals. We are **not** the landlord, employer, or publisher of those ads. Always verify offers on the original source URL. We do not guarantee accuracy or availability of third-party data.
+
+## 5b. Listings you post
+
+If you publish a housing ad from your account, **you** are the advertiser. LinkSwiss only displays the card and sends interested people to the contact URL you provide. We do not collect CVs or applications. You must have the right to advertise the property, and you may not post spam, false, or discriminatory ads. We may remove ads that violate these rules. Posted ads are deleted when you delete your account.
 
 ## 6. Alerts and notifications
 

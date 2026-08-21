@@ -14,6 +14,7 @@ import {
   type UserProfile,
 } from "../api";
 import { AlertSignup } from "./AlertSignup";
+import { PostListingForm } from "./PostListingForm";
 import { PremiumUpsell } from "./PremiumUpsell";
 import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useState } from "react";
@@ -168,6 +169,8 @@ export function AccountPanel({
           (profile.saved_search_limit ?? 1) && (
           <p className="plan-hint">{t.searchFreeHint}</p>
         )}
+
+      <PostListingForm t={t} />
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (

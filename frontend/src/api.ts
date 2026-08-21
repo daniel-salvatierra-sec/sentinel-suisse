@@ -232,6 +232,52 @@ export function deleteSavedSearch(id: number): Promise<void> {
   return apiFetch<void>(`/api/v1/saved-searches/${id}`, { method: "DELETE" });
 }
 
+export function fetchMyListings(): Promise<Listing[]> {
+  return apiFetch<Listing[]>("/api/v1/me/listings");
+}
+
+export type DirectListingPayload = {
+  title: string;
+  description?: string;
+  location: string;
+  country?: CountryCode;
+  price: number;
+  rooms?: number;
+  property_type?: PropertyType;
+  has_parking?: boolean;
+  contact_url: string;
+};
+
+export async function createMyListing(payload: DirectListingPayload): Promise<Listing> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch("/api/v1/me/listings", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-API-Key": apiKey,
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    let message = `request failed: ${response.status}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.json() as Promise<Listing>;
+}
+
+export function deleteMyListing(id: number): Promise<void> {
+  return apiFetch<void>(`/api/v1/me/listings/${id}`, { method: "DELETE" });
+}
+
 export function fetchAlerts(): Promise<AlertLog[]> {
   return apiFetch<AlertLog[]>("/api/v1/alerts?limit=20");
 }

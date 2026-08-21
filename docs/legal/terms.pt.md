@@ -1,6 +1,6 @@
 # Termos de utilização — Sentinel Suisse
 
-**Versão:** 2026-08-19  
+**Versão:** 2026-08-21  
 **Estado:** Rascunho — revisão jurídica recomendada antes do lançamento público  
 **Direito aplicável:** Suíça (nLPD)
 
@@ -29,7 +29,11 @@ Proibido: abusar de rate limits, acesso não autorizado, spam/assédio, redistri
 
 ## 5. Anúncios de terceiros
 
-Provêm de portais externos. Não somos o anunciante. Verifique sempre o URL original.
+A maioria provém de portais externos. Não somos o anunciante. Verifique sempre o URL original.
+
+## 5b. Anúncios que publica
+
+Se publicar um alojamento na sua conta, **você** é o anunciante. A LinkSwiss mostra o cartão e envia interessados para o URL de contacto que indicar. Não recolhemos CVs nem candidaturas. Deve ter o direito de anunciar o imóvel; spam, anúncios falsos ou discriminatórios são proibidos. Podemos remover anúncios. São apagados com a conta.
 
 ## 6. Alertas
 

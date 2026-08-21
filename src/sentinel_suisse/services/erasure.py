@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.alert_log import AlertLog
+from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.saved_search import SavedSearch
 from sentinel_suisse.models.user import User
@@ -17,6 +18,7 @@ class ErasureResult:
     notification_channels_removed: int
     saved_searches_removed: int
     alert_logs_removed: int
+    listings_removed: int
 
 
 def erase_user(db: Session, user: User) -> ErasureResult:
@@ -33,6 +35,9 @@ def erase_user(db: Session, user: User) -> ErasureResult:
     alerts_removed = db.scalar(
         select(func.count()).select_from(AlertLog).where(AlertLog.user_id == user_id)
     )
+    listings_removed = db.scalar(
+        select(func.count()).select_from(Listing).where(Listing.owner_user_id == user_id)
+    )
 
     db.delete(user)
     db.commit()
@@ -42,4 +47,5 @@ def erase_user(db: Session, user: User) -> ErasureResult:
         notification_channels_removed=channels_removed or 0,
         saved_searches_removed=searches_removed or 0,
         alert_logs_removed=alerts_removed or 0,
+        listings_removed=listings_removed or 0,
     )
