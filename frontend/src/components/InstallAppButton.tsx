@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import type { Messages } from "../i18n";
-import type { BeforeInstallPromptEvent } from "../pwa";
+import {
+  detectInstallSurface,
+  type BeforeInstallPromptEvent,
+  type InstallKind,
+} from "../pwa";
 
 type Props = {
   t: Messages;
@@ -15,11 +19,21 @@ function isStandalone(): boolean {
   return media || ios;
 }
 
-function installHint(t: Messages): string {
-  const ua = typeof navigator === "undefined" ? "" : navigator.userAgent;
-  if (/iphone|ipad|ipod/i.test(ua)) return t.installIosHint;
-  if (/android/i.test(ua)) return t.installAndroidHint;
-  return t.installDesktopHint;
+function stepsFor(kind: InstallKind, t: Messages): string {
+  switch (kind) {
+    case "ios":
+      return t.installIosHint;
+    case "android-firefox":
+      return t.installAndroidFirefoxHint;
+    case "android":
+      return t.installAndroidHint;
+    case "desktop-firefox":
+      return t.installDesktopFirefoxHint;
+    case "desktop-safari":
+      return t.installDesktopSafariHint;
+    default:
+      return t.installDesktopHint;
+  }
 }
 
 function currentPrompt(): BeforeInstallPromptEvent | null {
@@ -29,8 +43,12 @@ function currentPrompt(): BeforeInstallPromptEvent | null {
 /** Prompt to pin LinkSwiss on the home screen (PWA install / manual steps). */
 export function InstallAppButton({ t }: Props) {
   const [open, setOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
   const [hidden, setHidden] = useState(() => isStandalone());
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(currentPrompt);
+  const surface = detectInstallSurface();
+  const deviceLabel =
+    surface.device === "ios" ? t.installDeviceIos : surface.device === "phone" ? t.installDevicePhone : t.installDevicePc;
 
   useEffect(() => {
     if (isStandalone()) {
@@ -59,6 +77,16 @@ export function InstallAppButton({ t }: Props) {
   }, []);
 
   if (hidden) return null;
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.origin);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
 
   const onClick = async () => {
     const promptEvent = deferred ?? currentPrompt();
@@ -90,8 +118,14 @@ export function InstallAppButton({ t }: Props) {
             <h2 id="install-title" className="guide-title">
               {t.installTitle}
             </h2>
+            <p className="install-detected">
+              {surface.browser} · {deviceLabel}
+            </p>
             <p className="guide-message">{t.installDesc}</p>
-            <p className="guide-message">{installHint(t)}</p>
+            <p className="install-steps">{stepsFor(surface.kind, t)}</p>
+            <button type="button" className="secondary-btn share-link-btn" onClick={() => void copyLink()}>
+              {copied ? t.qrCopied : t.qrCopy}
+            </button>
             <div className="guide-nav">
               <button type="button" className="guide-skip" onClick={() => setOpen(false)}>
                 {t.guideClose}
