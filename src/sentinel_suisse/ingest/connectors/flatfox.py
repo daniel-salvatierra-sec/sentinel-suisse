@@ -1,31 +1,36 @@
-"""Extract listings from Flatfox search page embedded JSON."""
+"""Flatfox (SMG) — public REST JSON used by their map/app. No HTML scrape.
+
+Two keyless endpoints power flatfox.ch search:
+
+    GET https://flatfox.ch/api/v1/pin/?north=&south=&east=&west=
+    GET https://flatfox.ch/api/v1/public-listing/{pk}/
+
+Pin search is geo-filtered (Geneva + border). List search ignores city/bbox, so we
+do not paginate the nationwide 35k feed. Apply URL is always the Flatfox listing
+page — LinkSwiss does not host applications.
+
+Documented API: https://flatfox.ch/docs/api/  robots.txt allows /. Live ingest stays
+opt-in (`INGEST_FLATFOX_LIVE`). See docs/providers/flatfox.md.
+"""
+
+from __future__ import annotations
 
 import time
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import httpx
 
 from sentinel_suisse.config import Settings
-from sentinel_suisse.ingest.connectors.embed import EmbedParseError, extract_first_state
 from sentinel_suisse.ingest.schemas import RawListing
-from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.enums import CountryCode, ListingType, PropertyType
 
-_FLATFOX_BASE = "https://flatfox.ch"
-_STATE_MARKERS = (
-    "window.__INITIAL_STATE__=",
-    "window.__NEXT_DATA__=",
-    "window.__PINIA_INITIAL_STATE__=",
-)
+_PIN_URL = "https://flatfox.ch/api/v1/pin/"
+_DETAIL_URL = "https://flatfox.ch/api/v1/public-listing/{pk}/"
+_SITE = "https://flatfox.ch"
 
-_LISTING_PATHS: tuple[tuple[str, ...], ...] = (
-    ("search", "results"),
-    ("search", "listings"),
-    ("results",),
-    ("listings",),
-    ("props", "pageProps", "listings"),
-    ("props", "pageProps", "search", "results"),
-)
+_SKIP_CATEGORIES = frozenset({"PARK", "INDUSTRY", "GASTRO", "AGRICULTURE"})
+_MIN_MONTHLY_CHF = Decimal("500")
 
 
 class FlatfoxFetchError(RuntimeError):
@@ -36,119 +41,172 @@ class FlatfoxDisabledError(RuntimeError):
     """Live Flatfox ingest is not enabled in settings."""
 
 
-def parse_search_state(state: dict[str, Any]) -> list[RawListing]:
-    listings_raw = _find_listings(state)
-    if listings_raw is None:
-        msg = "Unexpected Flatfox search state shape"
-        raise FlatfoxFetchError(msg)
-
-    parsed: list[RawListing] = []
-    for entry in listings_raw:
-        if not isinstance(entry, dict):
-            continue
-        raw = _map_listing(entry)
-        if raw is not None:
-            parsed.append(raw)
-    return parsed
+def _as_decimal(value: Any) -> Decimal | None:
+    if value is None or value == "":
+        return None
+    try:
+        number = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    if number < 0:
+        return None
+    return number
 
 
-def _find_listings(state: dict[str, Any]) -> list[Any] | None:
-    for path in _LISTING_PATHS:
-        node: Any = state
-        for key in path:
-            if not isinstance(node, dict):
-                node = None
-                break
-            node = node.get(key)
-        if isinstance(node, list):
-            return node
-    return None
+def _property_type(category: str | None, object_type: str | None) -> PropertyType:
+    cat = (category or "").upper()
+    obj = (object_type or "").upper()
+    if cat == "SHARED" or "SHARED" in obj or "ROOM" in obj:
+        return PropertyType.ROOM
+    if cat == "HOUSE" or "HOUSE" in obj:
+        return PropertyType.HOUSE
+    if "STUDIO" in obj:
+        return PropertyType.STUDIO
+    if cat == "APARTMENT" or "APART" in obj:
+        return PropertyType.APARTMENT
+    return PropertyType.OTHER
 
 
-def _map_listing(listing: dict[str, Any]) -> RawListing | None:
-    listing_id = listing.get("id") or listing.get("listingId") or listing.get("flat_id")
-    title = listing.get("title") or listing.get("name")
-    if listing_id is None or not title:
+def _has_parking(listing: dict[str, Any]) -> bool | None:
+    attrs = listing.get("attributes")
+    if not isinstance(attrs, list):
+        return None
+    names = []
+    for item in attrs:
+        if isinstance(item, dict) and item.get("name"):
+            names.append(str(item["name"]).lower())
+    if not names:
+        return None
+    return any("park" in name or "garage" in name for name in names)
+
+
+def _source_url(listing: dict[str, Any], listing_id: Any) -> str:
+    path = listing.get("url")
+    if isinstance(path, str) and path.startswith("http"):
+        return path
+    if isinstance(path, str) and path.startswith("/"):
+        return f"{_SITE}{path}"
+    return f"{_SITE}/en/flat/{listing_id}/"
+
+
+def map_public_listing(listing: dict[str, Any]) -> RawListing | None:
+    listing_id = listing.get("pk")
+    if listing_id is None:
+        return None
+    if listing.get("offer_type") not in (None, "RENT"):
+        return None
+    category = str(listing.get("object_category") or "")
+    if category.upper() in _SKIP_CATEGORIES:
         return None
 
+    title = (
+        listing.get("public_title")
+        or listing.get("short_title")
+        or listing.get("pitch_title")
+        or listing.get("description_title")
+    )
+    if not title:
+        return None
+
+    price = _as_decimal(listing.get("rent_gross")) or _as_decimal(listing.get("price_display"))
+    if listing.get("price_unit") == "yearlym2":
+        return None
+    if price is not None and price < _MIN_MONTHLY_CHF:
+        return None
+
+    city = listing.get("city")
+    zipcode = listing.get("zipcode")
+    location_parts = [str(part) for part in (city, zipcode) if part]
+    country_raw = str(listing.get("country") or "CH").upper()
+    country = CountryCode.FR if country_raw == "FR" else CountryCode.CH
+
+    rooms = _as_decimal(listing.get("number_of_rooms"))
+    property_type = _property_type(category, str(listing.get("object_type") or ""))
+    if rooms is not None and rooms <= 1 and property_type == PropertyType.APARTMENT:
+        property_type = PropertyType.STUDIO
+
+    description = listing.get("description")
     return RawListing(
         external_id=str(listing_id),
         listing_type=ListingType.HOUSING,
         title=str(title)[:300],
-        description=_pick_description(listing),
-        location=_pick_location(listing),
-        price=_pick_price(listing),
-        source_url=_pick_source_url(listing, listing_id),
+        description=str(description)[:10000] if description else None,
+        location=", ".join(location_parts)[:200] if location_parts else None,
+        country=country,
+        price=price,
+        rooms=rooms if rooms is not None and rooms <= 20 else None,
+        property_type=property_type,
+        has_parking=_has_parking(listing),
+        source_url=_source_url(listing, listing_id),
         raw_payload={"source": "flatfox", "listing_id": str(listing_id)},
     )
 
 
-def _pick_description(listing: dict[str, Any]) -> str | None:
-    for key in ("description", "summary", "text"):
-        value = listing.get(key)
-        if value:
-            return str(value)[:10000]
-    return None
-
-
-def _pick_location(listing: dict[str, Any]) -> str | None:
-    address = listing.get("address")
-    if isinstance(address, dict):
-        parts = [address.get("locality"), address.get("postalCode")]
-        cleaned = [str(part) for part in parts if part]
-        if cleaned:
-            return ", ".join(cleaned)[:200]
-    for key in ("location", "city", "place"):
-        value = listing.get(key)
-        if value:
-            return str(value)[:200]
-    return None
-
-
-def _pick_price(listing: dict[str, Any]) -> Decimal | None:
-    for key in ("rent_gross", "rent", "price", "monthly_rent"):
-        value = listing.get(key)
-        if value is not None:
-            return Decimal(str(value))
-    prices = listing.get("prices")
-    if isinstance(prices, dict):
-        for key in ("rent", "gross", "net"):
-            value = prices.get(key)
-            if value is not None:
-                return Decimal(str(value))
-    return None
-
-
-def _pick_source_url(listing: dict[str, Any], listing_id: Any) -> str:
-    for key in ("url", "detailUrl", "link"):
-        value = listing.get(key)
-        if value:
-            path = str(value)
-            if path.startswith("http"):
-                return path
-            return f"{_FLATFOX_BASE}{path}"
-    return f"{_FLATFOX_BASE}/en/flat/{listing_id}/"
+def parse_pin_list(payload: Any) -> list[int]:
+    if not isinstance(payload, list):
+        msg = "Unexpected Flatfox pin response (expected a JSON list)"
+        raise FlatfoxFetchError(msg)
+    pks: list[int] = []
+    seen: set[int] = set()
+    for pin in payload:
+        if not isinstance(pin, dict):
+            continue
+        if pin.get("price_unit") in {"yearlym2", "sell"}:
+            continue
+        price = _as_decimal(pin.get("price_display"))
+        if price is not None and price < _MIN_MONTHLY_CHF:
+            continue
+        pk = pin.get("pk")
+        if isinstance(pk, int) and pk not in seen:
+            seen.add(pk)
+            pks.append(pk)
+    return pks
 
 
 def fetch_search_listings(settings: Settings, search_url: str | None = None) -> list[RawListing]:
+    """`search_url` unused — kept to match the ingest CLI fetcher signature."""
+    del search_url
     if not settings.ingest_flatfox_live:
         msg = "Live Flatfox ingest is disabled (set INGEST_FLATFOX_LIVE=true)"
         raise FlatfoxDisabledError(msg)
 
-    url = search_url or settings.flatfox_search_url
-    headers = {"User-Agent": settings.ingest_user_agent}
+    headers = {"User-Agent": settings.ingest_user_agent, "Accept": "application/json"}
+    params = {
+        "north": settings.flatfox_north,
+        "south": settings.flatfox_south,
+        "east": settings.flatfox_east,
+        "west": settings.flatfox_west,
+    }
     try:
         time.sleep(settings.ingest_rate_limit_seconds)
-        response = httpx.get(url, headers=headers, timeout=30.0, follow_redirects=True)
-        response.raise_for_status()
+        pin_response = httpx.get(_PIN_URL, params=params, headers=headers, timeout=30.0)
+        pin_response.raise_for_status()
+        pin_payload = pin_response.json()
     except httpx.HTTPError as exc:
-        msg = f"Flatfox request failed: {exc}"
+        msg = f"Flatfox pin request failed: {exc}"
+        raise FlatfoxFetchError(msg) from exc
+    except ValueError as exc:
+        msg = f"Flatfox pin response was not valid JSON: {exc}"
         raise FlatfoxFetchError(msg) from exc
 
+    pks = parse_pin_list(pin_payload)[: settings.flatfox_max_listings]
+    listings: list[RawListing] = []
+    for pk in pks:
+        detail = _fetch_detail(settings, headers, pk)
+        if detail is None:
+            continue
+        mapped = map_public_listing(detail)
+        if mapped is not None:
+            listings.append(mapped)
+    return listings
+
+
+def _fetch_detail(settings: Settings, headers: dict[str, str], pk: int) -> dict[str, Any] | None:
     try:
-        state = extract_first_state(response.text, _STATE_MARKERS)
-    except EmbedParseError as exc:
-        msg = f"Flatfox embedded state parse failed: {exc}"
-        raise FlatfoxFetchError(msg) from exc
-
-    return parse_search_state(state)
+        time.sleep(settings.ingest_rate_limit_seconds)
+        response = httpx.get(_DETAIL_URL.format(pk=pk), headers=headers, timeout=30.0)
+        response.raise_for_status()
+        payload = response.json()
+    except (httpx.HTTPError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None

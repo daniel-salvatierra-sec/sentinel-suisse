@@ -1,0 +1,47 @@
+{
+  "pins": [
+    {
+      "pk": 86294651,
+      "price_display": 1230,
+      "price_unit": "monthly"
+    },
+    {
+      "pk": 33819,
+      "price_display": 150,
+      "price_unit": "monthly"
+    }
+  ],
+  "detail_apartment": {
+    "pk": 86294651,
+    "url": "/en/flat/rue-de-veyrier-21-1227-les-acacias/86294651/",
+    "offer_type": "RENT",
+    "object_category": "APARTMENT",
+    "object_type": "APARTMENT",
+    "public_title": "Rue de Veyrier 21, 1227 Les Acacias - CHF 1230",
+    "short_title": "2.5 pieces",
+    "description": "Appartement a louer aux Acacias.",
+    "rent_gross": 1230,
+    "price_display": 1230,
+    "price_unit": "monthly",
+    "number_of_rooms": "2.5",
+    "city": "Les Acacias",
+    "zipcode": 1227,
+    "country": "CH",
+    "attributes": [{"name": "parking"}]
+  },
+  "detail_parking": {
+    "pk": 33819,
+    "url": "/en/flat/martha-ringier-strasse-5600-lenzburg/33819/",
+    "offer_type": "RENT",
+    "object_category": "PARK",
+    "object_type": "GARAGE_SLOT",
+    "public_title": "Underground slot Lenzburg",
+    "rent_gross": 150,
+    "price_display": 150,
+    "price_unit": "monthly",
+    "city": "Lenzburg",
+    "zipcode": 5600,
+    "country": "CH",
+    "attributes": []
+  }
+}

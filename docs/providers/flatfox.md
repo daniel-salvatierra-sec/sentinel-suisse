@@ -1,35 +1,45 @@
 # Flatfox — legal / technical notes
 
-**Status:** Live connector available (opt-in, disabled by default)
+**Status:** Live connector available (opt-in, disabled by default). **Public REST JSON,
+no HTML scrape.** Same class as SmartRecruiters / Workday CXS: the endpoints the
+Flatfox map itself calls.
+
+## Why this connector exists
+
+Homegate / ImmoScout24 have **no public listing API** for aggregators (SwissRETS is
+an *import* gateway for agencies). Flatfox (SMG) exposes keyless JSON:
+
+```
+GET https://flatfox.ch/api/v1/pin/?north=&south=&east=&west=
+GET https://flatfox.ch/api/v1/public-listing/{pk}/
+```
+
+`robots.txt` allows `/`. Apply always goes to the Flatfox listing URL. This is **not**
+an Adzuna-style redistribution licence — if SMG objects, turn `INGEST_FLATFOX_LIVE`
+off. Partnership email: `docs/outreach/smg-real-estate.md`.
 
 ## Before enabling live ingest
 
-- [ ] Read [Flatfox terms of use](https://flatfox.ch/en/terms/)
-- [ ] Check `https://flatfox.ch/robots.txt`
-- [ ] No public API — parser reads embedded JSON on search pages
-- [ ] Set `INGEST_FLATFOX_LIVE=true` only after legal review
+- [ ] Set `INGEST_FLATFOX_LIVE=true`
+- [ ] Register provider slug `flatfox` once (admin API)
+- [ ] Optional: tighten `FLATFOX_NORTH/SOUTH/EAST/WEST` (defaults: Geneva + border)
 
-## Technical (Phase 20)
+## Technical
 
-- Search URL default: Geneva region (`flatfox_search_url` in settings)
-- Parser tries common embedded state markers (`__INITIAL_STATE__`, `__NEXT_DATA__`, etc.)
-- Identifiable `User-Agent` via `INGEST_USER_AGENT`
-- Rate limit: `INGEST_RATE_LIMIT_SECONDS` (default 3s)
-- Idempotent upsert via `(provider_id, external_id)` + `content_hash`
-- Pilot fixture: `--fixture fixtures/flatfox_sample.json`
+- Pin search geo-filters (list search ignores city/bbox and would return 35k ads).
+- Skip parking / industrial / CHF < 500 / yearly m² (offices).
+- Cap: `FLATFOX_MAX_LISTINGS` (default 80) detail fetches, rate-limited.
+- `listing_type`: always `housing`.
+- Fixture for parser tests: `fixtures/flatfox_api_sample.json`
 
 ## CLI
 
 ```powershell
-# Fixture (always safe)
 python -m sentinel_suisse.ingest --provider flatfox --fixture fixtures/flatfox_sample.json
-
-# Live (requires INGEST_FLATFOX_LIVE=true in .env)
 python -m sentinel_suisse.ingest --provider flatfox --live
 ```
 
-## Limitations (MVP)
+## Limitations
 
-- Single search page per run (no pagination yet)
-- Housing focus; `listing_type=housing`
-- Live HTML shape may change — fixture ingest remains the reliable dev path
+- Public UI never shows the portal name (product rule).
+- HTML scrape of Homegate/ImmoScout stays off.

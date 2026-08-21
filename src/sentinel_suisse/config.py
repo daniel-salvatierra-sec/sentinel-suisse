@@ -117,6 +117,12 @@ class Settings(BaseSettings):
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
     flatfox_search_url: str = "https://flatfox.ch/en/search/?place=Geneva"
+    # Geneva + nearby border box for Flatfox pin search (public JSON map API).
+    flatfox_north: str = "46.32"
+    flatfox_south: str = "46.12"
+    flatfox_east: str = "6.30"
+    flatfox_west: str = "5.95"
+    flatfox_max_listings: int = 80
     immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"
