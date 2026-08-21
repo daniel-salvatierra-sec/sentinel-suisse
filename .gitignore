@@ -5,6 +5,8 @@
 !.env.production.example
 *.pem
 *.key
+*.keystore
+*.jks
 credentials.json
 secrets/
 

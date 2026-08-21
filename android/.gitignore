@@ -1,0 +1,11 @@
+# Upload / signing material — never commit
+*.keystore
+*.jks
+keystore.properties
+android.keystore
+
+# Bubblewrap / Gradle output
+app/
+build/
+.gradle/
+local.properties

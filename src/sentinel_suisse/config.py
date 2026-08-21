@@ -155,6 +155,10 @@ class Settings(BaseSettings):
     assistant_max_history_messages: int = 6
     # slowapi rate string, e.g. "20/day" — keeps API costs bounded
     assistant_rate_limit: str = "20/day"
+    # Play Store TWA — package id + SHA-256 of the signing cert(s). Comma-separated
+    # hex, with or without colons. Empty = assetlinks.json returns [] until upload.
+    android_package_id: str = "ch.linkswiss.app"
+    play_assetlinks_sha256: str = ""
 
     def smtp_is_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)
@@ -187,6 +191,15 @@ class Settings(BaseSettings):
         if not self.trusted_hosts.strip():
             return []
         return [host.strip() for host in self.trusted_hosts.split(",") if host.strip()]
+
+    def play_assetlinks_fingerprints(self) -> list[str]:
+        fingerprints: list[str] = []
+        for raw in self.play_assetlinks_sha256.split(","):
+            hex_only = "".join(ch for ch in raw.upper() if ch in "0123456789ABCDEF")
+            if len(hex_only) != 64:
+                continue
+            fingerprints.append(":".join(hex_only[i : i + 2] for i in range(0, 64, 2)))
+        return fingerprints
 
 
 @lru_cache

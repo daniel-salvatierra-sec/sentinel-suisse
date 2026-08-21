@@ -134,6 +134,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             response.status_code = 503
         return payload
 
+    @application.get("/.well-known/assetlinks.json")
+    @limiter.exempt
+    def assetlinks() -> list[dict]:
+        # Digital Asset Links for the Play Store TWA (ch.linkswiss.app).
+        fingerprints = settings.play_assetlinks_fingerprints()
+        if not fingerprints:
+            return []
+        return [
+            {
+                "relation": ["delegate_permission/common.handle_all_urls"],
+                "target": {
+                    "namespace": "android_app",
+                    "package_name": settings.android_package_id,
+                    "sha256_cert_fingerprints": fingerprints,
+                },
+            }
+        ]
+
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if dist.is_dir():
         from fastapi.responses import FileResponse
