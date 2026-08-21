@@ -80,8 +80,9 @@ class Settings(BaseSettings):
     # Second Adzuna pass for France (Haute-Savoie / Geneva border). Same app_id/key;
     # France Travail developer portal is not required.
     ingest_adzuna_fr_live: bool = False
-    adzuna_fr_location: str = "Annemasse"
+    adzuna_fr_location: str = "Haute-Savoie"
     adzuna_fr_keywords: str = ""
+    adzuna_max_pages: int = 3
     # SmartRecruiters — official, keyless Postings API used by several large Geneva
     # employers (e.g. HUG, SGS) for their public career sites. Not scraping.
     ingest_smartrecruiters_live: bool = False

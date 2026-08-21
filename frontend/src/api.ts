@@ -237,14 +237,16 @@ export function fetchMyListings(): Promise<Listing[]> {
 }
 
 export type DirectListingPayload = {
+  listing_type?: ListingType;
   title: string;
   description?: string;
   location: string;
   country?: CountryCode;
-  price: number;
+  price?: number;
   rooms?: number;
   property_type?: PropertyType;
   has_parking?: boolean;
+  job_category?: string;
   contact_url: string;
 };
 

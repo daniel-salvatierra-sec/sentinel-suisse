@@ -42,7 +42,7 @@ La plupart des annonces proviennent de portails externes. Nous ne sommes **pas**
 
 ## 5b. Annonces que vous publiez
 
-Si vous publiez un logement depuis votre compte, **vous** êtes l'annonceur. LinkSwiss affiche la fiche et envoie les personnes intéressées vers l'URL de contact que vous indiquez. Nous ne collectons ni CV ni candidatures. Vous devez avoir le droit de publier le bien ; spam, fausses annonces et discrimination sont interdits. Nous pouvons retirer les annonces qui violent ces règles. Elles sont supprimées avec votre compte.
+Si vous publiez un logement ou une offre d'emploi depuis votre compte, **vous** êtes l'annonceur. LinkSwiss affiche la fiche et envoie les personnes intéressées vers l'URL de contact que vous indiquez. Nous ne collectons ni CV ni candidatures. Vous devez avoir le droit de publier le bien ou le poste ; spam, fausses annonces et discrimination sont interdits. Nous pouvons retirer les annonces qui violent ces règles. Elles sont supprimées avec votre compte.
 
 ## 6. Alertes
 

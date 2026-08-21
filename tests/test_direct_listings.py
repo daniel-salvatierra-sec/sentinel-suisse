@@ -65,3 +65,21 @@ def test_user_cannot_delete_someone_elses_listing(
     listing_id = created.json()["id"]
     denied = client.delete(f"/api/v1/me/listings/{listing_id}", headers={"X-API-Key": key_b})
     assert denied.status_code == 404
+
+
+def test_user_can_post_a_job(client: TestClient, admin_auth: tuple[str, str]) -> None:
+    key = _create_user(client, admin_auth)
+    created = client.post(
+        "/api/v1/me/listings",
+        headers={"X-API-Key": key},
+        json={
+            "listing_type": "job",
+            "title": "Infirmier HUG temps partiel",
+            "location": "Geneva",
+            "job_category": "healthcare",
+            "contact_url": "https://example.com/apply",
+        },
+    )
+    assert created.status_code == 201, created.text
+    assert created.json()["listing_type"] == "job"
+    assert created.json()["job_category"] == "healthcare"

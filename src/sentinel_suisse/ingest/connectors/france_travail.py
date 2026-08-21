@@ -14,6 +14,7 @@ import httpx
 from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType
+from sentinel_suisse.services.job_taxonomy import canonical_job_category
 
 _TOKEN_URL = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=/partenaire"  # noqa: S105
 _SEARCH_URL = "https://api.francetravail.io/partenaire/offresdemploi/v2/offres/search"
@@ -102,7 +103,9 @@ def _map_offer(offer: dict[str, Any]) -> RawListing | None:
         location=str(location)[:200] if location else None,
         country=CountryCode.FR,
         price=None,
-        job_category=str(offer.get("romeLibelle"))[:80] if offer.get("romeLibelle") else None,
+        job_category=canonical_job_category(
+            str(offer.get("romeLibelle")) if offer.get("romeLibelle") else None
+        ),
         employment_type=_pick_employment_type(offer.get("typeContrat")),
         source_url=_pick_source_url(offer, str(offer_id)),
         raw_payload={"source": "france_travail", "job_id": str(offer_id)},

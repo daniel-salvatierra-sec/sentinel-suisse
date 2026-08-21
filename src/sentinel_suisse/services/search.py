@@ -1,11 +1,15 @@
 """Listing search query builder."""
 
-from sqlalchemy import Select, and_, or_, select
+from sqlalchemy import Select, and_, func, or_, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
-from sentinel_suisse.services.job_taxonomy import BRANCH_PARENT
+from sentinel_suisse.services.job_taxonomy import (
+    BRANCH_PARENT,
+    non_other_stored_values,
+    stored_job_category_values,
+)
 from sentinel_suisse.services.listing_freshness import apply_freshness_filter
 from sentinel_suisse.services.location_match import expand_location_query
 
@@ -56,13 +60,7 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
             )
         )
     if filters.job_category is not None:
-        related = _related_job_categories(filters.job_category)
-        stmt = stmt.where(
-            or_(
-                Listing.job_category.is_(None),
-                Listing.job_category.in_(related),
-            )
-        )
+        stmt = _apply_job_category_filter(stmt, filters.job_category)
     if filters.employment_type is not None:
         stmt = stmt.where(
             or_(
@@ -89,11 +87,18 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     return stmt
 
 
-def _related_job_categories(filter_category: str) -> list[str]:
+def _apply_job_category_filter(
+    stmt: Select[tuple[Listing]], filter_category: str
+) -> Select[tuple[Listing]]:
+    values = [item.casefold() for item in stored_job_category_values(filter_category)]
     parent = BRANCH_PARENT.get(filter_category, filter_category)
-    related: set[str] = {filter_category, parent}
-    for branch, field in BRANCH_PARENT.items():
-        if field == parent or field == filter_category:
-            related.add(branch)
-            related.add(field)
-    return sorted(related)
+    if parent == "other" or filter_category == "other":
+        excluded = [item.casefold() for item in non_other_stored_values()]
+        return stmt.where(
+            or_(
+                Listing.job_category.is_(None),
+                func.lower(Listing.job_category).in_(values),
+                ~func.lower(Listing.job_category).in_(excluded),
+            )
+        )
+    return stmt.where(func.lower(Listing.job_category).in_(values))

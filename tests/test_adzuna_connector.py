@@ -41,7 +41,7 @@ def test_parse_search_response_from_fixture() -> None:
     # connector must translate them to match the app's "Geneva" search convention,
     # without leaving German scaffolding words ("Kanton", "Schweiz") mixed in.
     assert listings[0].location == "Geneva"
-    assert listings[0].job_category == "IT Jobs"
+    assert listings[0].job_category == "it"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert listings[0].price == Decimal("90000")
     assert str(listings[0].source_url).startswith("https://www.adzuna.ch/")

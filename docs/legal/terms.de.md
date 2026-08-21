@@ -33,7 +33,7 @@ Die meisten Anzeigen stammen von externen Portalen. Wir sind **nicht** Vermieter
 
 ## 5b. Von Ihnen inserierte Anzeigen
 
-Wenn Sie über Ihr Konto eine Wohnung inserieren, sind **Sie** der Inserent. LinkSwiss zeigt die Karte und leitet Interessierte auf die von Ihnen angegebene Kontakt-URL. Wir nehmen keine Bewerbungen entgegen. Sie müssen berechtigt sein, die Immobilie zu inserieren; Spam, falsche oder diskriminierende Anzeigen sind verboten. Wir können Anzeigen entfernen. Beim Löschen des Kontos werden sie gelöscht.
+Wenn Sie über Ihr Konto eine Wohnung oder Stelle inserieren, sind **Sie** der Inserent. LinkSwiss zeigt die Karte und leitet Interessierte auf die von Ihnen angegebene Kontakt-URL. Wir nehmen keine Bewerbungen entgegen. Sie müssen berechtigt sein, die Immobilie oder Stelle zu inserieren; Spam, falsche oder diskriminierende Anzeigen sind verboten. Wir können Anzeigen entfernen. Beim Löschen des Kontos werden sie gelöscht.
 
 ## 6. Alerts
 

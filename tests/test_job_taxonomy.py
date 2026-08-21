@@ -1,6 +1,6 @@
 """Hierarchical job category matching."""
 
-from sentinel_suisse.services.job_taxonomy import job_category_matches
+from sentinel_suisse.services.job_taxonomy import canonical_job_category, job_category_matches
 
 
 def test_same_leaf() -> None:
@@ -23,5 +23,15 @@ def test_different_fields() -> None:
 
 
 def test_null_safe() -> None:
-    assert job_category_matches(None, "nursing") is True
+    assert job_category_matches(None, "nursing") is False
     assert job_category_matches("nursing", None) is True
+    assert job_category_matches(None, "other") is True
+
+
+def test_adzuna_labels_map_to_fields() -> None:
+    assert canonical_job_category("IT Jobs") == "it"
+    assert canonical_job_category("it-jobs") == "it"
+    assert job_category_matches("IT Jobs", "it") is True
+    assert job_category_matches("Admin Jobs", "it") is False
+    assert job_category_matches("Legal Jobs", "other") is True
+    assert canonical_job_category("Développement informatique") == "it"

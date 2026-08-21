@@ -59,8 +59,10 @@ Register the provider once via the admin API before the first run:
 - Single page per run (`results_per_page=50`) — no pagination loop yet
 - One country per run — `ADZUNA_COUNTRY` picks `ch` or `fr`. **Adzuna France** is a
   second provider slug (`adzuna-fr`, `INGEST_ADZUNA_FR_LIVE`) that reuses the same
-  keys and queries `country=fr` / `ADZUNA_FR_LOCATION` (default Annemasse). That is
-  the live substitute for France Travail while francetravail.io is unusable.
+  keys and queries `country=fr` plus border locations (Haute-Savoie, Annemasse,
+  Ferney, Saint-Julien, Gaillard). That is the live substitute for France Travail
+  while francetravail.io is unusable.
+- Pagination: `ADZUNA_MAX_PAGES` (default 3, 50 results per page).
 - Category comes from Adzuna's own taxonomy (`category.label`), not ours — matching
   against saved-search `job_category` filters may need a mapping layer later
 - `salary_min` is used as `price` when present, but note Adzuna sometimes shows an

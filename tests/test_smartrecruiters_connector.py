@@ -41,7 +41,7 @@ def test_parse_postings_response_from_fixture_without_details() -> None:
     # SmartRecruiters returns Swiss Romande names in French ("Genève") — the connector
     # must translate to the app's "Geneva" search convention.
     assert listings[0].location == "Geneva"
-    assert listings[0].job_category == "Hospital And Health Care"
+    assert listings[0].job_category == "healthcare"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert str(listings[0].source_url) == "https://jobs.smartrecruiters.com/HUG/744000144240249"
     assert listings[0].description is None

@@ -25,7 +25,7 @@ export const JOB_BRANCHES: Record<JobField, readonly string[]> = {
   sales: ["retail", "b2b", "customer"],
   education: ["teaching", "social", "public"],
   logistics: ["warehouse", "transport", "purchasing"],
-  other: [],
+  other: ["legal", "creative", "science", "manufacturing", "property"],
 };
 
 /** Map branch → parent field (for match + API). */

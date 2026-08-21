@@ -170,7 +170,7 @@ export function AccountPanel({
           <p className="plan-hint">{t.searchFreeHint}</p>
         )}
 
-      <PostListingForm t={t} />
+      <PostListingForm t={t} listingType={listingType} />
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (

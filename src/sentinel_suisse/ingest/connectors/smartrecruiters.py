@@ -23,6 +23,7 @@ import httpx
 from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType
+from sentinel_suisse.services.job_taxonomy import canonical_job_category
 
 _POSTINGS_URL = "https://api.smartrecruiters.com/v1/companies/{company}/postings"
 _POSTING_DETAIL_URL = "https://api.smartrecruiters.com/v1/companies/{company}/postings/{posting_id}"
@@ -149,7 +150,7 @@ def _map_posting(posting: dict[str, Any], settings: Settings, company: str) -> R
         location=_translate_location(str(city))[:200] if city else None,
         country=country_code,
         price=None,
-        job_category=str(industry_label)[:80] if industry_label else None,
+        job_category=canonical_job_category(str(industry_label) if industry_label else None),
         employment_type=_pick_employment_type(posting.get("typeOfEmployment")),
         source_url=source_url,
         raw_payload={

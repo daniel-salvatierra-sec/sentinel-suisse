@@ -697,7 +697,8 @@ body {
 }
 
 .post-listing input,
-.post-listing textarea {
+.post-listing textarea,
+.post-listing select {
   font: inherit;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--mist, #ccc);

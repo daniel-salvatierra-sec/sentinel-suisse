@@ -90,6 +90,11 @@ export type Messages = {
   jobBranch_warehouse: string;
   jobBranch_transport: string;
   jobBranch_purchasing: string;
+  jobBranch_legal: string;
+  jobBranch_creative: string;
+  jobBranch_science: string;
+  jobBranch_manufacturing: string;
+  jobBranch_property: string;
   employmentTypeLabel: string;
   employmentPermanent: string;
   employmentTemporary: string;
@@ -204,6 +209,12 @@ export type Messages = {
   postListingDelete: string;
   postListingEmpty: string;
   postListingMine: string;
+  postJobTitle: string;
+  postJobHint: string;
+  postJobSalary: string;
+  postJobCategory: string;
+  postJobSaved: string;
+  postJobEmpty: string;
   viewAccount: string;
   accountSignupTitle: string;
   accountSignupDesc: string;

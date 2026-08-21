@@ -16,8 +16,10 @@ import httpx
 from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType
+from sentinel_suisse.services.job_taxonomy import canonical_job_category
 
-_SEARCH_URL = "https://api.adzuna.com/v1/api/jobs/{country}/search/1"
+_SEARCH_URL = "https://api.adzuna.com/v1/api/jobs/{country}/search/{page}"
+_PAGE_SIZE = 50
 
 _COUNTRY_MAP: dict[str, CountryCode] = {
     "ch": CountryCode.CH,
@@ -101,7 +103,9 @@ def _map_job(job: dict[str, Any], country: CountryCode) -> RawListing | None:
     )
 
     category = job.get("category")
+    category_tag = category.get("tag") if isinstance(category, dict) else None
     category_label = category.get("label") if isinstance(category, dict) else None
+    raw_category = str(category_tag or category_label) if (category_tag or category_label) else None
 
     return RawListing(
         external_id=str(job_id),
@@ -111,7 +115,7 @@ def _map_job(job: dict[str, Any], country: CountryCode) -> RawListing | None:
         location=str(display_name)[:200] if display_name else None,
         country=country,
         price=price,
-        job_category=str(category_label)[:80] if category_label else None,
+        job_category=canonical_job_category(raw_category),
         employment_type=_pick_employment_type(job.get("contract_type"), job.get("contract_time")),
         source_url=str(url),
         raw_payload={"source": "adzuna", "job_id": str(job_id), "company": company_name},
@@ -147,36 +151,50 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
 
     country_code = settings.adzuna_country.lower()
     country = _COUNTRY_MAP.get(country_code, CountryCode.CH)
-    url = _SEARCH_URL.format(country=country_code)
+    parsed: list[RawListing] = []
+    seen: set[str] = set()
+    max_pages = max(1, settings.adzuna_max_pages)
+    page_size = str(_PAGE_SIZE)
 
-    params: dict[str, str] = {
-        "app_id": settings.adzuna_app_id,
-        "app_key": settings.adzuna_app_key,
-        "results_per_page": "50",
-        "content-type": "application/json",
-    }
-    if settings.adzuna_keywords:
-        params["what"] = settings.adzuna_keywords
-    if settings.adzuna_location:
-        params["where"] = settings.adzuna_location
+    for page in range(1, max_pages + 1):
+        url = _SEARCH_URL.format(country=country_code, page=page)
+        params: dict[str, str] = {
+            "app_id": settings.adzuna_app_id,
+            "app_key": settings.adzuna_app_key,
+            "results_per_page": page_size,
+            "content-type": "application/json",
+        }
+        if settings.adzuna_keywords:
+            params["what"] = settings.adzuna_keywords
+        if settings.adzuna_location:
+            params["where"] = settings.adzuna_location
 
-    try:
-        time.sleep(settings.ingest_rate_limit_seconds)
-        response = httpx.get(
-            url,
-            params=params,
-            headers={"User-Agent": settings.ingest_user_agent},
-            timeout=30.0,
-        )
-        response.raise_for_status()
-    except httpx.HTTPError as exc:
-        msg = f"Adzuna search request failed: {exc}"
-        raise AdzunaFetchError(msg) from exc
+        try:
+            time.sleep(settings.ingest_rate_limit_seconds)
+            response = httpx.get(
+                url,
+                params=params,
+                headers={"User-Agent": settings.ingest_user_agent},
+                timeout=30.0,
+            )
+            response.raise_for_status()
+        except httpx.HTTPError as exc:
+            msg = f"Adzuna search request failed: {exc}"
+            raise AdzunaFetchError(msg) from exc
 
-    try:
-        payload = response.json()
-    except ValueError as exc:
-        msg = f"Adzuna search response was not valid JSON: {exc}"
-        raise AdzunaFetchError(msg) from exc
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            msg = f"Adzuna search response was not valid JSON: {exc}"
+            raise AdzunaFetchError(msg) from exc
 
-    return parse_search_response(payload, country)
+        batch = parse_search_response(payload, country)
+        for item in batch:
+            if item.external_id in seen:
+                continue
+            seen.add(item.external_id)
+            parsed.append(item)
+        if len(batch) < _PAGE_SIZE:
+            break
+
+    return parsed

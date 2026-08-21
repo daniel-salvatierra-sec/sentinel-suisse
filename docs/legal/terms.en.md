@@ -42,7 +42,7 @@ Most listings come from external portals. We are **not** the landlord, employer,
 
 ## 5b. Listings you post
 
-If you publish a housing ad from your account, **you** are the advertiser. LinkSwiss only displays the card and sends interested people to the contact URL you provide. We do not collect CVs or applications. You must have the right to advertise the property, and you may not post spam, false, or discriminatory ads. We may remove ads that violate these rules. Posted ads are deleted when you delete your account.
+If you publish a housing or job ad from your account, **you** are the advertiser. LinkSwiss only displays the card and sends interested people to the contact URL you provide. We do not collect CVs or applications. You must have the right to advertise the property or role, and you may not post spam, false, or discriminatory ads. We may remove ads that violate these rules. Posted ads are deleted when you delete your account.
 
 ## 6. Alerts and notifications
 

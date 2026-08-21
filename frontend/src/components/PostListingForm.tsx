@@ -4,20 +4,41 @@ import {
   deleteMyListing,
   fetchMyListings,
   type Listing,
+  type ListingType,
 } from "../api";
 import type { Messages } from "../i18n";
+import { JOB_FIELDS, type JobField } from "../jobTaxonomy";
 
 type Props = {
   t: Messages;
+  listingType: ListingType;
 };
 
-export function PostListingForm({ t }: Props) {
+function fieldLabel(t: Messages, field: JobField): string {
+  const map: Record<JobField, string> = {
+    it: t.jobCatIt,
+    healthcare: t.jobCatHealthcare,
+    construction: t.jobCatConstruction,
+    hospitality: t.jobCatHospitality,
+    admin: t.jobCatAdmin,
+    finance: t.jobCatFinance,
+    sales: t.jobCatSales,
+    education: t.jobCatEducation,
+    logistics: t.jobCatLogistics,
+    other: t.jobCatOther,
+  };
+  return map[field];
+}
+
+export function PostListingForm({ t, listingType }: Props) {
+  const isJob = listingType === "job";
   const [mine, setMine] = useState<Listing[]>([]);
   const [title, setTitle] = useState("");
   const [location, setLocation] = useState("");
   const [price, setPrice] = useState("");
   const [rooms, setRooms] = useState("");
   const [parking, setParking] = useState(false);
+  const [jobField, setJobField] = useState<JobField>("other");
   const [contactUrl, setContactUrl] = useState("");
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
@@ -26,13 +47,13 @@ export function PostListingForm({ t }: Props) {
 
   const reload = () => {
     void fetchMyListings()
-      .then(setMine)
+      .then((items) => setMine(items.filter((item) => item.listing_type === listingType)))
       .catch(() => setMine([]));
   };
 
   useEffect(() => {
     reload();
-  }, []);
+  }, [listingType]);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -40,14 +61,16 @@ export function PostListingForm({ t }: Props) {
     setError(null);
     setSaved(false);
     try {
-      const priceNum = Number(price);
+      const priceNum = price.trim() === "" ? undefined : Number(price);
       const roomsNum = rooms.trim() === "" ? undefined : Number(rooms);
       await createMyListing({
+        listing_type: listingType,
         title: title.trim(),
         location: location.trim(),
-        price: priceNum,
-        rooms: roomsNum,
-        has_parking: parking,
+        price: isJob ? priceNum : priceNum,
+        rooms: isJob ? undefined : roomsNum,
+        has_parking: isJob ? undefined : parking,
+        job_category: isJob ? jobField : undefined,
         contact_url: contactUrl.trim(),
         description: description.trim() || undefined,
       });
@@ -56,6 +79,7 @@ export function PostListingForm({ t }: Props) {
       setPrice("");
       setRooms("");
       setParking(false);
+      setJobField("other");
       setContactUrl("");
       setDescription("");
       setSaved(true);
@@ -70,8 +94,8 @@ export function PostListingForm({ t }: Props) {
 
   return (
     <section className="post-listing">
-      <h3>{t.postListingTitle}</h3>
-      <p className="plan-hint">{t.postListingHint}</p>
+      <h3>{isJob ? t.postJobTitle : t.postListingTitle}</h3>
+      <p className="plan-hint">{isJob ? t.postJobHint : t.postListingHint}</p>
       <form onSubmit={(event) => void onSubmit(event)}>
         <label>
           {t.postListingTitleField}
@@ -81,32 +105,63 @@ export function PostListingForm({ t }: Props) {
           {t.postListingLocation}
           <input value={location} onChange={(e) => setLocation(e.target.value)} required />
         </label>
-        <label>
-          {t.postListingPrice}
-          <input
-            type="number"
-            min={1}
-            step="1"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-            required
-          />
-        </label>
-        <label>
-          {t.postListingRooms}
-          <input
-            type="number"
-            min={0}
-            max={20}
-            step="0.5"
-            value={rooms}
-            onChange={(e) => setRooms(e.target.value)}
-          />
-        </label>
-        <label className="checkbox-row">
-          <input type="checkbox" checked={parking} onChange={(e) => setParking(e.target.checked)} />
-          {t.parkingLabel}
-        </label>
+        {isJob ? (
+          <>
+            <label>
+              {t.postJobCategory}
+              <select value={jobField} onChange={(e) => setJobField(e.target.value as JobField)}>
+                {JOB_FIELDS.map((field) => (
+                  <option key={field} value={field}>
+                    {fieldLabel(t, field)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              {t.postJobSalary}
+              <input
+                type="number"
+                min={1}
+                step="1"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+              />
+            </label>
+          </>
+        ) : (
+          <>
+            <label>
+              {t.postListingPrice}
+              <input
+                type="number"
+                min={1}
+                step="1"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+              />
+            </label>
+            <label>
+              {t.postListingRooms}
+              <input
+                type="number"
+                min={0}
+                max={20}
+                step="0.5"
+                value={rooms}
+                onChange={(e) => setRooms(e.target.value)}
+              />
+            </label>
+            <label className="checkbox-row">
+              <input
+                type="checkbox"
+                checked={parking}
+                onChange={(e) => setParking(e.target.checked)}
+              />
+              {t.parkingLabel}
+            </label>
+          </>
+        )}
         <label>
           {t.postListingContact}
           <input
@@ -126,11 +181,11 @@ export function PostListingForm({ t }: Props) {
           {t.postListingCta}
         </button>
       </form>
-      {saved ? <p className="alert-feedback">{t.postListingSaved}</p> : null}
+      {saved ? <p className="alert-feedback">{isJob ? t.postJobSaved : t.postListingSaved}</p> : null}
       {error ? <p className="alert-feedback error">{error}</p> : null}
       <h4>{t.postListingMine}</h4>
       {mine.length === 0 ? (
-        <p className="empty">{t.postListingEmpty}</p>
+        <p className="empty">{isJob ? t.postJobEmpty : t.postListingEmpty}</p>
       ) : (
         mine.map((item) => (
           <article key={item.id} className="listing-card account-search">

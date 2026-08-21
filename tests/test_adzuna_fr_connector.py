@@ -41,6 +41,9 @@ def test_fetch_uses_france_endpoint_and_location(mock_get: MagicMock) -> None:
 
     assert len(listings) == 2
     assert listings[0].country == CountryCode.FR
-    mock_get.assert_called_once()
-    assert mock_get.call_args.args[0] == "https://api.adzuna.com/v1/api/jobs/fr/search/1"
-    assert mock_get.call_args.kwargs["params"]["where"] == "Annemasse"
+    assert mock_get.call_count >= 2
+    urls = [call.args[0] for call in mock_get.call_args_list]
+    assert any(url.endswith("/jobs/fr/search/1") for url in urls)
+    wheres = [call.kwargs["params"]["where"] for call in mock_get.call_args_list]
+    assert "Annemasse" in wheres
+    assert "Haute-Savoie" in wheres

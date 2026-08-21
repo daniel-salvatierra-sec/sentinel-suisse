@@ -33,7 +33,7 @@ A maioria provém de portais externos. Não somos o anunciante. Verifique sempre
 
 ## 5b. Anúncios que publica
 
-Se publicar um alojamento na sua conta, **você** é o anunciante. A LinkSwiss mostra o cartão e envia interessados para o URL de contacto que indicar. Não recolhemos CVs nem candidaturas. Deve ter o direito de anunciar o imóvel; spam, anúncios falsos ou discriminatórios são proibidos. Podemos remover anúncios. São apagados com a conta.
+Se publicar um alojamento ou um emprego na sua conta, **você** é o anunciante. A LinkSwiss mostra o cartão e envia interessados para o URL de contacto que indicar. Não recolhemos CVs nem candidaturas. Deve ter o direito de anunciar o imóvel ou a vaga; spam, anúncios falsos ou discriminatórios são proibidos. Podemos remover anúncios. São apagados com a conta.
 
 ## 6. Alertas
 

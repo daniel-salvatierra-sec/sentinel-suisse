@@ -52,6 +52,7 @@ const EMPLOYMENT_OPTIONS: EmploymentType[] = [
   "temporary",
   "internship",
   "freelance",
+  "other",
 ];
 
 const WORKLOAD_OPTIONS: { value: WorkloadChoice; labelKey: keyof Messages }[] = [

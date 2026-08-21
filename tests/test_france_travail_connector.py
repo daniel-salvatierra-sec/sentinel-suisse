@@ -25,7 +25,7 @@ def test_parse_search_response_from_fixture() -> None:
     assert listings[0].external_id == "048KLTP"
     assert listings[0].country == CountryCode.FR
     assert listings[0].location == "74 - ANNEMASSE"
-    assert listings[0].job_category == "Développement informatique"
+    assert listings[0].job_category == "it"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert str(listings[0].source_url).startswith("https://candidat.francetravail.fr/")
     assert listings[1].employment_type == EmploymentType.TEMPORARY

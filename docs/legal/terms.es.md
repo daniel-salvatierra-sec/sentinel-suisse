@@ -33,7 +33,7 @@ La mayoría proceden de portales externos. No somos el anunciante. Verifica siem
 
 ## 5b. Anuncios que publicas tú
 
-Si publicas un piso desde tu cuenta, **tú** eres el anunciante. LinkSwiss solo muestra la ficha y envía a los interesados a la URL de contacto que indiques. No recabamos CVs ni candidaturas. Debes tener derecho a anunciar el inmueble; prohibido spam, anuncios falsos o discriminatorios. Podemos retirar anuncios que incumplan estas reglas. Se borran al eliminar tu cuenta.
+Si publicas un piso o un empleo desde tu cuenta, **tú** eres el anunciante. LinkSwiss solo muestra la ficha y envía a los interesados a la URL de contacto que indiques. No recabamos CVs ni candidaturas. Debes tener derecho a anunciar el inmueble o el puesto; prohibido spam, anuncios falsos o discriminatorios. Podemos retirar anuncios que incumplan estas reglas. Se borran al eliminar tu cuenta.
 
 ## 6. Alertas
 

@@ -11,9 +11,26 @@ from sentinel_suisse.ingest.connectors.adzuna import (
 )
 from sentinel_suisse.ingest.schemas import RawListing
 
+_BORDER_LOCATIONS = (
+    "Haute-Savoie",
+    "Annemasse",
+    "Ferney-Voltaire",
+    "Saint-Julien-en-Genevois",
+    "Gaillard",
+)
+
 
 class AdzunaFrDisabledError(RuntimeError):
     """Live Adzuna France ingest is not enabled in settings."""
+
+
+def _france_locations(settings: Settings) -> list[str]:
+    primary = settings.adzuna_fr_location.strip()
+    ordered: list[str] = []
+    for item in (primary, *_BORDER_LOCATIONS):
+        if item and item not in ordered:
+            ordered.append(item)
+    return ordered
 
 
 def fetch_search_listings(settings: Settings, search_url: str | None = None) -> list[RawListing]:
@@ -22,12 +39,20 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
         msg = "Live Adzuna France ingest is disabled (set INGEST_ADZUNA_FR_LIVE=true)"
         raise AdzunaFrDisabledError(msg)
 
-    fr_settings = settings.model_copy(
-        update={
-            "ingest_adzuna_live": True,
-            "adzuna_country": "fr",
-            "adzuna_location": settings.adzuna_fr_location,
-            "adzuna_keywords": settings.adzuna_fr_keywords,
-        }
-    )
-    return fetch_adzuna_listings(fr_settings, search_url=search_url)
+    seen: set[str] = set()
+    parsed: list[RawListing] = []
+    for location in _france_locations(settings):
+        fr_settings = settings.model_copy(
+            update={
+                "ingest_adzuna_live": True,
+                "adzuna_country": "fr",
+                "adzuna_location": location,
+                "adzuna_keywords": settings.adzuna_fr_keywords,
+            }
+        )
+        for item in fetch_adzuna_listings(fr_settings, search_url=search_url):
+            if item.external_id in seen:
+                continue
+            seen.add(item.external_id)
+            parsed.append(item)
+    return parsed

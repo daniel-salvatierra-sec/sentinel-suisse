@@ -1,4 +1,4 @@
-"""Landlord-posted housing ads (no paid feed). Apply goes to the owner's URL."""
+"""User-posted housing and job ads (no paid feed). Apply goes to the owner's URL."""
 
 from __future__ import annotations
 
@@ -11,7 +11,6 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.hashing import compute_content_hash, utc_now
 from sentinel_suisse.ingest.schemas import RawListing
-from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.models.user import User
@@ -60,15 +59,19 @@ def create_direct_listing(
     external_id = f"direct-{user.id}-{uuid.uuid4().hex[:12]}"
     raw = RawListing(
         external_id=external_id,
-        listing_type=ListingType.HOUSING,
+        listing_type=payload.listing_type,
         title=payload.title,
         description=payload.description,
         location=payload.location,
         country=payload.country,
-        price=Decimal(str(payload.price)),
+        price=Decimal(str(payload.price)) if payload.price is not None else None,
         rooms=payload.rooms,
         property_type=payload.property_type,
         has_parking=payload.has_parking,
+        job_category=payload.job_category,
+        employment_type=payload.employment_type,
+        workload_min=payload.workload_min,
+        workload_max=payload.workload_max,
         source_url=payload.contact_url,
         raw_payload={"source": "direct", "user_id": user.id},
     )
@@ -85,6 +88,10 @@ def create_direct_listing(
         rooms=raw.rooms,
         property_type=raw.property_type,
         has_parking=raw.has_parking,
+        job_category=raw.job_category,
+        employment_type=raw.employment_type,
+        workload_min=raw.workload_min,
+        workload_max=raw.workload_max,
         source_url=str(raw.source_url),
         content_hash=compute_content_hash(raw),
         raw_payload=raw.raw_payload,
