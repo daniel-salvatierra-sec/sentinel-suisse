@@ -1,6 +1,10 @@
 """Hierarchical job category matching."""
 
-from sentinel_suisse.services.job_taxonomy import canonical_job_category, job_category_matches
+from sentinel_suisse.services.job_taxonomy import (
+    canonical_job_category,
+    classify_job_category,
+    job_category_matches,
+)
 
 
 def test_same_leaf() -> None:
@@ -35,3 +39,14 @@ def test_adzuna_labels_map_to_fields() -> None:
     assert job_category_matches("Admin Jobs", "it") is False
     assert job_category_matches("Legal Jobs", "other") is True
     assert canonical_job_category("Développement informatique") == "it"
+
+
+def test_unknown_adzuna_tag_uses_job_title() -> None:
+    assert canonical_job_category("Unknown") is None
+    assert classify_job_category("Unknown", "Développeur Full Stack") == "it"
+    assert (
+        classify_job_category("engineering-jobs", "Analyste Test / Recette fonctionnelle") == "it"
+    )
+    assert classify_job_category("Unknown", "Carrossier / Mécanicien") == "construction"
+    assert classify_job_category("Unknown", "Collaborateur comptable autonome") == "admin"
+    assert classify_job_category(None, "Paysagiste (H/F)") == "construction"

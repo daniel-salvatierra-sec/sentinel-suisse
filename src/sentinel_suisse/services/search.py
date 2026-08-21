@@ -9,6 +9,7 @@ from sentinel_suisse.services.job_taxonomy import (
     BRANCH_PARENT,
     non_other_stored_values,
     stored_job_category_values,
+    title_needles_for_filter,
 )
 from sentinel_suisse.services.listing_freshness import apply_freshness_filter
 from sentinel_suisse.services.location_match import expand_location_query
@@ -91,14 +92,17 @@ def _apply_job_category_filter(
     stmt: Select[tuple[Listing]], filter_category: str
 ) -> Select[tuple[Listing]]:
     values = [item.casefold() for item in stored_job_category_values(filter_category)]
+    clauses = [func.lower(Listing.job_category).in_(values)]
+    for needle in title_needles_for_filter(filter_category):
+        clauses.append(Listing.title.ilike(needle))
     parent = BRANCH_PARENT.get(filter_category, filter_category)
     if parent == "other" or filter_category == "other":
         excluded = [item.casefold() for item in non_other_stored_values()]
-        return stmt.where(
-            or_(
+        clauses.extend(
+            [
                 Listing.job_category.is_(None),
-                func.lower(Listing.job_category).in_(values),
+                func.lower(Listing.job_category) == "unknown",
                 ~func.lower(Listing.job_category).in_(excluded),
-            )
+            ]
         )
-    return stmt.where(func.lower(Listing.job_category).in_(values))
+    return stmt.where(or_(*clauses))

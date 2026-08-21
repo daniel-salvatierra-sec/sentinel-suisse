@@ -156,10 +156,170 @@ _KEYWORD_TO_SLUG: tuple[tuple[str, str], ...] = (
     ("admin", "admin"),
 )
 
+_UNCLASSIFIED = frozenset({"unknown", "unknown jobs", "n/a", "none"})
+
+# Title needles (accent-folded) → field. Longer first.
+_TITLE_TO_FIELD: tuple[tuple[str, str], ...] = (
+    ("recette fonctionnelle", "it"),
+    ("analyste test", "it"),
+    ("data scientist", "it"),
+    ("data engineer", "it"),
+    ("developpeur", "it"),
+    ("developer", "it"),
+    ("informaticien", "it"),
+    ("informatique", "it"),
+    ("fullstack", "it"),
+    ("full stack", "it"),
+    ("frontend", "it"),
+    ("backend", "it"),
+    ("devops", "it"),
+    ("cybersecurite", "it"),
+    ("software", "it"),
+    ("kinesitherapeute", "healthcare"),
+    ("infirmier", "healthcare"),
+    ("infirmiere", "healthcare"),
+    ("aide soignant", "healthcare"),
+    ("soignant", "healthcare"),
+    ("medecin", "healthcare"),
+    ("nursing", "healthcare"),
+    ("paysagiste", "construction"),
+    ("electricien", "construction"),
+    ("electrotechnicien", "construction"),
+    ("macon", "construction"),
+    ("manoeuvre", "construction"),
+    ("soudeur", "construction"),
+    ("carrossier", "construction"),
+    ("mecanicien", "construction"),
+    ("charpentier", "construction"),
+    ("etancheur", "construction"),
+    ("comptable", "admin"),
+    ("administratif", "admin"),
+    ("assistant adv", "admin"),
+    ("gestionnaire de paie", "admin"),
+    ("ressources humaines", "admin"),
+    ("professeur", "education"),
+    ("enseignant", "education"),
+    ("educateur", "education"),
+    ("commercial", "sales"),
+    ("vendeur", "sales"),
+    ("magasinier", "logistics"),
+    ("chauffeur", "logistics"),
+    ("cariste", "logistics"),
+    ("cuisinier", "hospitality"),
+    ("serveur", "hospitality"),
+    ("hotelier", "hospitality"),
+    ("restauration", "hospitality"),
+    ("fiduciaire", "finance"),
+    ("banque", "finance"),
+)
+
+# ILIKE needles for live search (include accented originals PostgreSQL will see).
+TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
+    "it": (
+        "%développeur%",
+        "%developpeur%",
+        "%developer%",
+        "%informatic%",
+        "%software%",
+        "%devops%",
+        "%fullstack%",
+        "%full-stack%",
+        "%full stack%",
+        "%frontend%",
+        "%backend%",
+        "%analyste test%",
+        "%recette fonctionnelle%",
+        "%data scientist%",
+        "%data engineer%",
+        "%cybersécurité%",
+        "%cybersecurite%",
+    ),
+    "healthcare": (
+        "%infirmier%",
+        "%infirmière%",
+        "%kinésithérapeute%",
+        "%kinesitherapeute%",
+        "%soignant%",
+        "%médecin%",
+        "%medecin%",
+        "%nursing%",
+    ),
+    "construction": (
+        "%paysagiste%",
+        "%électricien%",
+        "%electricien%",
+        "%électrotechnicien%",
+        "%macon%",
+        "%maçon%",
+        "%manoeuvre%",
+        "%manœuvre%",
+        "%soudeur%",
+        "%carrossier%",
+        "%mécanicien%",
+        "%mecanicien%",
+        "%étancheur%",
+        "%etancheur%",
+    ),
+    "admin": (
+        "%comptable%",
+        "%administratif%",
+        "%assistant adv%",
+        "%gestionnaire de paie%",
+        "%ressources humaines%",
+    ),
+    "education": (
+        "%professeur%",
+        "%enseignant%",
+        "%éducateur%",
+        "%educateur%",
+    ),
+    "sales": (
+        "%commercial%",
+        "%vendeur%",
+    ),
+    "hospitality": (
+        "%cuisinier%",
+        "%serveur%",
+        "%hôtelier%",
+        "%hotelier%",
+        "%restauration%",
+    ),
+    "logistics": (
+        "%magasinier%",
+        "%chauffeur%",
+        "%cariste%",
+    ),
+    "finance": (
+        "%fiduciaire%",
+        "%banque%",
+    ),
+}
+
+
+def _fold_text(value: str) -> str:
+    lowered = value.strip().casefold()
+    return (
+        lowered.replace("é", "e")
+        .replace("è", "e")
+        .replace("ê", "e")
+        .replace("ë", "e")
+        .replace("à", "a")
+        .replace("â", "a")
+        .replace("ä", "a")
+        .replace("ö", "o")
+        .replace("ü", "u")
+        .replace("ô", "o")
+        .replace("î", "i")
+        .replace("ï", "i")
+        .replace("ç", "c")
+        .replace("ñ", "n")
+        .replace("-", " ")
+        .replace("_", " ")
+    )
+
 
 def _fold_category(value: str) -> str:
-    cleaned = value.strip().casefold().replace("_", " ").replace("-", " ")
-    return " ".join(cleaned.split())
+    return " ".join(_fold_text(value).split())
 
 
 def canonical_job_category(value: str | None) -> str | None:
@@ -173,6 +333,8 @@ def canonical_job_category(value: str | None) -> str | None:
     if lower in ALL_SLUGS:
         return lower
     folded = _fold_category(stripped)
+    if folded in _UNCLASSIFIED:
+        return None
     if folded in ALL_SLUGS:
         return folded
     if lower in _ALIAS_TO_SLUG:
@@ -183,6 +345,38 @@ def canonical_job_category(value: str | None) -> str | None:
         if needle in folded:
             return slug
     return "other"
+
+
+def classify_from_title(title: str | None) -> str | None:
+    if not title or not title.strip():
+        return None
+    folded = _fold_category(title)
+    for needle, slug in _TITLE_TO_FIELD:
+        if needle in folded:
+            return slug
+    return None
+
+
+def classify_job_category(portal: str | None, title: str | None) -> str | None:
+    """Prefer the job title when Adzuna tags the ad Unknown / engineering / other."""
+    title_canon = classify_from_title(title)
+    portal_canon = canonical_job_category(portal)
+    if title_canon and title_canon != "other":
+        if portal_canon in (None, "other", "construction") or portal_canon == title_canon:
+            return title_canon
+        # Teaching/health roles often land in the wrong Adzuna bucket.
+        if title_canon in {"it", "education", "healthcare", "admin"}:
+            return title_canon
+    return portal_canon or title_canon or "other"
+
+
+def title_needles_for_filter(filter_category: str) -> list[str]:
+    canon = canonical_job_category(filter_category) or filter_category
+    related = _related_job_categories(canon)
+    needles: list[str] = []
+    for field in related:
+        needles.extend(TITLE_SEARCH_NEEDLES.get(field, ()))
+    return needles
 
 
 def _related_job_categories(filter_category: str) -> set[str]:
@@ -232,11 +426,15 @@ def non_other_stored_values() -> list[str]:
     return sorted(values)
 
 
-def job_category_matches(listing_category: str | None, filter_category: str | None) -> bool:
+def job_category_matches(
+    listing_category: str | None,
+    filter_category: str | None,
+    title: str | None = None,
+) -> bool:
     """NULL-safe hierarchical match: same leaf, same field, or branch under field."""
     if filter_category is None:
         return True
-    listing_canon = canonical_job_category(listing_category)
+    listing_canon = classify_job_category(listing_category, title)
     filter_canon = canonical_job_category(filter_category) or filter_category
     if listing_canon is None:
         return _parent_field(filter_canon) == "other" or filter_canon == "other"

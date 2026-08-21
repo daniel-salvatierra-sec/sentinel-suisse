@@ -16,7 +16,7 @@ import httpx
 from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType
-from sentinel_suisse.services.job_taxonomy import canonical_job_category
+from sentinel_suisse.services.job_taxonomy import classify_job_category
 
 _SEARCH_URL = "https://api.adzuna.com/v1/api/jobs/{country}/search/{page}"
 _PAGE_SIZE = 50
@@ -115,7 +115,7 @@ def _map_job(job: dict[str, Any], country: CountryCode) -> RawListing | None:
         location=str(display_name)[:200] if display_name else None,
         country=country,
         price=price,
-        job_category=canonical_job_category(raw_category),
+        job_category=classify_job_category(raw_category, str(title)),
         employment_type=_pick_employment_type(job.get("contract_type"), job.get("contract_time")),
         source_url=str(url),
         raw_payload={"source": "adzuna", "job_id": str(job_id), "company": company_name},

@@ -365,7 +365,10 @@ export default function App() {
         t={t}
         category={category}
         zoneChoice={zoneChoice}
-        onZoneChoiceChange={setZoneChoice}
+        onZoneChoiceChange={(value) => {
+          setZoneChoice(value);
+          setAppliedZoneChoice(value);
+        }}
         roomsChoice={roomsChoice}
         onRoomsChoiceChange={setRoomsChoice}
         hasParking={hasParking}
@@ -377,9 +380,15 @@ export default function App() {
         onPriceMinChange={setPriceMin}
         onPriceMaxChange={setPriceMax}
         jobField={jobField}
-        onJobFieldChange={setJobField}
+        onJobFieldChange={(value) => {
+          setJobField(value);
+          setAppliedJobField(value);
+        }}
         jobBranch={jobBranch}
-        onJobBranchChange={setJobBranch}
+        onJobBranchChange={(value) => {
+          setJobBranch(value);
+          setAppliedJobBranch(value);
+        }}
         employmentType={employmentType}
         onEmploymentTypeChange={setEmploymentType}
         workloadChoice={workloadChoice}
