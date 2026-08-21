@@ -217,6 +217,8 @@ export type Messages = {
   installTitle: string;
   installDesc: string;
   installIosHint: string;
+  installAndroidHint: string;
+  installDesktopHint: string;
   freePlanHint: string;
   freeBadge: string;
   premiumBadge: string;

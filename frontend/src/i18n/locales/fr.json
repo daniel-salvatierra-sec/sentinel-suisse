@@ -205,6 +205,8 @@
   "installTitle": "Ajouter LinkSwiss à l'écran d'accueil",
   "installDesc": "Ouvre l'app comme une icône, sans perdre le lien.",
   "installIosHint": "Sur iPhone ou iPad : touche Partager (carré avec flèche) puis « Sur l'écran d'accueil ».",
+  "installAndroidHint": "Sur téléphone (Chrome) : touche le menu ⋮ en haut à droite, puis « Ajouter à l'écran d'accueil » ou « Installer l'application ».",
+  "installDesktopHint": "Sur ordinateur : clique l'icône d'installation (＋ ou un écran) à droite de la barre d'adresse, ou le menu du navigateur → Installer LinkSwiss.",
   "freePlanHint": "En vous inscrivant, vous enregistrez votre recherche. Pour recevoir une alerte (e-mail ou WhatsApp) dès qu'une offre correspond, il faut LinkSwiss Premium.",
   "freeBadge": "Free",
   "premiumBadge": "Premium",

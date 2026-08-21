@@ -151,6 +151,8 @@
   "installTitle": "Adicionar LinkSwiss ao ecrã inicial",
   "installDesc": "Abre a app como ícone para não perderes o link.",
   "installIosHint": "No iPhone ou iPad: toca em Partilhar (quadrado com seta) e escolhe «Adicionar ao ecrã inicial».",
+  "installAndroidHint": "No telemóvel (Chrome): toca no menu ⋮ no canto superior direito e escolhe «Adicionar ao ecrã inicial» ou «Instalar aplicação».",
+  "installDesktopHint": "No PC: clica no ícone de instalar (＋ ou um ecrã) à direita da barra de endereço, ou no menu do navegador → Instalar LinkSwiss.",
   "jobBranchLabel": "Especialidade",
   "jobCatFinance": "Finanças",
   "jobCatSales": "Vendas",

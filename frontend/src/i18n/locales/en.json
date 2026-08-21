@@ -204,6 +204,8 @@
   "installTitle": "Add LinkSwiss to your Home Screen",
   "installDesc": "Open the app from an icon so you don't lose the link.",
   "installIosHint": "On iPhone or iPad: tap Share (square with arrow), then Add to Home Screen.",
+  "installAndroidHint": "On Android (Chrome): tap the ⋮ menu at the top right, then Add to Home screen or Install app.",
+  "installDesktopHint": "On a computer: click the install icon (+ or a monitor) on the right of the address bar, or the browser menu → Install LinkSwiss.",
   "freePlanHint": "Signing up saves your search. To get notified (email or WhatsApp) the moment a matching offer appears, you need LinkSwiss Premium.",
   "freeBadge": "Free",
   "premiumBadge": "Premium",

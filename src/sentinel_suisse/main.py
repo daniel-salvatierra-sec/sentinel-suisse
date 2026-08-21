@@ -1,6 +1,7 @@
 """FastAPI application."""
 
 import logging
+import mimetypes
 import os
 from pathlib import Path
 
@@ -135,7 +136,19 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if dist.is_dir():
+        from fastapi.responses import FileResponse
         from fastapi.staticfiles import StaticFiles
+
+        # Linux Python often serves .webmanifest as octet-stream, which
+        # blocks Chrome/Opera from offering "Add to Home Screen".
+        mimetypes.add_type("application/manifest+json", ".webmanifest")
+
+        manifest_path = dist / "manifest.webmanifest"
+
+        @application.get("/manifest.webmanifest")
+        @limiter.exempt
+        def web_manifest() -> FileResponse:
+            return FileResponse(manifest_path, media_type="application/manifest+json")
 
         application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
 
