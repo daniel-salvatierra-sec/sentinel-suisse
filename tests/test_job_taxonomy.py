@@ -50,3 +50,5 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("Unknown", "Carrossier / Mécanicien") == "construction"
     assert classify_job_category("Unknown", "Collaborateur comptable autonome") == "admin"
     assert classify_job_category(None, "Paysagiste (H/F)") == "construction"
+    assert classify_job_category("Unknown", "Horloger rhabilleur") == "watchmaking"
+    assert classify_job_category("manufacturing-jobs", "Watchmaker / polisseur") == "watchmaking"

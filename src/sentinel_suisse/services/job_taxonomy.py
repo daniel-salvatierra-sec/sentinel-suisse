@@ -13,6 +13,7 @@ FIELD_SLUGS: frozenset[str] = frozenset(
         "sales",
         "education",
         "logistics",
+        "watchmaking",
         "other",
     }
 )
@@ -53,6 +54,10 @@ BRANCH_PARENT: dict[str, str] = {
     "warehouse": "logistics",
     "transport": "logistics",
     "purchasing": "logistics",
+    "watchmaker": "watchmaking",
+    "jewelry": "watchmaking",
+    "microtech": "watchmaking",
+    "aftersales": "watchmaking",
     "legal": "other",
     "creative": "other",
     "science": "other",
@@ -118,6 +123,9 @@ _ALIAS_TO_SLUG: dict[str, str] = {
     "part time jobs": "other",
     "travel-jobs": "tourism",
     "travel jobs": "tourism",
+    "horlogerie": "watchmaking",
+    "watchmaking": "watchmaking",
+    "watch making": "watchmaking",
     "hospital and health care": "healthcare",
     "hospital and health": "healthcare",
 }
@@ -160,6 +168,19 @@ _UNCLASSIFIED = frozenset({"unknown", "unknown jobs", "n/a", "none"})
 
 # Title needles (accent-folded) → field. Longer first.
 _TITLE_TO_FIELD: tuple[tuple[str, str], ...] = (
+    ("mecanicien horloger", "watchmaking"),
+    ("horloger", "watchmaking"),
+    ("horlogere", "watchmaking"),
+    ("horlogerie", "watchmaking"),
+    ("watchmaker", "watchmaking"),
+    ("watchmaking", "watchmaking"),
+    ("uhrmacher", "watchmaking"),
+    ("cadranier", "watchmaking"),
+    ("sertisseur", "watchmaking"),
+    ("joaillier", "watchmaking"),
+    ("bijoutier", "watchmaking"),
+    ("polisseur", "watchmaking"),
+    ("habillage", "watchmaking"),
     ("recette fonctionnelle", "it"),
     ("analyste test", "it"),
     ("data scientist", "it"),
@@ -293,6 +314,20 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%fiduciaire%",
         "%banque%",
     ),
+    "watchmaking": (
+        "%horloger%",
+        "%horlogère%",
+        "%horlogerie%",
+        "%watchmaker%",
+        "%watchmaking%",
+        "%uhrmacher%",
+        "%cadranier%",
+        "%sertisseur%",
+        "%joaillier%",
+        "%bijoutier%",
+        "%polisseur%",
+        "%habillage%",
+    ),
 }
 
 
@@ -365,7 +400,7 @@ def classify_job_category(portal: str | None, title: str | None) -> str | None:
         if portal_canon in (None, "other", "construction") or portal_canon == title_canon:
             return title_canon
         # Teaching/health roles often land in the wrong Adzuna bucket.
-        if title_canon in {"it", "education", "healthcare", "admin"}:
+        if title_canon in {"it", "education", "healthcare", "admin", "watchmaking"}:
             return title_canon
     return portal_canon or title_canon or "other"
 
