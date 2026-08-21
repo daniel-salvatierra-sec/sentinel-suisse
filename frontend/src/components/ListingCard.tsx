@@ -70,8 +70,17 @@ export function ListingCard({
         </div>
         <div className="meta">
           {listing.location ?? "—"}
+          {listing.listing_type === "housing" && listing.rooms != null && (
+            <>
+              {" "}
+              · {listing.rooms} {t.roomsLabel}
+            </>
+          )}
           {listing.price != null && listing.listing_type === "housing" && (
             <> · {listing.price} {t.priceMonthly}</>
+          )}
+          {listing.listing_type === "housing" && listing.has_parking === true && (
+            <> · {t.parkingLabel}</>
           )}
         </div>
         {(goodPrice || goodMatch) && (
@@ -123,8 +132,17 @@ export function ListingCard({
             </div>
             <p className="meta listing-detail-meta">
               {listing.location ?? "—"}
+              {listing.listing_type === "housing" && listing.rooms != null && (
+                <>
+                  {" "}
+                  · {listing.rooms} {t.roomsLabel}
+                </>
+              )}
               {listing.price != null && listing.listing_type === "housing" && (
                 <> · {listing.price} {t.priceMonthly}</>
+              )}
+              {listing.listing_type === "housing" && listing.has_parking === true && (
+                <> · {t.parkingLabel}</>
               )}
               {listing.workload_min != null && listing.listing_type === "job" && (
                 <>

@@ -1,6 +1,6 @@
 """Listing-to-search matching rules."""
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
@@ -66,6 +66,12 @@ def test_geneva_search_matches_french_suburb() -> None:
 def test_geneva_search_matches_geneve_spelling() -> None:
     listing = _sample_listing(location="Genève, 1206")
     assert listing_matches_query(listing, SearchQuery(location="Geneva")) is True
+
+
+def test_stale_listing_does_not_match() -> None:
+    listing = _sample_listing(location="Geneva")
+    listing.fetched_at = datetime.now(UTC) - timedelta(hours=72)
+    assert listing_matches_query(listing, SearchQuery(location="Geneva")) is False
 
 
 def test_rooms_min_null_safe() -> None:

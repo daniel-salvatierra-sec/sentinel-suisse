@@ -71,6 +71,7 @@ class IngestService:
                 continue
 
             if existing.content_hash == content_hash:
+                existing.fetched_at = fetched_at
                 stats.skipped += 1
                 continue
 

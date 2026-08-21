@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.job_taxonomy import BRANCH_PARENT
+from sentinel_suisse.services.listing_freshness import apply_freshness_filter
 from sentinel_suisse.services.location_match import expand_location_query
 
 
@@ -17,6 +18,7 @@ def search_listings(
     offset: int,
 ) -> list[Listing]:
     stmt = _apply_filters(select(Listing), filters)
+    stmt = apply_freshness_filter(stmt)
     stmt = stmt.order_by(Listing.fetched_at.desc(), Listing.id.desc()).limit(limit).offset(offset)
     return list(db.scalars(stmt).all())
 

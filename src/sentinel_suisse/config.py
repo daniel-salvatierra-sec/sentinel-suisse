@@ -114,6 +114,8 @@ class Settings(BaseSettings):
     ingest_user_agent: str = (
         "SentinelSuisse/0.14 (+github.com/daniel-salvatierra-sec/sentinel-suisse)"
     )
+    # Hide listings not seen in ingest for this many hours (0 = keep forever).
+    listing_fresh_hours: int = 48
     homegate_search_url: str = "https://www.homegate.ch/mieten/immobilien/kanton-genf/trefferliste"
     jobs_search_url: str = "https://www.jobs.ch/en/vacancies/?location=Geneva"
     flatfox_search_url: str = "https://flatfox.ch/en/search/?place=Geneva"
