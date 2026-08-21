@@ -1,7 +1,8 @@
 # France Travail (ex-Pôle Emploi) — legal / technical notes
 
-**Status:** Live connector available (opt-in, disabled by default). **This one uses an
-official, documented, free API — not scraping.**
+**Status:** Live connector available (opt-in, disabled by default). **Official API.**
+The francetravail.io developer portal has been unreliable; **do not block on it**.
+Use provider `adzuna-fr` (same Adzuna keys, Haute-Savoie) until the portal works.
 
 ## Why this connector is different
 
