@@ -32,12 +32,6 @@ export function GoalHub({ t, active, onSelect }: Props) {
         <span className="goal-zone-desc">{t.housingDesc}</span>
       </button>
 
-      <div className={`goal-hub-divider${workActive ? " point-down" : " point-up"}`} aria-hidden="true">
-        <span className="goal-hub-divider-line" />
-        <span className="goal-hub-climb-arrow" />
-        <span className="goal-hub-divider-line" />
-      </div>
-
       <button
         type="button"
         className={`goal-zone work${workActive ? " active" : ""}`}

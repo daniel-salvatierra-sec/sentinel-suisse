@@ -5,6 +5,7 @@
   --jet: #3d9bc4;
   --sun: #e8c46a;
   --clay: #c47b4a;
+  --swiss-red: #da291c;
   --text: #1c2d28;
   --card: #ffffff;
   --shadow: 0 10px 28px rgba(28, 45, 40, 0.1);
@@ -166,7 +167,7 @@ body {
 }
 
 .hero p {
-  margin: 0.45rem 0 1.15rem;
+  margin: 0.45rem 0 0.85rem;
   max-width: 22rem;
   font-family: "Fraunces", "DM Sans", Georgia, serif;
   font-size: clamp(1.05rem, 3.8vw, 1.28rem);
@@ -212,62 +213,6 @@ body {
   background:
     linear-gradient(180deg, rgba(10, 24, 32, 0.28) 0%, transparent 28%, transparent 55%, rgba(8, 16, 22, 0.55) 100%),
     linear-gradient(90deg, rgba(8, 18, 24, 0.55) 0%, transparent 55%);
-}
-
-.goal-hub-divider {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0 0.85rem;
-  margin: -0.35rem 0;
-  pointer-events: none;
-}
-
-.goal-hub-divider-line {
-  flex: 1;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.85) 20%,
-    rgba(232, 196, 106, 0.95) 50%,
-    rgba(255, 255, 255, 0.85) 80%,
-    transparent
-  );
-  box-shadow: 0 0 12px rgba(232, 196, 106, 0.45);
-}
-
-.goal-hub-climb-arrow {
-  flex: 0 0 auto;
-  width: 2.45rem;
-  height: 2.45rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-  position: relative;
-  animation: climb-pulse 2.2s ease-in-out infinite;
-  transition: transform 0.35s ease;
-}
-
-.goal-hub-climb-arrow::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 0.55rem;
-  height: 0.55rem;
-  border-left: 2.5px solid var(--lake);
-  border-top: 2.5px solid var(--lake);
-  transform: translateY(3px) rotate(45deg);
-  transition: transform 0.35s ease;
-}
-
-/* Home selected → arrow points up (toward Home). Work selected → points down. */
-.goal-hub-divider.point-down .goal-hub-climb-arrow::before {
-  transform: translateY(-1px) rotate(225deg);
 }
 
 .goal-zone {
@@ -340,16 +285,6 @@ body {
   color: var(--sun);
   letter-spacing: 0.02em;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.45);
-}
-
-@keyframes climb-pulse {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
 }
 
 @keyframes title-rise {
@@ -1630,16 +1565,44 @@ body {
   filter: brightness(1.06);
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
+}
+
 .share-app-trigger {
-  margin-top: 0.35rem;
-  border: 1px solid rgba(26, 111, 138, 0.28);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--lake);
+  margin-top: 0;
+  border: none;
+  background: var(--swiss-red);
+  color: #fff;
   border-radius: 999px;
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 0.95rem;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 4px 14px rgba(218, 41, 28, 0.35);
+}
+
+.share-app-trigger:hover {
+  filter: brightness(1.06);
+}
+
+.install-app-trigger {
+  margin-top: 0;
+  border: 1.5px solid var(--swiss-red);
+  background: #fff;
+  color: var(--swiss-red);
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.install-app-trigger:hover {
+  background: rgba(218, 41, 28, 0.08);
 }
 
 .share-sheet .share-qr-img {

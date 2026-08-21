@@ -213,6 +213,10 @@ export type Messages = {
   shareWhatsApp: string;
   shareEmail: string;
   shareSms: string;
+  installApp: string;
+  installTitle: string;
+  installDesc: string;
+  installIosHint: string;
   freePlanHint: string;
   freeBadge: string;
   premiumBadge: string;
