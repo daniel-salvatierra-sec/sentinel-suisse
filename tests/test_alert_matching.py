@@ -57,6 +57,17 @@ def test_listing_rejects_wrong_location() -> None:
     assert listing_matches_query(listing, filters) is False
 
 
+def test_geneva_search_matches_french_suburb() -> None:
+    listing = _sample_listing(location="Les Acacias, 1227")
+    assert listing_matches_query(listing, SearchQuery(location="Geneva")) is True
+    assert listing_matches_query(listing, SearchQuery(location="Genève")) is True
+
+
+def test_geneva_search_matches_geneve_spelling() -> None:
+    listing = _sample_listing(location="Genève, 1206")
+    assert listing_matches_query(listing, SearchQuery(location="Geneva")) is True
+
+
 def test_rooms_min_null_safe() -> None:
     listing = _sample_listing(rooms=None)
     filters = SearchQuery(rooms_min=Decimal("2.5"))

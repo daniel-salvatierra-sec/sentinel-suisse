@@ -80,6 +80,21 @@ def _has_parking(listing: dict[str, Any]) -> bool | None:
     return any("park" in name or "garage" in name for name in names)
 
 
+def _format_location(city: Any, zipcode: Any, country: CountryCode) -> str | None:
+    city_s = str(city).strip() if city else ""
+    zip_s = str(zipcode).strip() if zipcode else ""
+    folded = city_s.casefold().replace("è", "e").replace("é", "e")
+    if folded in {"geneve", "genf"}:
+        city_s = "Geneva"
+    parts = [part for part in (city_s, zip_s) if part]
+    if not parts:
+        return None
+    loc = ", ".join(parts)
+    if country == CountryCode.CH and "geneva" not in loc.casefold():
+        loc = f"{loc}, Geneva"
+    return loc[:200]
+
+
 def _source_url(listing: dict[str, Any], listing_id: Any) -> str:
     path = listing.get("url")
     if isinstance(path, str) and path.startswith("http"):
@@ -114,11 +129,9 @@ def map_public_listing(listing: dict[str, Any]) -> RawListing | None:
     if price is not None and price < _MIN_MONTHLY_CHF:
         return None
 
-    city = listing.get("city")
-    zipcode = listing.get("zipcode")
-    location_parts = [str(part) for part in (city, zipcode) if part]
     country_raw = str(listing.get("country") or "CH").upper()
     country = CountryCode.FR if country_raw == "FR" else CountryCode.CH
+    location = _format_location(listing.get("city"), listing.get("zipcode"), country)
 
     rooms = _as_decimal(listing.get("number_of_rooms"))
     property_type = _property_type(category, str(listing.get("object_type") or ""))
@@ -131,7 +144,7 @@ def map_public_listing(listing: dict[str, Any]) -> RawListing | None:
         listing_type=ListingType.HOUSING,
         title=str(title)[:300],
         description=str(description)[:10000] if description else None,
-        location=", ".join(location_parts)[:200] if location_parts else None,
+        location=location,
         country=country,
         price=price,
         rooms=rooms if rooms is not None and rooms <= 20 else None,

@@ -32,7 +32,7 @@ def test_map_apartment_from_public_json() -> None:
     assert listing is not None
     assert listing.external_id == "86294651"
     assert listing.listing_type == "housing"
-    assert listing.location == "Les Acacias, 1227"
+    assert listing.location == "Les Acacias, 1227, Geneva"
     assert listing.rooms == Decimal("2.5")
     assert listing.has_parking is True
     assert str(listing.source_url).endswith("/86294651/")

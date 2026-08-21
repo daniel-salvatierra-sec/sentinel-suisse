@@ -122,7 +122,7 @@ class Settings(BaseSettings):
     flatfox_south: str = "46.12"
     flatfox_east: str = "6.30"
     flatfox_west: str = "5.95"
-    flatfox_max_listings: int = 80
+    flatfox_max_listings: int = 200
     immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"

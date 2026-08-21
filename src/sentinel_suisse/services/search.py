@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.job_taxonomy import BRANCH_PARENT
+from sentinel_suisse.services.location_match import expand_location_query
 
 
 def search_listings(
@@ -24,7 +25,9 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     if filters.listing_type is not None:
         stmt = stmt.where(Listing.listing_type == filters.listing_type)
     if filters.location is not None:
-        stmt = stmt.where(Listing.location.ilike(f"%{filters.location}%"))
+        terms = expand_location_query(filters.location)
+        if terms:
+            stmt = stmt.where(or_(*[Listing.location.ilike(f"%{term}%") for term in terms]))
     if filters.country is not None:
         stmt = stmt.where(Listing.country == filters.country)
     if filters.price_min is not None:

@@ -3,15 +3,14 @@
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.job_taxonomy import job_category_matches
+from sentinel_suisse.services.location_match import location_matches
 
 
 def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
     if filters.listing_type is not None and listing.listing_type != filters.listing_type:
         return False
     if filters.location is not None:
-        if listing.location is None:
-            return False
-        if filters.location.lower() not in listing.location.lower():
+        if not location_matches(listing.location, filters.location):
             return False
     if filters.country is not None and listing.country != filters.country:
         return False
