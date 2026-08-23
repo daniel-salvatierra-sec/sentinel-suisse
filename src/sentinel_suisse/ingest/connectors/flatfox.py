@@ -5,9 +5,9 @@ Two keyless endpoints power flatfox.ch search:
     GET https://flatfox.ch/api/v1/pin/?north=&south=&east=&west=
     GET https://flatfox.ch/api/v1/public-listing/{pk}/
 
-Pin search is geo-filtered (Geneva + border). List search ignores city/bbox, so we
-do not paginate the nationwide 35k feed. Apply URL is always the Flatfox listing
-page — LinkSwiss does not host applications.
+Pin search is geo-filtered (one bbox per Swiss region). List search ignores
+city/bbox, so we do not paginate the nationwide 35k feed. Apply URL is always
+the Flatfox listing page — LinkSwiss does not host applications.
 
 Documented API: https://flatfox.ch/docs/api/  robots.txt allows /. Live ingest stays
 opt-in (`INGEST_FLATFOX_LIVE`). See docs/providers/flatfox.md.
@@ -31,6 +31,21 @@ _SITE = "https://flatfox.ch"
 
 _SKIP_CATEGORIES = frozenset({"PARK", "INDUSTRY", "GASTRO", "AGRICULTURE"})
 _MIN_MONTHLY_CHF = Decimal("500")
+
+# north, south, east, west — city-scale boxes, not the whole country.
+_REGION_BOXES: dict[str, tuple[str, str, str, str]] = {
+    "zurich": ("47.45", "47.30", "8.70", "8.40"),
+    "bern": ("47.05", "46.85", "7.55", "7.30"),
+    "basel": ("47.62", "47.50", "7.70", "7.50"),
+    "lausanne": ("46.62", "46.48", "6.75", "6.55"),
+    "lugano": ("46.05", "45.95", "9.00", "8.88"),
+    "luzern": ("47.10", "47.02", "8.38", "8.25"),
+    "stgallen": ("47.46", "47.40", "9.42", "9.32"),
+    "sion": ("46.26", "46.20", "7.40", "7.32"),
+    "fribourg": ("46.83", "46.78", "7.18", "7.12"),
+    "neuchatel": ("47.01", "46.97", "6.97", "6.90"),
+    "winterthur": ("47.53", "47.47", "8.78", "8.68"),
+}
 
 
 class FlatfoxFetchError(RuntimeError):
@@ -83,16 +98,18 @@ def _has_parking(listing: dict[str, Any]) -> bool | None:
 def _format_location(city: Any, zipcode: Any, country: CountryCode) -> str | None:
     city_s = str(city).strip() if city else ""
     zip_s = str(zipcode).strip() if zipcode else ""
-    folded = city_s.casefold().replace("è", "e").replace("é", "e")
+    folded = city_s.casefold().replace("è", "e").replace("é", "e").replace("ü", "u")
     if folded in {"geneve", "genf"}:
         city_s = "Geneva"
+    elif folded == "zurich":
+        city_s = "Zurich"
     parts = [part for part in (city_s, zip_s) if part]
     if not parts:
         return None
-    loc = ", ".join(parts)
-    if country == CountryCode.CH and "geneva" not in loc.casefold():
-        loc = f"{loc}, Geneva"
-    return loc[:200]
+    location = ", ".join(parts)
+    if country == CountryCode.FR and "FR" not in location:
+        location = f"{location}, FR"
+    return location[:200]
 
 
 def _source_url(listing: dict[str, Any], listing_id: Any) -> str:
@@ -184,34 +201,74 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
         raise FlatfoxDisabledError(msg)
 
     headers = {"User-Agent": settings.ingest_user_agent, "Accept": "application/json"}
-    params = {
-        "north": settings.flatfox_north,
-        "south": settings.flatfox_south,
-        "east": settings.flatfox_east,
-        "west": settings.flatfox_west,
-    }
-    try:
-        time.sleep(settings.ingest_rate_limit_seconds)
-        pin_response = httpx.get(_PIN_URL, params=params, headers=headers, timeout=30.0)
-        pin_response.raise_for_status()
-        pin_payload = pin_response.json()
-    except httpx.HTTPError as exc:
-        msg = f"Flatfox pin request failed: {exc}"
-        raise FlatfoxFetchError(msg) from exc
-    except ValueError as exc:
-        msg = f"Flatfox pin response was not valid JSON: {exc}"
-        raise FlatfoxFetchError(msg) from exc
-
-    pks = parse_pin_list(pin_payload)[: settings.flatfox_max_listings]
     listings: list[RawListing] = []
-    for pk in pks:
-        detail = _fetch_detail(settings, headers, pk)
-        if detail is None:
-            continue
-        mapped = map_public_listing(detail)
-        if mapped is not None:
+    seen: set[str] = set()
+    per_region = max(1, settings.flatfox_max_per_region)
+    total_cap = max(1, settings.flatfox_max_listings)
+
+    for north, south, east, west in _iter_region_boxes(settings):
+        if len(listings) >= total_cap:
+            break
+        try:
+            time.sleep(settings.ingest_rate_limit_seconds)
+            pin_response = httpx.get(
+                _PIN_URL,
+                params={"north": north, "south": south, "east": east, "west": west},
+                headers=headers,
+                timeout=30.0,
+            )
+            pin_response.raise_for_status()
+            pin_payload = pin_response.json()
+        except httpx.HTTPError as exc:
+            msg = f"Flatfox pin request failed: {exc}"
+            raise FlatfoxFetchError(msg) from exc
+        except ValueError as exc:
+            msg = f"Flatfox pin response was not valid JSON: {exc}"
+            raise FlatfoxFetchError(msg) from exc
+
+        remaining = total_cap - len(listings)
+        pks = parse_pin_list(pin_payload)[: min(per_region, remaining)]
+        for pk in pks:
+            detail = _fetch_detail(settings, headers, pk)
+            if detail is None:
+                continue
+            mapped = map_public_listing(detail)
+            if mapped is None or mapped.external_id in seen:
+                continue
+            seen.add(mapped.external_id)
             listings.append(mapped)
+            if len(listings) >= total_cap:
+                break
     return listings
+
+
+def _iter_region_boxes(settings: Settings) -> list[tuple[str, str, str, str]]:
+    names = [item.strip().lower() for item in settings.flatfox_regions.split(",") if item.strip()]
+    if not names:
+        names = ["geneva"]
+    boxes: list[tuple[str, str, str, str]] = []
+    for name in names:
+        if name == "geneva":
+            boxes.append(
+                (
+                    settings.flatfox_north,
+                    settings.flatfox_south,
+                    settings.flatfox_east,
+                    settings.flatfox_west,
+                )
+            )
+            continue
+        box = _REGION_BOXES.get(name)
+        if box is not None:
+            boxes.append(box)
+    return boxes or [
+        (
+            settings.flatfox_north,
+            settings.flatfox_south,
+            settings.flatfox_east,
+            settings.flatfox_west,
+        )
+    ]
 
 
 def _fetch_detail(settings: Settings, headers: dict[str, str], pk: int) -> dict[str, Any] | None:

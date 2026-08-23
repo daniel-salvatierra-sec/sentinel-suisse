@@ -26,9 +26,11 @@ off. Partnership email: `docs/outreach/smg-real-estate.md`.
 
 ## Technical
 
-- Pin search geo-filters (list search ignores city/bbox and would return 35k ads).
+- Pin search geo-filters per region (`FLATFOX_REGIONS`: Geneva, Zurich, Bern,
+  Basel, Lausanne, Lugano, Lucerne, St. Gallen, Sion, Fribourg, Neuchatel,
+  Winterthur). List search ignores city/bbox and would return 35k ads.
 - Skip parking / industrial / CHF < 500 / yearly m² (offices).
-- Cap: `FLATFOX_MAX_LISTINGS` (default 200) detail fetches, rate-limited.
+- Cap: `FLATFOX_MAX_PER_REGION` (default 30) and `FLATFOX_MAX_LISTINGS` (default 200).
 - `listing_type`: always `housing`.
 - Fixture for parser tests: `fixtures/flatfox_api_sample.json`
 

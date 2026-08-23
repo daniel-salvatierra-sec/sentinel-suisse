@@ -51,3 +51,4 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-41-france-border.md](phase-41-france-border.md) | France border (Leboncoin + Indeed FR + zone filter) |
 | [phase-42-owner-dashboard.md](phase-42-owner-dashboard.md) | Owner dashboard (users, ads, Premium, ingest) |
 | [phase-43-national-zones.md](phase-43-national-zones.md) | National CH jobs + FR/DE/IT border zones |
+| [phase-44-national-housing.md](phase-44-national-housing.md) | National housing via Flatfox city boxes |
