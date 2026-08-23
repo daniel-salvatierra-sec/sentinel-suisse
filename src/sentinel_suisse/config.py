@@ -82,7 +82,12 @@ class Settings(BaseSettings):
         "Geneve,Zurich,Bern,Basel,Lausanne,Lugano,"
         "Luzern,St. Gallen,Winterthur,Fribourg,Neuchatel,"
         "Biel,Zug,Sion,Chur,Bellinzona,Schaffhausen,"
-        "Thun,Aarau,La Chaux-de-Fonds"
+        "Thun,Aarau,La Chaux-de-Fonds,"
+        "Nyon,Morges,Vevey,Montreux,Yverdon,Bulle,"
+        "Martigny,Sierre,Monthey,Delemont,"
+        "Olten,Baden,Wil,Uster,Frauenfeld,Solothurn,"
+        "Langenthal,Interlaken,Liestal,Kreuzlingen,"
+        "Locarno,Mendrisio,Chiasso,Brig,Schwyz,Emmen,Dietikon,Horgen"
     )
     # Second Adzuna pass for France (Haute-Savoie / Geneva border). Same app_id/key;
     # France Travail developer portal is not required.

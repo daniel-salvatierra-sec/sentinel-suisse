@@ -34,11 +34,10 @@ outreach to SECO/SMG (docs/outreach/) is pending.
   Adzuna account can query multiple countries, but ingest runs one country per call;
   run twice with different `ADZUNA_COUNTRY`/provider rows to cover both).
 - `ADZUNA_KEYWORDS` -> `what`, `ADZUNA_LOCATION` -> `where`.
-- `ADZUNA_LOCATIONS` (comma-separated) walks Swiss cities in one `adzuna` run
-  (Geneva, Zurich, Bern, Basel, Lausanne, Lugano, Lucerne, St. Gallen, Winterthur,
-  Fribourg, Neuchatel, Biel, Zug, Sion, Chur, Bellinzona, Schaffhausen, Thun,
-  Aarau, La Chaux-de-Fonds). Empty = `ADZUNA_LOCATION` only. ~20 cities ×
-  `ADZUNA_MAX_PAGES` requests per run — keep the CH cron well under 250 req/day.
+- `ADZUNA_LOCATIONS` (comma-separated) walks Swiss cities in one `adzuna` run:
+  the large centres plus smaller towns (Nyon, Vevey, Olten, Locarno, Brig, …).
+  Empty = `ADZUNA_LOCATION` only. ~48 cities × `ADZUNA_MAX_PAGES` requests per
+  run — run CH ingest a few times a day, not every hour (250 req/day free cap).
 - `listing_type`: always `job`. `country`: mapped from `ADZUNA_COUNTRY`
   (`ch`/`fr`/`de`/`it`).
 - Free tier limits: 25 requests/min, 250/day, 2 500/month — comfortably enough for a

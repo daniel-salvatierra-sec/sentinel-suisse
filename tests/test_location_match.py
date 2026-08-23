@@ -37,6 +37,15 @@ def test_more_swiss_city_aliases() -> None:
     assert location_matches("Fribourg", "Freiburg") is True
 
 
+def test_smaller_swiss_town_aliases() -> None:
+    assert "Yverdon-les-Bains" in expand_location_query("Yverdon")
+    assert "Siders" in expand_location_query("Sierre")
+    assert "Soleure" in expand_location_query("Solothurn")
+    assert "Brigue" in expand_location_query("Brig")
+    assert location_matches("Locarno, Ticino", "Locarno") is True
+    assert location_matches("Delémont", "Delsberg") is True
+
+
 def test_location_matches_suburb_for_geneva() -> None:
     assert location_matches("Châtelaine, 1219", "Geneva") is True
     assert location_matches("Lausanne, 1003", "Geneva") is False

@@ -50,6 +50,8 @@ _LOCATION_TRANSLATIONS: dict[str, str] = {
     "Sankt Gallen": "St. Gallen",
     "Neuenburg": "Neuchatel",
     "Freiburg": "Fribourg",
+    "Delsberg": "Delemont",
+    "Siders": "Sierre",
 }
 
 # "Kanton Genf, Schweiz" (canton-level only, no specific city known) -> just "Geneva".

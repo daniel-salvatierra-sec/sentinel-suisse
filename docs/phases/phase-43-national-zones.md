@@ -13,7 +13,7 @@
 
 | Slug | Country | Cities |
 |------|---------|--------|
-| `adzuna` | CH | Geneva, Zurich, Bern, Basel, Lausanne, Lugano, Lucerne, St. Gallen, Winterthur, Fribourg, Neuchatel, Biel, Zug, Sion, Chur, Bellinzona, Schaffhausen, Thun, Aarau, La Chaux-de-Fonds |
+| `adzuna` | CH | Large centres plus smaller towns (Nyon, Vevey, Olten, Locarno, Brig, …) |
 | `adzuna-fr` | FR | Haute-Savoie + Geneva border towns (existing) |
 | `adzuna-de` | DE | Lörrach, Weil am Rhein, Konstanz, Waldshut |
 | `adzuna-it` | IT | Como, Varese, Domodossola |
