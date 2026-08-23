@@ -88,6 +88,8 @@ Example cron on VPS:
 */5 * * * * /opt/sentinel-suisse/deploy/monitor-health.sh https://your-domain.example/health
 0 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna >> /var/log/linkswiss-ingest.log 2>&1
 10 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna-fr >> /var/log/linkswiss-ingest.log 2>&1
+20 4 * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna-de >> /var/log/linkswiss-ingest.log 2>&1
+40 4 * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna-it >> /var/log/linkswiss-ingest.log 2>&1
 15 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh france-travail >> /var/log/linkswiss-ingest.log 2>&1
 25 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh temenos >> /var/log/linkswiss-ingest.log 2>&1
 30 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh smartrecruiters >> /var/log/linkswiss-ingest.log 2>&1

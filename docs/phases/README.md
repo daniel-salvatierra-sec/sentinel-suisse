@@ -49,4 +49,5 @@ Reports are written in **English** (professional standard for Switzerland / inte
 | [phase-39-warm-hub.md](phase-39-warm-hub.md) | Warm alpine Home/Work hub presentation |
 | [phase-40-ch-providers.md](phase-40-ch-providers.md) | More CH providers (newhome, anibis, jobup) |
 | [phase-41-france-border.md](phase-41-france-border.md) | France border (Leboncoin + Indeed FR + zone filter) |
-| [phase-42-owner-dashboard.md](phase-42-owner-dashboard.md) | **Queued** — owner dashboard (users, ads, Premium, ingest) |
+| [phase-42-owner-dashboard.md](phase-42-owner-dashboard.md) | Owner dashboard (users, ads, Premium, ingest) |
+| [phase-43-national-zones.md](phase-43-national-zones.md) | National CH jobs + FR/DE/IT border zones |

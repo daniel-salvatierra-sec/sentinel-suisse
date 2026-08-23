@@ -13,6 +13,8 @@ class ListingType(enum.StrEnum):
 class CountryCode(enum.StrEnum):
     CH = "CH"
     FR = "FR"
+    DE = "DE"
+    IT = "IT"
 
 
 class PropertyType(enum.StrEnum):

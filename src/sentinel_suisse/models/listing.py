@@ -104,6 +104,7 @@ class Listing(Base):
         nullable=True,
         index=True,
     )
+    is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

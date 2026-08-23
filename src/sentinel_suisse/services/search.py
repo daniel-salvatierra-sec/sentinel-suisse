@@ -29,6 +29,7 @@ def search_listings(
 
 
 def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select[tuple[Listing]]:
+    stmt = stmt.where(Listing.is_hidden.is_(False))
     if filters.listing_type is not None:
         stmt = stmt.where(Listing.listing_type == filters.listing_type)
     if filters.location is not None:

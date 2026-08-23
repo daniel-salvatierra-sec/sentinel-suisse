@@ -76,6 +76,7 @@ def test_fetch_search_listings_when_enabled(mock_get: MagicMock) -> None:
         adzuna_app_key="test-app-key",  # noqa: S106
         adzuna_country="ch",
         adzuna_location="Geneve",
+        adzuna_locations="",
         ingest_rate_limit_seconds=0,
     )
     listings = fetch_search_listings(settings)
@@ -87,6 +88,31 @@ def test_fetch_search_listings_when_enabled(mock_get: MagicMock) -> None:
     call_params = call_args.kwargs["params"]
     assert call_params["app_id"] == "test-app-id"
     assert call_params["where"] == "Geneve"
+
+
+@patch("sentinel_suisse.ingest.connectors.adzuna.httpx.get")
+def test_fetch_walks_swiss_cities(mock_get: MagicMock) -> None:
+    payload = json.loads(_FIXTURE.read_text(encoding="utf-8"))
+    response = MagicMock()
+    response.raise_for_status = MagicMock()
+    response.json.return_value = payload
+    mock_get.return_value = response
+
+    listings = fetch_search_listings(
+        Settings(
+            ingest_adzuna_live=True,
+            adzuna_app_id="test-app-id",
+            adzuna_app_key="test-app-key",  # noqa: S106
+            adzuna_country="ch",
+            adzuna_locations="Geneve,Zurich,Bern",
+            ingest_rate_limit_seconds=0,
+        )
+    )
+
+    assert len(listings) == 2
+    assert mock_get.call_count == 3
+    wheres = [call.kwargs["params"]["where"] for call in mock_get.call_args_list]
+    assert wheres == ["Geneve", "Zurich", "Bern"]
 
 
 @patch("sentinel_suisse.ingest.connectors.adzuna.httpx.get")

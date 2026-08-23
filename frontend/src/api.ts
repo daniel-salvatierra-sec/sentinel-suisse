@@ -1,5 +1,5 @@
 export type ListingType = "housing" | "job";
-export type CountryCode = "CH" | "FR";
+export type CountryCode = "CH" | "FR" | "DE" | "IT";
 export type PropertyType = "studio" | "apartment" | "house" | "room" | "other";
 export type EmploymentType =
   | "permanent"

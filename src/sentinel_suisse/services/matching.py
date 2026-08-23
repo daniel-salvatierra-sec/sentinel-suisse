@@ -10,6 +10,8 @@ from sentinel_suisse.services.location_match import location_matches
 def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
     if not listing_is_fresh(listing):
         return False
+    if listing.is_hidden:
+        return False
     if filters.listing_type is not None and listing.listing_type != filters.listing_type:
         return False
     if filters.location is not None:

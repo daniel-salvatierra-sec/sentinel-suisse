@@ -14,6 +14,8 @@ _GENEVA_QUERY_ALIASES = frozenset(
         "genf",
         "ginebra",
         "ginevra",
+        "gva",
+        "cointrin",
     }
 )
 
@@ -80,6 +82,8 @@ _GENEVA_AREA_TERMS: tuple[str, ...] = (
     "01210",
     "74160",
     "74240",
+    "GVA",
+    "Cointrin",
 )
 
 
@@ -103,13 +107,62 @@ def _fold(value: str) -> str:
     )
 
 
+def _alias_set(*names: str) -> frozenset[str]:
+    return frozenset(_fold(name) for name in names)
+
+
+_ZURICH_TERMS: tuple[str, ...] = (
+    "Zurich",
+    "Zürich",
+    "Zurigo",
+    "Kloten",
+    "ZRH",
+)
+_BERN_TERMS: tuple[str, ...] = (
+    "Bern",
+    "Berne",
+    "Berna",
+    "BRN",
+)
+_BASEL_TERMS: tuple[str, ...] = (
+    "Basel",
+    "Bâle",
+    "Bale",
+    "Basilea",
+    "BSL",
+    "EuroAirport",
+)
+_LAUSANNE_TERMS: tuple[str, ...] = (
+    "Lausanne",
+    "Losanna",
+)
+_LUGANO_TERMS: tuple[str, ...] = ("Lugano",)
+
+_CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
+    (_GENEVA_QUERY_ALIASES, _GENEVA_AREA_TERMS),
+    (
+        _alias_set("zurich", "zürich", "zurigo", "zrh", "kloten", "zurich airport"),
+        _ZURICH_TERMS,
+    ),
+    (_alias_set("bern", "berne", "berna", "brn"), _BERN_TERMS),
+    (
+        _alias_set("basel", "bâle", "bale", "basilea", "bsl", "euroairport"),
+        _BASEL_TERMS,
+    ),
+    (_alias_set("lausanne", "losanna"), _LAUSANNE_TERMS),
+    (_alias_set("lugano"), _LUGANO_TERMS),
+)
+
+
 def expand_location_query(query: str) -> list[str]:
     """Return ILIKE needles for a user location string."""
     stripped = query.strip()
     if not stripped:
         return []
-    if _fold(stripped) in _GENEVA_QUERY_ALIASES:
-        return list(_GENEVA_AREA_TERMS)
+    folded = _fold(stripped)
+    for aliases, terms in _CITY_GROUPS:
+        if folded in aliases:
+            return list(terms)
     return [stripped]
 
 

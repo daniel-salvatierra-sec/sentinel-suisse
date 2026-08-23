@@ -14,6 +14,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.api.routes import (
+    admin,
     alerts,
     assistant,
     billing,
@@ -68,9 +69,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application = FastAPI(
         title="Sentinel Suisse API",
         description="Sentinel Suisse — housing and job alerts",
-        version="0.45.0",
+        version="0.47.0",
         docs_url="/docs" if settings.app_env == "development" else None,
         redoc_url=None,
+        openapi_url="/openapi.json" if settings.app_env == "development" else None,
     )
 
     application.state.limiter = limiter
@@ -106,6 +108,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             allow_headers=["*"],
         )
 
+    application.include_router(admin.router, prefix="/api/v1")
     application.include_router(providers.router, prefix="/api/v1")
     application.include_router(listings.router, prefix="/api/v1")
     application.include_router(search.router, prefix="/api/v1")
@@ -164,11 +167,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         mimetypes.add_type("application/manifest+json", ".webmanifest")
 
         manifest_path = dist / "manifest.webmanifest"
+        index_html = dist / "index.html"
 
         @application.get("/manifest.webmanifest")
         @limiter.exempt
         def web_manifest() -> FileResponse:
             return FileResponse(manifest_path, media_type="application/manifest+json")
+
+        @application.get("/admin")
+        @application.get("/admin/{rest:path}")
+        @limiter.exempt
+        def owner_dashboard_spa(rest: str = "") -> FileResponse:
+            # SPA entry for the operator cockpit. Not linked from the public home.
+            return FileResponse(
+                index_html,
+                headers={"X-Robots-Tag": "noindex, nofollow"},
+            )
 
         application.mount("/", StaticFiles(directory=str(dist), html=True), name="frontend")
 

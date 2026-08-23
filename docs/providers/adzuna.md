@@ -34,7 +34,10 @@ outreach to SECO/SMG (docs/outreach/) is pending.
   Adzuna account can query multiple countries, but ingest runs one country per call;
   run twice with different `ADZUNA_COUNTRY`/provider rows to cover both).
 - `ADZUNA_KEYWORDS` -> `what`, `ADZUNA_LOCATION` -> `where`.
-- `listing_type`: always `job`. `country`: mapped from `ADZUNA_COUNTRY` (`ch`/`fr`).
+- `ADZUNA_LOCATIONS` (comma-separated) walks several Swiss cities in one `adzuna`
+  run (Geneva, Zurich, Bern, Basel, Lausanne, Lugano). Empty = `ADZUNA_LOCATION` only.
+- `listing_type`: always `job`. `country`: mapped from `ADZUNA_COUNTRY`
+  (`ch`/`fr`/`de`/`it`).
 - Free tier limits: 25 requests/min, 250/day, 2 500/month — comfortably enough for a
   periodic batch ingest job (e.g. hourly cron), not meant for live per-user-search
   calls.
@@ -57,11 +60,10 @@ Register the provider once via the admin API before the first run:
 ## Limitations (MVP)
 
 - Single page per run (`results_per_page=50`) — no pagination loop yet
-- One country per run — `ADZUNA_COUNTRY` picks `ch` or `fr`. **Adzuna France** is a
-  second provider slug (`adzuna-fr`, `INGEST_ADZUNA_FR_LIVE`) that reuses the same
-  keys and queries `country=fr` plus border locations (Haute-Savoie, Annemasse,
-  Ferney, Saint-Julien, Gaillard). That is the live substitute for France Travail
-  while francetravail.io is unusable.
+- One country per run — `ADZUNA_COUNTRY` picks `ch`, `fr`, `de`, or `it`.
+  **Adzuna France** (`adzuna-fr`) queries `country=fr` plus Haute-Savoie border towns.
+  **Adzuna Germany** (`adzuna-de`) and **Adzuna Italy** (`adzuna-it`) cover the
+  German and Italian borders the same way. Same keys; do not scrape portals.
 - Pagination: `ADZUNA_MAX_PAGES` (default 3, 50 results per page).
 - Category comes from Adzuna's own taxonomy (`category.label`), not ours — matching
   against saved-search `job_category` filters may need a mapping layer later

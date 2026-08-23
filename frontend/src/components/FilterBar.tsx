@@ -129,14 +129,6 @@ export function FilterBar({
       <div className="filter-chips" role="group" aria-label={t.zoneLabel}>
         <button
           type="button"
-          className={zoneChoice === "CH" ? "chip active" : "chip"}
-          aria-pressed={zoneChoice === "CH"}
-          onClick={() => onZoneChoiceChange(zoneChoice === "CH" ? "" : "CH")}
-        >
-          {t.zoneCH}
-        </button>
-        <button
-          type="button"
           className={zoneChoice === "" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === ""}
           onClick={() => onZoneChoiceChange("")}
@@ -145,11 +137,35 @@ export function FilterBar({
         </button>
         <button
           type="button"
+          className={zoneChoice === "CH" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === "CH"}
+          onClick={() => onZoneChoiceChange(zoneChoice === "CH" ? "" : "CH")}
+        >
+          {t.zoneCH}
+        </button>
+        <button
+          type="button"
           className={zoneChoice === "FR" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "FR"}
           onClick={() => onZoneChoiceChange(zoneChoice === "FR" ? "" : "FR")}
         >
           {t.zoneFR}
+        </button>
+        <button
+          type="button"
+          className={zoneChoice === "DE" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === "DE"}
+          onClick={() => onZoneChoiceChange(zoneChoice === "DE" ? "" : "DE")}
+        >
+          {t.zoneDE}
+        </button>
+        <button
+          type="button"
+          className={zoneChoice === "IT" ? "chip active" : "chip"}
+          aria-pressed={zoneChoice === "IT"}
+          onClick={() => onZoneChoiceChange(zoneChoice === "IT" ? "" : "IT")}
+        >
+          {t.zoneIT}
         </button>
       </div>
 

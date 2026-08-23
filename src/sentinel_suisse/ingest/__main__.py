@@ -13,9 +13,17 @@ from sentinel_suisse.ingest.connectors.adzuna import (
 from sentinel_suisse.ingest.connectors.adzuna import (
     fetch_search_listings as fetch_adzuna_listings,
 )
+from sentinel_suisse.ingest.connectors.adzuna_de import AdzunaDeDisabledError
+from sentinel_suisse.ingest.connectors.adzuna_de import (
+    fetch_search_listings as fetch_adzuna_de_listings,
+)
 from sentinel_suisse.ingest.connectors.adzuna_fr import AdzunaFrDisabledError
 from sentinel_suisse.ingest.connectors.adzuna_fr import (
     fetch_search_listings as fetch_adzuna_fr_listings,
+)
+from sentinel_suisse.ingest.connectors.adzuna_it import AdzunaItDisabledError
+from sentinel_suisse.ingest.connectors.adzuna_it import (
+    fetch_search_listings as fetch_adzuna_it_listings,
 )
 from sentinel_suisse.ingest.connectors.anibis import (
     AnibisDisabledError,
@@ -153,6 +161,8 @@ _LIVE_CONNECTORS = {
     "france-travail": fetch_france_travail_listings,
     "adzuna": fetch_adzuna_listings,
     "adzuna-fr": fetch_adzuna_fr_listings,
+    "adzuna-de": fetch_adzuna_de_listings,
+    "adzuna-it": fetch_adzuna_it_listings,
     "smartrecruiters": fetch_smartrecruiters_listings,
     "richemont": fetch_richemont_listings,
     "lombard-odier": fetch_lombard_odier_listings,
@@ -170,7 +180,7 @@ def main() -> None:
         required=True,
         help=(
             "Provider slug (e.g. homegate, leboncoin, indeed-fr, france-travail, adzuna, "
-            "adzuna-fr, "
+            "adzuna-fr, adzuna-de, adzuna-it, "
             "smartrecruiters, richemont, lombard-odier, logitech, procter-gamble, "
             "stmicroelectronics, temenos)"
         ),
@@ -235,6 +245,8 @@ def main() -> None:
         AdzunaDisabledError,
         AdzunaFetchError,
         AdzunaFrDisabledError,
+        AdzunaDeDisabledError,
+        AdzunaItDisabledError,
         SmartRecruitersDisabledError,
         SmartRecruitersFetchError,
         RichemontDisabledError,

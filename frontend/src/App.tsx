@@ -265,7 +265,12 @@ export default function App() {
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
     setCategory(saved.listing_type);
     setQuery(saved.location ?? "");
-    if (saved.country === "CH" || saved.country === "FR") {
+    if (
+      saved.country === "CH" ||
+      saved.country === "FR" ||
+      saved.country === "DE" ||
+      saved.country === "IT"
+    ) {
       setZoneChoice(saved.country);
       setAppliedZoneChoice(saved.country);
     } else {

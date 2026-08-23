@@ -74,6 +74,12 @@ def test_stale_listing_does_not_match() -> None:
     assert listing_matches_query(listing, SearchQuery(location="Geneva")) is False
 
 
+def test_hidden_listing_does_not_match() -> None:
+    listing = _sample_listing(location="Geneva")
+    listing.is_hidden = True
+    assert listing_matches_query(listing, SearchQuery(location="Geneva")) is False
+
+
 def test_rooms_min_null_safe() -> None:
     listing = _sample_listing(rooms=None)
     filters = SearchQuery(rooms_min=Decimal("2.5"))
@@ -134,3 +140,6 @@ def test_country_filter() -> None:
     listing = _sample_listing(country=CountryCode.FR, location="Annemasse")
     assert listing_matches_query(listing, SearchQuery(country=CountryCode.FR)) is True
     assert listing_matches_query(listing, SearchQuery(country=CountryCode.CH)) is False
+    german = _sample_listing(country=CountryCode.DE, location="Konstanz")
+    assert listing_matches_query(german, SearchQuery(country=CountryCode.DE)) is True
+    assert listing_matches_query(german, SearchQuery(country=CountryCode.IT)) is False
