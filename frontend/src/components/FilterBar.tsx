@@ -5,16 +5,19 @@ import {
   JOB_FIELDS,
   type JobField,
 } from "../jobTaxonomy";
+import { SWISS_CITIES } from "../swissCities";
 
 export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "5";
 export type WorkloadChoice = "" | "40-60" | "80-100";
-export type ZoneChoice = "" | CountryCode;
+export type ZoneChoice = CountryCode;
 
 type Props = {
   t: Messages;
   category: ListingType;
   zoneChoice: ZoneChoice;
   onZoneChoiceChange: (value: ZoneChoice) => void;
+  cityChoice: string;
+  onCityChoiceChange: (value: string) => void;
   roomsChoice: RoomsChoice;
   onRoomsChoiceChange: (value: RoomsChoice) => void;
   hasParking: boolean;
@@ -99,6 +102,8 @@ export function FilterBar({
   category,
   zoneChoice,
   onZoneChoiceChange,
+  cityChoice,
+  onCityChoiceChange,
   roomsChoice,
   onRoomsChoiceChange,
   hasParking,
@@ -129,17 +134,9 @@ export function FilterBar({
       <div className="filter-chips" role="group" aria-label={t.zoneLabel}>
         <button
           type="button"
-          className={zoneChoice === "" ? "chip active" : "chip"}
-          aria-pressed={zoneChoice === ""}
-          onClick={() => onZoneChoiceChange("")}
-        >
-          {t.zoneBoth}
-        </button>
-        <button
-          type="button"
           className={zoneChoice === "CH" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "CH"}
-          onClick={() => onZoneChoiceChange(zoneChoice === "CH" ? "" : "CH")}
+          onClick={() => onZoneChoiceChange("CH")}
         >
           {t.zoneCH}
         </button>
@@ -147,7 +144,7 @@ export function FilterBar({
           type="button"
           className={zoneChoice === "FR" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "FR"}
-          onClick={() => onZoneChoiceChange(zoneChoice === "FR" ? "" : "FR")}
+          onClick={() => onZoneChoiceChange("FR")}
         >
           {t.zoneFR}
         </button>
@@ -155,7 +152,7 @@ export function FilterBar({
           type="button"
           className={zoneChoice === "DE" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "DE"}
-          onClick={() => onZoneChoiceChange(zoneChoice === "DE" ? "" : "DE")}
+          onClick={() => onZoneChoiceChange("DE")}
         >
           {t.zoneDE}
         </button>
@@ -163,11 +160,28 @@ export function FilterBar({
           type="button"
           className={zoneChoice === "IT" ? "chip active" : "chip"}
           aria-pressed={zoneChoice === "IT"}
-          onClick={() => onZoneChoiceChange(zoneChoice === "IT" ? "" : "IT")}
+          onClick={() => onZoneChoiceChange("IT")}
         >
           {t.zoneIT}
         </button>
       </div>
+
+      {zoneChoice === "CH" ? (
+        <label className="filter-city">
+          {t.cityLabel}
+          <select
+            value={cityChoice}
+            onChange={(event) => onCityChoiceChange(event.target.value)}
+          >
+            <option value="">{t.cityAll}</option>
+            {SWISS_CITIES.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
 
       {category === "housing" && (
         <>

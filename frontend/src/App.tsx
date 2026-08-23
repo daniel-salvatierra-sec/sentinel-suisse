@@ -33,6 +33,7 @@ import type { ListingSignalContext } from "./listingSignals";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
+import { matchSwissCity } from "./swissCities";
 
 type Tab = "list" | "map" | "alerts" | "account";
 
@@ -66,7 +67,7 @@ export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
   const [category, setCategory] = useState<ListingType>("housing");
   const [query, setQuery] = useState("");
-  const [zoneChoice, setZoneChoice] = useState<ZoneChoice>("");
+  const [zoneChoice, setZoneChoice] = useState<ZoneChoice>("CH");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
@@ -76,7 +77,7 @@ export default function App() {
   const [jobBranch, setJobBranch] = useState("");
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
   const [workloadChoice, setWorkloadChoice] = useState<WorkloadChoice>("");
-  const [appliedZoneChoice, setAppliedZoneChoice] = useState<ZoneChoice>("");
+  const [appliedZoneChoice, setAppliedZoneChoice] = useState<ZoneChoice>("CH");
   const [appliedPriceMin, setAppliedPriceMin] = useState("");
   const [appliedPriceMax, setAppliedPriceMax] = useState("");
   const [appliedRoomsChoice, setAppliedRoomsChoice] = useState<RoomsChoice>("");
@@ -127,7 +128,7 @@ export default function App() {
       return {
         listing_type: category,
         location: query,
-        country: appliedZoneChoice || undefined,
+        country: appliedZoneChoice,
         price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
         price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
         rooms_min: category === "housing" ? rooms.rooms_min : undefined,
@@ -274,8 +275,8 @@ export default function App() {
       setZoneChoice(saved.country);
       setAppliedZoneChoice(saved.country);
     } else {
-      setZoneChoice("");
-      setAppliedZoneChoice("");
+      setZoneChoice("CH");
+      setAppliedZoneChoice("CH");
     }
     setTab("list");
   };
@@ -373,6 +374,13 @@ export default function App() {
         onZoneChoiceChange={(value) => {
           setZoneChoice(value);
           setAppliedZoneChoice(value);
+          if (value !== "CH") {
+            setQuery("");
+          }
+        }}
+        cityChoice={matchSwissCity(query)}
+        onCityChoiceChange={(value) => {
+          setQuery(value);
         }}
         roomsChoice={roomsChoice}
         onRoomsChoiceChange={setRoomsChoice}

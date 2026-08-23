@@ -611,6 +611,26 @@ body {
   color: var(--ink-soft, #4a5560);
 }
 
+.filter-city {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--ink-soft, #4a5560);
+}
+
+.filter-city select {
+  font: inherit;
+  font-weight: 500;
+  color: var(--text);
+  border: 1.5px solid rgba(28, 45, 40, 0.18);
+  border-radius: 0.7rem;
+  padding: 0.55rem 0.7rem;
+  background: #fff;
+}
+
 .chip {
   border: 1px solid rgba(30, 107, 140, 0.3);
   background: var(--mist);

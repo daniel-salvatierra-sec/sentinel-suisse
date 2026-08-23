@@ -30,11 +30,12 @@ export type Messages = {
   filters: string;
   filterAny: string;
   zoneLabel: string;
-  zoneBoth: string;
   zoneCH: string;
   zoneFR: string;
   zoneDE: string;
   zoneIT: string;
+  cityLabel: string;
+  cityAll: string;
   roomsLabel: string;
   roomsStudio: string;
   rooms15: string;
