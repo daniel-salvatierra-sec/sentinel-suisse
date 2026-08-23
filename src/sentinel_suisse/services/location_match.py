@@ -137,6 +137,25 @@ _LAUSANNE_TERMS: tuple[str, ...] = (
     "Losanna",
 )
 _LUGANO_TERMS: tuple[str, ...] = ("Lugano",)
+_LUCERNE_TERMS: tuple[str, ...] = ("Lucerne", "Luzern", "Lucerna")
+_ST_GALLEN_TERMS: tuple[str, ...] = (
+    "St. Gallen",
+    "Sankt Gallen",
+    "Saint-Gall",
+    "San Galo",
+)
+_WINTERTHUR_TERMS: tuple[str, ...] = ("Winterthur",)
+_FRIBOURG_TERMS: tuple[str, ...] = ("Fribourg", "Freiburg", "Friburgo")
+_NEUCHATEL_TERMS: tuple[str, ...] = ("Neuchatel", "Neuchâtel", "Neuenburg")
+_BIEL_TERMS: tuple[str, ...] = ("Biel", "Bienne", "Biel/Bienne")
+_ZUG_TERMS: tuple[str, ...] = ("Zug", "Zoug", "Zugo")
+_SION_TERMS: tuple[str, ...] = ("Sion", "Sitten")
+_CHUR_TERMS: tuple[str, ...] = ("Chur", "Coire", "Coira")
+_BELLINZONA_TERMS: tuple[str, ...] = ("Bellinzona",)
+_SCHAFFHAUSEN_TERMS: tuple[str, ...] = ("Schaffhausen", "Schaffhouse")
+_THUN_TERMS: tuple[str, ...] = ("Thun", "Thoune")
+_AARAU_TERMS: tuple[str, ...] = ("Aarau",)
+_CHAUX_TERMS: tuple[str, ...] = ("La Chaux-de-Fonds", "Chaux-de-Fonds")
 
 _CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
     (_GENEVA_QUERY_ALIASES, _GENEVA_AREA_TERMS),
@@ -151,6 +170,23 @@ _CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
     ),
     (_alias_set("lausanne", "losanna"), _LAUSANNE_TERMS),
     (_alias_set("lugano"), _LUGANO_TERMS),
+    (_alias_set("lucerne", "luzern", "lucerna"), _LUCERNE_TERMS),
+    (
+        _alias_set("st. gallen", "st gallen", "sankt gallen", "saint-gall", "san galo"),
+        _ST_GALLEN_TERMS,
+    ),
+    (_alias_set("winterthur"), _WINTERTHUR_TERMS),
+    (_alias_set("fribourg", "freiburg", "friburgo"), _FRIBOURG_TERMS),
+    (_alias_set("neuchatel", "neuchâtel", "neuenburg"), _NEUCHATEL_TERMS),
+    (_alias_set("biel", "bienne", "biel/bienne"), _BIEL_TERMS),
+    (_alias_set("zug", "zoug", "zugo"), _ZUG_TERMS),
+    (_alias_set("sion", "sitten"), _SION_TERMS),
+    (_alias_set("chur", "coire", "coira"), _CHUR_TERMS),
+    (_alias_set("bellinzona"), _BELLINZONA_TERMS),
+    (_alias_set("schaffhausen", "schaffhouse"), _SCHAFFHAUSEN_TERMS),
+    (_alias_set("thun", "thoune"), _THUN_TERMS),
+    (_alias_set("aarau"), _AARAU_TERMS),
+    (_alias_set("la chaux-de-fonds", "chaux-de-fonds"), _CHAUX_TERMS),
 )
 
 

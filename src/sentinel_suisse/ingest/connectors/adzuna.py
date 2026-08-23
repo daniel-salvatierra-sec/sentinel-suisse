@@ -46,6 +46,10 @@ _LOCATION_TRANSLATIONS: dict[str, str] = {
     "Waadt": "Vaud",
     "Bern": "Bern",
     "Tessin": "Ticino",
+    "Luzern": "Lucerne",
+    "Sankt Gallen": "St. Gallen",
+    "Neuenburg": "Neuchatel",
+    "Freiburg": "Fribourg",
 }
 
 # "Kanton Genf, Schweiz" (canton-level only, no specific city known) -> just "Geneva".

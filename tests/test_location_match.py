@@ -28,6 +28,15 @@ def test_bern_and_basel_aliases() -> None:
     assert "Bâle" in expand_location_query("Basel")
 
 
+def test_more_swiss_city_aliases() -> None:
+    assert "Luzern" in expand_location_query("Lucerne")
+    assert "Saint-Gall" in expand_location_query("St. Gallen")
+    assert "Bienne" in expand_location_query("Biel")
+    assert "Sitten" in expand_location_query("Sion")
+    assert location_matches("Luzern, Switzerland", "Lucerna") is True
+    assert location_matches("Fribourg", "Freiburg") is True
+
+
 def test_location_matches_suburb_for_geneva() -> None:
     assert location_matches("Châtelaine, 1219", "Geneva") is True
     assert location_matches("Lausanne, 1003", "Geneva") is False

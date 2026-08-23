@@ -78,7 +78,12 @@ class Settings(BaseSettings):
     adzuna_keywords: str = ""
     adzuna_location: str = "Geneve"
     # Comma-separated Swiss cities for one Adzuna CH run. Empty = ADZUNA_LOCATION only.
-    adzuna_locations: str = "Geneve,Zurich,Bern,Basel,Lausanne,Lugano"
+    adzuna_locations: str = (
+        "Geneve,Zurich,Bern,Basel,Lausanne,Lugano,"
+        "Luzern,St. Gallen,Winterthur,Fribourg,Neuchatel,"
+        "Biel,Zug,Sion,Chur,Bellinzona,Schaffhausen,"
+        "Thun,Aarau,La Chaux-de-Fonds"
+    )
     # Second Adzuna pass for France (Haute-Savoie / Geneva border). Same app_id/key;
     # France Travail developer portal is not required.
     ingest_adzuna_fr_live: bool = False
