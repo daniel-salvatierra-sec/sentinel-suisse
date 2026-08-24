@@ -259,6 +259,8 @@
   "jobRole_assembly": "Montagem",
   "jobRole_restoration": "Restauração",
   "jobRole_polishing": "Polimento",
+  "jobRole_florist": "Florista",
+  "jobRole_cashier": "Caixa",
   "guideRadarHint": "O teu radar",
   "guideRadarMessageHousing": "Começo pelo mais viável para ti.",
   "guideRadarMessageJob": "Ajudo-te a encontrar melhores oportunidades.",

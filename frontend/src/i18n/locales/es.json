@@ -103,6 +103,8 @@
   "jobRole_assembly": "Montaje",
   "jobRole_restoration": "Restauración",
   "jobRole_polishing": "Pulido",
+  "jobRole_florist": "Floristería",
+  "jobRole_cashier": "Cajero",
   "employmentTypeLabel": "Contrato",
   "employmentPermanent": "Fijo",
   "employmentTemporary": "Temporal",

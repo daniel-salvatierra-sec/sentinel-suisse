@@ -104,6 +104,8 @@
   "jobRole_assembly": "Habillage",
   "jobRole_restoration": "Rhabillage",
   "jobRole_polishing": "Polissage",
+  "jobRole_florist": "Fleuriste",
+  "jobRole_cashier": "Caisse",
   "employmentTypeLabel": "Contrat",
   "employmentPermanent": "CDI (fixe)",
   "employmentTemporary": "Temporaire",

@@ -116,6 +116,8 @@ export type Messages = {
   jobRole_assembly: string;
   jobRole_restoration: string;
   jobRole_polishing: string;
+  jobRole_florist: string;
+  jobRole_cashier: string;
   employmentTypeLabel: string;
   employmentPermanent: string;
   employmentTemporary: string;

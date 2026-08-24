@@ -68,6 +68,9 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("Unknown", "Conducteur-trice TPG") == "bus"
     assert classify_job_category("Unknown", "Chauffeur de taxi Genève") == "taxi"
     assert classify_job_category("Unknown", "Livreur Uber Eats Lausanne") == "delivery"
+    assert classify_job_category("Unknown", "Florist/-in EFZ, BP oder HFP") == "florist"
+    assert classify_job_category("Unknown", "Fleuriste 80%") == "florist"
+    assert classify_job_category("sales", "Caissière-vendeuse / caissier-vendeur") == "cashier"
 
 
 def test_title_refines_transport_alerts() -> None:

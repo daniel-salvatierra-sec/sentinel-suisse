@@ -35,6 +35,7 @@ export const JOB_ROLES: Record<string, readonly string[]> = {
   transport: ["bus", "truck", "delivery", "crane", "taxi"],
   nursing: ["hospital", "homecare", "geriatric", "clinic"],
   watchmaker: ["assembly", "restoration", "polishing"],
+  retail: ["florist", "cashier"],
 };
 
 /** Map branch → parent field (for match + API). */

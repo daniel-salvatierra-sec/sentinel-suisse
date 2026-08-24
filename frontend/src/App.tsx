@@ -31,6 +31,7 @@ import { ShareAppButton } from "./components/ShareAppButton";
 import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
+import { queryLooksLikeJob } from "./jobQueryAliases";
 import type { ListingSignalContext } from "./listingSignals";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 import { rememberSearch } from "./searchHistory";
@@ -142,22 +143,26 @@ export default function App() {
       const branch = live ? jobBranch : appliedJobBranch;
       const role = live ? jobRole : appliedJobRole;
       const emp = live ? employmentType : appliedEmploymentType;
+      const occupationQuery = queryLooksLikeJob(query);
+      const listingType: ListingType = occupationQuery ? "job" : category;
       return {
-        listing_type: category,
+        listing_type: listingType,
         location: query,
         country: zone,
-        price_min: category === "housing" ? parseOptionalPrice(pMin) : undefined,
-        price_max: category === "housing" ? parseOptionalPrice(pMax) : undefined,
-        rooms_min: category === "housing" ? rooms.rooms_min : undefined,
-        property_type: category === "housing" ? rooms.property_type : undefined,
-        has_parking: category === "housing" && parking ? true : undefined,
+        price_min: listingType === "housing" ? parseOptionalPrice(pMin) : undefined,
+        price_max: listingType === "housing" ? parseOptionalPrice(pMax) : undefined,
+        rooms_min: listingType === "housing" ? rooms.rooms_min : undefined,
+        property_type: listingType === "housing" ? rooms.property_type : undefined,
+        has_parking: listingType === "housing" && parking ? true : undefined,
         is_under_construction:
-          category === "housing" && construction ? true : undefined,
+          listingType === "housing" && construction ? true : undefined,
         job_category:
-          category === "job" ? resolveJobCategory(field, branch, role) : undefined,
-        employment_type: category === "job" && emp ? emp : undefined,
-        workload_min: category === "job" ? workload.workload_min : undefined,
-        workload_max: category === "job" ? workload.workload_max : undefined,
+          listingType === "job" && !occupationQuery
+            ? resolveJobCategory(field, branch, role)
+            : undefined,
+        employment_type: listingType === "job" && emp ? emp : undefined,
+        workload_min: listingType === "job" ? workload.workload_min : undefined,
+        workload_max: listingType === "job" ? workload.workload_max : undefined,
         limit: SEARCH_PAGE_SIZE,
         offset,
       };
@@ -224,6 +229,12 @@ export default function App() {
     }
     setDeepLinkReady(true);
   }, []);
+
+  useEffect(() => {
+    if (!queryLooksLikeJob(query) || category === "job") return;
+    setCategory("job");
+    setHubFocused(true);
+  }, [query, category]);
 
   const runSearch = useCallback(async () => {
     setLoading(true);

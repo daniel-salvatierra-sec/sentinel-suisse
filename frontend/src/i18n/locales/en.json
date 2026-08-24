@@ -103,6 +103,8 @@
   "jobRole_assembly": "Assembly",
   "jobRole_restoration": "Restoration",
   "jobRole_polishing": "Polishing",
+  "jobRole_florist": "Florist",
+  "jobRole_cashier": "Cashier",
   "employmentTypeLabel": "Contract",
   "employmentPermanent": "Permanent",
   "employmentTemporary": "Temporary",

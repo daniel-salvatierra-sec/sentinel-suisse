@@ -79,7 +79,7 @@ class Settings(BaseSettings):
     adzuna_location: str = "Geneve"
     # Extra Adzuna `what` queries so chauffeur / bus / taxi ads are not buried
     # under generic city crawls. Kept short for the free 250 req/day cap.
-    adzuna_role_keywords: str = "chauffeur,busfahrer,taxi,autocar"
+    adzuna_role_keywords: str = "chauffeur,busfahrer,taxi,autocar,fleuriste,florist"
     adzuna_role_locations: str = "Geneve,Zurich,Basel,Lausanne,Bern"
     adzuna_role_max_pages: int = 1
     # Comma-separated Swiss cities for one Adzuna CH run. Empty = ADZUNA_LOCATION only.
