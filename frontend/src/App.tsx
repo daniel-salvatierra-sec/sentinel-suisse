@@ -441,11 +441,20 @@ export default function App() {
               setQuery(value);
             }}
             roomsChoice={roomsChoice}
-            onRoomsChoiceChange={setRoomsChoice}
+            onRoomsChoiceChange={(value) => {
+              setRoomsChoice(value);
+              setAppliedRoomsChoice(value);
+            }}
             hasParking={hasParking}
-            onHasParkingChange={setHasParking}
+            onHasParkingChange={(value) => {
+              setHasParking(value);
+              setAppliedHasParking(value);
+            }}
             underConstruction={underConstruction}
-            onUnderConstructionChange={setUnderConstruction}
+            onUnderConstructionChange={(value) => {
+              setUnderConstruction(value);
+              setAppliedUnderConstruction(value);
+            }}
             priceMin={priceMin}
             priceMax={priceMax}
             onPriceMinChange={setPriceMin}
@@ -470,9 +479,15 @@ export default function App() {
               setAppliedJobRole(value);
             }}
             employmentType={employmentType}
-            onEmploymentTypeChange={setEmploymentType}
+            onEmploymentTypeChange={(value) => {
+              setEmploymentType(value);
+              setAppliedEmploymentType(value);
+            }}
             workloadChoice={workloadChoice}
-            onWorkloadChoiceChange={setWorkloadChoice}
+            onWorkloadChoiceChange={(value) => {
+              setWorkloadChoice(value);
+              setAppliedWorkloadChoice(value);
+            }}
             onApply={applyFilters}
           />
         </div>

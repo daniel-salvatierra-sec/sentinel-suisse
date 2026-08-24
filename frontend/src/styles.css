@@ -5,9 +5,10 @@
   --jet: #3d9bc4;
   --sun: #e8c46a;
   --clay: #c47b4a;
-  --swiss-red: #da291c;
+  --danger: #9a3412;
   --text: #1c2d28;
   --card: #ffffff;
+  --radius-btn: 0.65rem;
   --shadow: 0 10px 28px rgba(28, 45, 40, 0.1);
   font-family: "DM Sans", system-ui, sans-serif;
   color: var(--text);
@@ -93,8 +94,8 @@ body {
 }
 
 .verify-banner.error {
-  background: #fef3f2;
-  color: #b42318;
+  background: #f8eee8;
+  color: var(--danger);
 }
 
 .lang-bar {
@@ -120,9 +121,12 @@ body {
   border: none;
   background: var(--mountain);
   color: #fff;
-  border-radius: 0.65rem;
+  border-radius: var(--radius-btn);
   padding: 0.45rem 1rem;
+  font: inherit;
   font-weight: 700;
+  font-size: 0.85rem;
+  line-height: 1.2;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(47, 106, 69, 0.28);
   flex-shrink: 0;
@@ -159,8 +163,8 @@ body {
 
 .hero h1 {
   margin: 0;
-  font-family: "Fraunces", "DM Sans", Georgia, serif;
   font-size: clamp(2.1rem, 7vw, 2.45rem);
+  font-weight: 700;
   letter-spacing: -0.03em;
   color: var(--lake);
   line-height: 1.05;
@@ -169,9 +173,8 @@ body {
 .hero p {
   margin: 0.45rem 0 0.85rem;
   max-width: 22rem;
-  font-family: "Fraunces", "DM Sans", Georgia, serif;
   font-size: clamp(1.05rem, 3.8vw, 1.28rem);
-  font-weight: 550;
+  font-weight: 500;
   font-style: italic;
   letter-spacing: -0.01em;
   line-height: 1.3;
@@ -276,9 +279,8 @@ body {
 }
 
 .goal-zone-title {
-  font-family: "Fraunces", "DM Sans", Georgia, serif;
   font-size: clamp(2rem, 8vw, 2.4rem);
-  font-weight: 650;
+  font-weight: 700;
   line-height: 1.05;
   color: #fff;
   text-shadow: 0 2px 16px rgba(0, 0, 0, 0.4);
@@ -629,21 +631,34 @@ body {
 .filter-city {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
-  margin: 0 0 0.75rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--ink-soft, #4a5560);
+  gap: 0.4rem;
+  margin: 0 0 0.85rem;
+  padding: 0.7rem 0.8rem 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--lake);
+  background: var(--mist);
+  border: 2px solid var(--lake);
+  border-radius: 0.85rem;
 }
 
 .filter-city select {
+  width: 100%;
   font: inherit;
-  font-weight: 500;
+  font-size: 1.05rem;
+  font-weight: 650;
   color: var(--text);
-  border: 1.5px solid rgba(28, 45, 40, 0.18);
-  border-radius: 0.7rem;
-  padding: 0.55rem 0.7rem;
-  background: #fff;
+  min-height: 2.85rem;
+  border: 1.5px solid rgba(26, 111, 138, 0.4);
+  border-radius: var(--radius-btn);
+  padding: 0.6rem 2.4rem 0.6rem 0.8rem;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><path fill='%231a6f8a' d='M4.2 6.2 8 10l3.8-3.8 1.2 1.2L8 12.4 3 7.4z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.85rem center;
+  background-size: 1rem;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .chip {
@@ -1702,14 +1717,16 @@ body {
 .share-app-trigger {
   margin-top: 0;
   border: none;
-  background: var(--swiss-red);
+  background: var(--lake);
   color: #fff;
-  border-radius: 999px;
-  padding: 0.45rem 0.95rem;
+  border-radius: var(--radius-btn);
+  padding: 0.45rem 1rem;
+  font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(218, 41, 28, 0.35);
+  box-shadow: 0 4px 14px rgba(26, 111, 138, 0.28);
 }
 
 .share-app-trigger:hover {
@@ -1718,18 +1735,20 @@ body {
 
 .install-app-trigger {
   margin-top: 0;
-  border: 1.5px solid var(--swiss-red);
+  border: 1.5px solid var(--lake);
   background: #fff;
-  color: var(--swiss-red);
-  border-radius: 999px;
-  padding: 0.45rem 0.95rem;
+  color: var(--lake);
+  border-radius: var(--radius-btn);
+  padding: 0.45rem 1rem;
+  font: inherit;
   font-size: 0.85rem;
   font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
 }
 
 .install-app-trigger:hover {
-  background: rgba(218, 41, 28, 0.08);
+  background: rgba(26, 111, 138, 0.08);
 }
 
 .install-detected {
@@ -1737,7 +1756,7 @@ body {
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  color: var(--swiss-red);
+  color: var(--lake);
 }
 
 .install-steps {
@@ -1854,7 +1873,6 @@ body {
 
 .admin-head h1 {
   margin: 0.15rem 0 0.35rem;
-  font-family: Fraunces, Georgia, serif;
 }
 
 .admin-logout {
@@ -1895,8 +1913,8 @@ body {
 }
 
 .admin-tabs button.is-active {
-  background: var(--swiss-red);
-  border-color: var(--swiss-red);
+  background: var(--lake);
+  border-color: var(--lake);
   color: #fff;
 }
 
@@ -1977,11 +1995,11 @@ body {
 }
 
 .admin-danger {
-  color: var(--swiss-red);
+  color: var(--danger);
 }
 
 .admin-error {
-  color: var(--swiss-red);
+  color: var(--danger);
   font-weight: 600;
 }
 
@@ -1999,8 +2017,8 @@ body {
 }
 
 .admin-login button {
-  background: var(--swiss-red);
-  border-color: var(--swiss-red);
+  background: var(--mountain);
+  border-color: var(--mountain);
   color: #fff;
 }
 
