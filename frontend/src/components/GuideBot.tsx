@@ -1,46 +1,57 @@
 import { useEffect, useState } from "react";
 import { fetchAssistantConfig, type ListingType } from "../api";
-import { loadGuideSeen, saveGuideSeen } from "../guideStorage";
+import {
+  loadGuideSeen,
+  loadNudgeSeen,
+  saveGuideSeen,
+  saveNudgeSeen,
+} from "../guideStorage";
 import type { Messages } from "../i18n";
 import { AssistantChat } from "./AssistantChat";
 import { SentinelBuddy, SentinelFace } from "./SentinelBuddy";
+
+const NUDGE_AFTER_MS = 60_000;
 
 type Props = {
   t: Messages;
   lang: string;
   zone: ListingType;
   searching: boolean;
+  searchTab: boolean;
+  hasSession: boolean;
   onPickCategory: (type: ListingType) => void;
   onOpenAlerts: (type?: ListingType) => void;
   onStartSearch: (location: string) => void;
   onOpenMap: () => void;
+  onOpenAccount: () => void;
+  onOpenPublish: () => void;
 };
 
 /**
  * Sentinel companion: dock FAB + bottom sheet with zone-specific radar chips.
+ * After one minute on search, offers alerts + account once (not again).
  */
 export function GuideBot({
   t,
   lang,
   zone,
   searching,
+  searchTab,
+  hasSession,
   onPickCategory,
   onOpenAlerts,
   onStartSearch,
   onOpenMap,
+  onOpenAccount,
+  onOpenPublish,
 }: Props) {
-  const [open, setOpen] = useState(false);
-  const [needsIntro, setNeedsIntro] = useState(false);
+  const [open, setOpen] = useState(() => !loadGuideSeen());
+  const [needsIntro, setNeedsIntro] = useState(() => !loadGuideSeen());
   const [pickingAlertType, setPickingAlertType] = useState(false);
   const [chatMode, setChatMode] = useState(false);
+  const [nudgeMode, setNudgeMode] = useState(false);
+  const [nudgeDue, setNudgeDue] = useState(false);
   const [assistantEnabled, setAssistantEnabled] = useState(false);
-
-  useEffect(() => {
-    if (!loadGuideSeen()) {
-      setNeedsIntro(true);
-      setOpen(true);
-    }
-  }, []);
 
   useEffect(() => {
     fetchAssistantConfig()
@@ -48,8 +59,34 @@ export function GuideBot({
       .catch(() => setAssistantEnabled(false));
   }, []);
 
+  useEffect(() => {
+    if (loadNudgeSeen() || needsIntro) {
+      return;
+    }
+    const timer = window.setTimeout(() => setNudgeDue(true), NUDGE_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [needsIntro]);
+
+  useEffect(() => {
+    if (!nudgeDue || loadNudgeSeen() || needsIntro || !searchTab || chatMode) {
+      return;
+    }
+    setNudgeMode(true);
+    setPickingAlertType(false);
+    setOpen(true);
+  }, [nudgeDue, needsIntro, searchTab, chatMode]);
+
+  const dismissNudge = () => {
+    saveNudgeSeen();
+    setNudgeMode(false);
+    setNudgeDue(false);
+  };
+
   const close = () => {
     saveGuideSeen();
+    if (nudgeMode) {
+      dismissNudge();
+    }
     setNeedsIntro(false);
     setPickingAlertType(false);
     setChatMode(false);
@@ -96,10 +133,15 @@ export function GuideBot({
                 <p className="guide-message">
                   {needsIntro
                     ? t.guideHello
-                    : pickingAlertType
-                      ? t.alertsAskType
-                      : radarMessage}
+                    : nudgeMode
+                      ? t.guideNudgeMessage
+                      : pickingAlertType
+                        ? t.alertsAskType
+                        : radarMessage}
                 </p>
+                {nudgeMode && !hasSession ? (
+                  <p className="guide-message guide-nudge-extra">{t.guideNudgeAccount}</p>
+                ) : null}
 
                 {needsIntro ? (
                   <div className="guide-actions">
@@ -124,6 +166,36 @@ export function GuideBot({
                       }}
                     >
                       {t.guideJob}
+                    </button>
+                  </div>
+                ) : nudgeMode ? (
+                  <div className="guide-actions">
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onOpenAlerts(zone);
+                        dismissNudge();
+                        close();
+                      }}
+                    >
+                      {t.guideNudgeAlerts}
+                    </button>
+                    {!hasSession ? (
+                      <button
+                        type="button"
+                        className="option"
+                        onClick={() => {
+                          onOpenAccount();
+                          dismissNudge();
+                          close();
+                        }}
+                      >
+                        {t.guideNudgeAccountCta}
+                      </button>
+                    ) : null}
+                    <button type="button" className="option" onClick={close}>
+                      {t.guideNudgeNo}
                     </button>
                   </div>
                 ) : pickingAlertType ? (
@@ -177,6 +249,26 @@ export function GuideBot({
                       onClick={() => setPickingAlertType(true)}
                     >
                       {t.guideChipAlert}
+                    </button>
+                    <button
+                      type="button"
+                      className="chip active"
+                      onClick={() => {
+                        onOpenPublish();
+                        close();
+                      }}
+                    >
+                      {t.guideChipPublish}
+                    </button>
+                    <button
+                      type="button"
+                      className="chip active"
+                      onClick={() => {
+                        onOpenAccount();
+                        close();
+                      }}
+                    >
+                      {t.guideChipAccount}
                     </button>
                     {assistantEnabled && (
                       <button

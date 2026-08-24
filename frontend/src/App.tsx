@@ -22,6 +22,7 @@ import { LanguageBar } from "./components/LanguageBar";
 import { LoginBanner } from "./components/LoginBanner";
 import { MapView } from "./components/MapView";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
+import { PostListingForm } from "./components/PostListingForm";
 import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
 import { InstallAppButton } from "./components/InstallAppButton";
@@ -35,7 +36,7 @@ import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
 import { matchSwissCity } from "./swissCities";
 
-type Tab = "list" | "map" | "alerts" | "account";
+type Tab = "list" | "map" | "alerts" | "account" | "publish";
 
 function parseOptionalPrice(value: string): number | undefined {
   const trimmed = value.trim();
@@ -358,6 +359,9 @@ export default function App() {
         active={category}
         onSelect={(type) => {
           setCategory(type);
+          if (tab === "publish") {
+            return;
+          }
           window.requestAnimationFrame(() => {
             document.getElementById("search-panel")?.scrollIntoView({
               behavior: "smooth",
@@ -366,48 +370,67 @@ export default function App() {
           });
         }}
       />
-      <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
-      <FilterBar
-        t={t}
-        category={category}
-        zoneChoice={zoneChoice}
-        onZoneChoiceChange={(value) => {
-          setZoneChoice(value);
-          setAppliedZoneChoice(value);
-          if (value !== "CH") {
-            setQuery("");
-          }
-        }}
-        cityChoice={matchSwissCity(query)}
-        onCityChoiceChange={(value) => {
-          setQuery(value);
-        }}
-        roomsChoice={roomsChoice}
-        onRoomsChoiceChange={setRoomsChoice}
-        hasParking={hasParking}
-        onHasParkingChange={setHasParking}
-        underConstruction={underConstruction}
-        onUnderConstructionChange={setUnderConstruction}
-        priceMin={priceMin}
-        priceMax={priceMax}
-        onPriceMinChange={setPriceMin}
-        onPriceMaxChange={setPriceMax}
-        jobField={jobField}
-        onJobFieldChange={(value) => {
-          setJobField(value);
-          setAppliedJobField(value);
-        }}
-        jobBranch={jobBranch}
-        onJobBranchChange={(value) => {
-          setJobBranch(value);
-          setAppliedJobBranch(value);
-        }}
-        employmentType={employmentType}
-        onEmploymentTypeChange={setEmploymentType}
-        workloadChoice={workloadChoice}
-        onWorkloadChoiceChange={setWorkloadChoice}
-        onApply={applyFilters}
-      />
+      {tab !== "publish" && tab !== "account" ? (
+        <button
+          type="button"
+          className="post-ad-link"
+          onClick={() => setTab(hasSession ? "publish" : "account")}
+        >
+          {t.postAdCta}
+        </button>
+      ) : null}
+      {tab !== "publish" && tab !== "account" && tab !== "alerts" ? (
+        <>
+          <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
+          <FilterBar
+            t={t}
+            category={category}
+            zoneChoice={zoneChoice}
+            onZoneChoiceChange={(value) => {
+              setZoneChoice(value);
+              setAppliedZoneChoice(value);
+              if (value !== "CH") {
+                setQuery("");
+              }
+            }}
+            cityChoice={matchSwissCity(query)}
+            onCityChoiceChange={(value) => {
+              setQuery(value);
+            }}
+            roomsChoice={roomsChoice}
+            onRoomsChoiceChange={setRoomsChoice}
+            hasParking={hasParking}
+            onHasParkingChange={setHasParking}
+            underConstruction={underConstruction}
+            onUnderConstructionChange={setUnderConstruction}
+            priceMin={priceMin}
+            priceMax={priceMax}
+            onPriceMinChange={setPriceMin}
+            onPriceMaxChange={setPriceMax}
+            jobField={jobField}
+            onJobFieldChange={(value) => {
+              setJobField(value);
+              setAppliedJobField(value);
+            }}
+            jobBranch={jobBranch}
+            onJobBranchChange={(value) => {
+              setJobBranch(value);
+              setAppliedJobBranch(value);
+            }}
+            employmentType={employmentType}
+            onEmploymentTypeChange={setEmploymentType}
+            workloadChoice={workloadChoice}
+            onWorkloadChoiceChange={setWorkloadChoice}
+            onApply={applyFilters}
+          />
+        </>
+      ) : null}
+
+      {tab === "publish" ? (
+        <button type="button" className="post-ad-back" onClick={() => setTab("list")}>
+          {t.postAdBack}
+        </button>
+      ) : null}
 
       <div className="tabs" id="tabs-panel">
         <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
@@ -493,7 +516,12 @@ export default function App() {
           refreshToken={accountRefresh}
           onSignupSuccess={onSignupSuccess}
           onLoggedOut={onLoggedOut}
+          onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
         />
+      )}
+
+      {tab === "publish" && (
+        <PostListingForm t={t} listingType={category} />
       )}
 
       <div className="legal-links">
@@ -513,6 +541,8 @@ export default function App() {
         lang={lang}
         zone={category}
         searching={loading || loadingMore}
+        searchTab={tab === "list" || tab === "map"}
+        hasSession={hasSession}
         onPickCategory={(type) => {
           setCategory(type);
           setTab("list");
@@ -528,6 +558,8 @@ export default function App() {
         onOpenMap={() => {
           setTab("map");
         }}
+        onOpenAccount={() => setTab("account")}
+        onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
       />
     </div>
   );

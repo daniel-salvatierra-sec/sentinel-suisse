@@ -14,7 +14,6 @@ import {
   type UserProfile,
 } from "../api";
 import { AlertSignup } from "./AlertSignup";
-import { PostListingForm } from "./PostListingForm";
 import { PremiumUpsell } from "./PremiumUpsell";
 import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useState } from "react";
@@ -28,6 +27,7 @@ type Props = {
   refreshToken: number;
   onSignupSuccess: () => void;
   onLoggedOut: () => void;
+  onOpenPublish: () => void;
 };
 
 export function AccountPanel({
@@ -39,6 +39,7 @@ export function AccountPanel({
   refreshToken,
   onSignupSuccess,
   onLoggedOut,
+  onOpenPublish,
 }: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -170,7 +171,9 @@ export function AccountPanel({
           <p className="plan-hint">{t.searchFreeHint}</p>
         )}
 
-      <PostListingForm t={t} listingType={listingType} />
+      <button type="button" className="post-ad-link" onClick={onOpenPublish}>
+        {t.postAdCta}
+      </button>
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (

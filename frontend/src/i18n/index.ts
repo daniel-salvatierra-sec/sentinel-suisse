@@ -152,6 +152,15 @@ export type Messages = {
   guideChipBestOpp: string;
   guideChipBestFit: string;
   guideChipAlert: string;
+  guideChipPublish: string;
+  guideChipAccount: string;
+  guideNudgeMessage: string;
+  guideNudgeAccount: string;
+  guideNudgeAlerts: string;
+  guideNudgeAccountCta: string;
+  guideNudgeNo: string;
+  postAdCta: string;
+  postAdBack: string;
   assistantChatCta: string;
   assistantIntro: string;
   assistantPlaceholder: string;
