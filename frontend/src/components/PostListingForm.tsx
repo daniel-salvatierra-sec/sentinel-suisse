@@ -99,12 +99,23 @@ export function PostListingForm({ t, listingType }: Props) {
       <p className="plan-hint">{isJob ? t.postJobHint : t.postListingHint}</p>
       <form onSubmit={(event) => void onSubmit(event)}>
         <label>
-          {t.postListingTitleField}
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required minLength={8} />
+          {isJob ? t.postJobTitleField : t.postListingTitleField}
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+            minLength={8}
+            placeholder={isJob ? t.postJobTitleHint : t.postListingTitleHint}
+          />
         </label>
         <label>
-          {t.postListingLocation}
-          <input value={location} onChange={(e) => setLocation(e.target.value)} required />
+          {isJob ? t.postJobLocation : t.postListingLocation}
+          <input
+            value={location}
+            onChange={(e) => setLocation(e.target.value)}
+            required
+            placeholder={isJob ? t.postJobLocationHint : t.postListingLocationHint}
+          />
         </label>
         {isJob ? (
           <>
@@ -140,6 +151,7 @@ export function PostListingForm({ t, listingType }: Props) {
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
+                placeholder={t.postListingPriceHint}
               />
             </label>
             <label>
@@ -166,8 +178,10 @@ export function PostListingForm({ t, listingType }: Props) {
         <label>
           {t.postListingContact}
           <input
-            type="url"
-            placeholder="https://"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder={t.postListingContactPlaceholder}
             value={contactUrl}
             onChange={(e) => setContactUrl(e.target.value)}
             required
@@ -176,7 +190,12 @@ export function PostListingForm({ t, listingType }: Props) {
         <p className="plan-hint">{t.postListingContactHint}</p>
         <label>
           {t.postListingDescription}
-          <textarea rows={4} value={description} onChange={(e) => setDescription(e.target.value)} />
+          <textarea
+            rows={4}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder={isJob ? t.postJobDescriptionHint : t.postListingDescriptionHint}
+          />
         </label>
         <button type="submit" className="apply-btn" disabled={busy} style={{ width: "100%" }}>
           {t.postListingCta}

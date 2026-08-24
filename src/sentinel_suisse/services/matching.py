@@ -15,7 +15,10 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
     if filters.listing_type is not None and listing.listing_type != filters.listing_type:
         return False
     if filters.location is not None:
-        if not location_matches(listing.location, filters.location):
+        in_place = location_matches(listing.location, filters.location)
+        needle = filters.location.strip().casefold()
+        hay = f"{listing.title or ''} {listing.description or ''}".casefold()
+        if not in_place and needle not in hay:
             return False
     if filters.country is not None and listing.country != filters.country:
         return False

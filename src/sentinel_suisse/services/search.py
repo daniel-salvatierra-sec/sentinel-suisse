@@ -34,8 +34,14 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
         stmt = stmt.where(Listing.listing_type == filters.listing_type)
     if filters.location is not None:
         terms = expand_location_query(filters.location)
-        if terms:
-            stmt = stmt.where(or_(*[Listing.location.ilike(f"%{term}%") for term in terms]))
+        clauses = [Listing.location.ilike(f"%{term}%") for term in terms]
+        keyword = filters.location.strip()
+        if keyword:
+            like = f"%{keyword}%"
+            clauses.append(Listing.title.ilike(like))
+            clauses.append(Listing.description.ilike(like))
+        if clauses:
+            stmt = stmt.where(or_(*clauses))
     if filters.country is not None:
         stmt = stmt.where(Listing.country == filters.country)
     if filters.price_min is not None:

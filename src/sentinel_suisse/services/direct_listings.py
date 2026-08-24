@@ -72,7 +72,7 @@ def create_direct_listing(
         employment_type=payload.employment_type,
         workload_min=payload.workload_min,
         workload_max=payload.workload_max,
-        source_url=payload.contact_url,
+        source_url=str(payload.contact_url),
         raw_payload={"source": "direct", "user_id": user.id},
     )
     listing = Listing(

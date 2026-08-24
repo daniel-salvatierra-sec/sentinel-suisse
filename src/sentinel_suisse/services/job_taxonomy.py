@@ -225,6 +225,9 @@ _TITLE_TO_FIELD: tuple[tuple[str, str], ...] = (
     ("vendeur", "sales"),
     ("magasinier", "logistics"),
     ("chauffeur", "logistics"),
+    ("chofer", "logistics"),
+    ("busfahrer", "logistics"),
+    ("bus driver", "logistics"),
     ("cariste", "logistics"),
     ("cuisinier", "hospitality"),
     ("serveur", "hospitality"),
@@ -254,6 +257,8 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%data engineer%",
         "%cybersécurité%",
         "%cybersecurite%",
+        "%cybersecurity%",
+        "%cyber %",
     ),
     "healthcare": (
         "%infirmier%",
@@ -308,6 +313,9 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
     "logistics": (
         "%magasinier%",
         "%chauffeur%",
+        "%chofer%",
+        "%busfahrer%",
+        "%bus driver%",
         "%cariste%",
     ),
     "finance": (

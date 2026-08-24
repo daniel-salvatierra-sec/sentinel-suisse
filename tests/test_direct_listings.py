@@ -83,3 +83,20 @@ def test_user_can_post_a_job(client: TestClient, admin_auth: tuple[str, str]) ->
     assert created.status_code == 201, created.text
     assert created.json()["listing_type"] == "job"
     assert created.json()["job_category"] == "healthcare"
+
+
+def test_user_can_post_a_job_with_phone(client: TestClient, admin_auth: tuple[str, str]) -> None:
+    key = _create_user(client, admin_auth)
+    created = client.post(
+        "/api/v1/me/listings",
+        headers={"X-API-Key": key},
+        json={
+            "listing_type": "job",
+            "title": "Chofer de bus Geneva",
+            "location": "Geneva",
+            "job_category": "logistics",
+            "contact_url": "079 123 45 67",
+        },
+    )
+    assert created.status_code == 201, created.text
+    assert created.json()["source_url"] == "https://wa.me/41791234567"
