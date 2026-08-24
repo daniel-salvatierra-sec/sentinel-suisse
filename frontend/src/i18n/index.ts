@@ -190,6 +190,9 @@ export type Messages = {
   alertsRecentSearches: string;
   alertsRememberHint: string;
   alertsSaveCurrent: string;
+  alertsPreviewTitle: string;
+  alertsPreviewEmpty: string;
+  alertsGuestCta: string;
   demoBadge: string;
   signalLabel: string;
   signalGoodPrice: string;

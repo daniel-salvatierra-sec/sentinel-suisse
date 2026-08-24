@@ -827,6 +827,24 @@ body {
   color: var(--ink, #1c2420);
 }
 
+.alerts-preview-title {
+  margin: 0.35rem 0 0.55rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--lake);
+}
+
+.alerts-preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0 0 0.9rem;
+}
+
+.alerts-preview-list .listing-card {
+  margin: 0;
+}
+
 .alerts-history-list {
   list-style: none;
   margin: 0;

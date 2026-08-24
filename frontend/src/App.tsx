@@ -36,6 +36,7 @@ import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribe
 import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
 import { matchSwissCity } from "./swissCities";
+import { toSavedSearchQuery } from "./searchSummary";
 
 type Tab = "list" | "map" | "alerts" | "account" | "publish";
 
@@ -220,13 +221,15 @@ export default function App() {
     setLoading(true);
     setError(false);
     try {
-      const params = buildSearchParams(0);
+      const params = buildSearchParams(0, tab === "alerts" ? "live" : "applied");
       const results = await searchListings(params);
       setListings(results);
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
       setFocusId(results[0]?.id ?? null);
-      const { limit: _l, offset: _o, ...remembered } = params;
-      rememberSearch(remembered);
+      if (tab !== "alerts") {
+        const { limit: _l, offset: _o, ...remembered } = params;
+        rememberSearch(remembered);
+      }
     } catch {
       setError(true);
       setListings([]);
@@ -234,7 +237,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [buildSearchParams]);
+  }, [buildSearchParams, tab]);
 
   const loadMore = useCallback(async () => {
     setLoadingMore(true);
@@ -265,7 +268,7 @@ export default function App() {
 
   useEffect(() => {
     if (!deepLinkReady) return;
-    if (tab === "list" || tab === "map") {
+    if (tab === "list" || tab === "map" || tab === "alerts") {
       void runSearch();
     }
   }, [tab, category, query, runSearch, deepLinkReady]);
@@ -292,6 +295,17 @@ export default function App() {
     }, 80);
   };
 
+  const openAlerts = (type?: ListingType) => {
+    if (type) setCategory(type);
+    applyFilters();
+    setTab("alerts");
+    window.setTimeout(() => {
+      const target =
+        document.getElementById("signup") ?? document.getElementById("alerts-create");
+      target?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 160);
+  };
+
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
     setCategory(saved.listing_type);
     setQuery(saved.location ?? "");
@@ -310,7 +324,7 @@ export default function App() {
     setTab("list");
   };
 
-  const alertQuery = buildSearchParams(0, "live");
+  const alertQuery = toSavedSearchQuery(buildSearchParams(0, "live"));
 
   return (
     <div className="app">
@@ -401,7 +415,7 @@ export default function App() {
         onSearchWork={() => goToSearch("job")}
         onPublish={() => setTab(hasSession ? "publish" : "account")}
       />
-      {tab !== "publish" && tab !== "account" && tab !== "alerts" ? (
+      {tab !== "publish" && tab !== "account" ? (
         <div id="search-panel">
           <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
           <FilterBar
@@ -520,11 +534,18 @@ export default function App() {
           listingType={category}
           location={query}
           searchQuery={alertQuery}
+          previewListings={listings}
+          previewLoading={loading}
           refreshToken={accountRefresh}
           onPickCategory={setCategory}
           onApplyRemembered={applyRememberedSearch}
           onSignupSuccess={onSignupSuccess}
           onGoToAccount={() => setTab("account")}
+          onOpenListing={(id) => {
+            setFocusId(id);
+            setMapIsolate(true);
+            setTab("map");
+          }}
         />
       )}
 
@@ -571,10 +592,7 @@ export default function App() {
           setCategory(type);
           setTab("list");
         }}
-        onOpenAlerts={(type) => {
-          if (type) setCategory(type);
-          setTab("alerts");
-        }}
+        onOpenAlerts={(type) => openAlerts(type)}
         onStartSearch={(location) => {
           setQuery(location);
           setTab("list");
@@ -582,7 +600,7 @@ export default function App() {
         onOpenMap={() => {
           setTab("map");
         }}
-        onOpenAccount={() => setTab("account")}
+        onOpenAccount={() => openAlerts()}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
       />
     </div>

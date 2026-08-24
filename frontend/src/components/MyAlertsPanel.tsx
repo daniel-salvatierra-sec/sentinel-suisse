@@ -4,11 +4,12 @@ import {
   deleteSavedSearch,
   fetchSavedSearches,
   getApiKey,
+  type Listing,
   type ListingType,
   type SavedSearch,
   type SearchQueryParams,
 } from "../api";
-import { formatSearchSummary } from "../searchSummary";
+import { formatSearchSummary, toSavedSearchQuery } from "../searchSummary";
 import type { Lang, Messages } from "../i18n";
 import {
   historyForType,
@@ -16,6 +17,7 @@ import {
   type RememberedSearch,
 } from "../searchHistory";
 import { AlertSignup } from "./AlertSignup";
+import { ListingCard } from "./ListingCard";
 import { PremiumUpsell } from "./PremiumUpsell";
 import { SentinelFace } from "./SentinelBuddy";
 
@@ -25,12 +27,17 @@ type Props = {
   listingType: ListingType;
   location: string;
   searchQuery: Omit<SearchQueryParams, "limit" | "offset">;
+  previewListings: Listing[];
+  previewLoading: boolean;
   refreshToken: number;
   onPickCategory: (type: ListingType) => void;
   onApplyRemembered: (query: RememberedSearch["query"]) => void;
   onSignupSuccess: () => void;
   onGoToAccount: () => void;
+  onOpenListing: (id: number) => void;
 };
+
+const PREVIEW_LIMIT = 5;
 
 export function MyAlertsPanel({
   t,
@@ -38,11 +45,14 @@ export function MyAlertsPanel({
   listingType,
   location,
   searchQuery,
+  previewListings,
+  previewLoading,
   refreshToken,
   onPickCategory,
   onApplyRemembered,
   onSignupSuccess,
   onGoToAccount,
+  onOpenListing,
 }: Props) {
   const [searches, setSearches] = useState<SavedSearch[]>([]);
   const [history, setHistory] = useState<RememberedSearch[]>(() => loadSearchHistory());
@@ -86,7 +96,7 @@ export function MyAlertsPanel({
     try {
       await createSavedSearch({
         name: currentLabel.slice(0, 120),
-        query: searchQuery,
+        query: toSavedSearchQuery(searchQuery),
       });
       setSaveOk(true);
       await load();
@@ -132,9 +142,28 @@ export function MyAlertsPanel({
         </button>
       </div>
 
-      <div className="alerts-current-box">
+      <div className="alerts-current-box" id="alerts-create">
         <h3 className="alerts-subhead">{t.alertsCreateFromSearch}</h3>
         <p className="alerts-current-detail">{currentLabel}</p>
+        <h4 className="alerts-preview-title">{t.alertsPreviewTitle}</h4>
+        {previewLoading ? (
+          <p className="empty">{t.loading}</p>
+        ) : previewListings.length === 0 ? (
+          <p className="empty">{t.alertsPreviewEmpty}</p>
+        ) : (
+          <div className="alerts-preview-list">
+            {previewListings.slice(0, PREVIEW_LIMIT).map((listing) => (
+              <ListingCard
+                key={listing.id}
+                listing={listing}
+                t={t}
+                selected={false}
+                onSelect={() => onOpenListing(listing.id)}
+                onShowOnMap={() => onOpenListing(listing.id)}
+              />
+            ))}
+          </div>
+        )}
         <button
           type="button"
           className="apply-btn"
@@ -142,11 +171,25 @@ export function MyAlertsPanel({
           disabled={saving}
           onClick={() => void saveCurrent()}
         >
-          {saving ? t.loading : getApiKey() ? t.alertsSaveCurrent : t.accountSignupCta}
+          {saving ? t.loading : getApiKey() ? t.alertsSaveCurrent : t.alertsGuestCta}
         </button>
         {saveOk && <p className="alert-feedback success">{t.alertSuccess}</p>}
         {saveError && <p className="alert-feedback error">{saveError}</p>}
       </div>
+
+      {!getApiKey() && (
+        <div className="alerts-signup-wrap">
+          <AlertSignup
+            t={t}
+            locale={locale}
+            listingType={listingType}
+            location={location}
+            searchQuery={searchQuery}
+            onSuccess={onSignupSuccess}
+            showHeader
+          />
+        </div>
+      )}
 
       {recent.length > 0 && (
         <div className="alerts-history">
@@ -164,20 +207,6 @@ export function MyAlertsPanel({
               </li>
             ))}
           </ul>
-        </div>
-      )}
-
-      {!getApiKey() && (
-        <div className="alerts-signup-wrap">
-          <AlertSignup
-            t={t}
-            locale={locale}
-            listingType={listingType}
-            location={location}
-            searchQuery={searchQuery}
-            onSuccess={onSignupSuccess}
-            showHeader
-          />
         </div>
       )}
 

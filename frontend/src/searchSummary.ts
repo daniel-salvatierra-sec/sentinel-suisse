@@ -131,3 +131,18 @@ export function formatSearchSummary(t: Messages, query: Query): string {
 
   return parts.join(", ");
 }
+
+/** Drop paging and blank location so the API accepts the saved-search body. */
+export function toSavedSearchQuery(
+  query: Omit<SearchQueryParams, "limit" | "offset"> & {
+    limit?: number;
+    offset?: number;
+  },
+): Omit<SearchQueryParams, "limit" | "offset"> {
+  const { limit: _limit, offset: _offset, ...rest } = query;
+  const location = rest.location?.trim();
+  return {
+    ...rest,
+    location: location ? location : undefined,
+  };
+}

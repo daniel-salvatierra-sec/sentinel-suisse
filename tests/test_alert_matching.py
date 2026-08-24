@@ -143,3 +143,9 @@ def test_country_filter() -> None:
     german = _sample_listing(country=CountryCode.DE, location="Konstanz")
     assert listing_matches_query(german, SearchQuery(country=CountryCode.DE)) is True
     assert listing_matches_query(german, SearchQuery(country=CountryCode.IT)) is False
+
+
+def test_blank_location_is_treated_as_missing() -> None:
+    assert SearchQuery(listing_type=ListingType.JOB, location="").location is None
+    assert SearchQuery(listing_type=ListingType.JOB, location="   ").location is None
+    assert SearchQuery(listing_type=ListingType.JOB, location="Geneva").location == "Geneva"

@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
 
@@ -23,6 +23,13 @@ class SearchQuery(BaseModel):
     workload_max: int | None = Field(default=None, ge=0, le=100)
     provider_id: int | None = Field(default=None, gt=0)
     provider_ids: list[int] | None = Field(default=None, min_length=1)
+
+    @field_validator("location", mode="before")
+    @classmethod
+    def blank_location_to_none(cls, value: object) -> object:
+        if isinstance(value, str) and not value.strip():
+            return None
+        return value
 
     @model_validator(mode="after")
     def validate_ranges(self) -> "SearchQuery":
