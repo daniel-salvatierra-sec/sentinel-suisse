@@ -81,14 +81,12 @@ class AdzunaDisabledError(RuntimeError):
 
 
 def _pick_employment_type(
-    contract_type: str | None, contract_time: str | None
+    contract_type: str | None, _contract_time: str | None = None
 ) -> EmploymentType | None:
     if contract_type:
         mapped = _CONTRACT_TYPE_MAP.get(contract_type.lower())
         if mapped is not None:
             return mapped
-    if contract_time:
-        return EmploymentType.OTHER
     return None
 
 
@@ -195,6 +193,55 @@ def fetch_country_locations(
     return parsed
 
 
+def _query_adzuna_page(
+    *,
+    settings: Settings,
+    country_code: str,
+    country: CountryCode,
+    page: int,
+    where: str,
+    what: str,
+) -> list[RawListing]:
+    url = _SEARCH_URL.format(country=country_code, page=page)
+    params: dict[str, str] = {
+        "app_id": settings.adzuna_app_id,
+        "app_key": settings.adzuna_app_key,
+        "results_per_page": str(_PAGE_SIZE),
+        "content-type": "application/json",
+    }
+    if what:
+        params["what"] = what
+    if where:
+        params["where"] = where
+    try:
+        time.sleep(settings.ingest_rate_limit_seconds)
+        response = httpx.get(
+            url,
+            params=params,
+            headers={"User-Agent": settings.ingest_user_agent},
+            timeout=30.0,
+        )
+        response.raise_for_status()
+    except httpx.HTTPError as exc:
+        msg = f"Adzuna search request failed: {exc}"
+        raise AdzunaFetchError(msg) from exc
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        msg = f"Adzuna search response was not valid JSON: {exc}"
+        raise AdzunaFetchError(msg) from exc
+    return parse_search_response(payload, country)
+
+
+def _split_csv(raw: str) -> list[str]:
+    ordered: list[str] = []
+    for item in raw.split(","):
+        value = item.strip()
+        if value and value not in ordered:
+            ordered.append(value)
+    return ordered
+
+
 def fetch_search_listings(settings: Settings, search_url: str | None = None) -> list[RawListing]:
     """Query the official Adzuna job search API. `search_url` is unused — kept only to match
     the other connectors' `fetch_search_listings(settings, search_url)` signature used by the
@@ -211,48 +258,46 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
     parsed: list[RawListing] = []
     seen: set[str] = set()
     max_pages = max(1, settings.adzuna_max_pages)
-    page_size = str(_PAGE_SIZE)
+
+    def _absorb(batch: list[RawListing]) -> int:
+        added = 0
+        for item in batch:
+            if item.external_id in seen:
+                continue
+            seen.add(item.external_id)
+            parsed.append(item)
+            added += 1
+        return added
 
     for where in adzuna_wheres(settings):
         for page in range(1, max_pages + 1):
-            url = _SEARCH_URL.format(country=country_code, page=page)
-            params: dict[str, str] = {
-                "app_id": settings.adzuna_app_id,
-                "app_key": settings.adzuna_app_key,
-                "results_per_page": page_size,
-                "content-type": "application/json",
-            }
-            if settings.adzuna_keywords:
-                params["what"] = settings.adzuna_keywords
-            if where:
-                params["where"] = where
-
-            try:
-                time.sleep(settings.ingest_rate_limit_seconds)
-                response = httpx.get(
-                    url,
-                    params=params,
-                    headers={"User-Agent": settings.ingest_user_agent},
-                    timeout=30.0,
-                )
-                response.raise_for_status()
-            except httpx.HTTPError as exc:
-                msg = f"Adzuna search request failed: {exc}"
-                raise AdzunaFetchError(msg) from exc
-
-            try:
-                payload = response.json()
-            except ValueError as exc:
-                msg = f"Adzuna search response was not valid JSON: {exc}"
-                raise AdzunaFetchError(msg) from exc
-
-            batch = parse_search_response(payload, country)
-            for item in batch:
-                if item.external_id in seen:
-                    continue
-                seen.add(item.external_id)
-                parsed.append(item)
+            batch = _query_adzuna_page(
+                settings=settings,
+                country_code=country_code,
+                country=country,
+                page=page,
+                where=where,
+                what=settings.adzuna_keywords,
+            )
+            _absorb(batch)
             if len(batch) < _PAGE_SIZE:
                 break
+
+    if country_code == "ch":
+        role_pages = max(1, min(settings.adzuna_role_max_pages, 2))
+        for what in _split_csv(settings.adzuna_role_keywords):
+            for where in _split_csv(settings.adzuna_role_locations):
+                for page in range(1, role_pages + 1):
+                    batch = _query_adzuna_page(
+                        settings=settings,
+                        country_code=country_code,
+                        country=country,
+                        page=page,
+                        where=where,
+                        what=what,
+                    )
+                    _absorb(batch)
+                    if len(batch) < _PAGE_SIZE:
+                        break
 
     return parsed

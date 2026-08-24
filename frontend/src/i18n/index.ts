@@ -107,7 +107,8 @@ export type Messages = {
   jobRole_bus: string;
   jobRole_truck: string;
   jobRole_delivery: string;
-  jobRole_crane: string;
+    jobRole_crane: string;
+    jobRole_taxi: string;
   jobRole_hospital: string;
   jobRole_homecare: string;
   jobRole_geriatric: string;

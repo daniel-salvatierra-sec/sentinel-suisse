@@ -96,6 +96,7 @@
   "jobRole_truck": "Poids lourd",
   "jobRole_delivery": "Livraison",
   "jobRole_crane": "Grue",
+  "jobRole_taxi": "Taxi / VTC",
   "jobRole_hospital": "Hôpital",
   "jobRole_homecare": "Domicile / Spitex",
   "jobRole_geriatric": "EMS / gériatrie",

@@ -64,6 +64,10 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("logistics", "Chauffeur de bus") == "bus"
     assert classify_job_category("logistics", "Magasinier") == "warehouse"
     assert classify_job_category("healthcare", "Infirmier Spitex") == "homecare"
+    assert classify_job_category("Unknown", "Kleinbusfahrer:in 20-50 %") == "bus"
+    assert classify_job_category("Unknown", "Conducteur-trice TPG") == "bus"
+    assert classify_job_category("Unknown", "Chauffeur de taxi Genève") == "taxi"
+    assert classify_job_category("Unknown", "Livreur Uber Eats Lausanne") == "delivery"
 
 
 def test_title_refines_transport_alerts() -> None:
@@ -71,3 +75,6 @@ def test_title_refines_transport_alerts() -> None:
     assert job_category_matches("logistics", "bus", "Chauffeur poids lourd") is False
     assert job_category_matches("logistics", "transport", "Magasinier") is False
     assert job_category_matches("logistics", "warehouse", "Magasinier") is True
+    assert job_category_matches("other", "bus", "Conducteur TPG lignes urbaines") is True
+    assert job_category_matches("other", "taxi", "Chauffeur VTC") is True
+    assert job_category_matches("other", "bus", "Chauffeur VTC") is False

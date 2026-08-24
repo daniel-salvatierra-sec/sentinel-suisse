@@ -100,6 +100,7 @@ def _apply_job_category_filter(
     clauses = [func.lower(Listing.job_category).in_(values)]
     for needle in title_needles_for_filter(filter_category):
         clauses.append(Listing.title.ilike(needle))
+        clauses.append(Listing.description.ilike(needle))
     parent = parent_field(filter_category)
     if parent == "other" or filter_category == "other":
         excluded = [item.casefold() for item in non_other_stored_values()]

@@ -45,7 +45,8 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         if listing.is_under_construction is True:
             return False
     if filters.job_category is not None:
-        if not job_category_matches(listing.job_category, filters.job_category, listing.title):
+        hay = f"{listing.title or ''} {listing.description or ''}"
+        if not job_category_matches(listing.job_category, filters.job_category, hay):
             return False
     if filters.employment_type is not None and listing.employment_type is not None:
         if listing.employment_type != filters.employment_type:

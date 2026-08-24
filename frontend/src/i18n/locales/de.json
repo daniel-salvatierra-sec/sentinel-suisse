@@ -251,6 +251,7 @@
   "jobRole_truck": "LKW",
   "jobRole_delivery": "Zustellung",
   "jobRole_crane": "Kran",
+  "jobRole_taxi": "Taxi / VTC",
   "jobRole_hospital": "Spital",
   "jobRole_homecare": "Spitex / Haus",
   "jobRole_geriatric": "EMS / Alter",

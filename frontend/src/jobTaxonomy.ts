@@ -32,7 +32,7 @@ export const JOB_BRANCHES: Record<JobField, readonly string[]> = {
 
 /** Extra chip row only where one specialty still covers many jobs. */
 export const JOB_ROLES: Record<string, readonly string[]> = {
-  transport: ["bus", "truck", "delivery", "crane"],
+  transport: ["bus", "truck", "delivery", "crane", "taxi"],
   nursing: ["hospital", "homecare", "geriatric", "clinic"],
   watchmaker: ["assembly", "restoration", "polishing"],
 };

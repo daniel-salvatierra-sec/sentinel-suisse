@@ -41,7 +41,7 @@ def test_parse_search_response_from_fixture() -> None:
     # connector must translate them to match the app's "Geneva" search convention,
     # without leaving German scaffolding words ("Kanton", "Schweiz") mixed in.
     assert listings[0].location == "Geneva"
-    assert listings[0].job_category == "it"
+    assert listings[0].job_category == "software"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert listings[0].price == Decimal("90000")
     assert str(listings[0].source_url).startswith("https://www.adzuna.ch/")
@@ -77,6 +77,7 @@ def test_fetch_search_listings_when_enabled(mock_get: MagicMock) -> None:
         adzuna_country="ch",
         adzuna_location="Geneve",
         adzuna_locations="",
+        adzuna_role_keywords="",
         ingest_rate_limit_seconds=0,
     )
     listings = fetch_search_listings(settings)
@@ -105,6 +106,7 @@ def test_fetch_walks_swiss_cities(mock_get: MagicMock) -> None:
             adzuna_app_key="test-app-key",  # noqa: S106
             adzuna_country="ch",
             adzuna_locations="Geneve,Zurich,Bern",
+            adzuna_role_keywords="",
             ingest_rate_limit_seconds=0,
         )
     )
@@ -130,3 +132,30 @@ def test_fetch_search_listings_unexpected_shape_raises(mock_get: MagicMock) -> N
     )
     with pytest.raises(AdzunaFetchError, match="results"):
         fetch_search_listings(settings)
+
+
+@patch("sentinel_suisse.ingest.connectors.adzuna.httpx.get")
+def test_fetch_role_keywords_query_hub_cities(mock_get: MagicMock) -> None:
+    payload = json.loads(_FIXTURE.read_text(encoding="utf-8"))
+    response = MagicMock()
+    response.raise_for_status = MagicMock()
+    response.json.return_value = payload
+    mock_get.return_value = response
+
+    fetch_search_listings(
+        Settings(
+            ingest_adzuna_live=True,
+            adzuna_app_id="test-app-id",
+            adzuna_app_key="test-app-key",  # noqa: S106
+            adzuna_country="ch",
+            adzuna_locations="Geneve",
+            adzuna_role_keywords="chauffeur,taxi",
+            adzuna_role_locations="Geneve,Basel",
+            adzuna_role_max_pages=1,
+            ingest_rate_limit_seconds=0,
+        )
+    )
+
+    whats = [call.kwargs["params"].get("what") for call in mock_get.call_args_list]
+    assert whats.count("chauffeur") == 2
+    assert whats.count("taxi") == 2
