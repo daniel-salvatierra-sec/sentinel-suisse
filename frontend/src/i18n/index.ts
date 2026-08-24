@@ -161,6 +161,13 @@ export type Messages = {
   guideNudgeNo: string;
   postAdCta: string;
   postAdBack: string;
+  searchHomeCta: string;
+  searchWorkCta: string;
+  searchKindHome: string;
+  searchKindJob: string;
+  searchRoomsN: string;
+  searchPriceMax: string;
+  searchPriceMin: string;
   assistantChatCta: string;
   assistantIntro: string;
   assistantPlaceholder: string;

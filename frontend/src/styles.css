@@ -819,6 +819,14 @@ body {
   border-radius: 0.85rem;
 }
 
+.alerts-current-detail {
+  margin: 0 0 0.85rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.45;
+  color: var(--ink, #1c2420);
+}
+
 .alerts-history-list {
   list-style: none;
   margin: 0;
@@ -1655,6 +1663,17 @@ body {
   text-decoration: underline;
   text-underline-offset: 0.18em;
   cursor: pointer;
+}
+
+.door-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  margin: 0 0 0.85rem;
+}
+
+.door-links .post-ad-link {
+  margin: 0;
 }
 
 .post-ad-link:hover,

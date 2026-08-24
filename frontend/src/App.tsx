@@ -10,6 +10,7 @@ import {
   type SearchQueryParams,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
+import { DoorLinks } from "./components/DoorLinks";
 import {
   FilterBar,
   type RoomsChoice,
@@ -123,26 +124,32 @@ export default function App() {
   })();
 
   const buildSearchParams = useCallback(
-    (offset: number): SearchQueryParams => {
-      const rooms = roomsToFilters(appliedRoomsChoice);
-      const workload = workloadToFilters(appliedWorkloadChoice);
+    (offset: number, source: "applied" | "live" = "applied"): SearchQueryParams => {
+      const live = source === "live";
+      const rooms = roomsToFilters(live ? roomsChoice : appliedRoomsChoice);
+      const workload = workloadToFilters(live ? workloadChoice : appliedWorkloadChoice);
+      const zone = live ? zoneChoice : appliedZoneChoice;
+      const pMin = live ? priceMin : appliedPriceMin;
+      const pMax = live ? priceMax : appliedPriceMax;
+      const parking = live ? hasParking : appliedHasParking;
+      const construction = live ? underConstruction : appliedUnderConstruction;
+      const field = live ? jobField : appliedJobField;
+      const branch = live ? jobBranch : appliedJobBranch;
+      const emp = live ? employmentType : appliedEmploymentType;
       return {
         listing_type: category,
         location: query,
-        country: appliedZoneChoice,
-        price_min: category === "housing" ? parseOptionalPrice(appliedPriceMin) : undefined,
-        price_max: category === "housing" ? parseOptionalPrice(appliedPriceMax) : undefined,
+        country: zone,
+        price_min: category === "housing" ? parseOptionalPrice(pMin) : undefined,
+        price_max: category === "housing" ? parseOptionalPrice(pMax) : undefined,
         rooms_min: category === "housing" ? rooms.rooms_min : undefined,
         property_type: category === "housing" ? rooms.property_type : undefined,
-        has_parking: category === "housing" && appliedHasParking ? true : undefined,
+        has_parking: category === "housing" && parking ? true : undefined,
         is_under_construction:
-          category === "housing" && appliedUnderConstruction ? true : undefined,
+          category === "housing" && construction ? true : undefined,
         job_category:
-          category === "job"
-            ? resolveJobCategory(appliedJobField, appliedJobBranch)
-            : undefined,
-        employment_type:
-          category === "job" && appliedEmploymentType ? appliedEmploymentType : undefined,
+          category === "job" ? resolveJobCategory(field, branch) : undefined,
+        employment_type: category === "job" && emp ? emp : undefined,
         workload_min: category === "job" ? workload.workload_min : undefined,
         workload_max: category === "job" ? workload.workload_max : undefined,
         limit: SEARCH_PAGE_SIZE,
@@ -152,6 +159,16 @@ export default function App() {
     [
       category,
       query,
+      zoneChoice,
+      priceMin,
+      priceMax,
+      roomsChoice,
+      hasParking,
+      underConstruction,
+      jobField,
+      jobBranch,
+      employmentType,
+      workloadChoice,
       appliedZoneChoice,
       appliedPriceMin,
       appliedPriceMax,
@@ -264,6 +281,17 @@ export default function App() {
     setTab("list");
   };
 
+  const goToSearch = (type: ListingType) => {
+    setCategory(type);
+    setTab("list");
+    window.setTimeout(() => {
+      document.getElementById("search-panel")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
+  };
+
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
     setCategory(saved.listing_type);
     setQuery(saved.location ?? "");
@@ -282,7 +310,7 @@ export default function App() {
     setTab("list");
   };
 
-  const alertQuery = buildSearchParams(0);
+  const alertQuery = buildSearchParams(0, "live");
 
   return (
     <div className="app">
@@ -358,29 +386,23 @@ export default function App() {
         t={t}
         active={category}
         onSelect={(type) => {
-          setCategory(type);
           if (tab === "publish") {
+            setCategory(type);
             return;
           }
-          window.requestAnimationFrame(() => {
-            document.getElementById("search-panel")?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-          });
+          goToSearch(type);
         }}
       />
-      {tab !== "publish" && tab !== "account" ? (
-        <button
-          type="button"
-          className="post-ad-link"
-          onClick={() => setTab(hasSession ? "publish" : "account")}
-        >
-          {t.postAdCta}
-        </button>
-      ) : null}
+      <DoorLinks
+        t={t}
+        showSearch={tab === "account" || tab === "alerts" || tab === "publish"}
+        showPublish={tab !== "publish" && tab !== "account"}
+        onSearchHome={() => goToSearch("housing")}
+        onSearchWork={() => goToSearch("job")}
+        onPublish={() => setTab(hasSession ? "publish" : "account")}
+      />
       {tab !== "publish" && tab !== "account" && tab !== "alerts" ? (
-        <>
+        <div id="search-panel">
           <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
           <FilterBar
             t={t}
@@ -423,7 +445,7 @@ export default function App() {
             onWorkloadChoiceChange={setWorkloadChoice}
             onApply={applyFilters}
           />
-        </>
+        </div>
       ) : null}
 
       {tab === "publish" ? (
@@ -517,6 +539,8 @@ export default function App() {
           onSignupSuccess={onSignupSuccess}
           onLoggedOut={onLoggedOut}
           onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
+          onSearchHome={() => goToSearch("housing")}
+          onSearchWork={() => goToSearch("job")}
         />
       )}
 

@@ -14,7 +14,9 @@ import {
   type UserProfile,
 } from "../api";
 import { AlertSignup } from "./AlertSignup";
+import { DoorLinks } from "./DoorLinks";
 import { PremiumUpsell } from "./PremiumUpsell";
+import { formatSearchSummary } from "../searchSummary";
 import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useState } from "react";
 
@@ -28,6 +30,8 @@ type Props = {
   onSignupSuccess: () => void;
   onLoggedOut: () => void;
   onOpenPublish: () => void;
+  onSearchHome: () => void;
+  onSearchWork: () => void;
 };
 
 export function AccountPanel({
@@ -40,6 +44,8 @@ export function AccountPanel({
   onSignupSuccess,
   onLoggedOut,
   onOpenPublish,
+  onSearchHome,
+  onSearchWork,
 }: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -171,9 +177,14 @@ export function AccountPanel({
           <p className="plan-hint">{t.searchFreeHint}</p>
         )}
 
-      <button type="button" className="post-ad-link" onClick={onOpenPublish}>
-        {t.postAdCta}
-      </button>
+      <DoorLinks
+        t={t}
+        showSearch
+        showPublish
+        onSearchHome={onSearchHome}
+        onSearchWork={onSearchWork}
+        onPublish={onOpenPublish}
+      />
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (
@@ -182,10 +193,7 @@ export function AccountPanel({
         searches.map((search) => (
           <article key={search.id} className="listing-card account-search">
             <h4>{search.name}</h4>
-            <div className="meta">
-              {String(search.query.listing_type ?? "—")}
-              {search.query.location ? ` · ${search.query.location}` : ""}
-            </div>
+            <div className="meta">{formatSearchSummary(t, search.query)}</div>
             <button type="button" className="danger-btn" onClick={() => void handleDeleteSearch(search.id)}>
               {t.accountDeleteSearch}
             </button>

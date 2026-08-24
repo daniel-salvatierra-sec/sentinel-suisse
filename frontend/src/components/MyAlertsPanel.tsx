@@ -8,6 +8,7 @@ import {
   type SavedSearch,
   type SearchQueryParams,
 } from "../api";
+import { formatSearchSummary } from "../searchSummary";
 import type { Lang, Messages } from "../i18n";
 import {
   historyForType,
@@ -72,10 +73,7 @@ export function MyAlertsPanel({
   }, [load, refreshToken]);
 
   const recent = historyForType(history, listingType);
-  const currentLabel =
-    listingType === "job"
-      ? `${t.job} · ${location.trim() || "—"}`
-      : `${t.housing} · ${location.trim() || "—"}`;
+  const currentLabel = formatSearchSummary(t, searchQuery);
 
   const saveCurrent = async () => {
     if (!getApiKey()) {
@@ -136,7 +134,7 @@ export function MyAlertsPanel({
 
       <div className="alerts-current-box">
         <h3 className="alerts-subhead">{t.alertsCreateFromSearch}</h3>
-        <p className="meta">{currentLabel}</p>
+        <p className="alerts-current-detail">{currentLabel}</p>
         <button
           type="button"
           className="apply-btn"
@@ -161,7 +159,7 @@ export function MyAlertsPanel({
                   className="alerts-history-item"
                   onClick={() => onApplyRemembered(item.query)}
                 >
-                  {item.label}
+                  {formatSearchSummary(t, item.query)}
                 </button>
               </li>
             ))}
@@ -194,10 +192,7 @@ export function MyAlertsPanel({
             searches.map((search) => (
               <article key={search.id} className="listing-card account-search">
                 <h4>{search.name}</h4>
-                <div className="meta">
-                  {String(search.query.listing_type ?? "—")}
-                  {search.query.location ? ` · ${search.query.location}` : ""}
-                </div>
+                <div className="meta">{formatSearchSummary(t, search.query)}</div>
                 <button
                   type="button"
                   className="danger-btn"
