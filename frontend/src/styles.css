@@ -57,6 +57,13 @@ body {
     border-radius: 1.75rem;
   }
 
+  .goal-hub.is-overview {
+    min-height: 0;
+    width: 100%;
+    height: calc(100dvh - 14rem);
+    max-height: 720px;
+  }
+
   .sentinel-buddy {
     right: 1.5rem;
     bottom: 2rem;
@@ -208,9 +215,14 @@ body {
   background-position: center 78%;
 }
 
+.goal-hub.is-overview {
+  background-position: center center;
+}
+
 @media (min-width: 768px) {
-  .goal-hub {
-    /* Wide cards must zoom past the meadow seam between Home and Work. */
+  .goal-hub.focus-home,
+  .goal-hub.focus-work {
+    /* Wide cards must zoom past the meadow seam after a choice. */
     background-size: auto 220%;
   }
 
@@ -220,6 +232,11 @@ body {
 
   .goal-hub.focus-work {
     background-position: center bottom;
+  }
+
+  .goal-hub.is-overview {
+    background-size: cover;
+    background-position: center center;
   }
 }
 
@@ -267,6 +284,10 @@ body {
 
 .goal-zone:not(.active) {
   opacity: 0.92;
+}
+
+.goal-hub.is-overview .goal-zone:hover {
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.28), transparent 70%);
 }
 
 .goal-zone-kicker {

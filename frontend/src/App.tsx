@@ -69,6 +69,7 @@ function workloadToFilters(choice: WorkloadChoice): {
 export default function App() {
   const [lang, setLang] = useState<Lang>(loadLang);
   const [category, setCategory] = useState<ListingType>("housing");
+  const [hubFocused, setHubFocused] = useState(false);
   const [query, setQuery] = useState("");
   const [zoneChoice, setZoneChoice] = useState<ZoneChoice>("CH");
   const [priceMin, setPriceMin] = useState("");
@@ -197,6 +198,7 @@ export default function App() {
     }
     if (deep.listingType) {
       setCategory(deep.listingType);
+      setHubFocused(true);
     }
     if (deep.location != null) {
       setQuery(deep.location);
@@ -291,9 +293,11 @@ export default function App() {
     setTab("list");
   };
 
-  const goToSearch = (type: ListingType) => {
+  const goToSearch = (type: ListingType, opts?: { scroll?: boolean }) => {
     setCategory(type);
+    setHubFocused(true);
     setTab("list");
+    if (opts?.scroll === false) return;
     window.setTimeout(() => {
       document.getElementById("search-panel")?.scrollIntoView({
         behavior: "smooth",
@@ -303,7 +307,10 @@ export default function App() {
   };
 
   const openAlerts = (type?: ListingType) => {
-    if (type) setCategory(type);
+    if (type) {
+      setCategory(type);
+      setHubFocused(true);
+    }
     applyFilters();
     setTab("alerts");
     window.setTimeout(() => {
@@ -315,6 +322,7 @@ export default function App() {
 
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
     setCategory(saved.listing_type);
+    setHubFocused(true);
     setQuery(saved.location ?? "");
     if (
       saved.country === "CH" ||
@@ -406,12 +414,14 @@ export default function App() {
       <GoalHub
         t={t}
         active={category}
+        focused={hubFocused}
         onSelect={(type) => {
+          setHubFocused(true);
           if (tab === "publish") {
             setCategory(type);
             return;
           }
-          goToSearch(type);
+          goToSearch(type, { scroll: false });
         }}
       />
       <DoorLinks
@@ -568,7 +578,10 @@ export default function App() {
           previewListings={listings}
           previewLoading={loading}
           refreshToken={accountRefresh}
-          onPickCategory={setCategory}
+          onPickCategory={(type) => {
+            setCategory(type);
+            setHubFocused(true);
+          }}
           onApplyRemembered={applyRememberedSearch}
           onSignupSuccess={onSignupSuccess}
           onGoToAccount={() => setTab("account")}
@@ -621,6 +634,7 @@ export default function App() {
         hasSession={hasSession}
         onPickCategory={(type) => {
           setCategory(type);
+          setHubFocused(true);
           setTab("list");
         }}
         onOpenAlerts={(type) => openAlerts(type)}
