@@ -78,6 +78,7 @@ export default function App() {
   const [underConstruction, setUnderConstruction] = useState(false);
   const [jobField, setJobField] = useState<JobField | "">("");
   const [jobBranch, setJobBranch] = useState("");
+  const [jobRole, setJobRole] = useState("");
   const [employmentType, setEmploymentType] = useState<EmploymentType | "">("");
   const [workloadChoice, setWorkloadChoice] = useState<WorkloadChoice>("");
   const [appliedZoneChoice, setAppliedZoneChoice] = useState<ZoneChoice>("CH");
@@ -88,6 +89,7 @@ export default function App() {
   const [appliedUnderConstruction, setAppliedUnderConstruction] = useState(false);
   const [appliedJobField, setAppliedJobField] = useState<JobField | "">("");
   const [appliedJobBranch, setAppliedJobBranch] = useState("");
+  const [appliedJobRole, setAppliedJobRole] = useState("");
   const [appliedEmploymentType, setAppliedEmploymentType] = useState<EmploymentType | "">("");
   const [appliedWorkloadChoice, setAppliedWorkloadChoice] = useState<WorkloadChoice>("");
   const [listings, setListings] = useState<Listing[]>([]);
@@ -118,6 +120,7 @@ export default function App() {
       hasParking: category === "housing" && appliedHasParking,
       jobField: category === "job" ? appliedJobField : "",
       jobBranch: category === "job" ? appliedJobBranch : "",
+      jobRole: category === "job" ? appliedJobRole : "",
       employmentType: category === "job" ? appliedEmploymentType : "",
       workloadMin: category === "job" ? workload.workload_min : undefined,
       workloadMax: category === "job" ? workload.workload_max : undefined,
@@ -136,6 +139,7 @@ export default function App() {
       const construction = live ? underConstruction : appliedUnderConstruction;
       const field = live ? jobField : appliedJobField;
       const branch = live ? jobBranch : appliedJobBranch;
+      const role = live ? jobRole : appliedJobRole;
       const emp = live ? employmentType : appliedEmploymentType;
       return {
         listing_type: category,
@@ -149,7 +153,7 @@ export default function App() {
         is_under_construction:
           category === "housing" && construction ? true : undefined,
         job_category:
-          category === "job" ? resolveJobCategory(field, branch) : undefined,
+          category === "job" ? resolveJobCategory(field, branch, role) : undefined,
         employment_type: category === "job" && emp ? emp : undefined,
         workload_min: category === "job" ? workload.workload_min : undefined,
         workload_max: category === "job" ? workload.workload_max : undefined,
@@ -168,6 +172,7 @@ export default function App() {
       underConstruction,
       jobField,
       jobBranch,
+      jobRole,
       employmentType,
       workloadChoice,
       appliedZoneChoice,
@@ -178,6 +183,7 @@ export default function App() {
       appliedUnderConstruction,
       appliedJobField,
       appliedJobBranch,
+      appliedJobRole,
       appliedEmploymentType,
       appliedWorkloadChoice,
     ],
@@ -262,6 +268,7 @@ export default function App() {
     setAppliedUnderConstruction(underConstruction);
     setAppliedJobField(jobField);
     setAppliedJobBranch(jobBranch);
+    setAppliedJobRole(jobRole);
     setAppliedEmploymentType(employmentType);
     setAppliedWorkloadChoice(workloadChoice);
   };
@@ -447,11 +454,20 @@ export default function App() {
             onJobFieldChange={(value) => {
               setJobField(value);
               setAppliedJobField(value);
+              setJobRole("");
+              setAppliedJobRole("");
             }}
             jobBranch={jobBranch}
             onJobBranchChange={(value) => {
               setJobBranch(value);
               setAppliedJobBranch(value);
+              setJobRole("");
+              setAppliedJobRole("");
+            }}
+            jobRole={jobRole}
+            onJobRoleChange={(value) => {
+              setJobRole(value);
+              setAppliedJobRole(value);
             }}
             employmentType={employmentType}
             onEmploymentTypeChange={setEmploymentType}

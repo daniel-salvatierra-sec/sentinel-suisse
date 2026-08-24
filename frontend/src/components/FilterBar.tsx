@@ -3,6 +3,7 @@ import type { CountryCode, EmploymentType, ListingType } from "../api";
 import {
   JOB_BRANCHES,
   JOB_FIELDS,
+  JOB_ROLES,
   type JobField,
 } from "../jobTaxonomy";
 import { SWISS_CITIES } from "../swissCities";
@@ -32,6 +33,8 @@ type Props = {
   onJobFieldChange: (value: JobField | "") => void;
   jobBranch: string;
   onJobBranchChange: (value: string) => void;
+  jobRole: string;
+  onJobRoleChange: (value: string) => void;
   employmentType: EmploymentType | "";
   onEmploymentTypeChange: (value: EmploymentType | "") => void;
   workloadChoice: WorkloadChoice;
@@ -86,6 +89,12 @@ function branchLabel(t: Messages, branch: string): string {
   return typeof value === "string" ? value : branch;
 }
 
+function roleLabel(t: Messages, role: string): string {
+  const key = `jobRole_${role}` as keyof Messages;
+  const value = t[key];
+  return typeof value === "string" ? value : role;
+}
+
 function employmentLabel(t: Messages, type: EmploymentType): string {
   const map: Record<EmploymentType, string> = {
     permanent: t.employmentPermanent,
@@ -118,6 +127,8 @@ export function FilterBar({
   onJobFieldChange,
   jobBranch,
   onJobBranchChange,
+  jobRole,
+  onJobRoleChange,
   employmentType,
   onEmploymentTypeChange,
   workloadChoice,
@@ -125,6 +136,7 @@ export function FilterBar({
   onApply,
 }: Props) {
   const branches = jobField ? JOB_BRANCHES[jobField] : [];
+  const roles = jobBranch ? (JOB_ROLES[jobBranch] ?? []) : [];
 
   return (
     <div className="filter-bar">
@@ -276,6 +288,7 @@ export function FilterBar({
               onClick={() => {
                 onJobFieldChange("");
                 onJobBranchChange("");
+                onJobRoleChange("");
               }}
             >
               {t.filterAny}
@@ -290,9 +303,11 @@ export function FilterBar({
                   if (jobField === field) {
                     onJobFieldChange("");
                     onJobBranchChange("");
+                    onJobRoleChange("");
                   } else {
                     onJobFieldChange(field);
                     onJobBranchChange("");
+                    onJobRoleChange("");
                   }
                 }}
               >
@@ -309,7 +324,10 @@ export function FilterBar({
                   type="button"
                   className={jobBranch === "" ? "chip active" : "chip"}
                   aria-pressed={jobBranch === ""}
-                  onClick={() => onJobBranchChange("")}
+                  onClick={() => {
+                    onJobBranchChange("");
+                    onJobRoleChange("");
+                  }}
                 >
                   {t.filterAny}
                 </button>
@@ -319,11 +337,40 @@ export function FilterBar({
                     type="button"
                     className={jobBranch === branch ? "chip active" : "chip"}
                     aria-pressed={jobBranch === branch}
-                    onClick={() =>
-                      onJobBranchChange(jobBranch === branch ? "" : branch)
-                    }
+                    onClick={() => {
+                      const next = jobBranch === branch ? "" : branch;
+                      onJobBranchChange(next);
+                      onJobRoleChange("");
+                    }}
                   >
                     {branchLabel(t, branch)}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+
+          {roles.length > 0 && (
+            <>
+              <p className="filter-group-label">{t.jobRoleLabel}</p>
+              <div className="filter-chips" role="group" aria-label={t.jobRoleLabel}>
+                <button
+                  type="button"
+                  className={jobRole === "" ? "chip active" : "chip"}
+                  aria-pressed={jobRole === ""}
+                  onClick={() => onJobRoleChange("")}
+                >
+                  {t.filterAny}
+                </button>
+                {roles.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    className={jobRole === role ? "chip active" : "chip"}
+                    aria-pressed={jobRole === role}
+                    onClick={() => onJobRoleChange(jobRole === role ? "" : role)}
+                  >
+                    {roleLabel(t, role)}
                   </button>
                 ))}
               </div>

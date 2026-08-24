@@ -1,4 +1,4 @@
-/** Job field → branches (jobs.ch style, compact). */
+/** Job field → branches → roles (compact, not hyper-specific). */
 
 export const JOB_FIELDS = [
   "it",
@@ -30,16 +30,39 @@ export const JOB_BRANCHES: Record<JobField, readonly string[]> = {
   other: ["legal", "creative", "science", "manufacturing", "property"],
 };
 
+/** Extra chip row only where one specialty still covers many jobs. */
+export const JOB_ROLES: Record<string, readonly string[]> = {
+  transport: ["bus", "truck", "delivery", "crane"],
+  nursing: ["hospital", "homecare", "geriatric", "clinic"],
+  watchmaker: ["assembly", "restoration", "polishing"],
+};
+
 /** Map branch → parent field (for match + API). */
 export const BRANCH_PARENT: Record<string, JobField> = Object.fromEntries(
   JOB_FIELDS.flatMap((field) => JOB_BRANCHES[field].map((branch) => [branch, field])),
 ) as Record<string, JobField>;
 
+export const ROLE_PARENT: Record<string, string> = Object.fromEntries(
+  Object.entries(JOB_ROLES).flatMap(([branch, roles]) => roles.map((role) => [role, branch])),
+);
+
 export function resolveJobCategory(
   field: JobField | "",
   branch: string,
+  role = "",
 ): string | undefined {
+  if (role) return role;
   if (branch) return branch;
   if (field) return field;
   return undefined;
+}
+
+export function jobCategoryAncestors(slug: string): string[] {
+  const chain: string[] = [];
+  let current: string | undefined = ROLE_PARENT[slug] ?? BRANCH_PARENT[slug];
+  while (current) {
+    chain.push(current);
+    current = ROLE_PARENT[current] ?? BRANCH_PARENT[current];
+  }
+  return chain;
 }

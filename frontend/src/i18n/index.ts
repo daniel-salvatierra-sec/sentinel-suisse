@@ -49,6 +49,7 @@ export type Messages = {
   underConstructionFilter: string;
   jobCategoryLabel: string;
   jobBranchLabel: string;
+  jobRoleLabel: string;
   jobCatIt: string;
   jobCatHealthcare: string;
   jobCatHospitality: string;
@@ -103,6 +104,17 @@ export type Messages = {
   jobBranch_science: string;
   jobBranch_manufacturing: string;
   jobBranch_property: string;
+  jobRole_bus: string;
+  jobRole_truck: string;
+  jobRole_delivery: string;
+  jobRole_crane: string;
+  jobRole_hospital: string;
+  jobRole_homecare: string;
+  jobRole_geriatric: string;
+  jobRole_clinic: string;
+  jobRole_assembly: string;
+  jobRole_restoration: string;
+  jobRole_polishing: string;
   employmentTypeLabel: string;
   employmentPermanent: string;
   employmentTemporary: string;

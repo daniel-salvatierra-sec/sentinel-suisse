@@ -6,8 +6,8 @@ from sqlalchemy.orm import Session
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.job_taxonomy import (
-    BRANCH_PARENT,
     non_other_stored_values,
+    parent_field,
     stored_job_category_values,
     title_needles_for_filter,
 )
@@ -49,11 +49,9 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     if filters.price_max is not None:
         stmt = stmt.where(Listing.price <= filters.price_max)
     if filters.rooms_min is not None:
-        stmt = stmt.where(or_(Listing.rooms.is_(None), Listing.rooms >= filters.rooms_min))
+        stmt = stmt.where(Listing.rooms >= filters.rooms_min)
     if filters.property_type is not None:
-        stmt = stmt.where(
-            or_(Listing.property_type.is_(None), Listing.property_type == filters.property_type)
-        )
+        stmt = stmt.where(Listing.property_type == filters.property_type)
     if filters.has_parking is True:
         stmt = stmt.where(or_(Listing.has_parking.is_(None), Listing.has_parking.is_(True)))
     elif filters.has_parking is False:
@@ -102,7 +100,7 @@ def _apply_job_category_filter(
     clauses = [func.lower(Listing.job_category).in_(values)]
     for needle in title_needles_for_filter(filter_category):
         clauses.append(Listing.title.ilike(needle))
-    parent = BRANCH_PARENT.get(filter_category, filter_category)
+    parent = parent_field(filter_category)
     if parent == "other" or filter_category == "other":
         excluded = [item.casefold() for item in non_other_stored_values()]
         clauses.extend(

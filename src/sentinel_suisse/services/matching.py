@@ -28,11 +28,11 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
     if filters.price_max is not None:
         if listing.price is None or listing.price > filters.price_max:
             return False
-    if filters.rooms_min is not None and listing.rooms is not None:
-        if listing.rooms < filters.rooms_min:
+    if filters.rooms_min is not None:
+        if listing.rooms is None or listing.rooms < filters.rooms_min:
             return False
-    if filters.property_type is not None and listing.property_type is not None:
-        if listing.property_type != filters.property_type:
+    if filters.property_type is not None:
+        if listing.property_type is None or listing.property_type != filters.property_type:
             return False
     if filters.has_parking is True and listing.has_parking is False:
         return False

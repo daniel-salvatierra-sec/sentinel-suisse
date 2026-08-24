@@ -22,13 +22,14 @@ def _sample_listing(
     employment_type: EmploymentType | None = None,
     workload_min: int | None = None,
     workload_max: int | None = None,
+    title: str = "Apartment",
 ) -> Listing:
     return Listing(
         id=1,
         provider_id=1,
         external_id="x",
         listing_type=listing_type,
-        title="Apartment",
+        title=title,
         location=location,
         country=country,
         price=Decimal(price) if listing_type == ListingType.HOUSING else None,
@@ -80,10 +81,36 @@ def test_hidden_listing_does_not_match() -> None:
     assert listing_matches_query(listing, SearchQuery(location="Geneva")) is False
 
 
-def test_rooms_min_null_safe() -> None:
+def test_rooms_min_rejects_unknown() -> None:
     listing = _sample_listing(rooms=None)
     filters = SearchQuery(rooms_min=Decimal("2.5"))
-    assert listing_matches_query(listing, filters) is True
+    assert listing_matches_query(listing, filters) is False
+
+
+def test_price_max_is_strict() -> None:
+    filters = SearchQuery(price_max=Decimal("2000"))
+    assert listing_matches_query(_sample_listing(price="1800"), filters) is True
+    assert listing_matches_query(_sample_listing(price="4000"), filters) is False
+    unknown = _sample_listing(price="1800")
+    unknown.price = None
+    assert listing_matches_query(unknown, filters) is False
+
+
+def test_job_alert_respects_transport_role() -> None:
+    truck = _sample_listing(
+        listing_type=ListingType.JOB,
+        job_category="logistics",
+        title="Chauffeur poids lourd CE",
+    )
+    warehouse = _sample_listing(
+        listing_type=ListingType.JOB,
+        job_category="logistics",
+        title="Magasinier / cariste",
+    )
+    assert listing_matches_query(truck, SearchQuery(job_category="transport")) is True
+    assert listing_matches_query(warehouse, SearchQuery(job_category="transport")) is False
+    assert listing_matches_query(truck, SearchQuery(job_category="bus")) is False
+    assert listing_matches_query(truck, SearchQuery(job_category="truck")) is True
 
 
 def test_rooms_min_rejects_smaller() -> None:

@@ -9,6 +9,7 @@ export type ListingSignalContext = {
   hasParking: boolean;
   jobField: JobField | "";
   jobBranch: string;
+  jobRole: string;
   employmentType: EmploymentType | "";
   workloadMin?: number;
   workloadMax?: number;
@@ -59,8 +60,10 @@ function locationMatches(listing: Listing, query: string): boolean {
 
 function jobExactMatch(listing: Listing, ctx: ListingSignalContext): boolean {
   const cat = listing.job_category;
-  if (!cat || !ctx.jobBranch) return false;
-  return cat === ctx.jobBranch;
+  if (!cat) return false;
+  if (ctx.jobRole) return cat === ctx.jobRole;
+  if (ctx.jobBranch) return cat === ctx.jobBranch;
+  return false;
 }
 
 function workloadFits(listing: Listing, ctx: ListingSignalContext): boolean {

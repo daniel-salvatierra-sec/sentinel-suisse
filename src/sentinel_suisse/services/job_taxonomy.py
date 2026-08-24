@@ -1,4 +1,4 @@
-"""Job category hierarchy for matching (field ↔ branch) plus portal aliases."""
+"""Job category hierarchy for matching (field → branch → role) plus portal aliases."""
 
 from __future__ import annotations
 
@@ -65,7 +65,28 @@ BRANCH_PARENT: dict[str, str] = {
     "property": "other",
 }
 
-ALL_SLUGS: frozenset[str] = FIELD_SLUGS | frozenset(BRANCH_PARENT)
+# role → parent branch (only where one specialty still covers many jobs)
+ROLE_PARENT: dict[str, str] = {
+    "bus": "transport",
+    "truck": "transport",
+    "delivery": "transport",
+    "crane": "transport",
+    "hospital": "nursing",
+    "homecare": "nursing",
+    "geriatric": "nursing",
+    "clinic": "nursing",
+    "assembly": "watchmaker",
+    "restoration": "watchmaker",
+    "polishing": "watchmaker",
+}
+
+IMMEDIATE_PARENT: dict[str, str] = {**BRANCH_PARENT, **ROLE_PARENT}
+
+ALL_SLUGS: frozenset[str] = FIELD_SLUGS | frozenset(BRANCH_PARENT) | frozenset(ROLE_PARENT)
+
+_CHILDREN: dict[str, tuple[str, ...]] = {}
+for _child, _parent in IMMEDIATE_PARENT.items():
+    _CHILDREN[_parent] = (*_CHILDREN.get(_parent, ()), _child)
 
 # Folded Adzuna tags/labels (and similar ATS strings) → our slug.
 _ALIAS_TO_SLUG: dict[str, str] = {
@@ -140,10 +161,10 @@ _KEYWORD_TO_SLUG: tuple[tuple[str, str], ...] = (
     ("construction", "construction"),
     ("engineering", "construction"),
     ("logistics", "logistics"),
-    ("warehouse", "logistics"),
+    ("warehouse", "warehouse"),
     ("accounting", "admin"),
     ("consulting", "admin"),
-    ("nursing", "healthcare"),
+    ("nursing", "nursing"),
     ("teaching", "education"),
     ("education", "education"),
     ("insurance", "finance"),
@@ -166,84 +187,122 @@ _KEYWORD_TO_SLUG: tuple[tuple[str, str], ...] = (
 
 _UNCLASSIFIED = frozenset({"unknown", "unknown jobs", "n/a", "none"})
 
-# Title needles (accent-folded) → field. Longer first.
-_TITLE_TO_FIELD: tuple[tuple[str, str], ...] = (
-    ("mecanicien horloger", "watchmaking"),
-    ("horloger", "watchmaking"),
-    ("horlogere", "watchmaking"),
+# Title needles (accent-folded) → most specific slug. Longer first.
+_TITLE_TO_SLUG: tuple[tuple[str, str], ...] = (
+    ("mecanicien horloger", "watchmaker"),
+    ("horloger rhabilleur", "restoration"),
+    ("rhabilleur", "restoration"),
+    ("rhabillage", "restoration"),
+    ("polisseur", "polishing"),
+    ("habillage", "assembly"),
+    ("horloger", "watchmaker"),
+    ("horlogere", "watchmaker"),
     ("horlogerie", "watchmaking"),
-    ("watchmaker", "watchmaking"),
+    ("watchmaker", "watchmaker"),
     ("watchmaking", "watchmaking"),
-    ("uhrmacher", "watchmaking"),
-    ("cadranier", "watchmaking"),
-    ("sertisseur", "watchmaking"),
-    ("joaillier", "watchmaking"),
-    ("bijoutier", "watchmaking"),
-    ("polisseur", "watchmaking"),
-    ("habillage", "watchmaking"),
-    ("recette fonctionnelle", "it"),
-    ("analyste test", "it"),
-    ("data scientist", "it"),
-    ("data engineer", "it"),
-    ("developpeur", "it"),
-    ("developer", "it"),
+    ("uhrmacher", "watchmaker"),
+    ("cadranier", "microtech"),
+    ("sertisseur", "jewelry"),
+    ("joaillier", "jewelry"),
+    ("bijoutier", "jewelry"),
+    ("recette fonctionnelle", "software"),
+    ("analyste test", "software"),
+    ("data scientist", "data"),
+    ("data engineer", "data"),
+    ("developpeur", "software"),
+    ("developer", "software"),
     ("informaticien", "it"),
     ("informatique", "it"),
-    ("fullstack", "it"),
-    ("full stack", "it"),
-    ("frontend", "it"),
-    ("backend", "it"),
-    ("devops", "it"),
-    ("cybersecurite", "it"),
-    ("software", "it"),
-    ("kinesitherapeute", "healthcare"),
-    ("infirmier", "healthcare"),
-    ("infirmiere", "healthcare"),
-    ("aide soignant", "healthcare"),
-    ("soignant", "healthcare"),
-    ("medecin", "healthcare"),
-    ("nursing", "healthcare"),
+    ("fullstack", "software"),
+    ("full stack", "software"),
+    ("frontend", "software"),
+    ("backend", "software"),
+    ("devops", "software"),
+    ("cybersecurite", "soc"),
+    ("cybersecurity", "soc"),
+    ("software", "software"),
+    ("soins a domicile", "homecare"),
+    ("aide et soins a domicile", "homecare"),
+    ("spitex", "homecare"),
+    ("home care", "homecare"),
+    ("altersheim", "geriatric"),
+    ("maison de retraite", "geriatric"),
+    ("geriatr", "geriatric"),
+    ("kinesitherapeute", "therapy"),
+    ("aide soignant", "care"),
+    ("cabinet medical", "clinic"),
+    ("cabinet infirmier", "clinic"),
+    ("hopital", "hospital"),
+    ("hospital", "hospital"),
+    ("clinique", "clinic"),
+    ("infirmier", "nursing"),
+    ("infirmiere", "nursing"),
+    ("soignant", "care"),
+    ("medecin", "doctor"),
+    ("nursing", "nursing"),
     ("paysagiste", "construction"),
-    ("electricien", "construction"),
-    ("electrotechnicien", "construction"),
-    ("macon", "construction"),
-    ("manoeuvre", "construction"),
-    ("soudeur", "construction"),
-    ("carrossier", "construction"),
-    ("mecanicien", "construction"),
-    ("charpentier", "construction"),
-    ("etancheur", "construction"),
-    ("comptable", "admin"),
-    ("administratif", "admin"),
-    ("assistant adv", "admin"),
-    ("gestionnaire de paie", "admin"),
-    ("ressources humaines", "admin"),
-    ("professeur", "education"),
-    ("enseignant", "education"),
-    ("educateur", "education"),
+    ("electricien", "trades"),
+    ("electrotechnicien", "trades"),
+    ("macon", "trades"),
+    ("manoeuvre", "trades"),
+    ("soudeur", "trades"),
+    ("carrossier", "trades"),
+    ("mecanicien", "trades"),
+    ("charpentier", "trades"),
+    ("etancheur", "trades"),
+    ("comptable", "accounting"),
+    ("administratif", "office"),
+    ("assistant adv", "office"),
+    ("gestionnaire de paie", "hr"),
+    ("ressources humaines", "hr"),
+    ("professeur", "teaching"),
+    ("enseignant", "teaching"),
+    ("educateur", "social"),
     ("commercial", "sales"),
-    ("vendeur", "sales"),
-    ("magasinier", "logistics"),
-    ("chauffeur", "logistics"),
-    ("chofer", "logistics"),
-    ("busfahrer", "logistics"),
-    ("bus driver", "logistics"),
-    ("cariste", "logistics"),
-    ("cuisinier", "hospitality"),
-    ("serveur", "hospitality"),
-    ("hotelier", "hospitality"),
+    ("vendeur", "retail"),
+    ("chauffeur de bus", "bus"),
+    ("chauffeur bus", "bus"),
+    ("conducteur de bus", "bus"),
+    ("busfahrer", "bus"),
+    ("bus driver", "bus"),
+    ("autocar", "bus"),
+    ("car postal", "bus"),
+    ("poids lourd", "truck"),
+    ("poids lourds", "truck"),
+    ("camionnette", "delivery"),
+    ("camionneur", "truck"),
+    ("camion", "truck"),
+    ("lkw", "truck"),
+    ("grutier", "crane"),
+    ("gruista", "crane"),
+    ("crane operator", "crane"),
+    ("livreur", "delivery"),
+    ("repartidor", "delivery"),
+    ("coursier", "delivery"),
+    ("kurier", "delivery"),
+    ("delivery driver", "delivery"),
+    ("magasinier", "warehouse"),
+    ("cariste", "warehouse"),
+    ("chauffeur", "transport"),
+    ("chofer", "transport"),
+    ("cuisinier", "kitchen"),
+    ("serveur", "service"),
+    ("hotelier", "hotel"),
     ("restauration", "hospitality"),
-    ("fiduciaire", "finance"),
-    ("banque", "finance"),
+    ("fiduciaire", "fiduciary"),
+    ("banque", "banking"),
 )
 
-# ILIKE needles for live search (include accented originals PostgreSQL will see).
+# ILIKE needles for live search, keyed by the most specific slug.
 TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
     "it": (
+        "%informatic%",
+        "%informatique%",
+    ),
+    "software": (
         "%développeur%",
         "%developpeur%",
         "%developer%",
-        "%informatic%",
         "%software%",
         "%devops%",
         "%fullstack%",
@@ -253,25 +312,59 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%backend%",
         "%analyste test%",
         "%recette fonctionnelle%",
-        "%data scientist%",
-        "%data engineer%",
+    ),
+    "soc": (
         "%cybersécurité%",
         "%cybersecurite%",
         "%cybersecurity%",
         "%cyber %",
     ),
-    "healthcare": (
+    "data": (
+        "%data scientist%",
+        "%data engineer%",
+    ),
+    "healthcare": ("%healthcare%",),
+    "nursing": (
         "%infirmier%",
         "%infirmière%",
-        "%kinésithérapeute%",
-        "%kinesitherapeute%",
-        "%soignant%",
-        "%médecin%",
-        "%medecin%",
         "%nursing%",
     ),
-    "construction": (
-        "%paysagiste%",
+    "hospital": (
+        "%hôpital%",
+        "%hopital%",
+        "%hospital%",
+    ),
+    "homecare": (
+        "%spitex%",
+        "%domicile%",
+        "%home care%",
+    ),
+    "geriatric": (
+        "%gériatr%",
+        "%geriatr%",
+        "%altersheim%",
+        "%ems %",
+        "% ems%",
+    ),
+    "clinic": (
+        "%clinique%",
+        "%cabinet%",
+        "%praxis%",
+    ),
+    "doctor": (
+        "%médecin%",
+        "%medecin%",
+    ),
+    "therapy": (
+        "%kinésithérapeute%",
+        "%kinesitherapeute%",
+    ),
+    "care": (
+        "%aide soignant%",
+        "%soignant%",
+    ),
+    "construction": ("%paysagiste%",),
+    "trades": (
         "%électricien%",
         "%electricien%",
         "%électrotechnicien%",
@@ -286,55 +379,97 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%étancheur%",
         "%etancheur%",
     ),
-    "admin": (
-        "%comptable%",
-        "%administratif%",
-        "%assistant adv%",
+    "admin": ("%administratif%",),
+    "hr": (
         "%gestionnaire de paie%",
         "%ressources humaines%",
     ),
-    "education": (
+    "office": ("%assistant adv%",),
+    "accounting": ("%comptable%",),
+    "education": ("%éducation%",),
+    "teaching": (
         "%professeur%",
         "%enseignant%",
+    ),
+    "social": (
         "%éducateur%",
         "%educateur%",
     ),
-    "sales": (
-        "%commercial%",
-        "%vendeur%",
-    ),
-    "hospitality": (
-        "%cuisinier%",
-        "%serveur%",
+    "sales": ("%commercial%",),
+    "retail": ("%vendeur%",),
+    "hospitality": ("%restauration%",),
+    "kitchen": ("%cuisinier%",),
+    "service": ("%serveur%",),
+    "hotel": (
         "%hôtelier%",
         "%hotelier%",
-        "%restauration%",
     ),
     "logistics": (
+        "%logisticien%",
+        "%logistique%",
+    ),
+    "warehouse": (
         "%magasinier%",
+        "%cariste%",
+        "%entrepôt%",
+        "%entrepot%",
+    ),
+    "transport": (
         "%chauffeur%",
         "%chofer%",
+    ),
+    "bus": (
         "%busfahrer%",
         "%bus driver%",
-        "%cariste%",
+        "%chauffeur de bus%",
+        "%autocar%",
+        "%car postal%",
     ),
-    "finance": (
-        "%fiduciaire%",
-        "%banque%",
+    "truck": (
+        "%poids lourd%",
+        "%poids-lourd%",
+        "%camion%",
+        "%lkw%",
     ),
+    "delivery": (
+        "%livreur%",
+        "%repartidor%",
+        "%coursier%",
+        "%kurier%",
+        "%delivery%",
+    ),
+    "crane": (
+        "%grutier%",
+        "%gruista%",
+        "%crane%",
+    ),
+    "finance": ("%finance%",),
+    "fiduciary": ("%fiduciaire%",),
+    "banking": ("%banque%",),
     "watchmaking": (
+        "%horlogerie%",
+        "%watchmaking%",
+    ),
+    "watchmaker": (
         "%horloger%",
         "%horlogère%",
-        "%horlogerie%",
         "%watchmaker%",
-        "%watchmaking%",
         "%uhrmacher%",
-        "%cadranier%",
+    ),
+    "assembly": ("%habillage%",),
+    "restoration": (
+        "%rhabilleur%",
+        "%rhabillage%",
+    ),
+    "polishing": ("%polisseur%",),
+    "jewelry": (
         "%sertisseur%",
         "%joaillier%",
         "%bijoutier%",
-        "%polisseur%",
-        "%habillage%",
+    ),
+    "microtech": (
+        "%cadranier%",
+        "%microtechnique%",
     ),
 }
 
@@ -394,21 +529,71 @@ def classify_from_title(title: str | None) -> str | None:
     if not title or not title.strip():
         return None
     folded = _fold_category(title)
-    for needle, slug in _TITLE_TO_FIELD:
+    for needle, slug in _TITLE_TO_SLUG:
         if needle in folded:
             return slug
     return None
 
 
+def _depth(slug: str) -> int:
+    depth = 0
+    current = slug
+    seen: set[str] = set()
+    while current in IMMEDIATE_PARENT and current not in seen:
+        seen.add(current)
+        current = IMMEDIATE_PARENT[current]
+        depth += 1
+    return depth
+
+
+def parent_field(slug: str) -> str:
+    current = slug
+    seen: set[str] = set()
+    while current not in FIELD_SLUGS:
+        parent = IMMEDIATE_PARENT.get(current)
+        if parent is None or parent in seen:
+            return current
+        seen.add(current)
+        current = parent
+    return current
+
+
+def descendants(slug: str) -> set[str]:
+    found: set[str] = set()
+    stack = list(_CHILDREN.get(slug, ()))
+    while stack:
+        node = stack.pop()
+        if node in found:
+            continue
+        found.add(node)
+        stack.extend(_CHILDREN.get(node, ()))
+    return found
+
+
+def _ancestors(slug: str) -> set[str]:
+    found: set[str] = set()
+    current = slug
+    while current in IMMEDIATE_PARENT:
+        parent = IMMEDIATE_PARENT[current]
+        if parent in found:
+            break
+        found.add(parent)
+        current = parent
+    return found
+
+
 def classify_job_category(portal: str | None, title: str | None) -> str | None:
-    """Prefer the job title when Adzuna tags the ad Unknown / engineering / other."""
+    """Prefer a more specific title slug when the portal tag is coarse or wrong."""
     title_canon = classify_from_title(title)
     portal_canon = canonical_job_category(portal)
     if title_canon and title_canon != "other":
-        if portal_canon in (None, "other", "construction") or portal_canon == title_canon:
+        if portal_canon in (None, "other"):
             return title_canon
-        # Teaching/health roles often land in the wrong Adzuna bucket.
-        if title_canon in {"it", "education", "healthcare", "admin", "watchmaking"}:
+        if parent_field(title_canon) == parent_field(portal_canon):
+            return title_canon if _depth(title_canon) >= _depth(portal_canon) else portal_canon
+        if portal_canon == "construction":
+            return title_canon
+        if parent_field(title_canon) in {"it", "education", "healthcare", "admin", "watchmaking"}:
             return title_canon
     return portal_canon or title_canon or "other"
 
@@ -417,23 +602,18 @@ def title_needles_for_filter(filter_category: str) -> list[str]:
     canon = canonical_job_category(filter_category) or filter_category
     related = _related_job_categories(canon)
     needles: list[str] = []
-    for field in related:
-        needles.extend(TITLE_SEARCH_NEEDLES.get(field, ()))
+    for slug in related:
+        needles.extend(TITLE_SEARCH_NEEDLES.get(slug, ()))
     return needles
 
 
 def _related_job_categories(filter_category: str) -> set[str]:
-    parent = BRANCH_PARENT.get(filter_category, filter_category)
-    related: set[str] = {filter_category, parent}
-    for branch, field in BRANCH_PARENT.items():
-        if field == parent or field == filter_category:
-            related.add(branch)
-            related.add(field)
-    return related
+    """Filter node plus descendants — never siblings."""
+    return {filter_category} | descendants(filter_category)
 
 
 def _parent_field(slug: str) -> str:
-    return BRANCH_PARENT.get(slug, slug)
+    return parent_field(slug)
 
 
 def stored_job_category_values(filter_category: str) -> list[str]:
@@ -443,10 +623,9 @@ def stored_job_category_values(filter_category: str) -> list[str]:
     values: set[str] = set(related)
     values.add(filter_category)
     for alias, slug in _ALIAS_TO_SLUG.items():
-        if slug in related or _parent_field(slug) in related:
+        if slug in related:
             values.add(alias)
             values.add(alias.replace("-", " "))
-    # Common title-case Adzuna labels as stored today.
     for slug in list(related):
         values.add(f"{slug} jobs")
         values.add(f"{slug.title()} Jobs")
@@ -457,11 +636,11 @@ def non_other_stored_values() -> list[str]:
     """Known strings that belong to a named field (not 'other')."""
     values: set[str] = set()
     for slug in ALL_SLUGS:
-        if _parent_field(slug) == "other" or slug == "other":
+        if parent_field(slug) == "other" or slug == "other":
             continue
         values.add(slug)
     for alias, slug in _ALIAS_TO_SLUG.items():
-        if _parent_field(slug) == "other" or slug == "other":
+        if parent_field(slug) == "other" or slug == "other":
             continue
         values.add(alias)
         values.add(alias.replace("-", " "))
@@ -474,22 +653,13 @@ def job_category_matches(
     filter_category: str | None,
     title: str | None = None,
 ) -> bool:
-    """NULL-safe hierarchical match: same leaf, same field, or branch under field."""
+    """Match the filter slug or a more specific descendant — never siblings."""
     if filter_category is None:
         return True
     listing_canon = classify_job_category(listing_category, title)
     filter_canon = canonical_job_category(filter_category) or filter_category
     if listing_canon is None:
-        return _parent_field(filter_canon) == "other" or filter_canon == "other"
+        return parent_field(filter_canon) == "other" or filter_canon == "other"
     if listing_canon == filter_canon:
         return True
-
-    listing_field = _parent_field(listing_canon)
-    filter_field = _parent_field(filter_canon)
-    if listing_field == filter_field:
-        return True
-    if filter_canon == listing_field:
-        return True
-    if listing_canon == filter_field:
-        return True
-    return False
+    return filter_canon in _ancestors(listing_canon)

@@ -5,7 +5,7 @@ import type {
   SearchQueryParams,
 } from "./api";
 import type { Messages } from "./i18n";
-import { BRANCH_PARENT, JOB_FIELDS, type JobField } from "./jobTaxonomy";
+import { JOB_FIELDS, jobCategoryAncestors, type JobField } from "./jobTaxonomy";
 
 type Query = {
   listing_type?: ListingType;
@@ -51,17 +51,23 @@ function fieldLabel(t: Messages, field: JobField): string {
   return map[field];
 }
 
-function jobCategoryLabel(t: Messages, raw: string): string {
+function slugLabel(t: Messages, raw: string): string {
   if ((JOB_FIELDS as readonly string[]).includes(raw)) {
     return fieldLabel(t, raw as JobField);
   }
+  const roleKey = `jobRole_${raw}` as keyof Messages;
+  const role = t[roleKey];
+  if (typeof role === "string") return role;
   const branchKey = `jobBranch_${raw}` as keyof Messages;
   const branch = t[branchKey];
-  if (typeof branch === "string") {
-    const parent = BRANCH_PARENT[raw];
-    return parent ? `${fieldLabel(t, parent)} · ${branch}` : branch;
-  }
+  if (typeof branch === "string") return branch;
   return raw;
+}
+
+function jobCategoryLabel(t: Messages, raw: string): string {
+  const parts = [...jobCategoryAncestors(raw)].reverse().map((slug) => slugLabel(t, slug));
+  parts.push(slugLabel(t, raw));
+  return parts.join(" · ");
 }
 
 function employmentLabel(t: Messages, type: EmploymentType): string {

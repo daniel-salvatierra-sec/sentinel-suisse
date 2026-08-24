@@ -11,14 +11,22 @@ def test_same_leaf() -> None:
     assert job_category_matches("nursing", "nursing") is True
 
 
-def test_branch_matches_parent_field() -> None:
+def test_descendant_matches_parent_field() -> None:
     assert job_category_matches("nursing", "healthcare") is True
-    assert job_category_matches("healthcare", "nursing") is True
+    assert job_category_matches("bus", "transport") is True
+    assert job_category_matches("bus", "logistics") is True
 
 
-def test_siblings_same_field() -> None:
-    assert job_category_matches("nursing", "doctor") is True
-    assert job_category_matches("soc", "software") is True
+def test_parent_does_not_match_more_specific_filter() -> None:
+    assert job_category_matches("healthcare", "nursing") is False
+    assert job_category_matches("transport", "bus") is False
+
+
+def test_siblings_do_not_match() -> None:
+    assert job_category_matches("nursing", "doctor") is False
+    assert job_category_matches("soc", "software") is False
+    assert job_category_matches("warehouse", "transport") is False
+    assert job_category_matches("truck", "bus") is False
 
 
 def test_different_fields() -> None:
@@ -43,12 +51,23 @@ def test_adzuna_labels_map_to_fields() -> None:
 
 def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert canonical_job_category("Unknown") is None
-    assert classify_job_category("Unknown", "Développeur Full Stack") == "it"
+    assert classify_job_category("Unknown", "Développeur Full Stack") == "software"
     assert (
-        classify_job_category("engineering-jobs", "Analyste Test / Recette fonctionnelle") == "it"
+        classify_job_category("engineering-jobs", "Analyste Test / Recette fonctionnelle")
+        == "software"
     )
-    assert classify_job_category("Unknown", "Carrossier / Mécanicien") == "construction"
-    assert classify_job_category("Unknown", "Collaborateur comptable autonome") == "admin"
+    assert classify_job_category("Unknown", "Carrossier / Mécanicien") == "trades"
+    assert classify_job_category("Unknown", "Collaborateur comptable autonome") == "accounting"
     assert classify_job_category(None, "Paysagiste (H/F)") == "construction"
-    assert classify_job_category("Unknown", "Horloger rhabilleur") == "watchmaking"
-    assert classify_job_category("manufacturing-jobs", "Watchmaker / polisseur") == "watchmaking"
+    assert classify_job_category("Unknown", "Horloger rhabilleur") == "restoration"
+    assert classify_job_category("manufacturing-jobs", "Watchmaker / polisseur") == "polishing"
+    assert classify_job_category("logistics", "Chauffeur de bus") == "bus"
+    assert classify_job_category("logistics", "Magasinier") == "warehouse"
+    assert classify_job_category("healthcare", "Infirmier Spitex") == "homecare"
+
+
+def test_title_refines_transport_alerts() -> None:
+    assert job_category_matches("logistics", "transport", "Chauffeur poids lourd") is True
+    assert job_category_matches("logistics", "bus", "Chauffeur poids lourd") is False
+    assert job_category_matches("logistics", "transport", "Magasinier") is False
+    assert job_category_matches("logistics", "warehouse", "Magasinier") is True
