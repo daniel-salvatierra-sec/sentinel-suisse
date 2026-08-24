@@ -205,6 +205,21 @@ body {
   background-position: center 78%;
 }
 
+@media (min-width: 768px) {
+  .goal-hub {
+    /* Wide cards must zoom past the meadow seam between Home and Work. */
+    background-size: auto 220%;
+  }
+
+  .goal-hub.focus-home {
+    background-position: center top;
+  }
+
+  .goal-hub.focus-work {
+    background-position: center bottom;
+  }
+}
+
 .goal-hub-veil {
   position: absolute;
   inset: 0;
