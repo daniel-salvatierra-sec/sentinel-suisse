@@ -130,6 +130,10 @@ export type Messages = {
   priceMin: string;
   priceMax: string;
   applyFilters: string;
+  sortLabel: string;
+  sortNewest: string;
+  sortPriceAsc: string;
+  sortPriceDesc: string;
   loadMore: string;
   endOfResults: string;
   providerFilter: string;

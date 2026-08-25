@@ -29,6 +29,8 @@ export type Listing = {
   is_demo?: boolean;
 };
 
+export type SearchSort = "newest" | "price_asc" | "price_desc";
+
 export type SearchQueryParams = {
   listing_type: ListingType;
   location?: string;
@@ -43,6 +45,7 @@ export type SearchQueryParams = {
   employment_type?: EmploymentType;
   workload_min?: number;
   workload_max?: number;
+  sort?: SearchSort;
   limit?: number;
   offset?: number;
 };
@@ -85,6 +88,9 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   }
   if (params.workload_max != null) {
     query.set("workload_max", String(params.workload_max));
+  }
+  if (params.sort && params.sort !== "newest") {
+    query.set("sort", params.sort);
   }
   query.set("limit", String(params.limit ?? 20));
   query.set("offset", String(params.offset ?? 0));

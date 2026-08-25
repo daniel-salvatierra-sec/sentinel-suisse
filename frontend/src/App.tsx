@@ -8,6 +8,7 @@ import {
   type ListingType,
   type PropertyType,
   type SearchQueryParams,
+  type SearchSort,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
 import { DoorLinks } from "./components/DoorLinks";
@@ -78,6 +79,7 @@ export default function App() {
   const [roomsChoice, setRoomsChoice] = useState<RoomsChoice>("");
   const [hasParking, setHasParking] = useState(false);
   const [underConstruction, setUnderConstruction] = useState(false);
+  const [sort, setSort] = useState<SearchSort>("newest");
   const [jobField, setJobField] = useState<JobField | "">("");
   const [jobBranch, setJobBranch] = useState("");
   const [jobRole, setJobRole] = useState("");
@@ -156,6 +158,7 @@ export default function App() {
         has_parking: listingType === "housing" && parking ? true : undefined,
         is_under_construction:
           listingType === "housing" && construction ? true : undefined,
+        sort: listingType === "housing" ? sort : undefined,
         job_category:
           listingType === "job" && !occupationQuery
             ? resolveJobCategory(field, branch, role)
@@ -176,6 +179,7 @@ export default function App() {
       roomsChoice,
       hasParking,
       underConstruction,
+      sort,
       jobField,
       jobBranch,
       jobRole,
@@ -538,6 +542,30 @@ export default function App() {
           {t.alerts}
         </button>
       </div>
+
+      {category === "housing" &&
+      !queryLooksLikeJob(query) &&
+      (tab === "list" || tab === "map") ? (
+        <div className="filter-chips sort-chips" role="group" aria-label={t.sortLabel}>
+          {(
+            [
+              ["newest", t.sortNewest],
+              ["price_asc", t.sortPriceAsc],
+              ["price_desc", t.sortPriceDesc],
+            ] as const
+          ).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              className={sort === value ? "chip active" : "chip"}
+              aria-pressed={sort === value}
+              onClick={() => setSort(value)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      ) : null}
 
       {loading && (tab === "list" || tab === "map") && <p className="empty">{t.loading}</p>}
       {error && (tab === "list" || tab === "map") && <p className="empty">{t.noResults}</p>}

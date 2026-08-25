@@ -2,6 +2,7 @@
 
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.housing_construction import listing_looks_under_construction
 from sentinel_suisse.services.job_taxonomy import job_category_matches
 from sentinel_suisse.services.listing_freshness import listing_is_fresh
 from sentinel_suisse.services.location_match import location_matches
@@ -45,10 +46,10 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
     if filters.has_parking is False and listing.has_parking is True:
         return False
     if filters.is_under_construction is True:
-        if listing.is_under_construction is not True:
+        if not listing_looks_under_construction(listing):
             return False
     if filters.is_under_construction is False:
-        if listing.is_under_construction is True:
+        if listing_looks_under_construction(listing):
             return False
     if filters.job_category is not None:
         hay = f"{listing.title or ''} {listing.description or ''}"

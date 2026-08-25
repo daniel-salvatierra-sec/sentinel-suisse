@@ -4,6 +4,7 @@ from decimal import Decimal
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, computed_field, model_validator
 
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
+from sentinel_suisse.services.housing_construction import resolve_under_construction
 
 
 def listing_is_demo(raw_payload: dict | None) -> bool:
@@ -94,6 +95,17 @@ class ListingRead(BaseModel):
     fetched_at: datetime
     # Loaded from ORM for is_demo; never exposed in JSON.
     raw_payload: dict | None = Field(default=None, exclude=True)
+
+    @model_validator(mode="after")
+    def infer_under_construction(self) -> "ListingRead":
+        self.is_under_construction = resolve_under_construction(
+            listing_type=self.listing_type,
+            title=self.title,
+            description=self.description,
+            flagged=self.is_under_construction,
+            payload=self.raw_payload,
+        )
+        return self
 
     @computed_field  # type: ignore[prop-decorator]
     @property

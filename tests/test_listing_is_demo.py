@@ -46,6 +46,17 @@ def test_listing_read_is_demo_from_dict() -> None:
     assert live.is_demo is False
 
 
+def test_listing_read_infers_construction_badge_from_title() -> None:
+    read = ListingRead.model_validate(
+        _base_fields(
+            listing_type=ListingType.HOUSING,
+            title="Appartement sur plan à Lancy",
+            is_under_construction=None,
+        )
+    )
+    assert read.is_under_construction is True
+
+
 def test_listing_read_is_demo_from_orm_namespace() -> None:
     orm = SimpleNamespace(**_base_fields(raw_payload={"pilot": True, "source": "fixture"}))
     read = ListingRead.model_validate(orm)

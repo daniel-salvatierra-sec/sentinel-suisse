@@ -1,10 +1,13 @@
 """Listing search query builder."""
 
-from sqlalchemy import Select, and_, func, or_, select
+from typing import Literal
+
+from sqlalchemy import Select, and_, func, not_, nulls_last, or_, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.housing_construction import construction_match_clause
 from sentinel_suisse.services.job_taxonomy import (
     non_other_stored_values,
     parent_field,
@@ -15,6 +18,8 @@ from sentinel_suisse.services.listing_freshness import apply_freshness_filter
 from sentinel_suisse.services.location_match import expand_location_query
 from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
+SearchSort = Literal["newest", "price_asc", "price_desc"]
+
 
 def search_listings(
     db: Session,
@@ -22,11 +27,20 @@ def search_listings(
     *,
     limit: int,
     offset: int,
+    sort: SearchSort = "newest",
 ) -> list[Listing]:
     stmt = _apply_filters(select(Listing), filters)
     stmt = apply_freshness_filter(stmt)
-    stmt = stmt.order_by(Listing.fetched_at.desc(), Listing.id.desc()).limit(limit).offset(offset)
+    stmt = _apply_sort(stmt, sort).limit(limit).offset(offset)
     return list(db.scalars(stmt).all())
+
+
+def _apply_sort(stmt: Select[tuple[Listing]], sort: SearchSort) -> Select[tuple[Listing]]:
+    if sort == "price_asc":
+        return stmt.order_by(nulls_last(Listing.price.asc()), Listing.id.desc())
+    if sort == "price_desc":
+        return stmt.order_by(nulls_last(Listing.price.desc()), Listing.id.desc())
+    return stmt.order_by(Listing.fetched_at.desc(), Listing.id.desc())
 
 
 def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select[tuple[Listing]]:
@@ -60,14 +74,9 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     elif filters.has_parking is False:
         stmt = stmt.where(or_(Listing.has_parking.is_(None), Listing.has_parking.is_(False)))
     if filters.is_under_construction is True:
-        stmt = stmt.where(Listing.is_under_construction.is_(True))
+        stmt = stmt.where(construction_match_clause())
     elif filters.is_under_construction is False:
-        stmt = stmt.where(
-            or_(
-                Listing.is_under_construction.is_(None),
-                Listing.is_under_construction.is_(False),
-            )
-        )
+        stmt = stmt.where(not_(construction_match_clause()))
     if filters.job_category is not None:
         stmt = _apply_job_category_filter(stmt, filters.job_category)
     if filters.employment_type is not None:

@@ -40,7 +40,7 @@ from sentinel_suisse.services.magic_login import (
     request_magic_login,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
-from sentinel_suisse.services.search import search_listings
+from sentinel_suisse.services.search import SearchSort, search_listings
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -101,6 +101,7 @@ def public_search(
     provider_ids: list[int] | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
+    sort: SearchSort = Query(default="newest"),
 ) -> list[ListingRead]:
     """Unauthenticated listing search for the public UI (opt-in in production)."""
     try:
@@ -126,7 +127,7 @@ def public_search(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail="invalid search filters",
         ) from exc
-    return search_listings(db, filters, limit=limit, offset=offset)
+    return search_listings(db, filters, limit=limit, offset=offset, sort=sort)
 
 
 @router.post(

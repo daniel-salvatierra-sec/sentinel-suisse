@@ -9,6 +9,7 @@ from sentinel_suisse.ingest.hashing import compute_content_hash, utc_now
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.provider import Provider
+from sentinel_suisse.services.housing_construction import resolve_under_construction
 
 
 @dataclass
@@ -33,6 +34,15 @@ class IngestService:
         fetched_at = utc_now()
 
         for item in items:
+            flagged = resolve_under_construction(
+                listing_type=item.listing_type,
+                title=item.title,
+                description=item.description,
+                flagged=item.is_under_construction,
+                payload=item.raw_payload,
+            )
+            if flagged is not item.is_under_construction:
+                item = item.model_copy(update={"is_under_construction": flagged})
             content_hash = compute_content_hash(item)
             existing = self.db.scalar(
                 select(Listing).where(

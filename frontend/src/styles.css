@@ -642,6 +642,10 @@ body {
   margin-bottom: 0.65rem;
 }
 
+.sort-chips {
+  margin-top: -0.15rem;
+}
+
 .filter-group-label {
   margin: 0.35rem 0 0.35rem;
   font-size: 0.78rem;

@@ -143,9 +143,10 @@ export function toSavedSearchQuery(
   query: Omit<SearchQueryParams, "limit" | "offset"> & {
     limit?: number;
     offset?: number;
+    sort?: SearchQueryParams["sort"];
   },
-): Omit<SearchQueryParams, "limit" | "offset"> {
-  const { limit: _limit, offset: _offset, ...rest } = query;
+): Omit<SearchQueryParams, "limit" | "offset" | "sort"> {
+  const { limit: _limit, offset: _offset, sort: _sort, ...rest } = query;
   const location = rest.location?.trim();
   return {
     ...rest,
