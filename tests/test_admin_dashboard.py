@@ -126,3 +126,80 @@ def test_hidden_listing_drops_from_public_search(operator_client: TestClient) ->
     listed = operator_client.get("/api/v1/admin/listings?hidden=true&owner_only=true")
     assert listed.status_code == 200, listed.text
     assert any(item["id"] == listing_id for item in listed.json())
+
+
+def test_admin_free_alerts_toggle(operator_client: TestClient) -> None:
+    created = operator_client.post(
+        "/api/v1/users",
+        json={"email": _email("alerts"), "is_active": True},
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+
+    users = operator_client.get("/api/v1/admin/users?limit=50")
+    assert users.status_code == 200, users.text
+    row = next(item for item in users.json() if item["id"] == user_id)
+    assert row["can_receive_alerts"] is False
+    assert row["free_alerts_grandfathered"] is False
+
+    granted = operator_client.patch(
+        f"/api/v1/admin/users/{user_id}/free-alerts",
+        json={"free_alerts_grandfathered": True},
+    )
+    assert granted.status_code == 200, granted.text
+    assert granted.json()["free_alerts_grandfathered"] is True
+    assert granted.json()["can_receive_alerts"] is True
+
+    revoked = operator_client.patch(
+        f"/api/v1/admin/users/{user_id}/free-alerts",
+        json={"free_alerts_grandfathered": False},
+    )
+    assert revoked.status_code == 200, revoked.text
+    assert revoked.json()["can_receive_alerts"] is False
+
+    operator_client.delete(f"/api/v1/admin/users/{user_id}")
+
+
+def test_admin_create_and_edit_listing(operator_client: TestClient) -> None:
+    title = f"Admin-post-{uuid.uuid4().hex[:8]}"
+    created = operator_client.post(
+        "/api/v1/admin/listings",
+        json={
+            "listing_type": "housing",
+            "title": title,
+            "location": "Lausanne",
+            "price": 2100,
+            "contact_url": "https://example.com/admin-listing",
+        },
+    )
+    assert created.status_code == 201, created.text
+    listing_id = created.json()["id"]
+    assert created.json()["provider_slug"] == "direct"
+
+    found = operator_client.get(
+        "/api/v1/public/search?listing_type=housing&location=Lausanne&limit=200"
+    )
+    assert found.status_code == 200, found.text
+    assert any(item["title"] == title for item in found.json())
+
+    updated_title = f"{title}-edited"
+    updated = operator_client.patch(
+        f"/api/v1/admin/listings/{listing_id}",
+        json={"title": updated_title, "price": 2200},
+    )
+    assert updated.status_code == 200, updated.text
+    assert updated.json()["title"] == updated_title
+    assert float(updated.json()["price"]) == 2200
+
+    after = operator_client.get(
+        "/api/v1/public/search?listing_type=housing&location=Lausanne&limit=200"
+    )
+    assert after.status_code == 200, after.text
+    assert any(item["title"] == updated_title for item in after.json())
+
+    hidden = operator_client.patch(
+        f"/api/v1/admin/listings/{listing_id}/visibility",
+        json={"is_hidden": True},
+    )
+    assert hidden.status_code == 200, hidden.text
+    assert hidden.json()["is_hidden"] is True

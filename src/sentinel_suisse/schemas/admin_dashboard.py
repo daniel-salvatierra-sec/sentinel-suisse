@@ -1,8 +1,11 @@
 from datetime import datetime
+from decimal import Decimal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.schemas.direct_listing import DirectListingCreate
+from sentinel_suisse.services.contact_link import ContactLinkError, normalize_contact_link
 
 
 class ProviderIngestHealth(BaseModel):
@@ -40,6 +43,8 @@ class AdminListingRow(BaseModel):
     is_hidden: bool
     owner_user_id: int | None
     provider_slug: str
+    description: str | None = None
+    price: Decimal | None = None
 
 
 class ListingVisibilityUpdate(BaseModel):
@@ -48,6 +53,35 @@ class ListingVisibilityUpdate(BaseModel):
 
 class UserPremiumUpdate(BaseModel):
     is_premium: bool
+
+
+class UserFreeAlertsUpdate(BaseModel):
+    free_alerts_grandfathered: bool
+
+
+class AdminListingCreate(DirectListingCreate):
+    owner_user_id: int | None = None
+    is_hidden: bool = False
+
+
+class AdminListingUpdate(BaseModel):
+    title: str | None = Field(default=None, min_length=8, max_length=300)
+    description: str | None = Field(default=None, max_length=10000)
+    location: str | None = Field(default=None, min_length=2, max_length=200)
+    contact_url: str | None = Field(default=None, min_length=6, max_length=1000)
+    price: Decimal | None = Field(default=None, ge=1, le=200000)
+    listing_type: ListingType | None = None
+    is_hidden: bool | None = None
+
+    @field_validator("contact_url")
+    @classmethod
+    def normalize_contact(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        try:
+            return normalize_contact_link(value)
+        except ContactLinkError as exc:
+            raise ValueError(str(exc)) from exc
 
 
 class AdminUserRow(BaseModel):

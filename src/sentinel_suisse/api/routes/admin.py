@@ -11,9 +11,12 @@ from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.admin_dashboard import (
+    AdminListingCreate,
     AdminListingRow,
+    AdminListingUpdate,
     DashboardOverview,
     ListingVisibilityUpdate,
+    UserFreeAlertsUpdate,
     UserPremiumUpdate,
 )
 from sentinel_suisse.schemas.erasure import UserErasureReport
@@ -21,10 +24,13 @@ from sentinel_suisse.schemas.user import UserRead
 from sentinel_suisse.services.admin_dashboard import (
     dashboard_overview,
     list_admin_listings,
+    listing_to_row,
     readable_user_rows,
     set_listing_hidden,
+    set_user_free_alerts,
     user_row,
 )
+from sentinel_suisse.services.direct_listings import create_admin_listing, update_admin_listing
 from sentinel_suisse.services.erasure import erase_user
 
 router = APIRouter(prefix="/admin", tags=["admin"])
@@ -62,6 +68,38 @@ def get_listings(
     )
 
 
+@router.post("/listings", response_model=AdminListingRow, status_code=status.HTTP_201_CREATED)
+@limiter.limit(lambda: get_settings().rate_limit)
+def post_listing(
+    request: Request,
+    payload: AdminListingCreate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> AdminListingRow:
+    if payload.owner_user_id is not None and db.get(User, payload.owner_user_id) is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    listing = create_admin_listing(db, payload, get_settings())
+    slug = listing.provider.slug if listing.provider is not None else "direct"
+    return listing_to_row(listing, slug)
+
+
+@router.patch("/listings/{listing_id}", response_model=AdminListingRow)
+@limiter.limit(lambda: get_settings().rate_limit)
+def patch_listing(
+    request: Request,
+    listing_id: int,
+    payload: AdminListingUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> AdminListingRow:
+    listing = db.get(Listing, listing_id)
+    if listing is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Listing not found")
+    listing = update_admin_listing(db, listing, payload)
+    slug = listing.provider.slug if listing.provider is not None else ""
+    return listing_to_row(listing, slug)
+
+
 @router.patch("/listings/{listing_id}/visibility", response_model=AdminListingRow)
 @limiter.limit(lambda: get_settings().rate_limit)
 def patch_listing_visibility(
@@ -76,17 +114,7 @@ def patch_listing_visibility(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Listing not found")
     listing = set_listing_hidden(db, listing, payload.is_hidden)
     slug = listing.provider.slug if listing.provider is not None else ""
-    return AdminListingRow(
-        id=listing.id,
-        title=listing.title,
-        listing_type=listing.listing_type,
-        location=listing.location,
-        source_url=listing.source_url,
-        fetched_at=listing.fetched_at,
-        is_hidden=listing.is_hidden,
-        owner_user_id=listing.owner_user_id,
-        provider_slug=slug,
-    )
+    return listing_to_row(listing, slug)
 
 
 @router.get("/users", response_model=list[UserRead])
@@ -115,6 +143,26 @@ def patch_user_premium(
     user.is_premium = payload.is_premium
     db.commit()
     db.refresh(user)
+    return user_row(db, user)
+
+
+@router.patch("/users/{user_id}/free-alerts", response_model=UserRead)
+@limiter.limit(lambda: get_settings().rate_limit)
+def patch_user_free_alerts(
+    request: Request,
+    user_id: int,
+    payload: UserFreeAlertsUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> UserRead:
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    user = set_user_free_alerts(
+        db,
+        user,
+        free_alerts_grandfathered=payload.free_alerts_grandfathered,
+    )
     return user_row(db, user)
 
 

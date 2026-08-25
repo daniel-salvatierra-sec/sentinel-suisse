@@ -33,6 +33,8 @@ export type AdminListing = {
   is_hidden: boolean;
   owner_user_id: number | null;
   provider_slug: string;
+  description: string | null;
+  price: number | null;
 };
 
 export type AdminUser = {
@@ -41,8 +43,31 @@ export type AdminUser = {
   locale: string;
   is_active: boolean;
   is_premium: boolean;
+  free_alerts_grandfathered: boolean;
+  can_receive_alerts: boolean;
   created_at: string;
   saved_search_count: number;
+};
+
+export type AdminListingInput = {
+  listing_type: "housing" | "job";
+  title: string;
+  location: string;
+  contact_url: string;
+  price?: number;
+  description?: string;
+  owner_user_id?: number;
+  is_hidden?: boolean;
+};
+
+export type AdminListingPatch = {
+  title?: string;
+  location?: string;
+  contact_url?: string;
+  price?: number;
+  description?: string;
+  listing_type?: "housing" | "job";
+  is_hidden?: boolean;
 };
 
 function token(): string | null {
@@ -124,6 +149,31 @@ export async function setListingHidden(id: number, isHidden: boolean): Promise<A
   return response.json() as Promise<AdminListing>;
 }
 
+export async function createAdminListing(payload: AdminListingInput): Promise<AdminListing> {
+  const response = await adminFetch("/api/v1/admin/listings", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminListing>;
+}
+
+export async function updateAdminListing(
+  id: number,
+  payload: AdminListingPatch,
+): Promise<AdminListing> {
+  const response = await adminFetch(`/api/v1/admin/listings/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminListing>;
+}
+
 export async function fetchAdminUsers(): Promise<AdminUser[]> {
   const response = await adminFetch("/api/v1/admin/users?limit=50");
   if (!response.ok) {
@@ -136,6 +186,20 @@ export async function setUserPremium(id: number, isPremium: boolean): Promise<Ad
   const response = await adminFetch(`/api/v1/admin/users/${id}/premium`, {
     method: "PATCH",
     body: JSON.stringify({ is_premium: isPremium }),
+  });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminUser>;
+}
+
+export async function setUserFreeAlerts(
+  id: number,
+  freeAlertsGrandfathered: boolean,
+): Promise<AdminUser> {
+  const response = await adminFetch(`/api/v1/admin/users/${id}/free-alerts`, {
+    method: "PATCH",
+    body: JSON.stringify({ free_alerts_grandfathered: freeAlertsGrandfathered }),
   });
   if (!response.ok) {
     throw new Error(String(response.status));

@@ -7,7 +7,7 @@ from sentinel_suisse.config import get_settings
 from sentinel_suisse.i18n import DEFAULT_LANGUAGE
 from sentinel_suisse.models.user import User
 from sentinel_suisse.security.pii import decrypt_pii
-from sentinel_suisse.services.entitlements import max_saved_searches
+from sentinel_suisse.services.entitlements import can_receive_alerts, max_saved_searches
 
 UserLocale = Literal["fr", "de", "es", "pt", "en"]
 
@@ -25,6 +25,8 @@ class UserRead(BaseModel):
     locale: UserLocale
     is_active: bool
     is_premium: bool = False
+    free_alerts_grandfathered: bool = False
+    can_receive_alerts: bool = False
     saved_search_limit: int
     saved_search_count: int = 0
     created_at: datetime
@@ -37,6 +39,8 @@ def to_user_read(user: User, *, saved_search_count: int = 0) -> UserRead:
         locale=user.locale,  # type: ignore[arg-type]
         is_active=user.is_active,
         is_premium=user.is_premium,
+        free_alerts_grandfathered=user.free_alerts_grandfathered,
+        can_receive_alerts=can_receive_alerts(user),
         saved_search_limit=max_saved_searches(user, get_settings()),
         saved_search_count=saved_search_count,
         created_at=user.created_at,

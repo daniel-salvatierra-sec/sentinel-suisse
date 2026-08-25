@@ -112,6 +112,22 @@ def dashboard_overview(db: Session) -> DashboardOverview:
     )
 
 
+def listing_to_row(listing: Listing, provider_slug: str) -> AdminListingRow:
+    return AdminListingRow(
+        id=listing.id,
+        title=listing.title,
+        listing_type=listing.listing_type,
+        location=listing.location,
+        source_url=listing.source_url,
+        fetched_at=listing.fetched_at,
+        is_hidden=listing.is_hidden,
+        owner_user_id=listing.owner_user_id,
+        provider_slug=provider_slug,
+        description=listing.description,
+        price=listing.price,
+    )
+
+
 def list_admin_listings(
     db: Session,
     *,
@@ -144,20 +160,7 @@ def list_admin_listings(
         stmt = stmt.where(Listing.owner_user_id.is_not(None))
 
     rows = db.execute(stmt).all()
-    return [
-        AdminListingRow(
-            id=listing.id,
-            title=listing.title,
-            listing_type=listing.listing_type,
-            location=listing.location,
-            source_url=listing.source_url,
-            fetched_at=listing.fetched_at,
-            is_hidden=listing.is_hidden,
-            owner_user_id=listing.owner_user_id,
-            provider_slug=slug,
-        )
-        for listing, slug in rows
-    ]
+    return [listing_to_row(listing, slug) for listing, slug in rows]
 
 
 def set_listing_hidden(db: Session, listing: Listing, is_hidden: bool) -> Listing:
@@ -175,6 +178,13 @@ def list_recent_users(db: Session, *, limit: int = 50) -> list[User]:
 
 def user_row(db: Session, user: User) -> UserRead:
     return to_user_read(user, saved_search_count=count_saved_searches(db, user))
+
+
+def set_user_free_alerts(db: Session, user: User, *, free_alerts_grandfathered: bool) -> User:
+    user.free_alerts_grandfathered = free_alerts_grandfathered
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 def readable_user_rows(db: Session, *, limit: int = 50) -> list[UserRead]:

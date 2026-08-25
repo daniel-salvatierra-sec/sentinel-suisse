@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import {
   clearAdminSession,
+  createAdminListing,
   eraseAdminUser,
   fetchAdminListings,
   fetchAdminUsers,
@@ -8,7 +9,9 @@ import {
   hasAdminSession,
   saveAdminSession,
   setListingHidden,
+  setUserFreeAlerts,
   setUserPremium,
+  updateAdminListing,
   type AdminListing,
   type AdminUser,
   type DashboardOverview,
@@ -42,6 +45,20 @@ export function AdminDashboard() {
   const [ownerOnly, setOwnerOnly] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loadError, setLoadError] = useState(false);
+  const [showCreateListing, setShowCreateListing] = useState(false);
+  const [createType, setCreateType] = useState<"housing" | "job">("housing");
+  const [createTitle, setCreateTitle] = useState("");
+  const [createLocation, setCreateLocation] = useState("");
+  const [createPrice, setCreatePrice] = useState("");
+  const [createContact, setCreateContact] = useState("");
+  const [createDescription, setCreateDescription] = useState("");
+  const [createHidden, setCreateHidden] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editLocation, setEditLocation] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editContact, setEditContact] = useState("");
+  const [editDescription, setEditDescription] = useState("");
 
   useEffect(() => {
     document.title = "LinkSwiss — Operador";
@@ -234,6 +251,89 @@ export function AdminDashboard() {
 
       {tab === "listings" ? (
         <section className="card admin-panel">
+          <div className="admin-actions">
+            <button type="button" onClick={() => setShowCreateListing((value) => !value)}>
+              {showCreateListing ? "Cerrar formulario" : "Nuevo anuncio"}
+            </button>
+          </div>
+          {showCreateListing ? (
+            <form
+              className="admin-filters admin-create"
+              onSubmit={(event) => {
+                event.preventDefault();
+                const priceNum = createPrice.trim() === "" ? undefined : Number(createPrice);
+                void createAdminListing({
+                  listing_type: createType,
+                  title: createTitle.trim(),
+                  location: createLocation.trim(),
+                  contact_url: createContact.trim(),
+                  price: createType === "housing" ? priceNum : priceNum,
+                  description: createDescription.trim() || undefined,
+                  is_hidden: createHidden,
+                })
+                  .then(() => {
+                    setCreateTitle("");
+                    setCreateLocation("");
+                    setCreatePrice("");
+                    setCreateContact("");
+                    setCreateDescription("");
+                    setCreateHidden(false);
+                    setShowCreateListing(false);
+                    return loadListings();
+                  })
+                  .catch(() => setLoadError(true));
+              }}
+            >
+              <select
+                value={createType}
+                onChange={(event) => setCreateType(event.target.value as "housing" | "job")}
+              >
+                <option value="housing">Vivienda</option>
+                <option value="job">Empleo</option>
+              </select>
+              <input
+                placeholder="Título"
+                value={createTitle}
+                onChange={(event) => setCreateTitle(event.target.value)}
+                required
+                minLength={8}
+              />
+              <input
+                placeholder="Lugar"
+                value={createLocation}
+                onChange={(event) => setCreateLocation(event.target.value)}
+                required
+              />
+              <input
+                placeholder={createType === "housing" ? "Precio CHF" : "Salario (opc.)"}
+                value={createPrice}
+                onChange={(event) => setCreatePrice(event.target.value)}
+                type="number"
+                required={createType === "housing"}
+              />
+              <input
+                placeholder="URL contacto"
+                value={createContact}
+                onChange={(event) => setCreateContact(event.target.value)}
+                required
+              />
+              <textarea
+                placeholder="Descripción (opc.)"
+                value={createDescription}
+                onChange={(event) => setCreateDescription(event.target.value)}
+                rows={2}
+              />
+              <label className="admin-check">
+                <input
+                  type="checkbox"
+                  checked={createHidden}
+                  onChange={(event) => setCreateHidden(event.target.checked)}
+                />
+                Oculto al publicar
+              </label>
+              <button type="submit">Publicar</button>
+            </form>
+          ) : null}
           <form
             className="admin-filters"
             onSubmit={(event) => {
@@ -275,23 +375,96 @@ export function AdminDashboard() {
           <ul className="admin-list">
             {listings.map((item) => (
               <li key={item.id}>
-                <div>
-                  <strong>{item.title}</strong>
-                  <p>
-                    #{item.id} · {item.listing_type === "job" ? "empleo" : "vivienda"} ·{" "}
-                    {item.provider_slug}
-                    {item.owner_user_id ? ` · usuario ${item.owner_user_id}` : ""} ·{" "}
-                    {item.location ?? "—"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    void setListingHidden(item.id, !item.is_hidden).then(() => loadListings());
-                  }}
-                >
-                  {item.is_hidden ? "Mostrar" : "Ocultar"}
-                </button>
+                {editingId === item.id ? (
+                  <form
+                    className="admin-edit"
+                    onSubmit={(event) => {
+                      event.preventDefault();
+                      const priceNum = editPrice.trim() === "" ? undefined : Number(editPrice);
+                      void updateAdminListing(item.id, {
+                        title: editTitle.trim(),
+                        location: editLocation.trim(),
+                        contact_url: editContact.trim(),
+                        price: priceNum,
+                        description: editDescription.trim() || undefined,
+                      })
+                        .then(() => {
+                          setEditingId(null);
+                          return loadListings();
+                        })
+                        .catch(() => setLoadError(true));
+                    }}
+                  >
+                    <input
+                      value={editTitle}
+                      onChange={(event) => setEditTitle(event.target.value)}
+                      required
+                      minLength={8}
+                    />
+                    <input
+                      value={editLocation}
+                      onChange={(event) => setEditLocation(event.target.value)}
+                      required
+                    />
+                    <input
+                      value={editPrice}
+                      onChange={(event) => setEditPrice(event.target.value)}
+                      type="number"
+                    />
+                    <input
+                      value={editContact}
+                      onChange={(event) => setEditContact(event.target.value)}
+                      required
+                    />
+                    <textarea
+                      value={editDescription}
+                      onChange={(event) => setEditDescription(event.target.value)}
+                      rows={2}
+                    />
+                    <div className="admin-actions">
+                      <button type="submit">Guardar</button>
+                      <button type="button" onClick={() => setEditingId(null)}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p>
+                        #{item.id} · {item.listing_type === "job" ? "empleo" : "vivienda"} ·{" "}
+                        {item.provider_slug}
+                        {item.owner_user_id ? ` · usuario ${item.owner_user_id}` : ""} ·{" "}
+                        {item.location ?? "—"}
+                        {item.price != null ? ` · CHF ${item.price}` : ""}
+                      </p>
+                    </div>
+                    <div className="admin-actions">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(item.id);
+                          setEditTitle(item.title);
+                          setEditLocation(item.location ?? "");
+                          setEditPrice(item.price != null ? String(item.price) : "");
+                          setEditContact(item.source_url);
+                          setEditDescription(item.description ?? "");
+                        }}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          void setListingHidden(item.id, !item.is_hidden).then(() => loadListings());
+                        }}
+                      >
+                        {item.is_hidden ? "Mostrar" : "Ocultar"}
+                      </button>
+                    </div>
+                  </>
+                )}
               </li>
             ))}
           </ul>
@@ -310,6 +483,9 @@ export function AdminDashboard() {
                     #{user.id} · {user.locale} · {formatWhen(user.created_at)} ·{" "}
                     {user.saved_search_count} búsquedas
                     {user.is_active ? "" : " · inactivo"}
+                    {user.can_receive_alerts
+                      ? " · alertas activas"
+                      : " · sin alertas automáticas"}
                   </p>
                 </div>
                 <div className="admin-actions">
@@ -321,6 +497,21 @@ export function AdminDashboard() {
                   >
                     {user.is_premium ? "Quitar Premium" : "Dar Premium"}
                   </button>
+                  {!user.is_premium ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void setUserFreeAlerts(
+                          user.id,
+                          !user.free_alerts_grandfathered,
+                        ).then(() => loadUsers());
+                      }}
+                    >
+                      {user.free_alerts_grandfathered
+                        ? "Quitar alertas gratis"
+                        : "Dar alertas gratis"}
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     className="admin-danger"
