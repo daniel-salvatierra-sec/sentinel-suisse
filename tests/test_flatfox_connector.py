@@ -101,3 +101,39 @@ def test_fetch_walks_named_regions(mock_get: MagicMock) -> None:
         call.kwargs.get("params") for call in mock_get.call_args_list if call.kwargs.get("params")
     ]
     assert any(params.get("west") == "5.95" for params in pin_urls)
+
+
+@patch("sentinel_suisse.ingest.connectors.flatfox.httpx.get")
+def test_fetch_shares_budget_across_late_regions(mock_get: MagicMock) -> None:
+    """Late cities must still get pin fetches when the global cap is tight."""
+    pin_response = MagicMock()
+    pin_response.json.return_value = _FIXTURE["pins"]
+    pin_response.raise_for_status = MagicMock()
+    detail_response = MagicMock()
+    detail_response.json.return_value = _FIXTURE["detail_apartment"]
+    detail_response.raise_for_status = MagicMock()
+    # geneva pin+detail, zurich pin+detail, fribourg pin (+ maybe detail if room)
+    mock_get.side_effect = [
+        pin_response,
+        detail_response,
+        pin_response,
+        detail_response,
+        pin_response,
+        detail_response,
+    ]
+
+    listings = fetch_search_listings(
+        Settings(
+            ingest_flatfox_live=True,
+            ingest_rate_limit_seconds=0,
+            flatfox_regions="geneva,zurich,fribourg",
+            flatfox_max_per_region=30,
+            flatfox_max_listings=3,
+        )
+    )
+    assert len(listings) == 1  # same fixture pk deduped
+    pin_params = [
+        call.kwargs.get("params") for call in mock_get.call_args_list if call.kwargs.get("params")
+    ]
+    assert len(pin_params) == 3
+    assert any(p.get("north") == "46.85" for p in pin_params)  # fribourg box

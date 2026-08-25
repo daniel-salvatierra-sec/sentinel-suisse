@@ -32,19 +32,31 @@ _SITE = "https://flatfox.ch"
 _SKIP_CATEGORIES = frozenset({"PARK", "INDUSTRY", "GASTRO", "AGRICULTURE"})
 _MIN_MONTHLY_CHF = Decimal("500")
 
-# north, south, east, west — city-scale boxes, not the whole country.
+# north, south, east, west — metro-scale boxes (not tiny city centres).
 _REGION_BOXES: dict[str, tuple[str, str, str, str]] = {
-    "zurich": ("47.45", "47.30", "8.70", "8.40"),
+    "zurich": ("47.48", "47.28", "8.75", "8.35"),
     "bern": ("47.05", "46.85", "7.55", "7.30"),
-    "basel": ("47.62", "47.50", "7.70", "7.50"),
-    "lausanne": ("46.62", "46.48", "6.75", "6.55"),
-    "lugano": ("46.05", "45.95", "9.00", "8.88"),
-    "luzern": ("47.10", "47.02", "8.38", "8.25"),
-    "stgallen": ("47.46", "47.40", "9.42", "9.32"),
-    "sion": ("46.26", "46.20", "7.40", "7.32"),
-    "fribourg": ("46.83", "46.78", "7.18", "7.12"),
-    "neuchatel": ("47.01", "46.97", "6.97", "6.90"),
-    "winterthur": ("47.53", "47.47", "8.78", "8.68"),
+    "basel": ("47.62", "47.48", "7.72", "7.48"),
+    "lausanne": ("46.62", "46.48", "6.78", "6.52"),
+    "lugano": ("46.05", "45.95", "9.02", "8.88"),
+    "luzern": ("47.10", "47.00", "8.40", "8.22"),
+    "stgallen": ("47.48", "47.38", "9.45", "9.28"),
+    "sion": ("46.28", "46.18", "7.42", "7.28"),
+    "fribourg": ("46.85", "46.75", "7.22", "7.05"),
+    "neuchatel": ("47.05", "46.95", "7.00", "6.82"),
+    "winterthur": ("47.55", "47.45", "8.85", "8.65"),
+    "nyon": ("46.42", "46.34", "6.30", "6.18"),
+    "vevey": ("46.50", "46.44", "6.90", "6.78"),
+    "montreux": ("46.48", "46.40", "6.98", "6.88"),
+    "thun": ("46.80", "46.72", "7.68", "7.52"),
+    "chur": ("46.88", "46.82", "9.58", "9.48"),
+    "yverdon": ("46.82", "46.74", "6.70", "6.58"),
+    "chauxdefonds": ("47.14", "47.06", "6.88", "6.76"),
+    "biel": ("47.18", "47.10", "7.32", "7.18"),
+    "zug": ("47.20", "47.12", "8.55", "8.45"),
+    "schaffhausen": ("47.74", "47.66", "8.70", "8.58"),
+    "uster": ("47.38", "47.32", "8.76", "8.66"),
+    "annemasse": ("46.22", "46.16", "6.30", "6.18"),
 }
 
 
@@ -203,10 +215,16 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
     headers = {"User-Agent": settings.ingest_user_agent, "Accept": "application/json"}
     listings: list[RawListing] = []
     seen: set[str] = set()
-    per_region = max(1, settings.flatfox_max_per_region)
+    boxes = _iter_region_boxes(settings)
+    if not boxes:
+        return []
     total_cap = max(1, settings.flatfox_max_listings)
+    # Share the budget across every region so Winterthur/Fribourg are not starved
+    # after Geneva/Zurich fill the previous global cap first.
+    fair_share = max(1, total_cap // len(boxes))
+    per_region = min(max(1, settings.flatfox_max_per_region), fair_share)
 
-    for north, south, east, west in _iter_region_boxes(settings):
+    for north, south, east, west in boxes:
         if len(listings) >= total_cap:
             break
         try:

@@ -153,11 +153,12 @@ class Settings(BaseSettings):
     flatfox_west: str = "5.95"
     # Comma-separated region keys (see flatfox connector). Empty = Geneva box only.
     flatfox_regions: str = (
-        "geneva,zurich,bern,basel,lausanne,lugano,"
-        "luzern,stgallen,sion,fribourg,neuchatel,winterthur"
+        "geneva,zurich,bern,basel,lausanne,lugano,luzern,stgallen,"
+        "sion,fribourg,neuchatel,winterthur,nyon,vevey,montreux,"
+        "thun,chur,yverdon,chauxdefonds,biel,zug,schaffhausen,uster,annemasse"
     )
-    flatfox_max_listings: int = 200
-    flatfox_max_per_region: int = 30
+    flatfox_max_listings: int = 400
+    flatfox_max_per_region: int = 25
     immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"
