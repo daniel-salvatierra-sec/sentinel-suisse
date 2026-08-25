@@ -824,6 +824,11 @@ body {
   border-radius: 0.85rem;
 }
 
+.alerts-robot-footer {
+  margin-top: 1.25rem;
+  margin-bottom: 0;
+}
+
 .alerts-robot-msg {
   margin: 0;
   font-size: 0.95rem;
@@ -833,7 +838,7 @@ body {
 .alerts-type-row {
   display: flex;
   gap: 0.5rem;
-  margin-bottom: 0.85rem;
+  margin: 0.65rem 0 0.85rem;
 }
 
 .alerts-type-row .option {

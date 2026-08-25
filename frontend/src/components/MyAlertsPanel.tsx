@@ -115,15 +115,6 @@ export function MyAlertsPanel({
   return (
     <section className="alert-panel">
       <h2 style={{ marginTop: 0 }}>{t.alertsTitle}</h2>
-      <p className="plan-hint">{t.searchFreeHint}</p>
-      <p>{t.alertsRememberHint}</p>
-
-      <div className="alerts-robot-ask">
-        <span className="guide-avatar sentinel-avatar" aria-hidden>
-          <SentinelFace size={32} />
-        </span>
-        <p className="alerts-robot-msg">{t.alertsAskType}</p>
-      </div>
 
       <div className="alerts-type-row">
         <button
@@ -141,6 +132,9 @@ export function MyAlertsPanel({
           {t.job}
         </button>
       </div>
+
+      <p className="plan-hint">{t.searchFreeHint}</p>
+      <p>{t.alertsRememberHint}</p>
 
       <div className="alerts-current-box" id="alerts-create">
         <h3 className="alerts-subhead">{t.alertsCreateFromSearch}</h3>
@@ -238,6 +232,13 @@ export function MyAlertsPanel({
           <PremiumUpsell t={t} compact />
         </>
       )}
+
+      <div className="alerts-robot-ask alerts-robot-footer">
+        <span className="guide-avatar sentinel-avatar" aria-hidden>
+          <SentinelFace size={32} />
+        </span>
+        <p className="alerts-robot-msg">{t.alertsAskType}</p>
+      </div>
     </section>
   );
 }
