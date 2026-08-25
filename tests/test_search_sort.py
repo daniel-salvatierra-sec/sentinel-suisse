@@ -21,10 +21,13 @@ def test_newest_orders_by_fetched_at() -> None:
     assert "desc" in sql
 
 
-def test_under_construction_filter_scans_title_text() -> None:
+def test_under_construction_filter_scans_new_project_text() -> None:
     stmt = _apply_filters(select(Listing.id), SearchQuery(is_under_construction=True))
     compiled = stmt.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
     sql = str(compiled).lower()
     assert "is_under_construction" in sql
-    assert "en construction" in sql
-    assert "im bau" in sql
+    assert "projet neuf" in sql
+    assert "erstvermietung" in sql
+    assert "neubau" in sql
+    assert "en construction" in sql  # excluded via NOT
+    assert " not " in sql or "not (" in sql

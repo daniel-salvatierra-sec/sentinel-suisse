@@ -46,7 +46,18 @@ def test_listing_read_is_demo_from_dict() -> None:
     assert live.is_demo is False
 
 
-def test_listing_read_infers_construction_badge_from_title() -> None:
+def test_listing_read_infers_new_project_badge_from_title() -> None:
+    read = ListingRead.model_validate(
+        _base_fields(
+            listing_type=ListingType.HOUSING,
+            title="Projet neuf à la location — Lancy",
+            is_under_construction=None,
+        )
+    )
+    assert read.is_under_construction is True
+
+
+def test_listing_read_does_not_badge_off_plan() -> None:
     read = ListingRead.model_validate(
         _base_fields(
             listing_type=ListingType.HOUSING,
@@ -54,7 +65,7 @@ def test_listing_read_infers_construction_badge_from_title() -> None:
             is_under_construction=None,
         )
     )
-    assert read.is_under_construction is True
+    assert read.is_under_construction is not True
 
 
 def test_listing_read_is_demo_from_orm_namespace() -> None:

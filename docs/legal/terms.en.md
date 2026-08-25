@@ -59,7 +59,7 @@ Personal data is processed under Swiss nLPD as described in the Privacy Policy. 
 - Source code is intended to remain **inspectable / open** for learning and community review.
 - **Search** (housing + jobs) stays free and unlimited, no account needed.
 - **Automatic alert delivery** (email or WhatsApp whenever a new matching listing appears) requires **LinkSwiss Premium**. Without a subscription, nothing is sent automatically — you must come back and search manually. Accounts created before 2026-08-19 keep their pre-existing free email alerts.
-- **LinkSwiss Premium** (CHF 9.90/month, card and TWINT via Stripe) is **active**: WhatsApp alerts, up to 5 saved searches, under-construction listings. The subscription **renews automatically every month** until cancelled.
+- **LinkSwiss Premium** (CHF 9.90/month, card and TWINT via Stripe) is **active**: WhatsApp alerts, up to 5 saved searches, new-build projects open for applications. The subscription **renews automatically every month** until cancelled.
 - Cancel at any time from **Account → Manage subscription** (Stripe Customer Portal) or by contacting us. See the [Refund Policy](/api/v1/legal/refunds).
 
 ## 9. Disclaimer

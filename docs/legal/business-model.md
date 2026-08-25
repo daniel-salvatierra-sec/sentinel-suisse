@@ -22,7 +22,7 @@
 
 - Daily **job** alerts  
 - **Available** apartments  
-- Apartments **under construction** / off-plan (`is_under_construction`)  
+- New-build / first-letting projects ready for applications (`is_under_construction` — projets neufs / Erstvermietung)  
 - WhatsApp channel + up to 5 saved searches  
 
 **Since 2026-08-19:** search stays free forever, but automatic alert delivery (email or \

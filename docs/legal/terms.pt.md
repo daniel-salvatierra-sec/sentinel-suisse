@@ -48,7 +48,7 @@ Tratamento conforme a nLPD — ver Política de privacidade.
 - Código destinado a permanecer **aberto / auditável**.
 - A **pesquisa** (habitação + emprego) continua gratuita e ilimitada, sem necessidade de conta.
 - O **envio automático de alertas** (email ou WhatsApp sempre que aparece uma oferta correspondente) requer **LinkSwiss Premium**. Sem subscrição, nada é enviado automaticamente: é preciso voltar a pesquisar manualmente. As contas criadas antes de 19.08.2026 mantêm os seus alertas por email gratuitos já ativos.
-- **LinkSwiss Premium** (9,90 CHF/mês, cartão e TWINT via Stripe) está **ativo**: alertas por WhatsApp, até 5 pesquisas guardadas, imóveis em construção. A subscrição **renova-se automaticamente todos os meses** até ser cancelada.
+- **LinkSwiss Premium** (9,90 CHF/mês, cartão e TWINT via Stripe) está **ativo**: alertas por WhatsApp, até 5 pesquisas guardadas, projetos novos prontos a candidatar. A subscrição **renova-se automaticamente todos os meses** até ser cancelada.
 - Cancele em qualquer momento em **Conta → Gerir subscrição** (portal de cliente Stripe) ou contactando-nos. Ver a [Política de reembolso](/api/v1/legal/refunds).
 
 ## 9. Limitação de responsabilidade

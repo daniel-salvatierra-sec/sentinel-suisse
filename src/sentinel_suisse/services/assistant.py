@@ -35,7 +35,7 @@ they're looking for) require LinkSwiss Premium (9.90 CHF/month, card or TWINT vi
 Without Premium, nothing is sent automatically — the person has to come back and search \
 manually to see new results.
 - LinkSwiss Premium also unlocks WhatsApp alerts specifically, up to 5 saved searches (vs 1 \
-without Premium), and under-construction/off-plan listings.
+without Premium), and new-build / first-letting projects open for applications.
 - Users cancel anytime from Account -> "Gerer l'abonnement" (Stripe Customer Portal).
 - Listings come from third-party portals (Homegate, Flatfox, ImmoScout24, jobs.ch, etc.) — \
 LinkSwiss is not the landlord/employer, always verify on the original listing.

@@ -205,16 +205,22 @@ def test_country_filter() -> None:
     assert listing_matches_query(german, SearchQuery(country=CountryCode.IT)) is False
 
 
-def test_under_construction_keyword_matches_unset_flag() -> None:
-    listing = _sample_listing(title="3.5 pièces en construction à Sion")
+def test_new_project_keyword_matches_unset_flag() -> None:
+    listing = _sample_listing(title="Projet neuf — première location à Sion")
     listing.is_under_construction = None
     assert listing_matches_query(listing, SearchQuery(is_under_construction=True)) is True
 
 
-def test_finished_neubau_does_not_match_construction_alert() -> None:
-    listing = _sample_listing(title="Neubau 4.5 Zimmer, bezugsbereit")
+def test_off_plan_does_not_match_new_project_alert() -> None:
+    listing = _sample_listing(title="3.5 pièces en construction à Sion")
     listing.is_under_construction = None
     assert listing_matches_query(listing, SearchQuery(is_under_construction=True)) is False
+
+
+def test_neubau_ready_matches_new_project_alert() -> None:
+    listing = _sample_listing(title="Neubau 4.5 Zimmer, bezugsbereit")
+    listing.is_under_construction = None
+    assert listing_matches_query(listing, SearchQuery(is_under_construction=True)) is True
 
 
 def test_blank_location_is_treated_as_missing() -> None:

@@ -90,11 +90,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       ],
     },
     answer: {
-      fr: "LinkSwiss Premium coûte 9,90 CHF/mois, payable par carte ou TWINT. Ça débloque les alertes automatiques (email + WhatsApp), jusqu'à 5 recherches enregistrées, et les biens en construction. La recherche elle-même reste gratuite pour tout le monde.",
-      de: "LinkSwiss Premium kostet 9.90 CHF/Monat, zahlbar per Karte oder TWINT. Damit erhältst du automatische Alerts (E-Mail + WhatsApp), bis zu 5 gespeicherte Suchen und Neubauprojekte. Die Suche selbst bleibt für alle kostenlos.",
-      es: "LinkSwiss Premium cuesta 9,90 CHF/mes, con tarjeta o TWINT. Con eso desbloqueas las alertas automáticas (email + WhatsApp), hasta 5 búsquedas guardadas, y las ofertas en construcción. La búsqueda en sí sigue siendo gratis para todos.",
-      pt: "O LinkSwiss Premium custa 9,90 CHF/mês, com cartão ou TWINT. Isso desbloqueia os alertas automáticos (email + WhatsApp), até 5 pesquisas guardadas, e imóveis em construção. A pesquisa em si continua gratuita para todos.",
-      en: "LinkSwiss Premium costs CHF 9.90/month, payable by card or TWINT. It unlocks automatic alerts (email + WhatsApp), up to 5 saved searches, and off-plan/under-construction listings. Search itself stays free for everyone.",
+      fr: "LinkSwiss Premium coûte 9,90 CHF/mois, payable par carte ou TWINT. Ça débloque les alertes automatiques (email + WhatsApp), jusqu'à 5 recherches enregistrées, et les projets neufs à la location. La recherche elle-même reste gratuite pour tout le monde.",
+      de: "LinkSwiss Premium kostet 9.90 CHF/Monat, zahlbar per Karte oder TWINT. Damit erhältst du automatische Alerts (E-Mail + WhatsApp), bis zu 5 gespeicherte Suchen und Neuvermietungen / Neubauprojekte. Die Suche selbst bleibt für alle kostenlos.",
+      es: "LinkSwiss Premium cuesta 9,90 CHF/mes, con tarjeta o TWINT. Con eso desbloqueas las alertas automáticas (email + WhatsApp), hasta 5 búsquedas guardadas, y proyectos nuevos listos para candidatar. La búsqueda en sí sigue siendo gratis para todos.",
+      pt: "O LinkSwiss Premium custa 9,90 CHF/mês, com cartão ou TWINT. Isso desbloqueia os alertas automáticos (email + WhatsApp), até 5 pesquisas guardadas, e projetos novos prontos a candidatar. A pesquisa em si continua gratuita para todos.",
+      en: "LinkSwiss Premium costs CHF 9.90/month, payable by card or TWINT. It unlocks automatic alerts (email + WhatsApp), up to 5 saved searches, and new-build projects open for applications. Search itself stays free for everyone.",
     },
   },
   {

@@ -48,7 +48,7 @@ Verarbeitung nach nDSG — siehe Datenschutzerklärung.
 - Code soll **offen/einsehbar** bleiben.
 - Die **Suche** (Wohnungen + Stellen) bleibt kostenlos und unbegrenzt, kein Konto nötig.
 - Der **automatische Alert-Versand** (E-Mail oder WhatsApp bei jedem neuen passenden Angebot) erfordert **LinkSwiss Premium**. Ohne Abonnement wird nichts automatisch versendet — man muss manuell erneut suchen. Konten, die vor dem 19.08.2026 erstellt wurden, behalten ihre bereits aktiven kostenlosen E-Mail-Alerts.
-- **LinkSwiss Premium** (CHF 9.90/Monat, Karte und TWINT via Stripe) ist **aktiv**: WhatsApp-Alerts, bis zu 5 gespeicherte Suchen, Neubauprojekte. Das Abonnement **verlängert sich automatisch jeden Monat** bis zur Kündigung.
+- **LinkSwiss Premium** (CHF 9.90/Monat, Karte und TWINT via Stripe) ist **aktiv**: WhatsApp-Alerts, bis zu 5 gespeicherte Suchen, Neuvermietung / Neubauprojekte. Das Abonnement **verlängert sich automatisch jeden Monat** bis zur Kündigung.
 - Jederzeit kündbar über **Konto → Abonnement verwalten** (Stripe Kundenportal) oder per Kontakt. Siehe [Rückerstattungsrichtlinie](/api/v1/legal/refunds).
 
 ## 9. Haftung
