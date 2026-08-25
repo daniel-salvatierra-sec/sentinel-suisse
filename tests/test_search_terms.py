@@ -1,3 +1,5 @@
+import pytest
+
 from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
 
@@ -29,3 +31,23 @@ def test_occupation_words_look_like_jobs() -> None:
     assert query_looks_like_job("Geneva") is False
     assert query_looks_like_job("Sion") is False
     assert query_looks_like_job("Lucerne") is False
+
+
+@pytest.mark.parametrize(
+    ("query", "needle"),
+    [
+        ("infirmier", "infirmier"),
+        ("développeur", "développeur"),
+        ("developpeur", "developpeur"),
+        ("chauffeur", "chauffeur"),
+        ("comptable", "comptable"),
+        ("cuisinier", "cuisinier"),
+        ("enseignant", "enseignant"),
+        ("vendeur", "vendeur"),
+        ("enfermero", "infirmier"),
+        ("desarrollador", "developer"),
+    ],
+)
+def test_common_occupation_queries_expand(query: str, needle: str) -> None:
+    assert query_looks_like_job(query) is True
+    assert needle in expand_text_query(query)

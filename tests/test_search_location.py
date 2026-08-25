@@ -22,3 +22,9 @@ def test_occupation_search_sql_still_scans_titles() -> None:
     sql = _sql("fleuriste")
     assert "title" in sql
     assert "description" in sql
+
+
+def test_infirmier_search_sql_scans_titles() -> None:
+    sql = _sql("infirmier")
+    assert "title" in sql
+    assert "description" in sql
