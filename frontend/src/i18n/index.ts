@@ -199,6 +199,7 @@ export type Messages = {
   privacy: string;
   terms: string;
   mentionsLegales: string;
+  footerCookies: string;
   openSource: string;
   interested: string;
   interestedGoToAd: string;

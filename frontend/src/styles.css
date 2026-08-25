@@ -10,7 +10,7 @@
   --card: #ffffff;
   --radius-btn: 0.65rem;
   --shadow: 0 10px 28px rgba(28, 45, 40, 0.1);
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: Inter, system-ui, sans-serif;
   color: var(--text);
   background:
     radial-gradient(120% 80% at 80% -10%, rgba(232, 196, 106, 0.22), transparent 55%),
@@ -1851,6 +1851,19 @@ body {
   gap: 1rem;
   flex-wrap: wrap;
   margin-top: 1rem;
+}
+
+.site-footer {
+  margin: 1.25rem 0 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(26, 111, 138, 0.12);
+}
+
+.footer-copyright {
+  margin: 0.65rem 0 0;
+  font-size: 0.8rem;
+  color: rgba(28, 45, 40, 0.65);
+  text-align: center;
 }
 
 .privacy-link {

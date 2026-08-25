@@ -652,17 +652,23 @@ export default function App() {
         <PostListingForm t={t} listingType={category} />
       )}
 
-      <div className="legal-links">
-        <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
-          {t.privacy}
-        </a>
-        <a className="privacy-link" href={`/api/v1/legal/terms?lang=${lang}`} target="_blank" rel="noreferrer">
-          {t.terms}
-        </a>
-        <a className="privacy-link" href="/api/v1/legal/mentions-legales" target="_blank" rel="noreferrer">
-          {t.mentionsLegales}
-        </a>
-      </div>
+      <footer className="site-footer">
+        <div className="legal-links">
+          <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.privacy}
+          </a>
+          <a className="privacy-link" href={`/api/v1/legal/terms?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.terms}
+          </a>
+          <a className="privacy-link" href="/api/v1/legal/mentions-legales" target="_blank" rel="noreferrer">
+            {t.mentionsLegales}
+          </a>
+          <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.footerCookies}
+          </a>
+        </div>
+        <p className="footer-copyright">© {new Date().getFullYear()} LinkSwiss</p>
+      </footer>
 
       <GuideBot
         t={t}

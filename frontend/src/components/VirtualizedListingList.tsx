@@ -6,7 +6,6 @@ import {
   computeListingSignals,
   type ListingSignalContext,
 } from "../listingSignals";
-import { InfiniteScrollSentinel } from "./InfiniteScrollSentinel";
 import { ListingCard } from "./ListingCard";
 
 type Props = {
@@ -86,17 +85,18 @@ export function VirtualizedListingList({
         })}
       </div>
 
-      {hasMore && (
-        <>
-          {loadingMore && <p className="empty scroll-loading">{t.loading}</p>}
-          <InfiniteScrollSentinel
-            enabled={hasMore && !loadingMore}
-            loading={loadingMore}
-            onVisible={onLoadMore}
-          />
-        </>
+      {hasMore ? (
+        <button
+          type="button"
+          className="secondary-btn load-more-btn"
+          disabled={loadingMore}
+          onClick={onLoadMore}
+        >
+          {loadingMore ? t.loading : t.loadMore}
+        </button>
+      ) : (
+        listings.length > 0 && <p className="empty end-of-results">{t.endOfResults}</p>
       )}
-      {!hasMore && <p className="empty end-of-results">{t.endOfResults}</p>}
     </div>
   );
 }
