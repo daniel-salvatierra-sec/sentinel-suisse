@@ -58,6 +58,39 @@ def test_listing_rejects_wrong_location() -> None:
     assert listing_matches_query(listing, filters) is False
 
 
+def test_sion_does_not_match_lausanne_pension_ad() -> None:
+    listing = _sample_listing(
+        location="Lausanne",
+        listing_type=ListingType.JOB,
+        title="Conseiller caisse de pension",
+    )
+    listing.price = None
+    listing.description = "Décision interne à Lausanne"
+    assert listing_matches_query(listing, SearchQuery(location="Sion")) is False
+
+
+def test_sion_matches_sion_and_sitten() -> None:
+    listing = _sample_listing(location="Sion, VS")
+    assert listing_matches_query(listing, SearchQuery(location="Sion")) is True
+    assert listing_matches_query(listing, SearchQuery(location="Sitten")) is True
+
+
+def test_lucerne_aliases_match() -> None:
+    listing = _sample_listing(location="Luzern")
+    assert listing_matches_query(listing, SearchQuery(location="Lucerne")) is True
+    assert listing_matches_query(listing, SearchQuery(location="Lucerna")) is True
+
+
+def test_florist_query_still_matches_title() -> None:
+    listing = _sample_listing(
+        listing_type=ListingType.JOB,
+        location="Uster",
+        title="Florist/-in EFZ",
+    )
+    listing.price = None
+    assert listing_matches_query(listing, SearchQuery(location="fleuriste")) is True
+
+
 def test_geneva_search_matches_french_suburb() -> None:
     listing = _sample_listing(location="Les Acacias, 1227")
     assert listing_matches_query(listing, SearchQuery(location="Geneva")) is True

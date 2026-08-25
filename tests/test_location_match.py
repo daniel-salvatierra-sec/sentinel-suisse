@@ -34,6 +34,9 @@ def test_more_swiss_city_aliases() -> None:
     assert "Bienne" in expand_location_query("Biel")
     assert "Sitten" in expand_location_query("Sion")
     assert location_matches("Luzern, Switzerland", "Lucerna") is True
+    assert location_matches("Sion, VS", "Sion") is True
+    assert location_matches("Lausanne", "Sion") is False
+    assert location_matches("Caisse de pension, Lausanne", "Sion") is False
     assert location_matches("Fribourg", "Freiburg") is True
 
 

@@ -3,9 +3,10 @@ import { MapContainer, Marker, Popup, TileLayer, useMap } from "react-leaflet";
 import { useEffect, useMemo } from "react";
 import type { Listing } from "../api";
 import {
-  coordsForLocation,
+  lookupCoords,
   formatMapPrice,
   jitterCoords,
+  SWISS_CENTER,
 } from "../geo";
 import type { Messages } from "../i18n";
 import "leaflet/dist/leaflet.css";
@@ -67,13 +68,15 @@ function FitListings({
 export function MapView({ listings, focusId, searchQuery, t, onSelect }: Props) {
   const points = useMemo(() => {
     const byKey = new Map<string, number>();
+    const searchCoords = lookupCoords(searchQuery);
     return listings.map((listing) => {
-      const base = coordsForLocation(listing.location ?? searchQuery ?? null);
+      const base =
+        lookupCoords(listing.location) ?? searchCoords ?? SWISS_CENTER;
       const key = `${base[0].toFixed(4)},${base[1].toFixed(4)}`;
       const stackIndex = byKey.get(key) ?? 0;
       byKey.set(key, stackIndex + 1);
       const sameCount = listings.filter((other) => {
-        const c = coordsForLocation(other.location);
+        const c = lookupCoords(other.location) ?? searchCoords ?? SWISS_CENTER;
         return c[0].toFixed(4) === base[0].toFixed(4) && c[1].toFixed(4) === base[1].toFixed(4);
       }).length;
       return {
@@ -83,7 +86,7 @@ export function MapView({ listings, focusId, searchQuery, t, onSelect }: Props) 
     });
   }, [listings, searchQuery]);
 
-  const center = points[0]?.coords ?? coordsForLocation(searchQuery ?? null);
+  const center = points[0]?.coords ?? lookupCoords(searchQuery) ?? SWISS_CENTER;
 
   return (
     <div className="map-wrap map-wrap-listings">

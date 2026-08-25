@@ -5,6 +5,7 @@ from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.job_taxonomy import job_category_matches
 from sentinel_suisse.services.listing_freshness import listing_is_fresh
 from sentinel_suisse.services.location_match import location_matches
+from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
 
 def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
@@ -16,9 +17,14 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         return False
     if filters.location is not None:
         in_place = location_matches(listing.location, filters.location)
-        needle = filters.location.strip().casefold()
-        hay = f"{listing.title or ''} {listing.description or ''}".casefold()
-        if not in_place and needle not in hay:
+        if query_looks_like_job(filters.location):
+            hay = f"{listing.title or ''} {listing.description or ''}".casefold()
+            text_hit = any(
+                needle.casefold() in hay for needle in expand_text_query(filters.location)
+            )
+            if not in_place and not text_hit:
+                return False
+        elif not in_place:
             return False
     if filters.country is not None and listing.country != filters.country:
         return False

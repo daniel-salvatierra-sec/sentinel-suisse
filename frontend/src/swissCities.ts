@@ -111,5 +111,17 @@ export function matchSwissCity(location: string | undefined): SwissCity | "" {
   if (exact) {
     return exact;
   }
-  return CITY_ALIASES[folded] ?? "";
+  const aliased = CITY_ALIASES[folded];
+  if (aliased) {
+    return aliased;
+  }
+  const withoutZip = folded.replace(/^\d{4,5}\s+/, "").trim();
+  if (withoutZip && withoutZip !== folded) {
+    return matchSwissCity(withoutZip);
+  }
+  const first = folded.split(/[,/]/)[0]?.trim() ?? "";
+  if (first && first !== folded) {
+    return matchSwissCity(first);
+  }
+  return "";
 }

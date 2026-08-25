@@ -27,3 +27,5 @@ def test_occupation_words_look_like_jobs() -> None:
     assert query_looks_like_job("floristeria") is True
     assert query_looks_like_job("cajero") is True
     assert query_looks_like_job("Geneva") is False
+    assert query_looks_like_job("Sion") is False
+    assert query_looks_like_job("Lucerne") is False

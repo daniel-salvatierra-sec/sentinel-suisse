@@ -7,6 +7,8 @@ the Geneva + border box is findable without a paid geo database.
 
 from __future__ import annotations
 
+import re
+
 _GENEVA_QUERY_ALIASES = frozenset(
     {
         "geneva",
@@ -233,8 +235,17 @@ def expand_location_query(query: str) -> list[str]:
 def location_matches(listing_location: str | None, query: str) -> bool:
     if listing_location is None:
         return False
-    hay = listing_location.casefold()
+    hay = listing_location
     for term in expand_location_query(query):
-        if term.casefold() in hay:
+        if _term_in_location(hay, term):
             return True
     return False
+
+
+def _term_in_location(haystack: str, term: str) -> bool:
+    """Whole-token match so 'Sion' does not hit 'pension' / 'décision'."""
+    stripped = term.strip()
+    if not stripped:
+        return False
+    pattern = rf"(?<![\w]){re.escape(stripped)}(?![\w])"
+    return re.search(pattern, haystack, flags=re.IGNORECASE) is not None

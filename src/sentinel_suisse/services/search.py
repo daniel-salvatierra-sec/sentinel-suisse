@@ -13,7 +13,7 @@ from sentinel_suisse.services.job_taxonomy import (
 )
 from sentinel_suisse.services.listing_freshness import apply_freshness_filter
 from sentinel_suisse.services.location_match import expand_location_query
-from sentinel_suisse.services.search_terms import expand_text_query
+from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
 
 def search_listings(
@@ -36,10 +36,13 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     if filters.location is not None:
         terms = expand_location_query(filters.location)
         clauses = [Listing.location.ilike(f"%{term}%") for term in terms]
-        for keyword in expand_text_query(filters.location):
-            like = f"%{keyword}%"
-            clauses.append(Listing.title.ilike(like))
-            clauses.append(Listing.description.ilike(like))
+        # Occupation words (fleuriste) search titles. City names must not:
+        # ILIKE %sion% matches "pension" / "décision" in Lausanne ads.
+        if query_looks_like_job(filters.location):
+            for keyword in expand_text_query(filters.location):
+                like = f"%{keyword}%"
+                clauses.append(Listing.title.ilike(like))
+                clauses.append(Listing.description.ilike(like))
         if clauses:
             stmt = stmt.where(or_(*clauses))
     if filters.country is not None:
