@@ -329,11 +329,14 @@
   "underConstructionFilter": "Projetos novos",
   "constructionBadge": "Projeto novo",
   "loginTitle": "Iniciar sessão",
-  "loginDesc": "Escreve o teu email e enviamos uma ligação para entrares de novo — sem palavra-passe.",
+  "loginDesc": "Já tens conta? Escreve o email: enviamos uma ligação de acesso (não é confirmação de conta). Sem palavra-passe.",
+  "loginStayHint": "Depois de ligado neste dispositivo, ficas ligado. A ligação só é preciso se mudares de telemóvel ou limpares o browser. A confirmação de email é só no primeiro registo.",
   "loginCta": "Enviar ligação de acesso",
-  "loginEmailSent": "Ligação enviada! Verifica o teu email e clica para iniciar sessão.",
+  "loginEmailSent": "Ligação de acesso enviada! Abre o email e clica para entrar — não é verificação de conta.",
   "loginError": "Esta ligação de acesso já não é válida. Pede uma nova.",
   "loginBackToSignup": "← Criar uma conta em vez disso",
   "loginAlreadyHaveAccount": "Já tens conta? Iniciar sessão",
-  "loginSuccess": "Sessão iniciada com sucesso!"
+  "loginSuccess": "Sessão iniciada com sucesso!",
+  "accountSignupTab": "Criar conta",
+  "accountAuthTabsLabel": "Iniciar sessão ou registar"
 }

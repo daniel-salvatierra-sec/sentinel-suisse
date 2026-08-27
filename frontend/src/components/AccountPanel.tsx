@@ -94,6 +94,7 @@ export function AccountPanel({
         location={location}
         searchQuery={searchQuery}
         onSuccess={onSignupSuccess}
+        initialMode="login"
       />
     );
   }

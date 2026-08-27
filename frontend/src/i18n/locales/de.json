@@ -329,11 +329,14 @@
   "underConstructionFilter": "Neuvermietung",
   "constructionBadge": "Neuvermietung",
   "loginTitle": "Anmelden",
-  "loginDesc": "Gib deine E-Mail ein, wir schicken dir einen Link zum Anmelden — ohne Passwort.",
+  "loginDesc": "Schon registriert? E-Mail eingeben — wir senden einen Anmeldelink (keine Kontobestätigung). Ohne Passwort.",
+  "loginStayHint": "Einmal angemeldet bleibst du auf diesem Gerät angemeldet. Den Link brauchst du nur bei neuem Handy oder gelöschten Browserdaten. Die E-Mail-Bestätigung gibt es nur bei der ersten Registrierung.",
   "loginCta": "Anmeldelink senden",
-  "loginEmailSent": "Link gesendet! Prüfe dein Postfach und klicke darauf, um dich anzumelden.",
+  "loginEmailSent": "Anmeldelink gesendet! E-Mail öffnen und klicken — das ist keine Kontobestätigung.",
   "loginError": "Dieser Anmeldelink ist nicht mehr gültig. Fordere einen neuen an.",
   "loginBackToSignup": "← Stattdessen ein Konto erstellen",
   "loginAlreadyHaveAccount": "Bereits registriert? Anmelden",
-  "loginSuccess": "Erfolgreich angemeldet!"
+  "loginSuccess": "Erfolgreich angemeldet!",
+  "accountSignupTab": "Konto erstellen",
+  "accountAuthTabsLabel": "Anmelden oder registrieren"
 }

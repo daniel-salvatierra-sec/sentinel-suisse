@@ -329,11 +329,14 @@
   "underConstructionFilter": "Projets neufs",
   "constructionBadge": "Projet neuf",
   "loginTitle": "Se connecter",
-  "loginDesc": "Indique ton e-mail, on t'envoie un lien pour te reconnecter — sans mot de passe.",
+  "loginDesc": "Déjà inscrit ? Indique ton e-mail : on t'envoie un lien de connexion (pas une confirmation de compte). Sans mot de passe.",
+  "loginStayHint": "Une fois connecté sur cet appareil, tu restes connecté. Le lien n'est utile que si tu changes de téléphone ou effaces les données du navigateur. La confirmation d'e-mail n'est demandée qu'à la première inscription.",
   "loginCta": "Envoyer le lien de connexion",
-  "loginEmailSent": "Lien envoyé ! Vérifie ta boîte mail et clique dessus pour te connecter.",
+  "loginEmailSent": "Lien de connexion envoyé ! Ouvre ton e-mail et clique pour entrer — ce n'est pas une vérification de compte.",
   "loginError": "Ce lien de connexion n'est plus valide. Demandes-en un nouveau.",
   "loginBackToSignup": "← Créer un compte à la place",
   "loginAlreadyHaveAccount": "Déjà inscrit ? Se connecter",
-  "loginSuccess": "Connexion réussie !"
+  "loginSuccess": "Connexion réussie !",
+  "accountSignupTab": "Créer un compte",
+  "accountAuthTabsLabel": "Connexion ou inscription"
 }

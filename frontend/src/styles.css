@@ -1522,6 +1522,43 @@ body {
   margin-top: 1rem;
 }
 
+.account-auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  margin: 0 0 1rem;
+}
+
+.account-auth-tab {
+  border: 1.5px solid rgba(28, 45, 40, 0.18);
+  background: #f7faf8;
+  border-radius: 0.65rem;
+  padding: 0.65rem 0.5rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #2a3d36;
+}
+
+.account-auth-tab.is-active {
+  background: var(--mountain, #1a6f5a);
+  border-color: var(--mountain, #1a6f5a);
+  color: #fff;
+}
+
+.account-signup-heading {
+  margin-top: 0.25rem;
+}
+
+.login-stay-hint {
+  margin-top: 0.85rem;
+}
+
+.login-panel .alerts-subhead {
+  margin-top: 0;
+}
+
 .alert-panel input:not([type="checkbox"]) {
   width: 100%;
   margin-bottom: 0.5rem;

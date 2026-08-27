@@ -328,11 +328,14 @@
   "underConstructionFilter": "New projects",
   "constructionBadge": "New build",
   "loginTitle": "Log in",
-  "loginDesc": "Enter your email and we'll send you a link to log back in — no password needed.",
+  "loginDesc": "Already registered? Enter your email — we send a login link (not an account confirmation). No password.",
+  "loginStayHint": "Once logged in on this device, you stay logged in. The link is only needed if you switch phones or clear browser data. Email confirmation is only for the first signup.",
   "loginCta": "Send login link",
-  "loginEmailSent": "Link sent! Check your inbox and click it to log in.",
+  "loginEmailSent": "Login link sent! Open your email and click to enter — this is not account verification.",
   "loginError": "This login link is no longer valid. Request a new one.",
   "loginBackToSignup": "← Create an account instead",
   "loginAlreadyHaveAccount": "Already have an account? Log in",
-  "loginSuccess": "Logged in successfully!"
+  "loginSuccess": "Logged in successfully!",
+  "accountSignupTab": "Create account",
+  "accountAuthTabsLabel": "Log in or sign up"
 }

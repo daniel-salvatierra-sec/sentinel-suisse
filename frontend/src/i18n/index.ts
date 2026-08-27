@@ -341,12 +341,15 @@ export type Messages = {
   constructionBadge: string;
   loginTitle: string;
   loginDesc: string;
+  loginStayHint: string;
   loginCta: string;
   loginEmailSent: string;
   loginError: string;
   loginBackToSignup: string;
   loginAlreadyHaveAccount: string;
   loginSuccess: string;
+  accountSignupTab: string;
+  accountAuthTabsLabel: string;
 };
 
 import fr from "./locales/fr.json";

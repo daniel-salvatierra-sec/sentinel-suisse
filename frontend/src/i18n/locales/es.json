@@ -328,11 +328,14 @@
   "underConstructionFilter": "Proyectos nuevos",
   "constructionBadge": "Proyecto nuevo",
   "loginTitle": "Iniciar sesión",
-  "loginDesc": "Escribe tu email y te mandamos un enlace para volver a entrar — sin contraseña.",
+  "loginDesc": "¿Ya tienes cuenta? Escribe tu email: te mandamos un enlace de acceso (no es la confirmación de cuenta). Sin contraseña.",
+  "loginStayHint": "Una vez conectado en este dispositivo, sigues conectado. El enlace solo hace falta si cambias de móvil o borras los datos del navegador. La confirmación de email es solo la primera vez que te registras.",
   "loginCta": "Enviar enlace de acceso",
-  "loginEmailSent": "¡Enlace enviado! Revisa tu correo y haz clic para iniciar sesión.",
+  "loginEmailSent": "¡Enlace de acceso enviado! Abre tu correo y haz clic para entrar — no es una verificación de cuenta.",
   "loginError": "Este enlace de acceso ya no es válido. Pide uno nuevo.",
   "loginBackToSignup": "← Crear una cuenta en su lugar",
   "loginAlreadyHaveAccount": "¿Ya tienes cuenta? Iniciar sesión",
-  "loginSuccess": "¡Sesión iniciada correctamente!"
+  "loginSuccess": "¡Sesión iniciada correctamente!",
+  "accountSignupTab": "Crear cuenta",
+  "accountAuthTabsLabel": "Iniciar sesión o registrarse"
 }
