@@ -101,6 +101,21 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   return response.json();
 }
 
+export type CityStock = {
+  city: string;
+  housing_count: number;
+  job_count: number;
+  total: number;
+};
+
+export async function fetchStockedCities(): Promise<CityStock[]> {
+  const response = await fetch("/api/v1/public/cities");
+  if (!response.ok) {
+    throw new Error("cities failed");
+  }
+  return response.json() as Promise<CityStock[]>;
+}
+
 export const SEARCH_PAGE_SIZE = 20;
 
 export async function fetchPrivacy(lang: string): Promise<string> {

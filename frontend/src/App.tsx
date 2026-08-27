@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import {
+  fetchStockedCities,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
@@ -107,6 +108,7 @@ export default function App() {
   // the map tab freely) — in that case we show only that listing's pin, not every result.
   const [mapIsolate, setMapIsolate] = useState(false);
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
+  const [stockedCities, setStockedCities] = useState<string[] | null>(null);
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
@@ -198,6 +200,24 @@ export default function App() {
       appliedWorkloadChoice,
     ],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchStockedCities()
+      .then((rows) => {
+        if (!cancelled) {
+          setStockedCities(rows.map((row) => row.city));
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setStockedCities(null);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const deep = parseSubscribeDeepLink(window.location.search);
@@ -465,6 +485,7 @@ export default function App() {
             onCityChoiceChange={(value) => {
               setQuery(value);
             }}
+            stockedCities={stockedCities}
             roomsChoice={roomsChoice}
             onRoomsChoiceChange={(value) => {
               setRoomsChoice(value);

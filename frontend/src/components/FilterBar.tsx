@@ -19,6 +19,8 @@ type Props = {
   onZoneChoiceChange: (value: ZoneChoice) => void;
   cityChoice: string;
   onCityChoiceChange: (value: string) => void;
+  /** Empty = show full catalog (fallback). Otherwise only stocked cities + current choice. */
+  stockedCities?: string[] | null;
   roomsChoice: RoomsChoice;
   onRoomsChoiceChange: (value: RoomsChoice) => void;
   hasParking: boolean;
@@ -113,6 +115,7 @@ export function FilterBar({
   onZoneChoiceChange,
   cityChoice,
   onCityChoiceChange,
+  stockedCities = null,
   roomsChoice,
   onRoomsChoiceChange,
   hasParking,
@@ -186,7 +189,12 @@ export function FilterBar({
             onChange={(event) => onCityChoiceChange(event.target.value)}
           >
             <option value="">{t.cityAll}</option>
-            {SWISS_CITIES.map((city) => (
+            {(stockedCities == null
+              ? [...SWISS_CITIES]
+              : SWISS_CITIES.filter(
+                  (city) => stockedCities.includes(city) || city === cityChoice,
+                )
+            ).map((city) => (
               <option key={city} value={city}>
                 {city}
               </option>

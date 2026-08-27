@@ -20,6 +20,7 @@ from sentinel_suisse.schemas.login import (
     MagicLoginRequestResponse,
 )
 from sentinel_suisse.schemas.provider import ProviderRead
+from sentinel_suisse.schemas.public_cities import CityStock
 from sentinel_suisse.schemas.public_signup import (
     ChannelVerificationResponse,
     EmailVerificationResponse,
@@ -27,6 +28,7 @@ from sentinel_suisse.schemas.public_signup import (
     PublicAlertSignupResponse,
 )
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.services.city_stock import list_stocked_picker_cities
 from sentinel_suisse.services.email_verification import (
     send_channel_verification_email,
     send_channel_verification_whatsapp,
@@ -76,6 +78,17 @@ def public_providers(
             select(Provider).where(Provider.is_active.is_(True)).order_by(Provider.name)
         ).all()
     )
+
+
+@router.get("/cities", response_model=list[CityStock])
+@limiter.limit(lambda: get_settings().rate_limit)
+def public_cities(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_search),
+) -> list[CityStock]:
+    """Swiss picker cities that currently have fresh housing or job listings."""
+    return list_stocked_picker_cities(db)
 
 
 @router.get("/search", response_model=list[ListingRead])
