@@ -40,6 +40,7 @@ import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
 import { matchSwissCity } from "./swissCities";
 import { toSavedSearchQuery } from "./searchSummary";
+import { capturePromoFromUrl } from "./promo";
 
 type Tab = "list" | "map" | "alerts" | "account" | "publish";
 
@@ -200,6 +201,10 @@ export default function App() {
       appliedWorkloadChoice,
     ],
   );
+
+  useEffect(() => {
+    capturePromoFromUrl(window.location.search);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;

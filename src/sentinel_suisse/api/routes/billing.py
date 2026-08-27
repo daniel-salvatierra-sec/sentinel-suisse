@@ -21,12 +21,22 @@ router = APIRouter(prefix="/billing", tags=["billing"])
 class BillingConfig(BaseModel):
     payments_enabled: bool
     twint_enabled: bool
+    launch_promo_code: str | None = None
+    launch_promo_percent: int | None = None
+    launch_promo_months: int | None = None
 
 
 class BillingStatus(BaseModel):
     payments_enabled: bool
     is_premium: bool
     twint_enabled: bool
+    launch_promo_code: str | None = None
+    launch_promo_percent: int | None = None
+    launch_promo_months: int | None = None
+
+
+class CheckoutRequest(BaseModel):
+    promotion_code: str | None = None
 
 
 class CheckoutResponse(BaseModel):
@@ -37,6 +47,21 @@ class PortalResponse(BaseModel):
     portal_url: str
 
 
+def _launch_promo_fields(settings) -> dict[str, str | int | None]:
+    code = (settings.stripe_launch_promo_code or "").strip() or None
+    if not code:
+        return {
+            "launch_promo_code": None,
+            "launch_promo_percent": None,
+            "launch_promo_months": None,
+        }
+    return {
+        "launch_promo_code": code,
+        "launch_promo_percent": settings.stripe_launch_promo_percent,
+        "launch_promo_months": settings.stripe_launch_promo_months,
+    }
+
+
 @router.get("/config", response_model=BillingConfig)
 @limiter.limit(lambda: get_settings().rate_limit)
 def billing_config(request: Request) -> BillingConfig:
@@ -45,6 +70,7 @@ def billing_config(request: Request) -> BillingConfig:
     return BillingConfig(
         payments_enabled=settings.stripe_payments_enabled(),
         twint_enabled=settings.stripe_enable_twint,
+        **_launch_promo_fields(settings),
     )
 
 
@@ -59,6 +85,7 @@ def billing_status(
         payments_enabled=settings.stripe_payments_enabled(),
         is_premium=current_user.is_premium,
         twint_enabled=settings.stripe_enable_twint,
+        **_launch_promo_fields(settings),
     )
 
 
@@ -68,6 +95,7 @@ def start_checkout(
     request: Request,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
+    payload: CheckoutRequest = CheckoutRequest(),
 ) -> CheckoutResponse:
     if current_user.is_premium:
         raise HTTPException(
@@ -75,8 +103,14 @@ def start_checkout(
             detail="already_premium",
         )
     settings = get_settings()
+    promo = payload.promotion_code
     try:
-        url = create_checkout_session(db, current_user, settings)
+        url = create_checkout_session(
+            db,
+            current_user,
+            settings,
+            promotion_code=promo,
+        )
     except BillingError as exc:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE

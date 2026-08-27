@@ -292,6 +292,7 @@ export type Messages = {
   shareApp: string;
   shareTitle: string;
   shareDesc: string;
+  sharePromoHint: string;
   shareText: string;
   shareNative: string;
   shareWhatsApp: string;
@@ -320,6 +321,9 @@ export type Messages = {
   premiumUpsellDesc: string;
   premiumUpsellPrice: string;
   premiumPromoHint: string;
+  premiumPromoHintWithCode: string;
+  premiumLaunchOfferTitle: string;
+  premiumLaunchOfferPrice: string;
   premiumBenefitJobs: string;
   premiumBenefitHousing: string;
   premiumBenefitConstruction: string;

@@ -273,6 +273,53 @@ def test_checkout_creates_stripe_session(
     }
 
 
+def test_checkout_applies_promotion_code(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_test")
+    monkeypatch.setenv("STRIPE_ENABLE_TWINT", "false")
+    monkeypatch.setenv("STRIPE_LAUNCH_PROMO_CODE", "LINKSWISS50")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("promo"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/c/pay/cs_promo"
+    mock_list = MagicMock()
+    mock_list.data = [MagicMock(id="promo_test_123")]
+
+    with (
+        patch(
+            "sentinel_suisse.services.stripe_billing.stripe.PromotionCode.list",
+            return_value=mock_list,
+        ) as list_mock,
+        patch(
+            "sentinel_suisse.services.stripe_billing.stripe.checkout.Session.create",
+            return_value=mock_session,
+        ) as create_mock,
+    ):
+        response = client.post(
+            "/api/v1/billing/checkout",
+            headers=headers,
+            json={"promotion_code": "LINKSWISS50"},
+        )
+
+    assert response.status_code == 200, response.text
+    list_mock.assert_called_once()
+    kwargs = create_mock.call_args.kwargs
+    assert kwargs["discounts"] == [{"promotion_code": "promo_test_123"}]
+    assert "allow_promotion_codes" not in kwargs
+
+
 def test_portal_requires_stripe_customer(
     client: TestClient, admin_auth: tuple[str, str], monkeypatch
 ) -> None:

@@ -26,7 +26,30 @@ def _configure_stripe(settings: Settings) -> None:
     stripe.api_key = settings.stripe_secret_key
 
 
-def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
+def _resolve_promotion_code_id(code: str) -> str | None:
+    """Look up an active Stripe Promotion Code id by its customer-facing code."""
+    needle = code.strip()
+    if not needle:
+        return None
+    try:
+        found = stripe.PromotionCode.list(code=needle, active=True, limit=1)
+    except Exception:
+        logger.exception("stripe promotion code lookup failed code=%s", needle)
+        return None
+    data = getattr(found, "data", None) or []
+    if not data:
+        return None
+    promo_id = getattr(data[0], "id", None)
+    return str(promo_id) if promo_id else None
+
+
+def create_checkout_session(
+    db: Session,
+    user: User,
+    settings: Settings,
+    *,
+    promotion_code: str | None = None,
+) -> str:
     """Create a Stripe Checkout Session; return the hosted URL."""
     if not settings.stripe_payments_enabled():
         raise BillingError("payments_disabled", "Stripe payments are not configured.")
@@ -44,7 +67,6 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
         "customer_email": email,
         "metadata": {"user_id": str(user.id)},
         "subscription_data": {"metadata": {"user_id": str(user.id)}},
-        "allow_promotion_codes": settings.stripe_allow_promotion_codes,
     }
     if user.stripe_customer_id:
         params["customer"] = user.stripe_customer_id
@@ -61,6 +83,21 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
     # payment methods are enabled in the Dashboard (e.g. card only while
     # TWINT is pending approval). Checkout Sessions don't accept the
     # PaymentIntent-only "automatic_payment_methods" parameter.
+
+    # Prefer auto-applying a known promo (launch / shared link). Stripe forbids
+    # combining discounts= with allow_promotion_codes=true on the same session.
+    code = (promotion_code or settings.stripe_launch_promo_code or "").strip()
+    applied = False
+    if code:
+        promo_id = _resolve_promotion_code_id(code)
+        if promo_id:
+            params["discounts"] = [{"promotion_code": promo_id}]
+            params["metadata"]["promotion_code"] = code
+            applied = True
+        else:
+            logger.warning("stripe promotion code not found code=%s", code)
+    if not applied and settings.stripe_allow_promotion_codes:
+        params["allow_promotion_codes"] = True
 
     session = stripe.checkout.Session.create(**params)
     url = session.url

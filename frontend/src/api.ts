@@ -312,6 +312,9 @@ export function deleteAccount(): Promise<void> {
 export type BillingConfig = {
   payments_enabled: boolean;
   twint_enabled: boolean;
+  launch_promo_code?: string | null;
+  launch_promo_percent?: number | null;
+  launch_promo_months?: number | null;
 };
 
 export type BillingStatus = BillingConfig & {
@@ -330,14 +333,21 @@ export function fetchBillingStatus(): Promise<BillingStatus> {
   return apiFetch<BillingStatus>("/api/v1/billing/status");
 }
 
-export async function createCheckoutSession(): Promise<{ checkout_url: string }> {
+export async function createCheckoutSession(
+  promotionCode?: string | null,
+): Promise<{ checkout_url: string }> {
   const apiKey = getApiKey();
   if (!apiKey) {
     throw new Error("not authenticated");
   }
+  const trimmed = promotionCode?.trim();
   const response = await fetch("/api/v1/billing/checkout", {
     method: "POST",
-    headers: { "X-API-Key": apiKey },
+    headers: {
+      "X-API-Key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(trimmed ? { promotion_code: trimmed } : {}),
   });
   if (!response.ok) {
     let message = `request failed: ${response.status}`;

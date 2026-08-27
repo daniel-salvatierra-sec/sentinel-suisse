@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import QRCode from "qrcode";
+import { fetchBillingConfig } from "../api";
 import type { Messages } from "../i18n";
+import { promoShareUrl, readStoredPromo } from "../promo";
 
 type Props = {
   t: Messages;
 };
 
-function appUrl(): string {
+function appOrigin(): string {
   if (typeof window !== "undefined" && window.location?.origin) {
     return window.location.origin;
   }
@@ -18,7 +20,24 @@ export function ShareAppButton({ t }: Props) {
   const [open, setOpen] = useState(false);
   const [dataUrl, setDataUrl] = useState("");
   const [copied, setCopied] = useState(false);
-  const url = appUrl();
+  const [promoCode, setPromoCode] = useState<string | null>(readStoredPromo());
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchBillingConfig()
+      .then((cfg) => {
+        if (cancelled) return;
+        setPromoCode(readStoredPromo() || cfg.launch_promo_code?.trim() || null);
+      })
+      .catch(() => {
+        /* keep stored promo */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const url = promoShareUrl(appOrigin(), promoCode);
   const shareText = `${t.shareText} ${url}`;
 
   useEffect(() => {
@@ -75,6 +94,7 @@ export function ShareAppButton({ t }: Props) {
               {t.shareTitle}
             </h2>
             <p className="guide-message">{t.shareDesc}</p>
+            {promoCode ? <p className="share-promo-hint">{t.sharePromoHint}</p> : null}
             {dataUrl ? (
               <img className="share-qr-img" src={dataUrl} alt={t.shareTitle} width={220} height={220} />
             ) : (
