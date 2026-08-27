@@ -338,6 +338,13 @@ export type Messages = {
   premiumSuccessBanner: string;
   premiumCancelBanner: string;
   premiumRefundsLink: string;
+  boostBadge: string;
+  boostHint: string;
+  boostCta: string;
+  boostPaying: string;
+  boostCheckoutError: string;
+  boostSuccessBanner: string;
+  boostCancelBanner: string;
   constructionBadge: string;
   loginTitle: string;
   loginDesc: string;

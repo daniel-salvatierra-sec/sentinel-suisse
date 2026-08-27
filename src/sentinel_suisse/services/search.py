@@ -1,8 +1,9 @@
 """Listing search query builder."""
 
+from datetime import UTC, datetime
 from typing import Literal
 
-from sqlalchemy import Select, and_, func, not_, nulls_last, or_, select
+from sqlalchemy import Select, and_, case, func, not_, nulls_last, or_, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.listing import Listing
@@ -21,6 +22,20 @@ from sentinel_suisse.services.search_terms import expand_text_query, query_looks
 SearchSort = Literal["newest", "price_asc", "price_desc"]
 
 
+def _featured_rank():
+    now = datetime.now(UTC)
+    return case(
+        (
+            and_(
+                Listing.is_featured.is_(True),
+                or_(Listing.featured_until.is_(None), Listing.featured_until > now),
+            ),
+            1,
+        ),
+        else_=0,
+    )
+
+
 def search_listings(
     db: Session,
     filters: SearchQuery,
@@ -36,11 +51,12 @@ def search_listings(
 
 
 def _apply_sort(stmt: Select[tuple[Listing]], sort: SearchSort) -> Select[tuple[Listing]]:
+    featured = _featured_rank().desc()
     if sort == "price_asc":
-        return stmt.order_by(nulls_last(Listing.price.asc()), Listing.id.desc())
+        return stmt.order_by(featured, nulls_last(Listing.price.asc()), Listing.id.desc())
     if sort == "price_desc":
-        return stmt.order_by(nulls_last(Listing.price.desc()), Listing.id.desc())
-    return stmt.order_by(Listing.fetched_at.desc(), Listing.id.desc())
+        return stmt.order_by(featured, nulls_last(Listing.price.desc()), Listing.id.desc())
+    return stmt.order_by(featured, Listing.fetched_at.desc(), Listing.id.desc())
 
 
 def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select[tuple[Listing]]:

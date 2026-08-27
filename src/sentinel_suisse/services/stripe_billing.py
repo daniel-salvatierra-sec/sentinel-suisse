@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import logging
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import stripe
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.config import Settings
+from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.user import User
 from sentinel_suisse.security.pii import decrypt_pii
 
@@ -194,6 +196,110 @@ def apply_subscription_deleted(db: Session, subscription_obj: dict[str, Any]) ->
     db.refresh(user)
     logger.info("stripe premium revoked user_id=%s", user.id)
     return user
+
+
+def create_feature_checkout_session(
+    *,
+    listing: Listing,
+    user: User,
+    settings: Settings,
+) -> str:
+    """One-time payment Checkout to boost a direct listing."""
+    if not settings.stripe_feature_payments_enabled():
+        raise BillingError("feature_payments_disabled", "Listing boost is not configured.")
+    if listing.owner_user_id != user.id:
+        raise BillingError("listing_forbidden", "You can only boost your own listings.")
+
+    _configure_stripe(settings)
+    base = settings.public_app_url.rstrip("/")
+    email = decrypt_pii(user.email)
+    params: dict[str, Any] = {
+        "mode": "payment",
+        "line_items": [{"price": settings.stripe_feature_price_id, "quantity": 1}],
+        "success_url": f"{base}/?boost=success",
+        "cancel_url": f"{base}/?boost=cancel",
+        "client_reference_id": str(user.id),
+        "customer_email": email,
+        "metadata": {
+            "user_id": str(user.id),
+            "listing_id": str(listing.id),
+            "purpose": "feature_listing",
+        },
+    }
+    if user.stripe_customer_id:
+        params["customer"] = user.stripe_customer_id
+        params.pop("customer_email", None)
+
+    session = stripe.checkout.Session.create(**params)
+    url = session.url
+    if not url:
+        raise BillingError("checkout_failed", "Stripe did not return a checkout URL.")
+    return str(url)
+
+
+def apply_feature_checkout_completed(
+    db: Session,
+    session_obj: dict[str, Any],
+    *,
+    feature_days: int,
+) -> Listing | None:
+    """Mark listing featured after a successful one-time Checkout."""
+    metadata = session_obj.get("metadata") or {}
+    if metadata.get("purpose") != "feature_listing":
+        return None
+
+    payment_status = session_obj.get("payment_status")
+    if payment_status not in {None, "paid", "no_payment_required"}:
+        logger.warning(
+            "stripe feature checkout not paid status=%s listing_id=%s",
+            payment_status,
+            metadata.get("listing_id"),
+        )
+        return None
+
+    listing_id_raw = metadata.get("listing_id")
+    if not listing_id_raw:
+        logger.warning("stripe feature checkout missing listing_id")
+        return None
+    try:
+        listing_id = int(listing_id_raw)
+    except (TypeError, ValueError):
+        logger.warning("stripe feature checkout invalid listing_id=%s", listing_id_raw)
+        return None
+
+    listing = db.get(Listing, listing_id)
+    if listing is None:
+        logger.warning("stripe feature checkout listing not found id=%s", listing_id)
+        return None
+
+    owner_raw = metadata.get("user_id")
+    if owner_raw is not None:
+        try:
+            if listing.owner_user_id != int(owner_raw):
+                logger.warning(
+                    "stripe feature checkout owner mismatch listing_id=%s",
+                    listing_id,
+                )
+                return None
+        except (TypeError, ValueError):
+            return None
+
+    days = max(1, feature_days)
+    now = datetime.now(UTC)
+    current_until = listing.featured_until
+    if current_until is not None and current_until.tzinfo is None:
+        current_until = current_until.replace(tzinfo=UTC)
+    base = current_until if current_until and current_until > now else now
+    listing.is_featured = True
+    listing.featured_until = base + timedelta(days=days)
+    db.commit()
+    db.refresh(listing)
+    logger.info(
+        "stripe listing featured id=%s until=%s",
+        listing.id,
+        listing.featured_until,
+    )
+    return listing
 
 
 def construct_event(payload: bytes, sig_header: str | None, settings: Settings) -> stripe.Event:

@@ -105,6 +105,11 @@ class Listing(Base):
         index=True,
     )
     is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_featured: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    featured_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

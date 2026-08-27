@@ -1051,6 +1051,23 @@ body {
   background: rgba(196, 123, 74, 0.14);
 }
 
+.listing-boost-badge {
+  color: var(--forest, #2f6a45);
+  background: rgba(47, 106, 69, 0.14);
+}
+
+.account-search-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+
+.account-search h4 .listing-boost-badge {
+  margin-left: 0.45rem;
+  vertical-align: middle;
+}
+
 .premium-upsell {
   background: rgba(47, 106, 69, 0.06);
   border: 1px solid rgba(47, 106, 69, 0.22);

@@ -66,6 +66,11 @@ export function ListingCard({
                 {t.constructionBadge}
               </span>
             ) : null}
+            {listing.is_featured &&
+            (!listing.featured_until ||
+              new Date(listing.featured_until).getTime() > Date.now()) ? (
+              <span className="listing-demo-badge listing-boost-badge">{t.boostBadge}</span>
+            ) : null}
           </span>
         </div>
         <div className="meta">
@@ -128,7 +133,14 @@ export function ListingCard({
               <h2 id={`listing-detail-${listing.id}`} className="guide-title">
                 {listing.title}
               </h2>
-              {isDemo ? <span className="listing-demo-badge">{t.demoBadge}</span> : null}
+              <span className="listing-badges">
+                {isDemo ? <span className="listing-demo-badge">{t.demoBadge}</span> : null}
+                {listing.is_featured &&
+                (!listing.featured_until ||
+                  new Date(listing.featured_until).getTime() > Date.now()) ? (
+                  <span className="listing-demo-badge listing-boost-badge">{t.boostBadge}</span>
+                ) : null}
+              </span>
             </div>
             <p className="meta listing-detail-meta">
               {listing.location ?? "—"}

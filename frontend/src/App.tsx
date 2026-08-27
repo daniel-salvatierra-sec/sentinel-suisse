@@ -113,6 +113,7 @@ export default function App() {
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
+  const [boostBanner, setBoostBanner] = useState<"success" | "cancel" | null>(null);
 
   const t = messages[lang];
 
@@ -249,6 +250,17 @@ export default function App() {
         setAccountRefresh((value) => value + 1);
       }
       params.delete("premium");
+    }
+    const boost = params.get("boost");
+    if (boost === "success" || boost === "cancel") {
+      setBoostBanner(boost);
+      if (boost === "success") {
+        setTab("account");
+        setAccountRefresh((value) => value + 1);
+      }
+      params.delete("boost");
+    }
+    if (premium === "success" || premium === "cancel" || boost === "success" || boost === "cancel") {
       const next = params.toString();
       const path = window.location.pathname;
       window.history.replaceState({}, "", next ? `${path}?${next}` : path);
@@ -412,6 +424,23 @@ export default function App() {
             type="button"
             className="linkish"
             onClick={() => setPremiumBanner(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {boostBanner && (
+        <div
+          className={`premium-return-banner is-${boostBanner}`}
+          role="status"
+        >
+          <p>
+            {boostBanner === "success" ? t.boostSuccessBanner : t.boostCancelBanner}
+          </p>
+          <button
+            type="button"
+            className="linkish"
+            onClick={() => setBoostBanner(null)}
           >
             ×
           </button>

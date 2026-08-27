@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from sentinel_suisse.db.session import SessionLocal
 from sentinel_suisse.services.stripe_billing import (
     apply_checkout_completed,
+    apply_feature_checkout_completed,
     apply_subscription_deleted,
 )
 
@@ -22,6 +23,9 @@ def test_billing_config_public(client: TestClient) -> None:
     body = response.json()
     assert "payments_enabled" in body
     assert "twint_enabled" in body
+    assert "feature_boost_enabled" in body
+    assert "feature_boost_days" in body
+    assert body["feature_boost_enabled"] is False
 
 
 def test_billing_status_and_checkout_disabled(
@@ -394,3 +398,177 @@ def test_portal_creates_stripe_session(
     kwargs = create_mock.call_args.kwargs
     assert kwargs["customer"] == "cus_portal_1"
     assert kwargs["return_url"] == "https://linkswiss.ch/?tab=account&premium=portal"
+
+
+def _post_direct_listing(client: TestClient, headers: dict[str, str]) -> int:
+    created = client.post(
+        "/api/v1/me/listings",
+        headers=headers,
+        json={
+            "title": "2.5 pieces boost test",
+            "location": "Geneva",
+            "price": 1800,
+            "rooms": 2.5,
+            "contact_url": "https://example.com/boost",
+            "description": "Boostable flat.",
+        },
+    )
+    assert created.status_code == 201, created.text
+    return int(created.json()["id"])
+
+
+def test_feature_checkout_disabled(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_PRICE_ID", "price_sub")
+    monkeypatch.setenv("STRIPE_FEATURE_PRICE_ID", "")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("feat-off"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    headers = {"X-API-Key": created.json()["api_key"]}
+    listing_id = _post_direct_listing(client, headers)
+
+    response = client.post(
+        "/api/v1/billing/feature-checkout",
+        headers=headers,
+        json={"listing_id": listing_id},
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "feature_payments_disabled"
+
+
+def test_feature_checkout_creates_payment_session(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_FEATURE_PRICE_ID", "price_feature_test")
+    monkeypatch.setenv("STRIPE_FEATURE_DAYS", "7")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("feat-co"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    headers = {"X-API-Key": created.json()["api_key"]}
+    listing_id = _post_direct_listing(client, headers)
+
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/c/pay/cs_feature"
+
+    with patch(
+        "sentinel_suisse.services.stripe_billing.stripe.checkout.Session.create",
+        return_value=mock_session,
+    ) as create_mock:
+        response = client.post(
+            "/api/v1/billing/feature-checkout",
+            headers=headers,
+            json={"listing_id": listing_id},
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["checkout_url"].startswith("https://checkout.stripe.com/")
+    kwargs = create_mock.call_args.kwargs
+    assert kwargs["mode"] == "payment"
+    assert kwargs["line_items"] == [{"price": "price_feature_test", "quantity": 1}]
+    assert kwargs["metadata"]["purpose"] == "feature_listing"
+    assert kwargs["metadata"]["listing_id"] == str(listing_id)
+    assert kwargs["success_url"].endswith("/?boost=success")
+    assert kwargs["cancel_url"].endswith("/?boost=cancel")
+
+
+def test_apply_feature_checkout_marks_listing(
+    client: TestClient, admin_auth: tuple[str, str]
+) -> None:
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("feat-apply"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+    listing_id = _post_direct_listing(client, headers)
+
+    with SessionLocal() as db:
+        listing = apply_feature_checkout_completed(
+            db,
+            {
+                "payment_status": "paid",
+                "metadata": {
+                    "purpose": "feature_listing",
+                    "listing_id": str(listing_id),
+                    "user_id": str(user_id),
+                },
+            },
+            feature_days=7,
+        )
+        assert listing is not None
+        assert listing.is_featured is True
+        assert listing.featured_until is not None
+
+    mine = client.get("/api/v1/me/listings", headers=headers)
+    assert mine.status_code == 200
+    item = next(row for row in mine.json() if row["id"] == listing_id)
+    assert item["is_featured"] is True
+    assert item["featured_until"]
+
+
+def test_stripe_webhook_feature_checkout(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setenv("STRIPE_FEATURE_DAYS", "5")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("feat-hook"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+    listing_id = _post_direct_listing(client, headers)
+
+    event = {
+        "type": "checkout.session.completed",
+        "data": {
+            "object": {
+                "payment_status": "paid",
+                "metadata": {
+                    "purpose": "feature_listing",
+                    "listing_id": str(listing_id),
+                    "user_id": str(user_id),
+                },
+            }
+        },
+    }
+
+    with patch(
+        "sentinel_suisse.api.routes.stripe_webhooks.construct_event",
+        return_value=event,
+    ):
+        response = client.post(
+            "/api/v1/webhooks/stripe",
+            content=b"{}",
+            headers={"Stripe-Signature": "t=1,v1=x"},
+        )
+
+    assert response.status_code == 200, response.text
+    mine = client.get("/api/v1/me/listings", headers=headers)
+    item = next(row for row in mine.json() if row["id"] == listing_id)
+    assert item["is_featured"] is True

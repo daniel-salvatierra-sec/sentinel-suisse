@@ -11,6 +11,7 @@ from sentinel_suisse.config import Settings, get_settings
 from sentinel_suisse.services.stripe_billing import (
     BillingError,
     apply_checkout_completed,
+    apply_feature_checkout_completed,
     apply_subscription_deleted,
     construct_event,
 )
@@ -46,7 +47,16 @@ async def stripe_webhook(
     logger.info("stripe_webhook type=%s", event_type)
 
     if event_type == "checkout.session.completed":
-        apply_checkout_completed(db, dict(data_object))
+        session_obj = dict(data_object)
+        metadata = session_obj.get("metadata") or {}
+        if metadata.get("purpose") == "feature_listing":
+            apply_feature_checkout_completed(
+                db,
+                session_obj,
+                feature_days=settings.stripe_feature_days,
+            )
+        else:
+            apply_checkout_completed(db, session_obj)
     elif event_type in {"customer.subscription.deleted", "customer.subscription.paused"}:
         apply_subscription_deleted(db, dict(data_object))
 

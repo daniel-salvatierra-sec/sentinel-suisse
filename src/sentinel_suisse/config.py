@@ -182,6 +182,9 @@ class Settings(BaseSettings):
     stripe_launch_promo_code: str = ""
     stripe_launch_promo_percent: int = 50
     stripe_launch_promo_months: int = 3
+    # One-time "boost / feature listing" Checkout (mode=payment).
+    stripe_feature_price_id: str = ""
+    stripe_feature_days: int = 7
     # Optional production error tracking
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.0
@@ -216,6 +219,9 @@ class Settings(BaseSettings):
 
     def stripe_payments_enabled(self) -> bool:
         return bool(self.stripe_secret_key and self.stripe_price_id)
+
+    def stripe_feature_payments_enabled(self) -> bool:
+        return bool(self.stripe_secret_key and self.stripe_feature_price_id)
 
     def assistant_is_enabled(self) -> bool:
         return bool(self.assistant_api_key)

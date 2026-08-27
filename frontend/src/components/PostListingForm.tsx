@@ -1,8 +1,11 @@
 import { useEffect, useState, type FormEvent } from "react";
 import {
+  createFeatureCheckoutSession,
   createMyListing,
   deleteMyListing,
+  fetchBillingConfig,
   fetchMyListings,
+  listingIsBoosted,
   type Listing,
   type ListingType,
 } from "../api";
@@ -43,8 +46,11 @@ export function PostListingForm({ t, listingType }: Props) {
   const [contactUrl, setContactUrl] = useState("");
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
+  const [boostBusyId, setBoostBusyId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [boostEnabled, setBoostEnabled] = useState(false);
+  const [boostDays, setBoostDays] = useState(7);
 
   const reload = () => {
     void fetchMyListings()
@@ -55,6 +61,22 @@ export function PostListingForm({ t, listingType }: Props) {
   useEffect(() => {
     reload();
   }, [listingType]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchBillingConfig()
+      .then((cfg) => {
+        if (cancelled) return;
+        setBoostEnabled(Boolean(cfg.feature_boost_enabled));
+        if (cfg.feature_boost_days) setBoostDays(cfg.feature_boost_days);
+      })
+      .catch(() => {
+        if (!cancelled) setBoostEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -93,10 +115,27 @@ export function PostListingForm({ t, listingType }: Props) {
     }
   };
 
+  const onBoost = async (listingId: number) => {
+    setBoostBusyId(listingId);
+    setError(null);
+    try {
+      const { checkout_url } = await createFeatureCheckoutSession(listingId);
+      window.location.assign(checkout_url);
+    } catch {
+      setError(t.boostCheckoutError);
+      setBoostBusyId(null);
+    }
+  };
+
   return (
     <section className="post-listing">
       <h3>{isJob ? t.postJobTitle : t.postListingTitle}</h3>
       <p className="plan-hint">{isJob ? t.postJobHint : t.postListingHint}</p>
+      {boostEnabled ? (
+        <p className="plan-hint boost-hint">
+          {t.boostHint.replace("{days}", String(boostDays))}
+        </p>
+      ) : null}
       <form onSubmit={(event) => void onSubmit(event)}>
         <label>
           {isJob ? t.postJobTitleField : t.postListingTitleField}
@@ -207,24 +246,44 @@ export function PostListingForm({ t, listingType }: Props) {
       {mine.length === 0 ? (
         <p className="empty">{isJob ? t.postJobEmpty : t.postListingEmpty}</p>
       ) : (
-        mine.map((item) => (
-          <article key={item.id} className="listing-card account-search">
-            <h4>{item.title}</h4>
-            <div className="meta">
-              {item.location}
-              {item.price != null ? ` · ${item.price}` : ""}
-            </div>
-            <button
-              type="button"
-              className="danger-btn"
-              onClick={() => {
-                void deleteMyListing(item.id).then(reload);
-              }}
-            >
-              {t.postListingDelete}
-            </button>
-          </article>
-        ))
+        mine.map((item) => {
+          const boosted = listingIsBoosted(item);
+          return (
+            <article key={item.id} className="listing-card account-search">
+              <h4>
+                {item.title}
+                {boosted ? (
+                  <span className="listing-demo-badge listing-boost-badge">{t.boostBadge}</span>
+                ) : null}
+              </h4>
+              <div className="meta">
+                {item.location}
+                {item.price != null ? ` · ${item.price}` : ""}
+              </div>
+              <div className="account-search-actions">
+                {boostEnabled && !boosted ? (
+                  <button
+                    type="button"
+                    className="apply-btn"
+                    disabled={boostBusyId === item.id}
+                    onClick={() => void onBoost(item.id)}
+                  >
+                    {boostBusyId === item.id ? t.boostPaying : t.boostCta}
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  className="danger-btn"
+                  onClick={() => {
+                    void deleteMyListing(item.id).then(reload);
+                  }}
+                >
+                  {t.postListingDelete}
+                </button>
+              </div>
+            </article>
+          );
+        })
       )}
     </section>
   );

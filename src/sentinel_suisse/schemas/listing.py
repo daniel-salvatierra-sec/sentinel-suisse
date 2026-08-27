@@ -93,6 +93,8 @@ class ListingRead(BaseModel):
     source_url: str
     content_hash: str
     fetched_at: datetime
+    is_featured: bool = False
+    featured_until: datetime | None = None
     # Loaded from ORM for is_demo; never exposed in JSON.
     raw_payload: dict | None = Field(default=None, exclude=True)
 

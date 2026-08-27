@@ -27,7 +27,15 @@ export type Listing = {
   workload_min?: number | null;
   workload_max?: number | null;
   is_demo?: boolean;
+  is_featured?: boolean;
+  featured_until?: string | null;
 };
+
+export function listingIsBoosted(listing: Listing): boolean {
+  if (!listing.is_featured) return false;
+  if (!listing.featured_until) return true;
+  return new Date(listing.featured_until).getTime() > Date.now();
+}
 
 export type SearchSort = "newest" | "price_asc" | "price_desc";
 
@@ -315,6 +323,8 @@ export type BillingConfig = {
   launch_promo_code?: string | null;
   launch_promo_percent?: number | null;
   launch_promo_months?: number | null;
+  feature_boost_enabled?: boolean;
+  feature_boost_days?: number;
 };
 
 export type BillingStatus = BillingConfig & {
@@ -348,6 +358,34 @@ export async function createCheckoutSession(
       "Content-Type": "application/json",
     },
     body: JSON.stringify(trimmed ? { promotion_code: trimmed } : {}),
+  });
+  if (!response.ok) {
+    let message = `request failed: ${response.status}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.json() as Promise<{ checkout_url: string }>;
+}
+
+export async function createFeatureCheckoutSession(
+  listingId: number,
+): Promise<{ checkout_url: string }> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch("/api/v1/billing/feature-checkout", {
+    method: "POST",
+    headers: {
+      "X-API-Key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ listing_id: listingId }),
   });
   if (!response.ok) {
     let message = `request failed: ${response.status}`;
