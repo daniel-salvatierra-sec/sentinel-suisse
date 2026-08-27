@@ -176,6 +176,8 @@ class Settings(BaseSettings):
     stripe_webhook_secret: str = ""
     stripe_price_id: str = ""
     stripe_enable_twint: bool = True
+    # Show "Add promotion code" on hosted Checkout (create 50% coupon in Dashboard).
+    stripe_allow_promotion_codes: bool = True
     # Optional production error tracking
     sentry_dsn: str = ""
     sentry_traces_sample_rate: float = 0.0

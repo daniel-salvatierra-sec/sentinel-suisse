@@ -73,6 +73,7 @@ export function PremiumUpsell({ t, compact = false }: Props) {
         <li>{t.premiumBenefitWhatsapp}</li>
       </ul>
       <p className="premium-upsell-price">{t.premiumUpsellPrice}</p>
+      <p className="premium-upsell-promo">{t.premiumPromoHint}</p>
       <button
         type="button"
         className="apply-btn"

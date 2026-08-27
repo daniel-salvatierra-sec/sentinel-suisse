@@ -307,6 +307,7 @@
   "premiumUpsellTitle": "Alertas Premium",
   "premiumUpsellDesc": "Se não encontrares, ativa alertas pagas: empregos diários, apartamentos livres e projetos novos prontos a candidatar.",
   "premiumUpsellPrice": "Desde CHF 9.90 / mês (cartão ou TWINT via Stripe)",
+  "premiumPromoHint": "No pagamento podes aplicar um código promo (ex. 50 % de lançamento).",
   "premiumBenefitJobs": "Alertas de emprego diárias",
   "premiumBenefitHousing": "Apartamentos livres perto de ti",
   "premiumBenefitConstruction": "Projetos novos prontos a candidatar",

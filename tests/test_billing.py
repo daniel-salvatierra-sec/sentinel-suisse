@@ -266,6 +266,7 @@ def test_checkout_creates_stripe_session(
     create_mock.assert_called_once()
     kwargs = create_mock.call_args.kwargs
     assert kwargs["mode"] == "subscription"
+    assert kwargs["allow_promotion_codes"] is True
     assert kwargs["payment_method_types"] == ["card", "twint"]
     assert kwargs["payment_method_options"] == {
         "twint": {"setup_future_usage": "off_session"},

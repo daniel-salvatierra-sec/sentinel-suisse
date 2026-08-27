@@ -319,6 +319,7 @@ export type Messages = {
   premiumUpsellTitle: string;
   premiumUpsellDesc: string;
   premiumUpsellPrice: string;
+  premiumPromoHint: string;
   premiumBenefitJobs: string;
   premiumBenefitHousing: string;
   premiumBenefitConstruction: string;

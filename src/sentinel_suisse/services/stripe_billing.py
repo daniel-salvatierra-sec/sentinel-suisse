@@ -44,6 +44,7 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
         "customer_email": email,
         "metadata": {"user_id": str(user.id)},
         "subscription_data": {"metadata": {"user_id": str(user.id)}},
+        "allow_promotion_codes": settings.stripe_allow_promotion_codes,
     }
     if user.stripe_customer_id:
         params["customer"] = user.stripe_customer_id

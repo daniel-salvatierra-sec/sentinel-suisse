@@ -307,6 +307,7 @@
   "premiumUpsellTitle": "Premium-Alerts",
   "premiumUpsellDesc": "Wenn du nichts findest, aktiviere bezahlte Alerts: tägliche Jobs, freie Wohnungen und Neuvermietungen.",
   "premiumUpsellPrice": "Ab CHF 9.90 / Monat (Karte oder TWINT via Stripe)",
+  "premiumPromoHint": "Beim Bezahlen kannst du einen Promo-Code eingeben (z. B. 50 % Launch).",
   "premiumBenefitJobs": "Tägliche Job-Alerts",
   "premiumBenefitHousing": "Freie Wohnungen in deiner Nähe",
   "premiumBenefitConstruction": "Neuvermietung / Neubauprojekte",

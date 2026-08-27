@@ -306,6 +306,7 @@
   "premiumUpsellTitle": "Premium alerts",
   "premiumUpsellDesc": "When you do not find a match, activate paid alerts: daily jobs, free flats, and new-build projects open for applications.",
   "premiumUpsellPrice": "From CHF 9.90 / month (card or TWINT via Stripe)",
+  "premiumPromoHint": "At checkout you can enter a promo code (e.g. 50% launch offer).",
   "premiumBenefitJobs": "Daily job alerts",
   "premiumBenefitHousing": "Available apartments near you",
   "premiumBenefitConstruction": "New projects ready to apply",
