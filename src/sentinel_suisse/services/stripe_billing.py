@@ -51,7 +51,11 @@ def create_checkout_session(db: Session, user: User, settings: Settings) -> str:
 
     if settings.stripe_enable_twint:
         # Card + TWINT (CH) when enabled in the Stripe Dashboard.
+        # setup_future_usage is required for recurring TWINT subscriptions.
         params["payment_method_types"] = ["card", "twint"]
+        params["payment_method_options"] = {
+            "twint": {"setup_future_usage": "off_session"},
+        }
     # else: omit payment_method_types entirely so Stripe uses whatever
     # payment methods are enabled in the Dashboard (e.g. card only while
     # TWINT is pending approval). Checkout Sessions don't accept the
@@ -104,8 +108,19 @@ def apply_checkout_completed(db: Session, session_obj: dict[str, Any]) -> User |
         logger.warning("stripe checkout user not found id=%s", user_id)
         return None
 
-    customer = session_obj.get("customer")
+    payment_status = session_obj.get("payment_status")
     subscription = session_obj.get("subscription")
+    # Card checkouts are usually "paid". Async methods (e.g. TWINT) may be
+    # "unpaid" briefly but still create a subscription — activate only if
+    # Stripe already attached one; otherwise wait for a later event.
+    if payment_status == "unpaid" and not subscription:
+        logger.warning(
+            "stripe checkout unpaid without subscription user_id=%s",
+            user_id,
+        )
+        return None
+
+    customer = session_obj.get("customer")
     if isinstance(customer, str) and customer:
         user.stripe_customer_id = customer
     if isinstance(subscription, str) and subscription:

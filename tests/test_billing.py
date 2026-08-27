@@ -127,6 +127,36 @@ def test_apply_checkout_and_subscription_lifecycle(
     assert me2.json()["is_premium"] is False
 
 
+def test_apply_checkout_skips_unpaid_without_subscription(
+    client: TestClient, admin_auth: tuple[str, str]
+) -> None:
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("unpaid"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    db = SessionLocal()
+    try:
+        user = apply_checkout_completed(
+            db,
+            {
+                "metadata": {"user_id": str(user_id)},
+                "payment_status": "unpaid",
+                "customer": "cus_unpaid",
+            },
+        )
+        assert user is None
+    finally:
+        db.close()
+
+    me = client.get("/api/v1/users/me", headers=headers)
+    assert me.json()["is_premium"] is False
+
+
 def test_stripe_webhook_rejects_bad_signature(client: TestClient, monkeypatch) -> None:
     monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
     from sentinel_suisse.config import get_settings
@@ -237,6 +267,9 @@ def test_checkout_creates_stripe_session(
     kwargs = create_mock.call_args.kwargs
     assert kwargs["mode"] == "subscription"
     assert kwargs["payment_method_types"] == ["card", "twint"]
+    assert kwargs["payment_method_options"] == {
+        "twint": {"setup_future_usage": "off_session"},
+    }
 
 
 def test_portal_requires_stripe_customer(
