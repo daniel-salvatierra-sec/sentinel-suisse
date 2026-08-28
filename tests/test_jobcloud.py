@@ -2,10 +2,14 @@
 
 from pathlib import Path
 
+from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.connectors.embed import extract_json_ld_job_postings
 from sentinel_suisse.ingest.connectors.jobcloud import (
+    build_search_url,
     employment_type_from_text,
+    iter_search_urls,
     map_json_ld_job_posting,
+    split_csv,
     workload_from_title,
 )
 from sentinel_suisse.models.enums import EmploymentType
@@ -45,3 +49,33 @@ def test_workload_from_title() -> None:
 def test_employment_type_from_french_label() -> None:
     assert employment_type_from_text("Durée indéterminée") == EmploymentType.PERMANENT
     assert employment_type_from_text("Temporaire") == EmploymentType.TEMPORARY
+
+
+def test_build_search_url() -> None:
+    url = build_search_url(
+        "https://www.jobup.ch",
+        "/fr/emplois/",
+        location="Genève",
+        term="magasinier",
+        page=2,
+    )
+    assert url.startswith("https://www.jobup.ch/fr/emplois/?")
+    assert "location=Gen" in url
+    assert "term=magasinier" in url
+    assert "page=2" in url
+
+
+def test_iter_search_urls_counts() -> None:
+    settings = Settings(jobcloud_max_pages=2, jobcloud_role_keywords="magasinier,cariste")
+    urls = list(
+        iter_search_urls(
+            settings,
+            base_url="https://www.jobup.ch",
+            search_path="/fr/emplois/",
+            locations_csv="Genève,Zurich",
+            role_locations_csv="Genève",
+        )
+    )
+    # 2 cities * 2 pages + 1 city * 2 role terms
+    assert len(urls) == 6
+    assert split_csv("a, b,a") == ["a", "b"]

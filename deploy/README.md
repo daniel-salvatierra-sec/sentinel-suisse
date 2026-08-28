@@ -103,6 +103,8 @@ Example cron on VPS:
 5 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh flatfox >> /var/log/linkswiss-ingest.log 2>&1
 ```
 
+`jobup` / `jobs` crawl ~40 Swiss cities (3 pages each) plus logistics keyword passes — each hourly run may take several minutes. Tune with `JOBCLOUD_MAX_PAGES`, `JOBUP_LOCATIONS`, and `INGEST_RATE_LIMIT_SECONDS` in `.env` if needed.
+
 `run-ingest.sh` only works for connectors enabled via `INGEST_<PROVIDER>_LIVE=true` in
 `.env` — it's a no-op error (nonzero exit, logged) otherwise, so a disabled connector's
 cron entry stays harmless.

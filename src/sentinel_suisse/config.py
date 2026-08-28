@@ -68,7 +68,10 @@ class Settings(BaseSettings):
     france_travail_client_id: str = ""
     france_travail_client_secret: str = ""
     france_travail_departement: str = "74"
-    france_travail_keywords: str = ""
+    france_travail_keywords: str = (
+        "magasinier,logistique,chauffeur,manutention,cariste,approvisionnement"
+    )
+    france_travail_max_pages: int = 4
     # Adzuna — official self-serve job-board aggregator API (developer.adzuna.com), built
     # specifically for redistributing job ads on third-party sites. Not scraping.
     ingest_adzuna_live: bool = False
@@ -84,7 +87,7 @@ class Settings(BaseSettings):
         "magasinier,cariste,logistique,logisticien,acheteur,approvisionnement,livreur"
     )
     adzuna_role_locations: str = "Geneve,Zurich,Basel,Lausanne,Bern"
-    adzuna_role_max_pages: int = 1
+    adzuna_role_max_pages: int = 2
     # Comma-separated Swiss cities for one Adzuna CH run. Empty = ADZUNA_LOCATION only.
     adzuna_locations: str = (
         "Geneve,Zurich,Bern,Basel,Lausanne,Lugano,"
@@ -166,6 +169,28 @@ class Settings(BaseSettings):
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"
     jobup_search_url: str = "https://www.jobup.ch/fr/emplois/?location=Gen%C3%A8ve"
+    # JobCloud (jobup.ch + jobs.ch): multi-city crawl + optional role keyword passes.
+    jobcloud_max_pages: int = 3
+    jobcloud_role_keywords: str = (
+        "magasinier,cariste,logistique,logisticien,acheteur,approvisionnement,"
+        "chauffeur,livreur,manutention"
+    )
+    jobup_locations: str = (
+        "Genève,Zurich,Bern,Basel,Lausanne,Lugano,Luzern,St. Gallen,Winterthur,"
+        "Fribourg,Neuchâtel,Nyon,Morges,Vevey,Montreux,Yverdon,Biel,Zug,Sion,"
+        "Chur,Schaffhausen,Thun,Aarau,La Chaux-de-Fonds,Olten,Baden,Wil,Uster,"
+        "Solothurn,Locarno,Mendrisio,Interlaken,Langenthal,Frauenfeld,Bulle,"
+        "Martigny,Sierre,Monthey,Delémont,Brig,Schwyz,Emmen,Dietikon,Horgen"
+    )
+    jobs_locations: str = (
+        "Geneva,Zurich,Bern,Basel,Lausanne,Lugano,Lucerne,St. Gallen,Winterthur,"
+        "Fribourg,Neuchatel,Nyon,Morges,Vevey,Montreux,Yverdon,Biel,Zug,Sion,"
+        "Chur,Schaffhausen,Thun,Aarau,La Chaux-de-Fonds,Olten,Baden,Wil,Uster,"
+        "Solothurn,Locarno,Mendrisio,Interlaken,Langenthal,Frauenfeld,Bulle,"
+        "Martigny,Sierre,Monthey,Delemont,Brig,Schwyz,Emmen,Dietikon,Horgen"
+    )
+    jobcloud_role_locations_jobup: str = "Genève,Zurich,Basel,Lausanne,Bern,Nyon"
+    jobcloud_role_locations_jobs: str = "Geneva,Zurich,Basel,Lausanne,Bern,Nyon"
     leboncoin_search_url: str = (
         "https://www.leboncoin.fr/recherche"
         "?category=10&locations=Annemasse_74100__45.9024_6.2364_5000"

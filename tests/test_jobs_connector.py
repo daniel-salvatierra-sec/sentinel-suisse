@@ -46,7 +46,7 @@ def test_fetch_raises_when_live_disabled() -> None:
         fetch_search_listings(settings)
 
 
-@patch("sentinel_suisse.ingest.connectors.jobs.httpx.get")
+@patch("sentinel_suisse.ingest.connectors.jobcloud.httpx.get")
 def test_fetch_jobs_listings_when_enabled(mock_get: MagicMock) -> None:
     state = json.loads(_FIXTURE_STATE.read_text(encoding="utf-8"))
     html = f"<html><script>window.__NEXT_DATA__={json.dumps(state)};</script></html>"
@@ -56,6 +56,9 @@ def test_fetch_jobs_listings_when_enabled(mock_get: MagicMock) -> None:
     mock_get.return_value = mock_response
 
     settings = Settings(ingest_jobs_live=True, ingest_rate_limit_seconds=0)
-    listings = fetch_search_listings(settings)
+    listings = fetch_search_listings(
+        settings,
+        search_url="https://www.jobs.ch/en/vacancies/?location=Geneva",
+    )
     assert len(listings) == 2
     mock_get.assert_called_once()

@@ -1,13 +1,12 @@
 """Extract job vacancies from jobup.ch search page embedded JSON."""
 
-import time
 from typing import Any
 
-import httpx
-
 from sentinel_suisse.config import Settings
-from sentinel_suisse.ingest.connectors.embed import EmbedParseError
-from sentinel_suisse.ingest.connectors.jobcloud import parse_jobcloud_search_html
+from sentinel_suisse.ingest.connectors.jobcloud import (
+    fetch_jobcloud_listings,
+    parse_jobcloud_search_html,
+)
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import EmploymentType, ListingType
 from sentinel_suisse.services.job_taxonomy import classify_job_category
@@ -185,18 +184,17 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
         msg = "Live jobup.ch ingest is disabled (set INGEST_JOBUP_LIVE=true)"
         raise JobupDisabledError(msg)
 
-    url = search_url or settings.jobup_search_url
-    headers = {"User-Agent": settings.ingest_user_agent}
-    try:
-        time.sleep(settings.ingest_rate_limit_seconds)
-        response = httpx.get(url, headers=headers, timeout=30.0, follow_redirects=True)
-        response.raise_for_status()
-    except httpx.HTTPError as exc:
-        msg = f"jobup.ch request failed: {exc}"
-        raise JobupFetchError(msg) from exc
-
-    try:
-        return parse_search_html(response.text)
-    except EmbedParseError as exc:
-        msg = f"jobup.ch page parse failed: {exc}"
-        raise JobupFetchError(msg) from exc
+    return fetch_jobcloud_listings(
+        settings,
+        source="jobup",
+        base_url=_JOBUP_BASE,
+        search_path="/fr/emplois/",
+        state_markers=_STATE_MARKERS,
+        parse_state=parse_search_state,
+        default_detail_path="/fr/emplois/detail/{job_id}/",
+        locations_csv=settings.jobup_locations,
+        role_locations_csv=settings.jobcloud_role_locations_jobup,
+        search_url=search_url,
+        provider_label="jobup.ch",
+        fetch_error=JobupFetchError,
+    )

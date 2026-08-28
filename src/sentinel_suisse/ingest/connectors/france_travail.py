@@ -137,32 +137,46 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
         raise FranceTravailDisabledError(msg)
 
     token = _fetch_access_token(settings)
-    params: dict[str, str] = {"range": "0-49"}
-    if settings.france_travail_departement:
-        params["departement"] = settings.france_travail_departement
-    if settings.france_travail_keywords:
-        params["motsCles"] = settings.france_travail_keywords
-
     headers = {
         "Authorization": f"Bearer {token}",
         "User-Agent": settings.ingest_user_agent,
     }
-    try:
-        time.sleep(settings.ingest_rate_limit_seconds)
-        response = httpx.get(_SEARCH_URL, headers=headers, params=params, timeout=30.0)
-        # 204 = no results for this search. 206 = normal "paged results" response.
-        if response.status_code == 204:
-            return []
-        if response.status_code not in (200, 206):
-            response.raise_for_status()
-    except httpx.HTTPError as exc:
-        msg = f"France Travail search request failed: {exc}"
-        raise FranceTravailFetchError(msg) from exc
+    parsed: list[RawListing] = []
+    seen: set[str] = set()
+    page_size = 50
+    for page_index in range(settings.france_travail_max_pages):
+        start = page_index * page_size
+        end = start + page_size - 1
+        params: dict[str, str] = {"range": f"{start}-{end}"}
+        if settings.france_travail_departement:
+            params["departement"] = settings.france_travail_departement
+        if settings.france_travail_keywords:
+            params["motsCles"] = settings.france_travail_keywords
+        try:
+            time.sleep(settings.ingest_rate_limit_seconds)
+            response = httpx.get(_SEARCH_URL, headers=headers, params=params, timeout=30.0)
+            if response.status_code == 204:
+                break
+            if response.status_code not in (200, 206):
+                response.raise_for_status()
+        except httpx.HTTPError as exc:
+            msg = f"France Travail search request failed: {exc}"
+            raise FranceTravailFetchError(msg) from exc
 
-    try:
-        payload = response.json()
-    except ValueError as exc:
-        msg = f"France Travail search response was not valid JSON: {exc}"
-        raise FranceTravailFetchError(msg) from exc
+        try:
+            payload = response.json()
+        except ValueError as exc:
+            msg = f"France Travail search response was not valid JSON: {exc}"
+            raise FranceTravailFetchError(msg) from exc
 
-    return parse_search_response(payload)
+        batch = parse_search_response(payload)
+        if not batch:
+            break
+        for item in batch:
+            if item.external_id in seen:
+                continue
+            seen.add(item.external_id)
+            parsed.append(item)
+        if len(batch) < page_size:
+            break
+    return parsed

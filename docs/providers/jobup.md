@@ -27,6 +27,6 @@ python -m sentinel_suisse.ingest --provider jobup --live
 
 ## Limitations (MVP)
 
-- Single search page per run (no pagination)
-- Live shape may change — fixture ingest remains the reliable path
+- Up to `JOBCLOUD_MAX_PAGES` (default 3) per city per hourly run, plus extra role-keyword passes for logistics hubs
+- Live HTML shape may change — fixture ingest remains the reliable path
 - Provider name is never shown in the public UI

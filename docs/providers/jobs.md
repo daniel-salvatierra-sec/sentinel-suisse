@@ -28,5 +28,5 @@ python -m sentinel_suisse.ingest --provider jobs --live
 
 ## Limitations (MVP)
 
-- Single search page per run
+- Multi-city crawl with pagination (`JOBCLOUD_MAX_PAGES`, default 3) plus role-keyword passes
 - Live HTML shape may change — parser tries multiple embedded markers
