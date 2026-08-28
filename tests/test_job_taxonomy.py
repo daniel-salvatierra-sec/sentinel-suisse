@@ -4,6 +4,7 @@ from sentinel_suisse.services.job_taxonomy import (
     canonical_job_category,
     classify_job_category,
     job_category_matches,
+    title_needles_for_filter,
 )
 
 
@@ -71,6 +72,26 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("Unknown", "Florist/-in EFZ, BP oder HFP") == "florist"
     assert classify_job_category("Unknown", "Fleuriste 80%") == "florist"
     assert classify_job_category("sales", "Caissière-vendeuse / caissier-vendeur") == "cashier"
+
+
+def test_logistics_and_purchasing_titles() -> None:
+    assert classify_job_category("Unknown", "Acheteur industriel H/F") == "purchasing"
+    assert classify_job_category("Unknown", "Responsable approvisionnement") == "purchasing"
+    assert classify_job_category("logistics", "Magasinier / cariste") == "warehouse"
+    assert classify_job_category("Unknown", "Préparateur de commandes") == "warehouse"
+    assert classify_job_category("Unknown", "Logisticien supply chain") == "purchasing"
+    assert job_category_matches("other", "warehouse", "Magasinier entrepôt") is True
+    assert job_category_matches("logistics", "purchasing", "Acheteur junior") is True
+    assert job_category_matches("logistics", "warehouse", "Acheteur junior") is False
+
+
+def test_purchasing_title_needles() -> None:
+    needles = title_needles_for_filter("purchasing")
+    assert "%acheteur%" in needles
+    assert "%approvisionnement%" in needles
+    warehouse_needles = title_needles_for_filter("warehouse")
+    assert "%magasinier%" in warehouse_needles
+    assert "%stockiste%" in warehouse_needles
 
 
 def test_title_refines_transport_alerts() -> None:

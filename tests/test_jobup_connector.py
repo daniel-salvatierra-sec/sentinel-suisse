@@ -23,8 +23,8 @@ def test_parse_search_state_from_fixture() -> None:
     assert len(listings) == 2
     assert listings[0].external_id == "ju-state-001"
     assert listings[0].title.startswith("DevOps")
+    assert listings[0].job_category == "software"
     assert listings[0].location == "Geneva"
-    assert listings[0].job_category == "it"
     assert listings[0].employment_type == EmploymentType.PERMANENT
     assert listings[0].workload_min == 80
     assert listings[0].workload_max == 100

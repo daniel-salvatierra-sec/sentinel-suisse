@@ -24,6 +24,7 @@ def test_parse_jobs_state_from_fixture() -> None:
     assert listings[0].listing_type == ListingType.JOB
     assert listings[0].external_id == "7d5597bc-9ec1-412a-9a81-33afacd9bb1c"
     assert listings[0].title.startswith("Software Engineer")
+    assert listings[0].job_category == "software"
     assert listings[0].location == "Geneva"
     assert listings[0].price is None
     assert str(listings[0].source_url).startswith("https://www.jobs.ch/")

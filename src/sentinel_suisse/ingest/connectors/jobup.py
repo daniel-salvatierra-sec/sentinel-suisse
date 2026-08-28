@@ -9,6 +9,7 @@ from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.connectors.embed import EmbedParseError, extract_first_state
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import EmploymentType, ListingType
+from sentinel_suisse.services.job_taxonomy import classify_job_category
 
 _JOBUP_BASE = "https://www.jobup.ch"
 _STATE_MARKERS = (
@@ -79,14 +80,16 @@ def _map_vacancy(vacancy: dict[str, Any]) -> RawListing | None:
     if isinstance(location, dict):
         location = location.get("name") or location.get("city")
 
+    title_str = str(title)[:300]
+    portal_category = _pick_job_category(vacancy)
     return RawListing(
         external_id=str(job_id),
         listing_type=ListingType.JOB,
-        title=str(title)[:300],
+        title=title_str,
         description=str(description)[:10000] if description else None,
         location=str(location)[:200] if location else None,
         price=None,
-        job_category=_pick_job_category(vacancy),
+        job_category=classify_job_category(portal_category, title_str),
         employment_type=_pick_employment_type(vacancy),
         workload_min=_pick_workload(vacancy, "min"),
         workload_max=_pick_workload(vacancy, "max"),

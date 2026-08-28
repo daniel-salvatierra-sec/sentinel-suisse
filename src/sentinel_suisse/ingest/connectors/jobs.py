@@ -9,6 +9,7 @@ from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.connectors.embed import EmbedParseError, extract_first_state
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.services.job_taxonomy import classify_job_category
 
 _JOBS_BASE = "https://www.jobs.ch"
 _STATE_MARKERS = (
@@ -81,13 +82,15 @@ def _map_vacancy(vacancy: dict[str, Any]) -> RawListing | None:
         if isinstance(location_obj, dict):
             location = location_obj.get("name") or location_obj.get("city")
 
+    title_str = str(title)[:300]
     return RawListing(
         external_id=str(job_id),
         listing_type=ListingType.JOB,
-        title=str(title)[:300],
+        title=title_str,
         description=str(description)[:10000] if description else None,
         location=str(location)[:200] if location else None,
         price=None,
+        job_category=classify_job_category(None, title_str),
         source_url=_pick_source_url(vacancy, job_id),
         raw_payload={"source": "jobs", "job_id": str(job_id)},
     )
