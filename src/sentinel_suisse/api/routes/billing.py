@@ -10,11 +10,14 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.user import User
+from sentinel_suisse.schemas.sponsor_ad import SponsorCheckoutRequest
+from sentinel_suisse.services.sponsor_ads import create_pending_sponsor
 from sentinel_suisse.services.stripe_billing import (
     BillingError,
     create_billing_portal_session,
     create_checkout_session,
     create_feature_checkout_session,
+    create_sponsor_checkout_session,
 )
 
 router = APIRouter(prefix="/billing", tags=["billing"])
@@ -28,6 +31,8 @@ class BillingConfig(BaseModel):
     launch_promo_months: int | None = None
     feature_boost_enabled: bool = False
     feature_boost_days: int = 7
+    sponsor_ads_enabled: bool = False
+    sponsor_ad_days: int = 30
 
 
 class BillingStatus(BaseModel):
@@ -39,6 +44,8 @@ class BillingStatus(BaseModel):
     launch_promo_months: int | None = None
     feature_boost_enabled: bool = False
     feature_boost_days: int = 7
+    sponsor_ads_enabled: bool = False
+    sponsor_ad_days: int = 30
 
 
 class CheckoutRequest(BaseModel):
@@ -79,6 +86,13 @@ def _feature_fields(settings) -> dict[str, bool | int]:
     }
 
 
+def _sponsor_fields(settings) -> dict[str, bool | int]:
+    return {
+        "sponsor_ads_enabled": settings.stripe_sponsor_payments_enabled(),
+        "sponsor_ad_days": settings.stripe_sponsor_days,
+    }
+
+
 @router.get("/config", response_model=BillingConfig)
 @limiter.limit(lambda: get_settings().rate_limit)
 def billing_config(request: Request) -> BillingConfig:
@@ -89,6 +103,7 @@ def billing_config(request: Request) -> BillingConfig:
         twint_enabled=settings.stripe_enable_twint,
         **_launch_promo_fields(settings),
         **_feature_fields(settings),
+        **_sponsor_fields(settings),
     )
 
 
@@ -105,6 +120,7 @@ def billing_status(
         twint_enabled=settings.stripe_enable_twint,
         **_launch_promo_fields(settings),
         **_feature_fields(settings),
+        **_sponsor_fields(settings),
     )
 
 
@@ -165,6 +181,35 @@ def start_feature_checkout(
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE
             if exc.code == "feature_payments_disabled"
+            else status.HTTP_400_BAD_REQUEST,
+            detail=exc.code,
+        ) from exc
+    return CheckoutResponse(checkout_url=url)
+
+
+@router.post("/sponsor-checkout", response_model=CheckoutResponse)
+@limiter.limit("10/minute")
+def start_sponsor_checkout(
+    request: Request,
+    payload: SponsorCheckoutRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CheckoutResponse:
+    settings = get_settings()
+    sponsor = create_pending_sponsor(db, current_user, payload)
+    try:
+        url = create_sponsor_checkout_session(
+            db,
+            sponsor=sponsor,
+            user=current_user,
+            settings=settings,
+        )
+    except BillingError as exc:
+        db.delete(sponsor)
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE
+            if exc.code == "sponsor_payments_disabled"
             else status.HTTP_400_BAD_REQUEST,
             detail=exc.code,
         ) from exc

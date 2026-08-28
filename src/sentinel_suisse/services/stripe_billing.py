@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from sentinel_suisse.config import Settings
 from sentinel_suisse.models.listing import Listing
+from sentinel_suisse.models.sponsor_ad import SponsorAd
 from sentinel_suisse.models.user import User
 from sentinel_suisse.security.pii import decrypt_pii
 
@@ -300,6 +301,133 @@ def apply_feature_checkout_completed(
         listing.featured_until,
     )
     return listing
+
+
+def create_sponsor_checkout_session(
+    db: Session,
+    *,
+    sponsor: SponsorAd,
+    user: User,
+    settings: Settings,
+) -> str:
+    """One-time payment Checkout to publish a sponsor banner."""
+    if not settings.stripe_sponsor_payments_enabled():
+        raise BillingError("sponsor_payments_disabled", "Sponsor ads checkout is not configured.")
+    if sponsor.owner_user_id != user.id:
+        raise BillingError("sponsor_forbidden", "You can only pay for your own sponsor ads.")
+    if sponsor.is_active:
+        raise BillingError("sponsor_already_active", "This sponsor ad is already live.")
+
+    _configure_stripe(settings)
+    base = settings.public_app_url.rstrip("/")
+    email = decrypt_pii(user.email)
+    params: dict[str, Any] = {
+        "mode": "payment",
+        "line_items": [{"price": settings.stripe_sponsor_price_id, "quantity": 1}],
+        "success_url": f"{base}/?sponsor=success",
+        "cancel_url": f"{base}/?sponsor=cancel",
+        "client_reference_id": str(user.id),
+        "customer_email": email,
+        "metadata": {
+            "user_id": str(user.id),
+            "sponsor_id": str(sponsor.id),
+            "purpose": "sponsor_ad",
+        },
+    }
+    if user.stripe_customer_id:
+        params["customer"] = user.stripe_customer_id
+        params.pop("customer_email", None)
+
+    session = stripe.checkout.Session.create(**params)
+    url = session.url
+    if not url:
+        raise BillingError("checkout_failed", "Stripe did not return a checkout URL.")
+
+    sponsor.stripe_checkout_id = str(session.id)
+    db.commit()
+    db.refresh(sponsor)
+    return str(url)
+
+
+def apply_sponsor_checkout_completed(
+    db: Session,
+    session_obj: dict[str, Any],
+    *,
+    sponsor_days: int,
+) -> SponsorAd | None:
+    """Activate a sponsor banner after successful one-time Checkout."""
+    metadata = session_obj.get("metadata") or {}
+    if metadata.get("purpose") != "sponsor_ad":
+        return None
+
+    payment_status = session_obj.get("payment_status")
+    if payment_status not in {None, "paid", "no_payment_required"}:
+        logger.warning(
+            "stripe sponsor checkout not paid status=%s sponsor_id=%s",
+            payment_status,
+            metadata.get("sponsor_id"),
+        )
+        return None
+
+    sponsor_id_raw = metadata.get("sponsor_id")
+    if not sponsor_id_raw:
+        logger.warning("stripe sponsor checkout missing sponsor_id")
+        return None
+    try:
+        sponsor_id = int(sponsor_id_raw)
+    except (TypeError, ValueError):
+        logger.warning("stripe sponsor checkout invalid sponsor_id=%s", sponsor_id_raw)
+        return None
+
+    sponsor = db.get(SponsorAd, sponsor_id)
+    if sponsor is None:
+        logger.warning("stripe sponsor checkout sponsor not found id=%s", sponsor_id)
+        return None
+
+    checkout_id = session_obj.get("id")
+    if isinstance(checkout_id, str) and checkout_id:
+        if sponsor.stripe_checkout_id and sponsor.stripe_checkout_id != checkout_id:
+            logger.warning(
+                "stripe sponsor checkout id mismatch sponsor_id=%s",
+                sponsor_id,
+            )
+            return None
+        sponsor.stripe_checkout_id = checkout_id
+
+    owner_raw = metadata.get("user_id")
+    if owner_raw is not None and sponsor.owner_user_id is not None:
+        try:
+            if sponsor.owner_user_id != int(owner_raw):
+                logger.warning(
+                    "stripe sponsor checkout owner mismatch sponsor_id=%s",
+                    sponsor_id,
+                )
+                return None
+        except (TypeError, ValueError):
+            return None
+
+    if sponsor.is_active and sponsor.starts_at is not None:
+        return sponsor
+
+    days = max(1, sponsor_days)
+    now = datetime.now(UTC)
+    total = session_obj.get("amount_total")
+    if total is not None:
+        from decimal import Decimal
+
+        sponsor.monthly_chf = (Decimal(str(total)) / Decimal("100")).quantize(Decimal("0.01"))
+
+    sponsor.is_active = True
+    sponsor.starts_at = now
+    sponsor.ends_at = now + timedelta(days=days)
+    db.commit()
+    db.refresh(sponsor)
+    logger.info(
+        "stripe sponsor activated id=%s until=%s",
+        sponsor.id,
+        sponsor.ends_at,
+    )
+    return sponsor
 
 
 def construct_event(payload: bytes, sig_header: str | None, settings: Settings) -> stripe.Event:

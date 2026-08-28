@@ -117,6 +117,7 @@ export default function App() {
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
   const [boostBanner, setBoostBanner] = useState<"success" | "cancel" | null>(null);
+  const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
 
   const t = messages[lang];
@@ -282,7 +283,23 @@ export default function App() {
       }
       params.delete("boost");
     }
-    if (premium === "success" || premium === "cancel" || boost === "success" || boost === "cancel") {
+    const sponsor = params.get("sponsor");
+    if (sponsor === "success" || sponsor === "cancel") {
+      setSponsorBanner(sponsor);
+      if (sponsor === "success") {
+        setTab("account");
+        setAccountRefresh((value) => value + 1);
+      }
+      params.delete("sponsor");
+    }
+    if (
+      premium === "success" ||
+      premium === "cancel" ||
+      boost === "success" ||
+      boost === "cancel" ||
+      sponsor === "success" ||
+      sponsor === "cancel"
+    ) {
       const next = params.toString();
       const path = window.location.pathname;
       window.history.replaceState({}, "", next ? `${path}?${next}` : path);
@@ -463,6 +480,23 @@ export default function App() {
             type="button"
             className="linkish"
             onClick={() => setBoostBanner(null)}
+          >
+            ×
+          </button>
+        </div>
+      )}
+      {sponsorBanner && (
+        <div
+          className={`premium-return-banner is-${sponsorBanner}`}
+          role="status"
+        >
+          <p>
+            {sponsorBanner === "success" ? t.sponsorSuccessBanner : t.sponsorCancelBanner}
+          </p>
+          <button
+            type="button"
+            className="linkish"
+            onClick={() => setSponsorBanner(null)}
           >
             ×
           </button>

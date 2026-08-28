@@ -138,6 +138,7 @@ export type WeeklyPaymentMetric = {
   week_start: string;
   premium_count: number;
   boost_count: number;
+  sponsor_count: number;
   amount_chf: number | string;
 };
 
@@ -156,6 +157,7 @@ export type StripeRevenueSummary = {
   last_30_days_total_chf: number | string;
   premium_payments_30d: number;
   boost_payments_30d: number;
+  sponsor_payments_30d: number;
   recent_payments: RecentPayment[];
   payments_by_week: WeeklyPaymentMetric[];
 };

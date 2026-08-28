@@ -81,8 +81,11 @@ def signup_metrics(db: Session, *, days: int = 14) -> list[DailySignupMetric]:
 
 def _payment_kind(session_obj: dict[str, Any]) -> str:
     metadata = session_obj.get("metadata") or {}
-    if metadata.get("purpose") == "feature_listing":
+    purpose = metadata.get("purpose")
+    if purpose == "feature_listing":
         return "boost"
+    if purpose == "sponsor_ad":
+        return "sponsor"
     if session_obj.get("mode") == "subscription":
         return "premium"
     return "other"
@@ -102,6 +105,7 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
         last_30_days_total_chf=Decimal("0"),
         premium_payments_30d=0,
         boost_payments_30d=0,
+        sponsor_payments_30d=0,
         recent_payments=[],
         payments_by_week=[],
     )
@@ -143,9 +147,10 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
 
     premium_30 = 0
     boost_30 = 0
+    sponsor_30 = 0
     total_30 = Decimal("0")
     weekly: dict[date, dict[str, Any]] = defaultdict(
-        lambda: {"premium": 0, "boost": 0, "amount": Decimal("0")}
+        lambda: {"premium": 0, "boost": 0, "sponsor": 0, "amount": Decimal("0")}
     )
 
     recent: list[RecentPaymentRow] = []
@@ -158,6 +163,8 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
             weekly[week]["premium"] += 1
         elif kind == "boost":
             weekly[week]["boost"] += 1
+        elif kind == "sponsor":
+            weekly[week]["sponsor"] += 1
 
         if event["created"] >= since_30:
             total_30 += amount
@@ -165,15 +172,22 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
                 premium_30 += 1
             elif kind == "boost":
                 boost_30 += 1
+            elif kind == "sponsor":
+                sponsor_30 += 1
 
         if len(recent) < 15:
             label = "Boost anuncio"
             if kind == "premium":
                 label = "Premium"
+            elif kind == "sponsor":
+                label = "Patrocinio"
             elif kind == "other":
                 label = "Otro pago"
-            listing_id_raw = (event.get("metadata") or {}).get("listing_id")
+            metadata = event.get("metadata") or {}
+            listing_id_raw = metadata.get("listing_id")
             listing_id = int(listing_id_raw) if listing_id_raw else None
+            sponsor_id_raw = metadata.get("sponsor_id")
+            sponsor_id = int(sponsor_id_raw) if sponsor_id_raw else None
             recent.append(
                 RecentPaymentRow(
                     checkout_id=event["id"],
@@ -182,6 +196,7 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
                     amount_chf=amount,
                     paid_at=event["created"],
                     listing_id=listing_id,
+                    sponsor_id=sponsor_id,
                 )
             )
 
@@ -190,6 +205,7 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
             week_start=week,
             premium_count=bucket["premium"],
             boost_count=bucket["boost"],
+            sponsor_count=bucket["sponsor"],
             amount_chf=bucket["amount"].quantize(Decimal("0.01")),
         )
         for week, bucket in sorted(weekly.items(), reverse=True)
@@ -201,6 +217,7 @@ def stripe_revenue_summary(settings: Settings, *, days: int = 90) -> StripeReven
         last_30_days_total_chf=total_30.quantize(Decimal("0.01")),
         premium_payments_30d=premium_30,
         boost_payments_30d=boost_30,
+        sponsor_payments_30d=sponsor_30,
         recent_payments=recent,
         payments_by_week=payments_by_week,
     )

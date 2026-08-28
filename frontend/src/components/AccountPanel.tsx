@@ -17,6 +17,7 @@ import {
 import { AlertSignup } from "./AlertSignup";
 import { DoorLinks } from "./DoorLinks";
 import { PremiumUpsell } from "./PremiumUpsell";
+import { SponsorCheckoutForm } from "./SponsorCheckoutForm";
 import { formatSearchSummary } from "../searchSummary";
 import type { Lang, Messages } from "../i18n";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -203,6 +204,8 @@ export function AccountPanel({
         onSearchWork={onSearchWork}
         onPublish={onOpenPublish}
       />
+
+      <SponsorCheckoutForm t={t} refreshToken={refreshToken} />
 
       <h3>{t.accountSearches}</h3>
       {searches.length === 0 ? (

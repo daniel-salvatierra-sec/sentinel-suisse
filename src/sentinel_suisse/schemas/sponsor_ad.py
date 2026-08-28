@@ -8,6 +8,21 @@ SponsorContext = Literal["all", "housing", "job"]
 SponsorPlacement = Literal["banner"]
 
 
+class SponsorCheckoutRequest(BaseModel):
+    sponsor_name: str = Field(min_length=2, max_length=120)
+    context: SponsorContext = "all"
+    headline: str | None = Field(default=None, max_length=160)
+    image_url: HttpUrl | None = None
+    target_url: HttpUrl
+
+    @model_validator(mode="after")
+    def require_creative(self) -> "SponsorCheckoutRequest":
+        if not self.headline and not self.image_url:
+            msg = "headline or image_url is required"
+            raise ValueError(msg)
+        return self
+
+
 class SponsorAdCreate(BaseModel):
     sponsor_name: str = Field(min_length=2, max_length=120)
     placement: SponsorPlacement = "banner"
@@ -63,8 +78,27 @@ class SponsorAdAdminRow(BaseModel):
     sort_order: int
     impression_count: int
     click_count: int
+    owner_user_id: int | None
+    stripe_checkout_id: str | None
     created_at: datetime
     updated_at: datetime
+
+
+class SponsorAdOwnerRow(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    sponsor_name: str
+    context: str
+    headline: str | None
+    image_url: str | None
+    target_url: str
+    is_active: bool
+    starts_at: datetime | None
+    ends_at: datetime | None
+    impression_count: int
+    click_count: int
+    payment_pending: bool
 
 
 class SponsorAdPublic(BaseModel):

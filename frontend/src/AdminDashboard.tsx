@@ -386,7 +386,8 @@ export function AdminDashboard() {
               </p>
               <p>
                 {insights.stripe.premium_payments_30d} Premium ·{" "}
-                {insights.stripe.boost_payments_30d} boosts
+                {insights.stripe.boost_payments_30d} boosts ·{" "}
+                {insights.stripe.sponsor_payments_30d} patrocinios
               </p>
             </article>
             <article className="card admin-kpi">

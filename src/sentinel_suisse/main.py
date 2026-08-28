@@ -21,6 +21,7 @@ from sentinel_suisse.api.routes import (
     direct_listings,
     legal,
     listings,
+    my_sponsors,
     notification_channels,
     providers,
     public,
@@ -115,6 +116,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(users.router, prefix="/api/v1")
     application.include_router(saved_searches.router, prefix="/api/v1")
     application.include_router(direct_listings.router, prefix="/api/v1")
+    application.include_router(my_sponsors.router, prefix="/api/v1")
     application.include_router(notification_channels.router, prefix="/api/v1")
     application.include_router(alerts.router, prefix="/api/v1")
     application.include_router(billing.router, prefix="/api/v1")

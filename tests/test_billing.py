@@ -1,6 +1,7 @@
 """Billing / Stripe Premium checkout (Phase B)."""
 
 import uuid
+from decimal import Decimal
 from unittest.mock import MagicMock, patch
 
 from fastapi.testclient import TestClient
@@ -9,6 +10,7 @@ from sentinel_suisse.db.session import SessionLocal
 from sentinel_suisse.services.stripe_billing import (
     apply_checkout_completed,
     apply_feature_checkout_completed,
+    apply_sponsor_checkout_completed,
     apply_subscription_deleted,
 )
 
@@ -25,7 +27,9 @@ def test_billing_config_public(client: TestClient) -> None:
     assert "twint_enabled" in body
     assert "feature_boost_enabled" in body
     assert "feature_boost_days" in body
+    assert "sponsor_ads_enabled" in body
     assert body["feature_boost_enabled"] is False
+    assert body["sponsor_ads_enabled"] is False
 
 
 def test_billing_status_and_checkout_disabled(
@@ -572,3 +576,230 @@ def test_stripe_webhook_feature_checkout(
     mine = client.get("/api/v1/me/listings", headers=headers)
     item = next(row for row in mine.json() if row["id"] == listing_id)
     assert item["is_featured"] is True
+
+
+def test_sponsor_checkout_disabled(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_SPONSOR_PRICE_ID", "")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("sponsor-off"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    response = client.post(
+        "/api/v1/billing/sponsor-checkout",
+        headers=headers,
+        json={
+            "sponsor_name": "Acme SA",
+            "headline": "Cursos de francés",
+            "target_url": "https://example.com/acme",
+            "context": "job",
+        },
+    )
+    assert response.status_code == 503
+    assert response.json()["detail"] == "sponsor_payments_disabled"
+
+
+def test_sponsor_checkout_creates_payment_session(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_SPONSOR_PRICE_ID", "price_sponsor_test")
+    monkeypatch.setenv("STRIPE_SPONSOR_DAYS", "30")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("sponsor-co"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/c/pay/cs_sponsor"
+    mock_session.id = "cs_sponsor_test"
+
+    with patch(
+        "sentinel_suisse.services.stripe_billing.stripe.checkout.Session.create",
+        return_value=mock_session,
+    ) as create_mock:
+        response = client.post(
+            "/api/v1/billing/sponsor-checkout",
+            headers=headers,
+            json={
+                "sponsor_name": "Acme SA",
+                "headline": "Learn French in Geneva",
+                "target_url": "https://example.com/acme",
+                "context": "all",
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["checkout_url"].startswith("https://checkout.stripe.com/")
+    kwargs = create_mock.call_args.kwargs
+    assert kwargs["mode"] == "payment"
+    assert kwargs["line_items"] == [{"price": "price_sponsor_test", "quantity": 1}]
+    assert kwargs["metadata"]["purpose"] == "sponsor_ad"
+    assert kwargs["metadata"]["user_id"] == str(user_id)
+    assert kwargs["success_url"].endswith("/?sponsor=success")
+    assert kwargs["cancel_url"].endswith("/?sponsor=cancel")
+
+    mine = client.get("/api/v1/me/sponsors", headers=headers)
+    assert mine.status_code == 200, mine.text
+    row = mine.json()[0]
+    assert row["sponsor_name"] == "Acme SA"
+    assert row["payment_pending"] is True
+    assert row["is_active"] is False
+
+
+def test_apply_sponsor_checkout_activates_banner(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_SPONSOR_PRICE_ID", "price_sponsor_test")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("sponsor-apply"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/c/pay/cs_sponsor_apply"
+    mock_session.id = "cs_sponsor_apply"
+
+    with patch(
+        "sentinel_suisse.services.stripe_billing.stripe.checkout.Session.create",
+        return_value=mock_session,
+    ):
+        checkout = client.post(
+            "/api/v1/billing/sponsor-checkout",
+            headers=headers,
+            json={
+                "sponsor_name": "Beta GmbH",
+                "headline": "Swiss jobs",
+                "target_url": "https://example.com/beta",
+            },
+        )
+    assert checkout.status_code == 200, checkout.text
+    sponsor_id = client.get("/api/v1/me/sponsors", headers=headers).json()[0]["id"]
+
+    with SessionLocal() as db:
+        sponsor = apply_sponsor_checkout_completed(
+            db,
+            {
+                "id": "cs_sponsor_apply",
+                "payment_status": "paid",
+                "amount_total": 9900,
+                "metadata": {
+                    "purpose": "sponsor_ad",
+                    "sponsor_id": str(sponsor_id),
+                    "user_id": str(user_id),
+                },
+            },
+            sponsor_days=30,
+        )
+        assert sponsor is not None
+        assert sponsor.is_active is True
+        assert sponsor.starts_at is not None
+        assert sponsor.ends_at is not None
+        assert sponsor.monthly_chf == Decimal("99.00")
+
+    public = client.get("/api/v1/public/sponsors?context=all")
+    assert any(item["id"] == sponsor_id for item in public.json())
+
+    mine = client.get("/api/v1/me/sponsors", headers=headers)
+    row = next(item for item in mine.json() if item["id"] == sponsor_id)
+    assert row["is_active"] is True
+    assert row["payment_pending"] is False
+
+
+def test_stripe_webhook_sponsor_checkout(
+    client: TestClient, admin_auth: tuple[str, str], monkeypatch
+) -> None:
+    monkeypatch.setenv("STRIPE_WEBHOOK_SECRET", "whsec_test")
+    monkeypatch.setenv("STRIPE_SPONSOR_DAYS", "14")
+    monkeypatch.setenv("STRIPE_SECRET_KEY", "sk_test_x")
+    monkeypatch.setenv("STRIPE_SPONSOR_PRICE_ID", "price_sponsor_test")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    created = client.post(
+        "/api/v1/users",
+        json={"email": _email("sponsor-hook"), "is_active": True, "locale": "fr"},
+        auth=admin_auth,
+    )
+    assert created.status_code == 201, created.text
+    user_id = created.json()["id"]
+    headers = {"X-API-Key": created.json()["api_key"]}
+
+    mock_session = MagicMock()
+    mock_session.url = "https://checkout.stripe.com/c/pay/cs_sponsor_hook"
+    mock_session.id = "cs_sponsor_hook"
+
+    with patch(
+        "sentinel_suisse.services.stripe_billing.stripe.checkout.Session.create",
+        return_value=mock_session,
+    ):
+        checkout = client.post(
+            "/api/v1/billing/sponsor-checkout",
+            headers=headers,
+            json={
+                "sponsor_name": "Hook Co",
+                "headline": "Visible ad",
+                "target_url": "https://example.com/hook",
+            },
+        )
+    assert checkout.status_code == 200, checkout.text
+    sponsor_id = client.get("/api/v1/me/sponsors", headers=headers).json()[0]["id"]
+
+    event = {
+        "type": "checkout.session.completed",
+        "data": {
+            "object": {
+                "id": "cs_sponsor_hook",
+                "payment_status": "paid",
+                "amount_total": 5000,
+                "metadata": {
+                    "purpose": "sponsor_ad",
+                    "sponsor_id": str(sponsor_id),
+                    "user_id": str(user_id),
+                },
+            }
+        },
+    }
+
+    with patch(
+        "sentinel_suisse.api.routes.stripe_webhooks.construct_event",
+        return_value=event,
+    ):
+        response = client.post(
+            "/api/v1/webhooks/stripe",
+            content=b"{}",
+            headers={"Stripe-Signature": "t=1,v1=x"},
+        )
+
+    assert response.status_code == 200, response.text
+    mine = client.get("/api/v1/me/sponsors", headers=headers)
+    row = next(item for item in mine.json() if item["id"] == sponsor_id)
+    assert row["is_active"] is True

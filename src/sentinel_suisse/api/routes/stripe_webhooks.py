@@ -12,6 +12,7 @@ from sentinel_suisse.services.stripe_billing import (
     BillingError,
     apply_checkout_completed,
     apply_feature_checkout_completed,
+    apply_sponsor_checkout_completed,
     apply_subscription_deleted,
     construct_event,
 )
@@ -49,11 +50,18 @@ async def stripe_webhook(
     if event_type == "checkout.session.completed":
         session_obj = dict(data_object)
         metadata = session_obj.get("metadata") or {}
-        if metadata.get("purpose") == "feature_listing":
+        purpose = metadata.get("purpose")
+        if purpose == "feature_listing":
             apply_feature_checkout_completed(
                 db,
                 session_obj,
                 feature_days=settings.stripe_feature_days,
+            )
+        elif purpose == "sponsor_ad":
+            apply_sponsor_checkout_completed(
+                db,
+                session_obj,
+                sponsor_days=settings.stripe_sponsor_days,
             )
         else:
             apply_checkout_completed(db, session_obj)

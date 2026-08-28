@@ -9,11 +9,14 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.sponsor_ad import SponsorAd
+from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.sponsor_ad import (
     SponsorAdAdminRow,
     SponsorAdCreate,
+    SponsorAdOwnerRow,
     SponsorAdPublic,
     SponsorAdUpdate,
+    SponsorCheckoutRequest,
     SponsorRevenueSummary,
 )
 
@@ -72,6 +75,56 @@ def list_public_sponsors(
         )
         for row in rows
     ]
+
+
+def _owner_row(row: SponsorAd) -> SponsorAdOwnerRow:
+    pending = not row.is_active and row.owner_user_id is not None
+    return SponsorAdOwnerRow(
+        id=row.id,
+        sponsor_name=row.sponsor_name,
+        context=row.context,
+        headline=row.headline,
+        image_url=row.image_url,
+        target_url=row.target_url,
+        is_active=row.is_active,
+        starts_at=row.starts_at,
+        ends_at=row.ends_at,
+        impression_count=row.impression_count,
+        click_count=row.click_count,
+        payment_pending=pending,
+    )
+
+
+def list_user_sponsors(db: Session, user_id: int, *, limit: int = 20) -> list[SponsorAdOwnerRow]:
+    rows = db.scalars(
+        select(SponsorAd)
+        .where(SponsorAd.owner_user_id == user_id)
+        .order_by(SponsorAd.id.desc())
+        .limit(limit)
+    ).all()
+    return [_owner_row(row) for row in rows]
+
+
+def create_pending_sponsor(
+    db: Session,
+    user: User,
+    payload: SponsorCheckoutRequest,
+) -> SponsorAd:
+    row = SponsorAd(
+        sponsor_name=payload.sponsor_name.strip(),
+        placement="banner",
+        context=payload.context,
+        headline=payload.headline.strip() if payload.headline else None,
+        image_url=str(payload.image_url) if payload.image_url else None,
+        target_url=str(payload.target_url),
+        monthly_chf=Decimal("0"),
+        is_active=False,
+        owner_user_id=user.id,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
 
 
 def create_sponsor(db: Session, payload: SponsorAdCreate) -> SponsorAdAdminRow:

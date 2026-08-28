@@ -329,6 +329,8 @@ export type BillingConfig = {
   launch_promo_months?: number | null;
   feature_boost_enabled?: boolean;
   feature_boost_days?: number;
+  sponsor_ads_enabled?: boolean;
+  sponsor_ad_days?: number;
 };
 
 export type BillingStatus = BillingConfig & {
@@ -402,6 +404,63 @@ export async function createFeatureCheckoutSession(
     throw new Error(message);
   }
   return response.json() as Promise<{ checkout_url: string }>;
+}
+
+export type SponsorContext = "all" | "housing" | "job";
+
+export type SponsorCheckoutInput = {
+  sponsor_name: string;
+  context?: SponsorContext;
+  headline?: string;
+  image_url?: string;
+  target_url: string;
+};
+
+export type SponsorAdOwner = {
+  id: number;
+  sponsor_name: string;
+  context: string;
+  headline: string | null;
+  image_url: string | null;
+  target_url: string;
+  is_active: boolean;
+  starts_at: string | null;
+  ends_at: string | null;
+  impression_count: number;
+  click_count: number;
+  payment_pending: boolean;
+};
+
+export async function createSponsorCheckoutSession(
+  payload: SponsorCheckoutInput,
+): Promise<{ checkout_url: string }> {
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("not authenticated");
+  }
+  const response = await fetch("/api/v1/billing/sponsor-checkout", {
+    method: "POST",
+    headers: {
+      "X-API-Key": apiKey,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    let message = `request failed: ${response.status}`;
+    try {
+      const body = (await response.json()) as { detail?: string };
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return response.json() as Promise<{ checkout_url: string }>;
+}
+
+export function fetchMySponsors(): Promise<SponsorAdOwner[]> {
+  return apiFetch<SponsorAdOwner[]>("/api/v1/me/sponsors");
 }
 
 export async function createPortalSession(): Promise<{ portal_url: string }> {

@@ -1,7 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, Index, Integer, Numeric, String, func
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, Numeric, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from sentinel_suisse.db.base import Base
@@ -30,6 +30,12 @@ class SponsorAd(Base):
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     impression_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     click_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    owner_user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    stripe_checkout_id: Mapped[str | None] = mapped_column(String(255), nullable=True, unique=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

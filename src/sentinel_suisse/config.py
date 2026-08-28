@@ -232,6 +232,9 @@ class Settings(BaseSettings):
     # One-time "boost / feature listing" Checkout (mode=payment).
     stripe_feature_price_id: str = ""
     stripe_feature_days: int = 7
+    # One-time sponsor banner Checkout (mode=payment), typically ~30 days live.
+    stripe_sponsor_price_id: str = ""
+    stripe_sponsor_days: int = 30
     # Optional JSON array for operator hub — other apps you operate.
     # Example: [{"id":"other","name":"Other App","public_url":"https://example.com","admin_path":"/admin","status":"planned"}]
     ops_apps_json: str = ""
@@ -272,6 +275,9 @@ class Settings(BaseSettings):
 
     def stripe_feature_payments_enabled(self) -> bool:
         return bool(self.stripe_secret_key and self.stripe_feature_price_id)
+
+    def stripe_sponsor_payments_enabled(self) -> bool:
+        return bool(self.stripe_secret_key and self.stripe_sponsor_price_id)
 
     def assistant_is_enabled(self) -> bool:
         return bool(self.assistant_api_key)

@@ -113,6 +113,7 @@ class WeeklyPaymentMetric(BaseModel):
     week_start: date
     premium_count: int
     boost_count: int
+    sponsor_count: int = 0
     amount_chf: Decimal
 
 
@@ -123,6 +124,7 @@ class RecentPaymentRow(BaseModel):
     amount_chf: Decimal
     paid_at: datetime
     listing_id: int | None = None
+    sponsor_id: int | None = None
 
 
 class StripeRevenueSummary(BaseModel):
@@ -131,6 +133,7 @@ class StripeRevenueSummary(BaseModel):
     last_30_days_total_chf: Decimal
     premium_payments_30d: int
     boost_payments_30d: int
+    sponsor_payments_30d: int = 0
     recent_payments: list[RecentPaymentRow]
     payments_by_week: list[WeeklyPaymentMetric]
 
