@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import "./admin-dashboard.css";
 import {
   clearAdminSession,
   createAdminListing,
@@ -20,6 +21,36 @@ import {
 } from "./adminApi";
 
 type Tab = "apps" | "revenue" | "metrics" | "overview" | "listings" | "users" | "ingest";
+
+const TAB_COPY: Record<Tab, { title: string; subtitle: string }> = {
+  apps: { title: "Aplicaciones", subtitle: "Portfolio de productos que operas" },
+  revenue: { title: "Ingresos", subtitle: "Stripe · Premium y boosts de anuncios" },
+  metrics: { title: "Métricas", subtitle: "Registros y pagos en el tiempo" },
+  overview: { title: "Resumen", subtitle: "Salud general de LinkSwiss" },
+  listings: { title: "Anuncios", subtitle: "Moderación y publicaciones directas" },
+  users: { title: "Usuarios", subtitle: "Cuentas, Premium y alertas" },
+  ingest: { title: "Fuentes", subtitle: "Conectores y frescura de datos" },
+};
+
+const NAV_GROUPS: { label: string; items: { id: Tab; label: string; icon: string }[] }[] = [
+  {
+    label: "Plataforma",
+    items: [
+      { id: "apps", label: "Apps", icon: "◫" },
+      { id: "revenue", label: "Ingresos", icon: "◈" },
+      { id: "metrics", label: "Métricas", icon: "▤" },
+    ],
+  },
+  {
+    label: "LinkSwiss",
+    items: [
+      { id: "overview", label: "Resumen", icon: "◎" },
+      { id: "listings", label: "Anuncios", icon: "▣" },
+      { id: "users", label: "Usuarios", icon: "◉" },
+      { id: "ingest", label: "Fuentes", icon: "↻" },
+    ],
+  },
+];
 
 function formatWhen(iso: string | null): string {
   if (!iso) {
@@ -78,7 +109,7 @@ export function AdminDashboard() {
   const [editDescription, setEditDescription] = useState("");
 
   useEffect(() => {
-    document.title = "LinkSwiss — Operador";
+    document.title = "Sentinel Ops";
     let robots = document.querySelector('meta[name="robots"]');
     if (!robots) {
       robots = document.createElement("meta");
@@ -183,102 +214,131 @@ export function AdminDashboard() {
 
   if (!authed) {
     return (
-      <div className="admin-dash">
-        <header className="admin-head">
-        <p className="eyebrow">Centro de operaciones</p>
-        <h1>Operador</h1>
-          <p className="lede">Acceso privado. No forma parte de la app pública.</p>
-        </header>
-        <form className="card admin-login" onSubmit={(event) => void onLogin(event)}>
-          <label>
-            Usuario
-            <input
-              autoComplete="username"
-              value={username}
-              onChange={(event) => setUsername(event.target.value)}
-              required
-            />
-          </label>
-          <label>
-            Contraseña
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-            />
-          </label>
-          {loginError ? <p className="admin-error">Credenciales no válidas.</p> : null}
-          <button type="submit">Entrar</button>
-        </form>
+      <div className="admin-shell admin-shell--login">
+        <div className="admin-login-wrap">
+          <div className="admin-login-brand">
+            <div className="admin-brand-mark">S</div>
+            <h1>Sentinel Ops</h1>
+            <p>Consola privada para LinkSwiss y futuras apps. No indexada ni enlazada desde la web pública.</p>
+          </div>
+          <form className="admin-login-card admin-login" onSubmit={(event) => void onLogin(event)}>
+            <label>
+              Usuario
+              <input
+                autoComplete="username"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                required
+              />
+            </label>
+            <label>
+              Contraseña
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+              />
+            </label>
+            {loginError ? <p className="admin-error">Credenciales no válidas.</p> : null}
+            <button type="submit" className="admin-btn admin-btn--primary">
+              Entrar al panel
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
+  const page = TAB_COPY[tab];
+
   return (
-    <div className="admin-dash">
-      <header className="admin-head">
-        <p className="eyebrow">Centro de operaciones</p>
-        <h1>Operador</h1>
-        <p className="lede">Apps, ingresos y métricas en un solo lugar.</p>
-        <button
-          type="button"
-          className="admin-logout"
-          onClick={() => {
-            void loadInsights();
-          }}
-          disabled={busy || !(tab === "apps" || tab === "revenue" || tab === "metrics")}
-          style={{ marginRight: "0.5rem" }}
-        >
-          Actualizar
-        </button>
-        <button
-          type="button"
-          className="admin-logout"
-          onClick={() => {
-            clearAdminSession();
-            setAuthed(false);
-            setOverview(null);
-            setInsights(null);
-          }}
-        >
-          Salir
-        </button>
-      </header>
+    <div className="admin-shell">
+      <div className="admin-layout">
+        <aside className="admin-sidebar">
+          <div className="admin-sidebar-brand">
+            <strong>Sentinel Ops</strong>
+            <span>Multi-app operator</span>
+          </div>
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="admin-nav-group">
+              <p className="admin-nav-label">{group.label}</p>
+              {group.items.map((item) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`admin-nav-btn${tab === item.id ? " is-active" : ""}`}
+                  onClick={() => setTab(item.id)}
+                >
+                  <span className="admin-nav-icon" aria-hidden>
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          ))}
+          <div className="admin-sidebar-foot">
+            <button
+              type="button"
+              className="admin-btn admin-btn--sidebar"
+              onClick={() => {
+                clearAdminSession();
+                setAuthed(false);
+                setOverview(null);
+                setInsights(null);
+              }}
+            >
+              Cerrar sesión
+            </button>
+          </div>
+        </aside>
 
-      <nav className="admin-tabs" aria-label="Secciones">
-        {(
-          [
-            ["apps", "Apps"],
-            ["revenue", "Ingresos"],
-            ["metrics", "Métricas"],
-            ["overview", "Resumen"],
-            ["listings", "Anuncios"],
-            ["users", "Usuarios"],
-            ["ingest", "Fuentes"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            className={tab === id ? "is-active" : ""}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
-      </nav>
+        <div className="admin-main">
+          <header className="admin-topbar">
+            <div>
+              <h1>{page.title}</h1>
+              <p>{page.subtitle}</p>
+            </div>
+            <div className="admin-topbar-actions">
+              <button
+                type="button"
+                className="admin-btn"
+                onClick={() => {
+                  if (tab === "apps" || tab === "revenue" || tab === "metrics") {
+                    void loadInsights();
+                  } else if (tab === "overview" || tab === "ingest") {
+                    void loadOverview();
+                  } else if (tab === "listings") {
+                    void loadListings();
+                  } else {
+                    void loadUsers();
+                  }
+                }}
+                disabled={busy}
+              >
+                Actualizar
+              </button>
+            </div>
+          </header>
 
-      {loadError ? <p className="admin-error">No se pudo cargar. Revisa la sesión.</p> : null}
-      {busy ? <p className="admin-muted">Cargando…</p> : null}
+          <div className="admin-content">
+            {loadError ? (
+              <p className="admin-banner is-error">No se pudo cargar. Revisa la sesión.</p>
+            ) : null}
+            {busy ? <p className="admin-banner is-loading">Cargando datos…</p> : null}
 
       {tab === "apps" && insights ? (
         <section className="admin-apps-grid">
           {insights.apps.map((app) => (
             <article key={app.id} className={`card admin-app-card${app.is_current ? " is-current" : ""}`}>
-              <h2>{app.name}</h2>
-              <p className="admin-muted">{app.status}</p>
+              <div className="admin-app-head">
+                <h2>{app.name}</h2>
+                <span className={`admin-pill${app.status === "live" ? " is-live" : " is-planned"}`}>
+                  {app.status}
+                </span>
+              </div>
               <p className="admin-app-url">{app.public_url}</p>
               <div className="admin-actions">
                 <a className="admin-link-btn" href={app.public_url} target="_blank" rel="noreferrer">
@@ -314,7 +374,7 @@ export function AdminDashboard() {
       {tab === "revenue" && insights ? (
         <>
           <section className="admin-stats">
-            <article className="card">
+            <article className="card admin-kpi">
               <h2>Ingresos 30 días</h2>
               <p className="admin-metric">
                 {insights.stripe.configured
@@ -326,7 +386,7 @@ export function AdminDashboard() {
                 {insights.stripe.boost_payments_30d} boosts
               </p>
             </article>
-            <article className="card">
+            <article className="card admin-kpi">
               <h2>Boosts activos</h2>
               <p className="admin-metric">{insights.active_boosts.length}</p>
               <p>Anuncios destacados ahora mismo</p>
@@ -447,12 +507,12 @@ export function AdminDashboard() {
 
       {tab === "overview" && overview ? (
         <section className="admin-stats">
-          <article className="card">
+          <article className="card admin-kpi">
             <h2>Usuarios</h2>
             <p className="admin-metric">{overview.users_total}</p>
             <p>{overview.users_active} activos · {overview.users_premium} Premium</p>
           </article>
-          <article className="card">
+          <article className="card admin-kpi">
             <h2>Anuncios</h2>
             <p className="admin-metric">
               {overview.listings_housing + overview.listings_job}
@@ -462,7 +522,7 @@ export function AdminDashboard() {
               {overview.listings_direct} directos · {overview.listings_hidden} ocultos
             </p>
           </article>
-          <article className="card">
+          <article className="card admin-kpi">
             <h2>Salud</h2>
             <p className="admin-metric">{overview.database_ok ? "OK" : "BD error"}</p>
             <p>
@@ -476,7 +536,7 @@ export function AdminDashboard() {
       {tab === "listings" ? (
         <section className="card admin-panel">
           <div className="admin-actions">
-            <button type="button" onClick={() => setShowCreateListing((value) => !value)}>
+            <button type="button" className="admin-btn admin-btn--primary" onClick={() => setShowCreateListing((value) => !value)}>
               {showCreateListing ? "Cerrar formulario" : "Nuevo anuncio"}
             </button>
           </div>
@@ -555,7 +615,7 @@ export function AdminDashboard() {
                 />
                 Oculto al publicar
               </label>
-              <button type="submit">Publicar</button>
+              <button type="submit" className="admin-btn admin-btn--primary">Publicar</button>
             </form>
           ) : null}
           <form
@@ -594,7 +654,7 @@ export function AdminDashboard() {
               />
               Solo directos
             </label>
-            <button type="submit">Buscar</button>
+            <button type="submit" className="admin-btn">Buscar</button>
           </form>
           <ul className="admin-list">
             {listings.map((item) => (
@@ -646,8 +706,8 @@ export function AdminDashboard() {
                       rows={2}
                     />
                     <div className="admin-actions">
-                      <button type="submit">Guardar</button>
-                      <button type="button" onClick={() => setEditingId(null)}>
+                      <button type="submit" className="admin-btn admin-btn--primary">Guardar</button>
+                      <button type="button" className="admin-btn" onClick={() => setEditingId(null)}>
                         Cancelar
                       </button>
                     </div>
@@ -665,9 +725,7 @@ export function AdminDashboard() {
                       </p>
                     </div>
                     <div className="admin-actions">
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" className="admin-btn" onClick={() => {
                           setEditingId(item.id);
                           setEditTitle(item.title);
                           setEditLocation(item.location ?? "");
@@ -678,9 +736,7 @@ export function AdminDashboard() {
                       >
                         Editar
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => {
+                      <button type="button" className="admin-btn" onClick={() => {
                           void setListingHidden(item.id, !item.is_hidden).then(() => loadListings());
                         }}
                       >
@@ -738,7 +794,7 @@ export function AdminDashboard() {
                   ) : null}
                   <button
                     type="button"
-                    className="admin-danger"
+                    className="admin-btn admin-btn--danger"
                     onClick={() => {
                       if (
                         window.confirm(
@@ -792,6 +848,9 @@ export function AdminDashboard() {
           </table>
         </section>
       ) : null}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
