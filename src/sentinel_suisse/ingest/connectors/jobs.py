@@ -6,7 +6,8 @@ from typing import Any
 import httpx
 
 from sentinel_suisse.config import Settings
-from sentinel_suisse.ingest.connectors.embed import EmbedParseError, extract_first_state
+from sentinel_suisse.ingest.connectors.embed import EmbedParseError
+from sentinel_suisse.ingest.connectors.jobcloud import parse_jobcloud_search_html
 from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.services.job_taxonomy import classify_job_category
@@ -117,6 +118,17 @@ def _pick_source_url(vacancy: dict[str, Any], job_id: Any) -> str:
     return f"{_JOBS_BASE}/en/vacancies/detail/{job_id}/"
 
 
+def parse_search_html(html: str) -> list[RawListing]:
+    return parse_jobcloud_search_html(
+        html,
+        source="jobs",
+        base_url=_JOBS_BASE,
+        state_markers=_STATE_MARKERS,
+        parse_state=parse_search_state,
+        default_detail_path="/en/vacancies/detail/{job_id}/",
+    )
+
+
 def fetch_search_listings(settings: Settings, search_url: str | None = None) -> list[RawListing]:
     if not settings.ingest_jobs_live:
         msg = "Live jobs.ch ingest is disabled (set INGEST_JOBS_LIVE=true)"
@@ -133,9 +145,7 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
         raise JobsFetchError(msg) from exc
 
     try:
-        state = extract_first_state(response.text, _STATE_MARKERS)
+        return parse_search_html(response.text)
     except EmbedParseError as exc:
-        msg = f"jobs.ch embedded state parse failed: {exc}"
+        msg = f"jobs.ch page parse failed: {exc}"
         raise JobsFetchError(msg) from exc
-
-    return parse_search_state(state)

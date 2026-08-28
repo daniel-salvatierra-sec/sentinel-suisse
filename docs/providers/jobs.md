@@ -6,7 +6,7 @@
 
 - [ ] Read [jobs.ch terms](https://www.jobs.ch/en/legal/terms-and-conditions/)
 - [ ] Check `https://www.jobs.ch/robots.txt`
-- [ ] No public API — parser reads embedded page state (`__NEXT_DATA__` / `__INITIAL_STATE__`)
+- [ ] No public API — parser reads embedded page state when present, otherwise schema.org JSON-LD on the search page
 - [ ] Set `INGEST_JOBS_LIVE=true` only after legal review
 
 ## Technical (Phase 14)

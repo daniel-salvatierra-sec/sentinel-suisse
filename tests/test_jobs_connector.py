@@ -10,11 +10,13 @@ from sentinel_suisse.config import Settings
 from sentinel_suisse.ingest.connectors.jobs import (
     JobsDisabledError,
     fetch_search_listings,
+    parse_search_html,
     parse_search_state,
 )
 from sentinel_suisse.models.enums import ListingType
 
 _FIXTURE_STATE = Path(__file__).resolve().parents[1] / "fixtures" / "jobs_initial_state.json"
+_FIXTURE_LD = Path(__file__).resolve().parents[1] / "fixtures" / "jobcloud_ld_search.html"
 
 
 def test_parse_jobs_state_from_fixture() -> None:
@@ -28,6 +30,14 @@ def test_parse_jobs_state_from_fixture() -> None:
     assert listings[0].location == "Geneva"
     assert listings[0].price is None
     assert str(listings[0].source_url).startswith("https://www.jobs.ch/")
+
+
+def test_parse_search_html_from_json_ld_fixture() -> None:
+    html = _FIXTURE_LD.read_text(encoding="utf-8")
+    listings = parse_search_html(html)
+    assert len(listings) == 1
+    assert listings[0].external_id == "ld-job-001"
+    assert listings[0].raw_payload["source"] == "jobs"
 
 
 def test_fetch_raises_when_live_disabled() -> None:

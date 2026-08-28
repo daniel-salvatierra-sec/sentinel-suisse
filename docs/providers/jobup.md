@@ -12,7 +12,7 @@
 ## Technical (Phase 40)
 
 - Default search URL: `JOBUP_SEARCH_URL` (Geneva jobs)
-- Parser reads embedded `window.__NEXT_DATA__` / `__INITIAL_STATE__` / `__NUXT__`
+- Parser reads embedded `window.__NEXT_DATA__` when present, otherwise schema.org JSON-LD `JobPosting` items on the search page
 - Maps employment type and workload when present
 - Identifiable `User-Agent` via `INGEST_USER_AGENT`
 - Rate limit: `INGEST_RATE_LIMIT_SECONDS`
