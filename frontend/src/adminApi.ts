@@ -138,14 +138,14 @@ export type WeeklyPaymentMetric = {
   week_start: string;
   premium_count: number;
   boost_count: number;
-  amount_chf: number;
+  amount_chf: number | string;
 };
 
 export type RecentPayment = {
   checkout_id: string;
   kind: string;
   label: string;
-  amount_chf: number;
+  amount_chf: number | string;
   paid_at: string;
   listing_id: number | null;
 };
@@ -153,7 +153,7 @@ export type RecentPayment = {
 export type StripeRevenueSummary = {
   configured: boolean;
   currency: string;
-  last_30_days_total_chf: number;
+  last_30_days_total_chf: number | string;
   premium_payments_30d: number;
   boost_payments_30d: number;
   recent_payments: RecentPayment[];

@@ -40,8 +40,10 @@ function formatDay(iso: string): string {
   return date.toLocaleDateString("es-CH", { weekday: "short", day: "numeric", month: "short" });
 }
 
-function formatMoney(amount: number, currency = "CHF"): string {
-  return `${currency.toUpperCase()} ${amount.toFixed(2)}`;
+function formatMoney(amount: number | string, currency = "CHF"): string {
+  const value = Number(amount);
+  const safe = Number.isFinite(value) ? value : 0;
+  return `${currency.toUpperCase()} ${safe.toFixed(2)}`;
 }
 
 export function AdminDashboard() {
@@ -150,7 +152,9 @@ export function AdminDashboard() {
       return;
     }
     if (tab === "apps" || tab === "revenue" || tab === "metrics") {
-      void loadInsights();
+      if (!insights) {
+        void loadInsights();
+      }
     } else if (tab === "overview" || tab === "ingest") {
       void loadOverview();
     } else if (tab === "listings") {
@@ -158,14 +162,15 @@ export function AdminDashboard() {
     } else {
       void loadUsers();
     }
-  }, [authed, tab, loadInsights, loadOverview, loadListings, loadUsers]);
+  }, [authed, tab, insights, loadInsights, loadOverview, loadListings, loadUsers]);
 
   async function onLogin(event: FormEvent) {
     event.preventDefault();
     saveAdminSession(username.trim(), password);
     setPassword("");
     try {
-      await fetchAdminInsights();
+      const data = await fetchAdminInsights();
+      setInsights(data);
       setLoginError(false);
       setAuthed(true);
       setTab("apps");
@@ -217,6 +222,17 @@ export function AdminDashboard() {
         <p className="eyebrow">Centro de operaciones</p>
         <h1>Operador</h1>
         <p className="lede">Apps, ingresos y métricas en un solo lugar.</p>
+        <button
+          type="button"
+          className="admin-logout"
+          onClick={() => {
+            void loadInsights();
+          }}
+          disabled={busy || !(tab === "apps" || tab === "revenue" || tab === "metrics")}
+          style={{ marginRight: "0.5rem" }}
+        >
+          Actualizar
+        </button>
         <button
           type="button"
           className="admin-logout"
@@ -287,6 +303,12 @@ export function AdminDashboard() {
             </p>
           </article>
         </section>
+      ) : null}
+
+      {tab === "revenue" && !insights && !busy ? (
+        <p className="admin-muted">
+          No hay datos de ingresos. ¿Hiciste deploy del backend nuevo (`git pull` + rebuild)?
+        </p>
       ) : null}
 
       {tab === "revenue" && insights ? (
@@ -365,6 +387,12 @@ export function AdminDashboard() {
             )}
           </section>
         </>
+      ) : null}
+
+      {tab === "metrics" && !insights && !busy ? (
+        <p className="admin-muted">
+          No hay métricas. ¿Hiciste deploy del backend nuevo (`git pull` + rebuild)?
+        </p>
       ) : null}
 
       {tab === "metrics" && insights ? (
