@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -92,3 +92,59 @@ class AdminUserRow(BaseModel):
     is_premium: bool
     created_at: datetime
     saved_search_count: int = Field(default=0)
+
+
+class ActiveBoostRow(BaseModel):
+    id: int
+    title: str
+    listing_type: ListingType
+    location: str | None
+    owner_user_id: int | None
+    featured_until: datetime | None
+
+
+class DailySignupMetric(BaseModel):
+    day: date
+    count: int
+
+
+class WeeklyPaymentMetric(BaseModel):
+    week_start: date
+    premium_count: int
+    boost_count: int
+    amount_chf: Decimal
+
+
+class RecentPaymentRow(BaseModel):
+    checkout_id: str
+    kind: str
+    label: str
+    amount_chf: Decimal
+    paid_at: datetime
+    listing_id: int | None = None
+
+
+class StripeRevenueSummary(BaseModel):
+    configured: bool
+    currency: str
+    last_30_days_total_chf: Decimal
+    premium_payments_30d: int
+    boost_payments_30d: int
+    recent_payments: list[RecentPaymentRow]
+    payments_by_week: list[WeeklyPaymentMetric]
+
+
+class OpsAppCard(BaseModel):
+    id: str
+    name: str
+    public_url: str
+    admin_url: str
+    status: str
+    is_current: bool
+
+
+class AdminInsights(BaseModel):
+    apps: list[OpsAppCard]
+    active_boosts: list[ActiveBoostRow]
+    signups_by_day: list[DailySignupMetric]
+    stripe: StripeRevenueSummary

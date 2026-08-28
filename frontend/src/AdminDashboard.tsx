@@ -3,6 +3,7 @@ import {
   clearAdminSession,
   createAdminListing,
   eraseAdminUser,
+  fetchAdminInsights,
   fetchAdminListings,
   fetchAdminUsers,
   fetchOverview,
@@ -12,12 +13,13 @@ import {
   setUserFreeAlerts,
   setUserPremium,
   updateAdminListing,
+  type AdminInsights,
   type AdminListing,
   type AdminUser,
   type DashboardOverview,
 } from "./adminApi";
 
-type Tab = "overview" | "listings" | "users" | "ingest";
+type Tab = "apps" | "revenue" | "metrics" | "overview" | "listings" | "users" | "ingest";
 
 function formatWhen(iso: string | null): string {
   if (!iso) {
@@ -30,13 +32,26 @@ function formatWhen(iso: string | null): string {
   return date.toLocaleString("es-CH", { dateStyle: "short", timeStyle: "short" });
 }
 
+function formatDay(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) {
+    return iso;
+  }
+  return date.toLocaleDateString("es-CH", { weekday: "short", day: "numeric", month: "short" });
+}
+
+function formatMoney(amount: number, currency = "CHF"): string {
+  return `${currency.toUpperCase()} ${amount.toFixed(2)}`;
+}
+
 export function AdminDashboard() {
   const [authed, setAuthed] = useState(hasAdminSession);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState(false);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>("apps");
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
+  const [insights, setInsights] = useState<AdminInsights | null>(null);
   const [listings, setListings] = useState<AdminListing[]>([]);
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [q, setQ] = useState("");
@@ -69,6 +84,19 @@ export function AdminDashboard() {
       document.head.appendChild(robots);
     }
     robots.setAttribute("content", "noindex, nofollow");
+  }, []);
+
+  const loadInsights = useCallback(async () => {
+    setBusy(true);
+    setLoadError(false);
+    try {
+      setInsights(await fetchAdminInsights());
+    } catch {
+      setLoadError(true);
+      setAuthed(hasAdminSession());
+    } finally {
+      setBusy(false);
+    }
   }, []);
 
   const loadOverview = useCallback(async () => {
@@ -121,23 +149,26 @@ export function AdminDashboard() {
     if (!authed) {
       return;
     }
-    if (tab === "overview" || tab === "ingest") {
+    if (tab === "apps" || tab === "revenue" || tab === "metrics") {
+      void loadInsights();
+    } else if (tab === "overview" || tab === "ingest") {
       void loadOverview();
     } else if (tab === "listings") {
       void loadListings();
     } else {
       void loadUsers();
     }
-  }, [authed, tab, loadOverview, loadListings, loadUsers]);
+  }, [authed, tab, loadInsights, loadOverview, loadListings, loadUsers]);
 
   async function onLogin(event: FormEvent) {
     event.preventDefault();
     saveAdminSession(username.trim(), password);
     setPassword("");
     try {
-      await fetchOverview();
+      await fetchAdminInsights();
       setLoginError(false);
       setAuthed(true);
+      setTab("apps");
     } catch {
       clearAdminSession();
       setLoginError(true);
@@ -149,8 +180,8 @@ export function AdminDashboard() {
     return (
       <div className="admin-dash">
         <header className="admin-head">
-          <p className="eyebrow">LinkSwiss</p>
-          <h1>Operador</h1>
+        <p className="eyebrow">Centro de operaciones</p>
+        <h1>Operador</h1>
           <p className="lede">Acceso privado. No forma parte de la app pública.</p>
         </header>
         <form className="card admin-login" onSubmit={(event) => void onLogin(event)}>
@@ -183,8 +214,9 @@ export function AdminDashboard() {
   return (
     <div className="admin-dash">
       <header className="admin-head">
-        <p className="eyebrow">LinkSwiss</p>
+        <p className="eyebrow">Centro de operaciones</p>
         <h1>Operador</h1>
+        <p className="lede">Apps, ingresos y métricas en un solo lugar.</p>
         <button
           type="button"
           className="admin-logout"
@@ -192,6 +224,7 @@ export function AdminDashboard() {
             clearAdminSession();
             setAuthed(false);
             setOverview(null);
+            setInsights(null);
           }}
         >
           Salir
@@ -201,6 +234,9 @@ export function AdminDashboard() {
       <nav className="admin-tabs" aria-label="Secciones">
         {(
           [
+            ["apps", "Apps"],
+            ["revenue", "Ingresos"],
+            ["metrics", "Métricas"],
             ["overview", "Resumen"],
             ["listings", "Anuncios"],
             ["users", "Usuarios"],
@@ -220,6 +256,166 @@ export function AdminDashboard() {
 
       {loadError ? <p className="admin-error">No se pudo cargar. Revisa la sesión.</p> : null}
       {busy ? <p className="admin-muted">Cargando…</p> : null}
+
+      {tab === "apps" && insights ? (
+        <section className="admin-apps-grid">
+          {insights.apps.map((app) => (
+            <article key={app.id} className={`card admin-app-card${app.is_current ? " is-current" : ""}`}>
+              <h2>{app.name}</h2>
+              <p className="admin-muted">{app.status}</p>
+              <p className="admin-app-url">{app.public_url}</p>
+              <div className="admin-actions">
+                <a className="admin-link-btn" href={app.public_url} target="_blank" rel="noreferrer">
+                  Abrir app
+                </a>
+                {app.is_current ? (
+                  <button type="button" className="is-active" disabled>
+                    Admin aquí
+                  </button>
+                ) : (
+                  <a className="admin-link-btn" href={app.admin_url} target="_blank" rel="noreferrer">
+                    Admin
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+          <article className="card admin-app-card admin-app-placeholder">
+            <h2>Próxima app</h2>
+            <p className="admin-muted">
+              Añade más proyectos en <code>OPS_APPS_JSON</code> del servidor.
+            </p>
+          </article>
+        </section>
+      ) : null}
+
+      {tab === "revenue" && insights ? (
+        <>
+          <section className="admin-stats">
+            <article className="card">
+              <h2>Ingresos 30 días</h2>
+              <p className="admin-metric">
+                {insights.stripe.configured
+                  ? formatMoney(insights.stripe.last_30_days_total_chf, insights.stripe.currency)
+                  : "Stripe off"}
+              </p>
+              <p>
+                {insights.stripe.premium_payments_30d} Premium ·{" "}
+                {insights.stripe.boost_payments_30d} boosts
+              </p>
+            </article>
+            <article className="card">
+              <h2>Boosts activos</h2>
+              <p className="admin-metric">{insights.active_boosts.length}</p>
+              <p>Anuncios destacados ahora mismo</p>
+            </article>
+          </section>
+          <section className="card admin-panel">
+            <h2>Boosts activos</h2>
+            {insights.active_boosts.length === 0 ? (
+              <p className="admin-muted">Ningún boost activo.</p>
+            ) : (
+              <ul className="admin-list">
+                {insights.active_boosts.map((item) => (
+                  <li key={item.id}>
+                    <div>
+                      <strong>{item.title}</strong>
+                      <p>
+                        #{item.id} · {item.listing_type === "job" ? "empleo" : "vivienda"} ·{" "}
+                        {item.location ?? "—"}
+                        {item.owner_user_id ? ` · usuario ${item.owner_user_id}` : ""}
+                      </p>
+                      <p className="admin-muted">
+                        Hasta {formatWhen(item.featured_until)}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+          <section className="card admin-panel">
+            <h2>Pagos recientes (Stripe)</h2>
+            {!insights.stripe.configured ? (
+              <p className="admin-muted">Configura STRIPE_SECRET_KEY en el servidor.</p>
+            ) : insights.stripe.recent_payments.length === 0 ? (
+              <p className="admin-muted">Sin pagos completados aún.</p>
+            ) : (
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Tipo</th>
+                    <th>Importe</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {insights.stripe.recent_payments.map((row) => (
+                    <tr key={row.checkout_id}>
+                      <td>{formatWhen(row.paid_at)}</td>
+                      <td>
+                        {row.label}
+                        {row.listing_id ? ` #${row.listing_id}` : ""}
+                      </td>
+                      <td>{formatMoney(row.amount_chf, insights.stripe.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </>
+      ) : null}
+
+      {tab === "metrics" && insights ? (
+        <>
+          <section className="card admin-panel">
+            <h2>Registros por día (14 días)</h2>
+            <div className="admin-bar-chart">
+              {insights.signups_by_day.map((row) => {
+                const max = Math.max(...insights.signups_by_day.map((item) => item.count), 1);
+                const height = Math.round((row.count / max) * 100);
+                return (
+                  <div key={row.day} className="admin-bar-col" title={`${row.count} registros`}>
+                    <div className="admin-bar" style={{ height: `${height}%` }} />
+                    <span className="admin-bar-value">{row.count}</span>
+                    <span className="admin-bar-label">{formatDay(row.day)}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+          <section className="card admin-panel">
+            <h2>Pagos por semana</h2>
+            {!insights.stripe.configured ? (
+              <p className="admin-muted">Stripe no configurado.</p>
+            ) : insights.stripe.payments_by_week.length === 0 ? (
+              <p className="admin-muted">Sin pagos en las últimas semanas.</p>
+            ) : (
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Semana</th>
+                    <th>Premium</th>
+                    <th>Boosts</th>
+                    <th>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {insights.stripe.payments_by_week.map((row) => (
+                    <tr key={row.week_start}>
+                      <td>{formatDay(row.week_start)}</td>
+                      <td>{row.premium_count}</td>
+                      <td>{row.boost_count}</td>
+                      <td>{formatMoney(row.amount_chf, insights.stripe.currency)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </section>
+        </>
+      ) : null}
 
       {tab === "overview" && overview ? (
         <section className="admin-stats">

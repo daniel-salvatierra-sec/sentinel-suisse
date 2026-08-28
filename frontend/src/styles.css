@@ -2176,3 +2176,75 @@ body {
   padding: 0.45rem 0.35rem;
   border-bottom: 1px solid rgba(28, 45, 40, 0.08);
 }
+
+.admin-apps-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.admin-app-card.is-current {
+  border-color: rgba(47, 106, 69, 0.45);
+  box-shadow: 0 0 0 1px rgba(47, 106, 69, 0.12);
+}
+
+.admin-app-url {
+  font-size: 0.85rem;
+  word-break: break-all;
+  color: var(--muted, #5a6b63);
+}
+
+.admin-app-placeholder {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
+.admin-link-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(28, 45, 40, 0.15);
+  text-decoration: none;
+  color: inherit;
+  font-size: 0.9rem;
+}
+
+.admin-bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.35rem;
+  min-height: 160px;
+  padding-top: 0.5rem;
+}
+
+.admin-bar-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 150px;
+  justify-content: flex-end;
+}
+
+.admin-bar {
+  width: 100%;
+  max-width: 2rem;
+  background: rgba(47, 106, 69, 0.75);
+  border-radius: 0.25rem 0.25rem 0 0;
+  min-height: 4px;
+}
+
+.admin-bar-value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.admin-bar-label {
+  font-size: 0.65rem;
+  color: var(--muted, #5a6b63);
+  text-align: center;
+  line-height: 1.1;
+}

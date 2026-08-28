@@ -11,6 +11,7 @@ from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.admin_dashboard import (
+    AdminInsights,
     AdminListingCreate,
     AdminListingRow,
     AdminListingUpdate,
@@ -30,6 +31,7 @@ from sentinel_suisse.services.admin_dashboard import (
     set_user_free_alerts,
     user_row,
 )
+from sentinel_suisse.services.admin_insights import admin_insights
 from sentinel_suisse.services.direct_listings import create_admin_listing, update_admin_listing
 from sentinel_suisse.services.erasure import erase_user
 
@@ -44,6 +46,16 @@ def get_overview(
     _: str = Depends(verify_admin),
 ) -> DashboardOverview:
     return dashboard_overview(db)
+
+
+@router.get("/insights", response_model=AdminInsights)
+@limiter.limit(lambda: get_settings().rate_limit)
+def get_insights(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> AdminInsights:
+    return admin_insights(db, get_settings())
 
 
 @router.get("/listings", response_model=list[AdminListingRow])

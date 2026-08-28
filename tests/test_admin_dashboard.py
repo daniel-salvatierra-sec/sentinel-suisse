@@ -203,3 +203,24 @@ def test_admin_create_and_edit_listing(operator_client: TestClient) -> None:
     )
     assert hidden.status_code == 200, hidden.text
     assert hidden.json()["is_hidden"] is True
+
+
+def test_admin_insights(operator_client: TestClient) -> None:
+    created = operator_client.post(
+        "/api/v1/users",
+        json={"email": _email("insights"), "is_active": True},
+    )
+    assert created.status_code == 201, created.text
+
+    response = operator_client.get("/api/v1/admin/insights")
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert isinstance(data["apps"], list)
+    assert any(app["is_current"] for app in data["apps"])
+    assert isinstance(data["active_boosts"], list)
+    assert isinstance(data["signups_by_day"], list)
+    assert len(data["signups_by_day"]) >= 1
+    assert "configured" in data["stripe"]
+    assert isinstance(data["stripe"]["payments_by_week"], list)
+
+    operator_client.delete(f"/api/v1/admin/users/{created.json()['id']}")

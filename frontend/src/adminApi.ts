@@ -111,6 +111,70 @@ export async function fetchOverview(): Promise<DashboardOverview> {
   return response.json() as Promise<DashboardOverview>;
 }
 
+export type OpsAppCard = {
+  id: string;
+  name: string;
+  public_url: string;
+  admin_url: string;
+  status: string;
+  is_current: boolean;
+};
+
+export type ActiveBoost = {
+  id: number;
+  title: string;
+  listing_type: "housing" | "job";
+  location: string | null;
+  owner_user_id: number | null;
+  featured_until: string | null;
+};
+
+export type DailySignupMetric = {
+  day: string;
+  count: number;
+};
+
+export type WeeklyPaymentMetric = {
+  week_start: string;
+  premium_count: number;
+  boost_count: number;
+  amount_chf: number;
+};
+
+export type RecentPayment = {
+  checkout_id: string;
+  kind: string;
+  label: string;
+  amount_chf: number;
+  paid_at: string;
+  listing_id: number | null;
+};
+
+export type StripeRevenueSummary = {
+  configured: boolean;
+  currency: string;
+  last_30_days_total_chf: number;
+  premium_payments_30d: number;
+  boost_payments_30d: number;
+  recent_payments: RecentPayment[];
+  payments_by_week: WeeklyPaymentMetric[];
+};
+
+export type AdminInsights = {
+  apps: OpsAppCard[];
+  active_boosts: ActiveBoost[];
+  signups_by_day: DailySignupMetric[];
+  stripe: StripeRevenueSummary;
+};
+
+export async function fetchAdminInsights(): Promise<AdminInsights> {
+  const response = await adminFetch("/api/v1/admin/insights");
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminInsights>;
+}
+
 export async function fetchAdminListings(params: {
   q?: string;
   listing_type?: "housing" | "job" | "";
