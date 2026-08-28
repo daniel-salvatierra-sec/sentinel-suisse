@@ -158,6 +158,10 @@ export function clearApiKey(): void {
   localStorage.removeItem(API_KEY_STORAGE);
 }
 
+export function isUnauthorizedError(err: unknown): boolean {
+  return err instanceof Error && err.message.includes("401");
+}
+
 async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   const apiKey = getApiKey();
   if (!apiKey) {

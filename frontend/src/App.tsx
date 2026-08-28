@@ -697,6 +697,7 @@ export default function App() {
           refreshToken={accountRefresh}
           onSignupSuccess={onSignupSuccess}
           onLoggedOut={onLoggedOut}
+          onSessionInvalid={() => setHasSession(false)}
           onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
           onSearchHome={() => goToSearch("housing")}
           onSearchWork={() => goToSearch("job")}

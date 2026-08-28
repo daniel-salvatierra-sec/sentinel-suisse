@@ -7,6 +7,7 @@ import {
   fetchMe,
   fetchSavedSearches,
   getApiKey,
+  isUnauthorizedError,
   type AlertLog,
   type ListingType,
   type SavedSearch,
@@ -18,7 +19,7 @@ import { DoorLinks } from "./DoorLinks";
 import { PremiumUpsell } from "./PremiumUpsell";
 import { formatSearchSummary } from "../searchSummary";
 import type { Lang, Messages } from "../i18n";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type Props = {
   t: Messages;
@@ -29,6 +30,7 @@ type Props = {
   refreshToken: number;
   onSignupSuccess: () => void;
   onLoggedOut: () => void;
+  onSessionInvalid?: () => void;
   onOpenPublish: () => void;
   onSearchHome: () => void;
   onSearchWork: () => void;
@@ -43,6 +45,7 @@ export function AccountPanel({
   refreshToken,
   onSignupSuccess,
   onLoggedOut,
+  onSessionInvalid,
   onOpenPublish,
   onSearchHome,
   onSearchWork,
@@ -55,13 +58,16 @@ export function AccountPanel({
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [portalBusy, setPortalBusy] = useState(false);
   const [portalError, setPortalError] = useState<string | null>(null);
+  const loadRequestId = useRef(0);
 
   const load = useCallback(async () => {
     if (!getApiKey()) {
       setLoading(false);
       setProfile(null);
+      setError(false);
       return;
     }
+    const requestId = ++loadRequestId.current;
     setLoading(true);
     setError(false);
     try {
@@ -70,16 +76,27 @@ export function AccountPanel({
         fetchSavedSearches(),
         fetchAlerts(),
       ]);
+      if (requestId !== loadRequestId.current) return;
       setProfile(me);
       setSearches(saved);
       setAlerts(history.slice(0, 10));
-    } catch {
-      setError(true);
-      setProfile(null);
+    } catch (err) {
+      if (requestId !== loadRequestId.current) return;
+      if (isUnauthorizedError(err)) {
+        clearApiKey();
+        setProfile(null);
+        setError(false);
+        onSessionInvalid?.();
+      } else {
+        setError(true);
+        setProfile(null);
+      }
     } finally {
-      setLoading(false);
+      if (requestId === loadRequestId.current) {
+        setLoading(false);
+      }
     }
-  }, []);
+  }, [onSessionInvalid]);
 
   useEffect(() => {
     void load();
