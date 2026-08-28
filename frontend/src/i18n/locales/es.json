@@ -126,6 +126,8 @@
   "sortPriceAsc": "Precio menor→mayor",
   "sortPriceDesc": "Precio mayor→menor",
   "loadMore": "Ver más",
+  "sponsorLabel": "Patrocinado",
+  "sponsorSectionLabel": "Patrocinadores",
   "endOfResults": "Fin de los resultados",
   "providerFilter": "Portal",
   "allProviders": "Todos",

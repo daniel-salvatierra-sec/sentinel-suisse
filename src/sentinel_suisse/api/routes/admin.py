@@ -9,6 +9,7 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.listing import Listing
+from sentinel_suisse.models.sponsor_ad import SponsorAd
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.admin_dashboard import (
     AdminInsights,
@@ -21,6 +22,7 @@ from sentinel_suisse.schemas.admin_dashboard import (
     UserPremiumUpdate,
 )
 from sentinel_suisse.schemas.erasure import UserErasureReport
+from sentinel_suisse.schemas.sponsor_ad import SponsorAdAdminRow, SponsorAdCreate, SponsorAdUpdate
 from sentinel_suisse.schemas.user import UserRead
 from sentinel_suisse.services.admin_dashboard import (
     dashboard_overview,
@@ -34,6 +36,12 @@ from sentinel_suisse.services.admin_dashboard import (
 from sentinel_suisse.services.admin_insights import admin_insights
 from sentinel_suisse.services.direct_listings import create_admin_listing, update_admin_listing
 from sentinel_suisse.services.erasure import erase_user
+from sentinel_suisse.services.sponsor_ads import (
+    create_sponsor,
+    delete_sponsor,
+    list_admin_sponsors,
+    update_sponsor,
+)
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -56,6 +64,62 @@ def get_insights(
     _: str = Depends(verify_admin),
 ) -> AdminInsights:
     return admin_insights(db, get_settings())
+
+
+@router.get("/sponsors", response_model=list[SponsorAdAdminRow])
+@limiter.limit(lambda: get_settings().rate_limit)
+def get_sponsors(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+    limit: int = Query(default=100, ge=1, le=200),
+) -> list[SponsorAdAdminRow]:
+    return list_admin_sponsors(db, limit=limit)
+
+
+@router.post("/sponsors", response_model=SponsorAdAdminRow, status_code=status.HTTP_201_CREATED)
+@limiter.limit(lambda: get_settings().rate_limit)
+def post_sponsor(
+    request: Request,
+    payload: SponsorAdCreate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> SponsorAdAdminRow:
+    return create_sponsor(db, payload)
+
+
+@router.patch("/sponsors/{sponsor_id}", response_model=SponsorAdAdminRow)
+@limiter.limit(lambda: get_settings().rate_limit)
+def patch_sponsor(
+    request: Request,
+    sponsor_id: int,
+    payload: SponsorAdUpdate,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> SponsorAdAdminRow:
+    row = db.get(SponsorAd, sponsor_id)
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sponsor not found")
+    try:
+        return update_sponsor(db, row, payload)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)
+        ) from exc
+
+
+@router.delete("/sponsors/{sponsor_id}", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit(lambda: get_settings().rate_limit)
+def remove_sponsor(
+    request: Request,
+    sponsor_id: int,
+    db: Session = Depends(get_db),
+    _: str = Depends(verify_admin),
+) -> None:
+    row = db.get(SponsorAd, sponsor_id)
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sponsor not found")
+    delete_sponsor(db, row)
 
 
 @router.get("/listings", response_model=list[AdminListingRow])

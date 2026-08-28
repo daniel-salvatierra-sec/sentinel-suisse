@@ -25,6 +25,7 @@ from sentinel_suisse.schemas.admin_dashboard import (
     StripeRevenueSummary,
     WeeklyPaymentMetric,
 )
+from sentinel_suisse.services.sponsor_ads import sponsor_revenue_summary
 
 logger = logging.getLogger(__name__)
 
@@ -266,4 +267,5 @@ def admin_insights(db: Session, settings: Settings) -> AdminInsights:
         active_boosts=list_active_boosts(db),
         signups_by_day=signup_metrics(db),
         stripe=stripe_summary,
+        sponsors=sponsor_revenue_summary(db),
     )

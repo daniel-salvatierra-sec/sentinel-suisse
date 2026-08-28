@@ -28,6 +28,7 @@ from sentinel_suisse.schemas.public_signup import (
     PublicAlertSignupResponse,
 )
 from sentinel_suisse.schemas.search import SearchQuery
+from sentinel_suisse.schemas.sponsor_ad import SponsorAdPublic, SponsorEventKind
 from sentinel_suisse.services.city_stock import list_stocked_picker_cities
 from sentinel_suisse.services.email_verification import (
     send_channel_verification_email,
@@ -43,6 +44,7 @@ from sentinel_suisse.services.magic_login import (
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
 from sentinel_suisse.services.search import SearchSort, search_listings
+from sentinel_suisse.services.sponsor_ads import list_public_sponsors, record_sponsor_event
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -89,6 +91,32 @@ def public_cities(
 ) -> list[CityStock]:
     """Swiss picker cities that currently have fresh housing or job listings."""
     return list_stocked_picker_cities(db)
+
+
+@router.get("/sponsors", response_model=list[SponsorAdPublic])
+@limiter.limit(lambda: get_settings().rate_limit)
+def public_sponsors(
+    request: Request,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_search),
+    context: str = Query(default="all", pattern="^(all|housing|job)$"),
+    placement: str = Query(default="banner", min_length=2, max_length=32),
+    limit: int = Query(default=3, ge=1, le=5),
+) -> list[SponsorAdPublic]:
+    return list_public_sponsors(db, context=context, placement=placement, limit=limit)
+
+
+@router.post("/sponsors/{sponsor_id}/events", status_code=status.HTTP_204_NO_CONTENT)
+@limiter.limit("120/minute")
+def public_sponsor_event(
+    request: Request,
+    sponsor_id: int,
+    payload: SponsorEventKind,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_search),
+) -> None:
+    if not record_sponsor_event(db, sponsor_id, kind=payload.kind):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Sponsor not found")
 
 
 @router.get("/search", response_model=list[ListingRead])

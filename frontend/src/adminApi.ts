@@ -160,12 +160,77 @@ export type StripeRevenueSummary = {
   payments_by_week: WeeklyPaymentMetric[];
 };
 
+export type AdminSponsor = {
+  id: number;
+  sponsor_name: string;
+  placement: string;
+  context: "all" | "housing" | "job";
+  headline: string | null;
+  image_url: string | null;
+  target_url: string;
+  monthly_chf: number | string;
+  starts_at: string | null;
+  ends_at: string | null;
+  is_active: boolean;
+  sort_order: number;
+  impression_count: number;
+  click_count: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SponsorRevenueSummary = {
+  active_count: number;
+  estimated_monthly_chf: number | string;
+  total_impressions: number;
+  total_clicks: number;
+  active_sponsors: AdminSponsor[];
+};
+
 export type AdminInsights = {
   apps: OpsAppCard[];
   active_boosts: ActiveBoost[];
   signups_by_day: DailySignupMetric[];
   stripe: StripeRevenueSummary;
+  sponsors: SponsorRevenueSummary;
 };
+
+export type AdminSponsorInput = {
+  sponsor_name: string;
+  context: "all" | "housing" | "job";
+  headline?: string | null;
+  image_url?: string | null;
+  target_url: string;
+  monthly_chf?: number;
+  starts_at?: string | null;
+  ends_at?: string | null;
+  is_active?: boolean;
+  sort_order?: number;
+};
+
+function sponsorPayload(input: AdminSponsorInput): Record<string, unknown> {
+  const body: Record<string, unknown> = {
+    sponsor_name: input.sponsor_name,
+    context: input.context,
+    target_url: input.target_url,
+    monthly_chf: input.monthly_chf ?? 0,
+    is_active: input.is_active ?? true,
+    sort_order: input.sort_order ?? 0,
+  };
+  if (input.headline) {
+    body.headline = input.headline;
+  }
+  if (input.image_url) {
+    body.image_url = input.image_url;
+  }
+  if (input.starts_at) {
+    body.starts_at = input.starts_at;
+  }
+  if (input.ends_at) {
+    body.ends_at = input.ends_at;
+  }
+  return body;
+}
 
 export async function fetchAdminInsights(): Promise<AdminInsights> {
   const response = await adminFetch("/api/v1/admin/insights");
@@ -273,6 +338,46 @@ export async function setUserFreeAlerts(
 
 export async function eraseAdminUser(id: number): Promise<void> {
   const response = await adminFetch(`/api/v1/admin/users/${id}`, { method: "DELETE" });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+}
+
+export async function fetchAdminSponsors(): Promise<AdminSponsor[]> {
+  const response = await adminFetch("/api/v1/admin/sponsors?limit=100");
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminSponsor[]>;
+}
+
+export async function createAdminSponsor(input: AdminSponsorInput): Promise<AdminSponsor> {
+  const response = await adminFetch("/api/v1/admin/sponsors", {
+    method: "POST",
+    body: JSON.stringify(sponsorPayload(input)),
+  });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminSponsor>;
+}
+
+export async function updateAdminSponsor(
+  id: number,
+  patch: Partial<AdminSponsorInput>,
+): Promise<AdminSponsor> {
+  const response = await adminFetch(`/api/v1/admin/sponsors/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(patch),
+  });
+  if (!response.ok) {
+    throw new Error(String(response.status));
+  }
+  return response.json() as Promise<AdminSponsor>;
+}
+
+export async function deleteAdminSponsor(id: number): Promise<void> {
+  const response = await adminFetch(`/api/v1/admin/sponsors/${id}`, { method: "DELETE" });
   if (!response.ok) {
     throw new Error(String(response.status));
   }

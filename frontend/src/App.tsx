@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   fetchStockedCities,
+  fetchSponsors,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
@@ -10,6 +11,7 @@ import {
   type PropertyType,
   type SearchQueryParams,
   type SearchSort,
+  type SponsorAd,
 } from "./api";
 import { AccountPanel } from "./components/AccountPanel";
 import { DoorLinks } from "./components/DoorLinks";
@@ -30,6 +32,7 @@ import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
 import { InstallAppButton } from "./components/InstallAppButton";
 import { ShareAppButton } from "./components/ShareAppButton";
+import { SponsorBanner } from "./components/SponsorBanner";
 import { VirtualizedListingList } from "./components/VirtualizedListingList";
 import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
@@ -114,6 +117,7 @@ export default function App() {
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
   const [boostBanner, setBoostBanner] = useState<"success" | "cancel" | null>(null);
+  const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
 
   const t = messages[lang];
 
@@ -224,6 +228,24 @@ export default function App() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchSponsors(category)
+      .then((rows) => {
+        if (!cancelled) {
+          setSponsors(rows);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSponsors([]);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [category]);
 
   useEffect(() => {
     const deep = parseSubscribeDeepLink(window.location.search);
@@ -597,6 +619,10 @@ export default function App() {
           {t.alerts}
         </button>
       </div>
+
+      {tab !== "account" && tab !== "alerts" && tab !== "publish" ? (
+        <SponsorBanner sponsors={sponsors} t={t} />
+      ) : null}
 
       {category === "housing" &&
       !queryLooksLikeJob(query) &&

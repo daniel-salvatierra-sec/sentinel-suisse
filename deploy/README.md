@@ -82,6 +82,8 @@ Run these **once on the VPS** (Linux):
 | `deploy/run-ingest.sh <provider>` | Run a live ingest connector inside the `api` container + dispatch alerts |
 | `python -m sentinel_suisse.maintenance reclassify-jobs` | Re-apply job taxonomy to stored listings (use after taxonomy updates) |
 
+After deploy, run DB migrations (`alembic upgrade head` in the api container) so sponsor tables exist.
+
 Example cron on VPS:
 
 ```bash

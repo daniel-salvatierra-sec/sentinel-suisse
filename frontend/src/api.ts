@@ -569,3 +569,31 @@ export async function sendAssistantMessage(
   const data = (await response.json()) as { reply: string };
   return data.reply;
 }
+
+export type SponsorAd = {
+  id: number;
+  placement: string;
+  headline: string | null;
+  image_url: string | null;
+  target_url: string;
+};
+
+export async function fetchSponsors(context: ListingType): Promise<SponsorAd[]> {
+  const query = new URLSearchParams({ context, placement: "banner", limit: "3" });
+  const response = await fetch(`/api/v1/public/sponsors?${query.toString()}`);
+  if (!response.ok) {
+    return [];
+  }
+  return response.json() as Promise<SponsorAd[]>;
+}
+
+export async function recordSponsorEvent(
+  sponsorId: number,
+  kind: "impression" | "click",
+): Promise<void> {
+  await fetch(`/api/v1/public/sponsors/${sponsorId}/events`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ kind }),
+  });
+}

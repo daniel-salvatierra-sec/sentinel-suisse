@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.schemas.direct_listing import DirectListingCreate
+from sentinel_suisse.schemas.sponsor_ad import SponsorRevenueSummary
 from sentinel_suisse.services.contact_link import ContactLinkError, normalize_contact_link
 
 
@@ -148,3 +149,4 @@ class AdminInsights(BaseModel):
     active_boosts: list[ActiveBoostRow]
     signups_by_day: list[DailySignupMetric]
     stripe: StripeRevenueSummary
+    sponsors: SponsorRevenueSummary

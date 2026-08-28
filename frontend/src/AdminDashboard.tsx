@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import "./admin-dashboard.css";
+import { AdminSponsorsPanel } from "./components/AdminSponsorsPanel";
 import {
   clearAdminSession,
   createAdminListing,
@@ -20,12 +21,13 @@ import {
   type DashboardOverview,
 } from "./adminApi";
 
-type Tab = "apps" | "revenue" | "metrics" | "overview" | "listings" | "users" | "ingest";
+type Tab = "apps" | "revenue" | "metrics" | "sponsors" | "overview" | "listings" | "users" | "ingest";
 
 const TAB_COPY: Record<Tab, { title: string; subtitle: string }> = {
   apps: { title: "Aplicaciones", subtitle: "Portfolio de productos que operas" },
-  revenue: { title: "Ingresos", subtitle: "Stripe · Premium y boosts de anuncios" },
+  revenue: { title: "Ingresos", subtitle: "Stripe · Premium, boosts y patrocinios" },
   metrics: { title: "Métricas", subtitle: "Registros y pagos en el tiempo" },
+  sponsors: { title: "Publicidad", subtitle: "Patrocinios manuales en LinkSwiss" },
   overview: { title: "Resumen", subtitle: "Salud general de LinkSwiss" },
   listings: { title: "Anuncios", subtitle: "Moderación y publicaciones directas" },
   users: { title: "Usuarios", subtitle: "Cuentas, Premium y alertas" },
@@ -39,6 +41,7 @@ const NAV_GROUPS: { label: string; items: { id: Tab; label: string; icon: string
       { id: "apps", label: "Apps", icon: "◫" },
       { id: "revenue", label: "Ingresos", icon: "◈" },
       { id: "metrics", label: "Métricas", icon: "▤" },
+      { id: "sponsors", label: "Publicidad", icon: "◆" },
     ],
   },
   {
@@ -190,7 +193,7 @@ export function AdminDashboard() {
       void loadOverview();
     } else if (tab === "listings") {
       void loadListings();
-    } else {
+    } else if (tab === "users") {
       void loadUsers();
     }
   }, [authed, tab, insights, loadInsights, loadOverview, loadListings, loadUsers]);
@@ -391,6 +394,37 @@ export function AdminDashboard() {
               <p className="admin-metric">{insights.active_boosts.length}</p>
               <p>Anuncios destacados ahora mismo</p>
             </article>
+            <article className="card admin-kpi">
+              <h2>Patrocinios activos</h2>
+              <p className="admin-metric">{insights.sponsors.active_count}</p>
+              <p>
+                {formatMoney(insights.sponsors.estimated_monthly_chf)} / mes estimados ·{" "}
+                {insights.sponsors.total_clicks} clics
+              </p>
+            </article>
+          </section>
+          <section className="card admin-panel">
+            <h2>Patrocinios en web</h2>
+            {insights.sponsors.active_sponsors.length === 0 ? (
+              <p className="admin-muted">
+                Ningún patrocinio activo. Créalos en la pestaña Publicidad.
+              </p>
+            ) : (
+              <ul className="admin-list">
+                {insights.sponsors.active_sponsors.map((item) => (
+                  <li key={item.id}>
+                    <div>
+                      <strong>{item.sponsor_name}</strong>
+                      <p>
+                        {item.context} · {formatMoney(item.monthly_chf)}/mes ·{" "}
+                        {item.impression_count} imp · {item.click_count} clics
+                      </p>
+                      <p className="admin-muted">{item.headline ?? item.target_url}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
           </section>
           <section className="card admin-panel">
             <h2>Boosts activos</h2>
@@ -447,6 +481,10 @@ export function AdminDashboard() {
             )}
           </section>
         </>
+      ) : null}
+
+      {tab === "sponsors" ? (
+        <AdminSponsorsPanel busy={busy} onBusyChange={setBusy} />
       ) : null}
 
       {tab === "metrics" && !insights && !busy ? (

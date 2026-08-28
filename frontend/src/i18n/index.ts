@@ -139,6 +139,8 @@ export type Messages = {
   sortPriceAsc: string;
   sortPriceDesc: string;
   loadMore: string;
+  sponsorLabel: string;
+  sponsorSectionLabel: string;
   endOfResults: string;
   providerFilter: string;
   allProviders: string;

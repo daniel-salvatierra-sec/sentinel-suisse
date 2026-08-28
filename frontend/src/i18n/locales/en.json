@@ -126,6 +126,8 @@
   "sortPriceAsc": "Price low→high",
   "sortPriceDesc": "Price high→low",
   "loadMore": "Load more",
+  "sponsorLabel": "Sponsored",
+  "sponsorSectionLabel": "Sponsors",
   "endOfResults": "End of results",
   "providerFilter": "Portal",
   "allProviders": "All",

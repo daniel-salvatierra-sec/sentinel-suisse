@@ -222,5 +222,7 @@ def test_admin_insights(operator_client: TestClient) -> None:
     assert len(data["signups_by_day"]) >= 1
     assert "configured" in data["stripe"]
     assert isinstance(data["stripe"]["payments_by_week"], list)
+    assert "active_count" in data["sponsors"]
+    assert isinstance(data["sponsors"]["active_sponsors"], list)
 
     operator_client.delete(f"/api/v1/admin/users/{created.json()['id']}")
