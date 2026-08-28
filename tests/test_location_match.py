@@ -13,6 +13,11 @@ def test_lausanne_expands_aliases() -> None:
     terms = expand_location_query("Lausanne")
     assert "Lausanne" in terms
     assert "Losanna" in terms
+    assert "Renens" in terms
+    assert "Ecublens" in terms
+    assert "1003" in terms
+    assert location_matches("Renens VD", "Lausanne") is True
+    assert location_matches("Mobi-Lausanne", "Lausanne") is True
 
 
 def test_zurich_and_airport_aliases() -> None:

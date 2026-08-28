@@ -80,6 +80,7 @@ Run these **once on the VPS** (Linux):
 | `deploy/restore-db.sh` | Restore from `.sql.gz` backup |
 | `deploy/monitor-health.sh` | Exit non-zero if `/health` or DB check fails |
 | `deploy/run-ingest.sh <provider>` | Run a live ingest connector inside the `api` container + dispatch alerts |
+| `python -m sentinel_suisse.maintenance reclassify-jobs` | Re-apply job taxonomy to stored listings (use after taxonomy updates) |
 
 Example cron on VPS:
 
@@ -103,7 +104,18 @@ Example cron on VPS:
 5 */6 * * * /opt/sentinel-suisse/deploy/run-ingest.sh flatfox >> /var/log/linkswiss-ingest.log 2>&1
 ```
 
-`jobup` / `jobs` crawl ~40 Swiss cities (3 pages each) plus logistics keyword passes — each hourly run may take several minutes. Tune with `JOBCLOUD_MAX_PAGES`, `JOBUP_LOCATIONS`, and `INGEST_RATE_LIMIT_SECONDS` in `.env` if needed.
+`jobup` / `jobs` crawl ~40 Swiss cities (3 pages each) plus multi-sector keyword passes
+(logistics, IT, health, construction, hospitality, watchmaking, finance) — each hourly run
+may take **30–45 minutes**. Tune with `JOBCLOUD_MAX_PAGES`, `JOBUP_LOCATIONS`,
+`JOBCLOUD_ROLE_KEYWORDS`, and `INGEST_RATE_LIMIT_SECONDS` in `.env` if needed.
+
+After deploying taxonomy changes, re-classify existing jobs once:
+
+```bash
+docker compose -f docker-compose.prod.yml exec api python -m sentinel_suisse.maintenance reclassify-jobs
+```
+
+Use `--dry-run` first to preview counts. Optional: `--provider jobup` to limit scope.
 
 `run-ingest.sh` only works for connectors enabled via `INGEST_<PROVIDER>_LIVE=true` in
 `.env` — it's a no-op error (nonzero exit, logged) otherwise, so a disabled connector's

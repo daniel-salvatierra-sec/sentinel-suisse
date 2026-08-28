@@ -124,9 +124,11 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
 def _apply_job_category_filter(
     stmt: Select[tuple[Listing]], filter_category: str
 ) -> Select[tuple[Listing]]:
-    values = [item.casefold() for item in stored_job_category_values(filter_category)]
+    values = [
+        item.casefold() for item in stored_job_category_values(filter_category, for_search=True)
+    ]
     clauses = [func.lower(Listing.job_category).in_(values)]
-    for needle in title_needles_for_filter(filter_category):
+    for needle in title_needles_for_filter(filter_category, for_search=True):
         clauses.append(Listing.title.ilike(needle))
         clauses.append(Listing.description.ilike(needle))
     parent = parent_field(filter_category)

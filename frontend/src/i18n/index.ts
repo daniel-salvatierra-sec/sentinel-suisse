@@ -94,6 +94,10 @@ export type Messages = {
   jobBranch_public: string;
   jobBranch_warehouse: string;
   jobBranch_transport: string;
+  jobBranchHint_transport: string;
+  jobBranchHint_nursing: string;
+  jobBranchHint_retail: string;
+  jobBranchHint_watchmaker: string;
   jobBranch_purchasing: string;
   jobBranch_watchmaker: string;
   jobBranch_jewelry: string;

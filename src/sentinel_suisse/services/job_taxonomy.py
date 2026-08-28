@@ -253,6 +253,17 @@ _TITLE_TO_SLUG: tuple[tuple[str, str], ...] = (
     ("electrotechnicien", "trades"),
     ("macon", "trades"),
     ("manoeuvre", "trades"),
+    ("plombier", "trades"),
+    ("peintre", "trades"),
+    ("menuisier", "trades"),
+    ("sanitaire", "trades"),
+    ("aide-soignant", "care"),
+    ("aide soignant", "care"),
+    ("pharmacien", "pharma"),
+    ("receptionniste", "hotel"),
+    ("receptionist", "hotel"),
+    ("chef de rang", "service"),
+    ("chef de cuisine", "kitchen"),
     ("soudeur", "trades"),
     ("carrossier", "trades"),
     ("mecanicien", "trades"),
@@ -284,6 +295,16 @@ _TITLE_TO_SLUG: tuple[tuple[str, str], ...] = (
     ("cajero", "cashier"),
     ("cajera", "cashier"),
     ("vendeur", "retail"),
+    ("chauffeur de ligne", "bus"),
+    ("chauffeur tl", "bus"),
+    ("conducteur tl", "bus"),
+    ("conducteur-trice tl", "bus"),
+    ("region lausannoise", "bus"),
+    ("transports publics", "bus"),
+    ("mobi-lausanne", "bus"),
+    ("mobi lausanne", "bus"),
+    ("unireso", "bus"),
+    ("blt", "bus"),
     ("chauffeur de bus", "bus"),
     ("chauffeur bus", "bus"),
     ("conducteur de bus", "bus"),
@@ -431,6 +452,10 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%électrotechnicien%",
         "%macon%",
         "%maçon%",
+        "%plombier%",
+        "%peintre%",
+        "%menuisier%",
+        "%sanitaire%",
         "%manoeuvre%",
         "%manœuvre%",
         "%soudeur%",
@@ -439,6 +464,7 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%mecanicien%",
         "%étancheur%",
         "%etancheur%",
+        "%charpentier%",
     ),
     "admin": ("%administratif%",),
     "hr": (
@@ -474,11 +500,24 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%cajero%",
     ),
     "hospitality": ("%restauration%",),
-    "kitchen": ("%cuisinier%",),
-    "service": ("%serveur%",),
+    "kitchen": (
+        "%cuisinier%",
+        "%chef de cuisine%",
+    ),
+    "service": (
+        "%serveur%",
+        "%chef de rang%",
+    ),
     "hotel": (
         "%hôtelier%",
         "%hotelier%",
+        "%réceptionniste%",
+        "%receptionniste%",
+        "%receptionist%",
+    ),
+    "pharma": (
+        "%pharmacien%",
+        "%pharma%",
     ),
     "logistics": (
         "%logisticien%",
@@ -521,6 +560,12 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%conducteur autobus%",
         "%conducteur de ligne%",
         "%chauffeur de ligne%",
+        "%conducteur tl%",
+        "%chauffeur tl%",
+        "%region lausannoise%",
+        "%transports publics%",
+        "%mobi-lausanne%",
+        "%unireso%",
         "%autocar%",
         "%autobus%",
         "%kleinbus%",
@@ -719,9 +764,9 @@ def classify_job_category(portal: str | None, title: str | None) -> str | None:
     return portal_canon or title_canon or "other"
 
 
-def title_needles_for_filter(filter_category: str) -> list[str]:
+def title_needles_for_filter(filter_category: str, *, for_search: bool = False) -> list[str]:
     canon = canonical_job_category(filter_category) or filter_category
-    related = _related_job_categories(canon)
+    related = _related_for_search(canon) if for_search else _related_job_categories(canon)
     needles: list[str] = []
     for slug in related:
         needles.extend(TITLE_SEARCH_NEEDLES.get(slug, ()))
@@ -733,14 +778,28 @@ def _related_job_categories(filter_category: str) -> set[str]:
     return {filter_category} | descendants(filter_category)
 
 
+# Branch filters in search omit roles that belong in their own chip (e.g. crane ≠ transport).
+_SEARCH_BRANCH_ROLE_EXCLUSIONS: dict[str, frozenset[str]] = {
+    "transport": frozenset({"crane"}),
+}
+
+
+def _related_for_search(filter_category: str) -> set[str]:
+    related = _related_job_categories(filter_category)
+    for excluded in _SEARCH_BRANCH_ROLE_EXCLUSIONS.get(filter_category, frozenset()):
+        related.discard(excluded)
+        related -= descendants(excluded)
+    return related
+
+
 def _parent_field(slug: str) -> str:
     return parent_field(slug)
 
 
-def stored_job_category_values(filter_category: str) -> list[str]:
+def stored_job_category_values(filter_category: str, *, for_search: bool = False) -> list[str]:
     """DB values that should match this UI filter (our slugs + portal aliases)."""
     canon = canonical_job_category(filter_category) or filter_category
-    related = _related_job_categories(canon)
+    related = _related_for_search(canon) if for_search else _related_job_categories(canon)
     values: set[str] = set(related)
     values.add(filter_category)
     for alias, slug in _ALIAS_TO_SLUG.items():

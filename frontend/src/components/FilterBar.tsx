@@ -85,6 +85,12 @@ function fieldLabel(t: Messages, field: JobField): string {
   return map[field];
 }
 
+function branchHint(t: Messages, branch: string): string | undefined {
+  const key = `jobBranchHint_${branch}` as keyof Messages;
+  const value = t[key];
+  return typeof value === "string" ? value : undefined;
+}
+
 function branchLabel(t: Messages, branch: string): string {
   const key = `jobBranch_${branch}` as keyof Messages;
   const value = t[key];
@@ -360,6 +366,9 @@ export function FilterBar({
 
           {roles.length > 0 && (
             <>
+              {jobBranch && !jobRole && branchHint(t, jobBranch) ? (
+                <p className="filter-group-hint">{branchHint(t, jobBranch)}</p>
+              ) : null}
               <p className="filter-group-label">{t.jobRoleLabel}</p>
               <div className="filter-chips" role="group" aria-label={t.jobRoleLabel}>
                 <button

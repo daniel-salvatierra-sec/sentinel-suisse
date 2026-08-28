@@ -4,6 +4,7 @@ from sentinel_suisse.services.job_taxonomy import (
     canonical_job_category,
     classify_job_category,
     job_category_matches,
+    stored_job_category_values,
     title_needles_for_filter,
 )
 
@@ -67,6 +68,8 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("healthcare", "Infirmier Spitex") == "homecare"
     assert classify_job_category("Unknown", "Kleinbusfahrer:in 20-50 %") == "bus"
     assert classify_job_category("Unknown", "Conducteur-trice TPG") == "bus"
+    assert classify_job_category("Unknown", "Conducteur TL région lausannoise") == "bus"
+    assert classify_job_category("Unknown", "Chauffeur Mobi-Lausanne") == "bus"
     assert classify_job_category("Unknown", "Chauffeur de taxi Genève") == "taxi"
     assert classify_job_category("Unknown", "Livreur Uber Eats Lausanne") == "delivery"
     assert classify_job_category("Unknown", "Florist/-in EFZ, BP oder HFP") == "florist"
@@ -83,6 +86,14 @@ def test_logistics_and_purchasing_titles() -> None:
     assert job_category_matches("other", "warehouse", "Magasinier entrepôt") is True
     assert job_category_matches("logistics", "purchasing", "Acheteur junior") is True
     assert job_category_matches("logistics", "warehouse", "Acheteur junior") is False
+
+
+def test_multi_sector_title_classification() -> None:
+    assert classify_job_category("Unknown", "Plombier sanitaire H/F") == "trades"
+    assert classify_job_category("Unknown", "Réceptionniste hôtel 4*") == "hotel"
+    assert classify_job_category("Unknown", "Chef de cuisine tournant") == "kitchen"
+    assert classify_job_category("Unknown", "Aide-soignant diplômé EMS") == "care"
+    assert classify_job_category("Unknown", "Pharmacien assistant") == "pharma"
 
 
 def test_purchasing_title_needles() -> None:
@@ -102,3 +113,16 @@ def test_title_refines_transport_alerts() -> None:
     assert job_category_matches("other", "bus", "Conducteur TPG lignes urbaines") is True
     assert job_category_matches("other", "taxi", "Chauffeur VTC") is True
     assert job_category_matches("other", "bus", "Chauffeur VTC") is False
+
+
+def test_transport_search_excludes_crane() -> None:
+    search_values = stored_job_category_values("transport", for_search=True)
+    assert "crane" not in search_values
+    assert "bus" in search_values
+    assert "truck" in search_values
+
+    all_values = stored_job_category_values("transport", for_search=False)
+    assert "crane" in all_values
+
+    crane_needles = title_needles_for_filter("transport", for_search=True)
+    assert not any("grue" in n or "grutier" in n or "kran" in n for n in crane_needles)

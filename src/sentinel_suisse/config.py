@@ -69,7 +69,8 @@ class Settings(BaseSettings):
     france_travail_client_secret: str = ""
     france_travail_departement: str = "74"
     france_travail_keywords: str = (
-        "magasinier,logistique,chauffeur,manutention,cariste,approvisionnement"
+        "magasinier,logistique,chauffeur,manutention,cariste,approvisionnement,"
+        "infirmier,aide-soignant,cuisinier,developpeur,comptable,electricien"
     )
     france_travail_max_pages: int = 4
     # Adzuna — official self-serve job-board aggregator API (developer.adzuna.com), built
@@ -84,9 +85,14 @@ class Settings(BaseSettings):
     # under generic city crawls. Kept short for the free 250 req/day cap.
     adzuna_role_keywords: str = (
         "chauffeur,busfahrer,taxi,autocar,fleuriste,florist,"
-        "magasinier,cariste,logistique,logisticien,acheteur,approvisionnement,livreur"
+        "magasinier,cariste,logistique,logisticien,acheteur,approvisionnement,livreur,"
+        "developpeur,devops,infirmier,horloger,cuisinier,electricien,comptable,"
+        "enseignant,serveur,medecin,vendeur,plombier"
     )
-    adzuna_role_locations: str = "Geneve,Zurich,Basel,Lausanne,Bern"
+    adzuna_role_locations: str = (
+        "Geneve,Zurich,Basel,Lausanne,Bern,Nyon,Morges,Vevey,Montreux,"
+        "Winterthur,Lucerne,Fribourg,Neuchatel,St. Gallen,Schaffhausen"
+    )
     adzuna_role_max_pages: int = 2
     # Comma-separated Swiss cities for one Adzuna CH run. Empty = ADZUNA_LOCATION only.
     adzuna_locations: str = (
@@ -173,7 +179,14 @@ class Settings(BaseSettings):
     jobcloud_max_pages: int = 3
     jobcloud_role_keywords: str = (
         "magasinier,cariste,logistique,logisticien,acheteur,approvisionnement,"
-        "chauffeur,livreur,manutention"
+        "chauffeur,livreur,manutention,bus,busfahrer,autocar,conducteur,tramway,"
+        "developpeur,devops,cyber,informaticien,"
+        "infirmier,aide-soignant,medecin,Spitex,EMS,kinesitherapeute,"
+        "electricien,plombier,peintre,macon,menuisier,carrossier,charpentier,"
+        "cuisinier,serveur,receptionniste,chef de rang,"
+        "horloger,polisseur,uhrmacher,rhabilleur,"
+        "comptable,fiduciaire,banquier,assurance,"
+        "vendeur,commercial,enseignant,educateur,secrétaire"
     )
     jobup_locations: str = (
         "Genève,Zurich,Bern,Basel,Lausanne,Lugano,Luzern,St. Gallen,Winterthur,"
@@ -189,8 +202,14 @@ class Settings(BaseSettings):
         "Solothurn,Locarno,Mendrisio,Interlaken,Langenthal,Frauenfeld,Bulle,"
         "Martigny,Sierre,Monthey,Delemont,Brig,Schwyz,Emmen,Dietikon,Horgen"
     )
-    jobcloud_role_locations_jobup: str = "Genève,Zurich,Basel,Lausanne,Bern,Nyon"
-    jobcloud_role_locations_jobs: str = "Geneva,Zurich,Basel,Lausanne,Bern,Nyon"
+    jobcloud_role_locations_jobup: str = (
+        "Genève,Zurich,Basel,Lausanne,Bern,Nyon,Winterthur,Luzern,Fribourg,Neuchâtel,"
+        "St. Gallen,Schaffhausen,Lucerne"
+    )
+    jobcloud_role_locations_jobs: str = (
+        "Geneva,Zurich,Basel,Lausanne,Bern,Nyon,Winterthur,Lucerne,Fribourg,Neuchatel,"
+        "St. Gallen,Schaffhausen"
+    )
     leboncoin_search_url: str = (
         "https://www.leboncoin.fr/recherche"
         "?category=10&locations=Annemasse_74100__45.9024_6.2364_5000"
