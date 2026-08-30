@@ -371,12 +371,60 @@ const FAQ_ENTRIES: FaqEntry[] = [
 
 const SUPPORTED_LANGS: string[] = ["fr", "de", "es", "pt", "en"];
 
+const FOLLOW_UP_STARTS = [
+  "y ",
+  "e ",
+  "et ",
+  "und ",
+  "and ",
+  "ok",
+  "vale",
+  "bueno",
+  "pues",
+  "entonces",
+  "tambien",
+  "si ",
+  "yes",
+  "oui",
+  "ja",
+  "eso",
+  "esto",
+  "cela",
+  "isso",
+  "that",
+];
+
+/** Short replies that only make sense with the previous turn. */
+export function isFollowUp(message: string): boolean {
+  const normalized = normalize(message);
+  const words = normalized.split(" ").filter(Boolean);
+  if (words.length === 0) return false;
+  if (words.length <= 8 && FOLLOW_UP_STARTS.some((stem) => {
+    const exact = stem.trim();
+    return normalized === exact || normalized.startsWith(`${exact} `);
+  })) {
+    return true;
+  }
+  if (words.length <= 10 && /\b(eso|esto|ello|cela|das|isso|that|it)\b/.test(normalized)) {
+    return true;
+  }
+  return false;
+}
+
 /** Returns a canned answer if the message clearly matches a known FAQ, else null. */
-export function matchFaq(message: string, lang: string): string | null {
+export function matchFaq(
+  message: string,
+  lang: string,
+  opts?: { hasHistory?: boolean },
+): string | null {
   const normalized = normalize(message);
   if (!normalized) return null;
+  if (opts?.hasHistory && isFollowUp(message)) return null;
   const key: Lang = SUPPORTED_LANGS.includes(lang) ? (lang as Lang) : "en";
   for (const entry of FAQ_ENTRIES) {
+    if (opts?.hasHistory && (entry.id === "greeting" || entry.id === "thanks")) {
+      continue;
+    }
     const groups = entry.match[key] ?? entry.match.en;
     const isMatch = groups.every((group) =>
       group.some((stem) => normalized.includes(normalize(stem))),

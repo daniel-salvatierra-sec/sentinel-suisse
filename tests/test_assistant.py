@@ -61,6 +61,41 @@ def test_assistant_chat_success(client: TestClient, monkeypatch) -> None:
     get_settings.cache_clear()
 
 
+def test_assistant_chat_forwards_history(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_API_KEY", "sk-test-fake")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    fake_response = MagicMock()
+    fake_response.raise_for_status = MagicMock()
+    fake_response.json.return_value = {"choices": [{"message": {"content": "9.90 CHF."}}]}
+
+    with patch(
+        "sentinel_suisse.services.assistant.httpx.post", return_value=fake_response
+    ) as mock_post:
+        response = client.post(
+            "/api/v1/assistant/chat",
+            json={
+                "message": "y eso?",
+                "lang": "es",
+                "history": [
+                    {"role": "user", "content": "Cuanto cuesta Premium?"},
+                    {"role": "assistant", "content": "Premium cuesta 9.90 CHF al mes."},
+                ],
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    sent_messages = mock_post.call_args.kwargs["json"]["messages"]
+    assert sent_messages[0]["role"] == "system"
+    assert "Follow the conversation" in sent_messages[0]["content"]
+    assert sent_messages[1] == {"role": "user", "content": "Cuanto cuesta Premium?"}
+    assert sent_messages[-1] == {"role": "user", "content": "y eso?"}
+
+    get_settings.cache_clear()
+
+
 def test_assistant_chat_includes_reasoning_effort_when_configured(
     client: TestClient, monkeypatch
 ) -> None:

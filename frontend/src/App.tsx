@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchStockedCities,
   fetchSponsors,
@@ -46,6 +46,17 @@ import { toSavedSearchQuery } from "./searchSummary";
 import { capturePromoFromUrl } from "./promo";
 
 type Tab = "list" | "map" | "alerts" | "account" | "publish";
+
+function jumpToSearchPanel() {
+  const el = document.getElementById("search-panel");
+  if (!el) return;
+  el.scrollIntoView({ behavior: "auto", block: "start" });
+  const scroller = document.scrollingElement ?? document.documentElement;
+  const top = Math.max(0, el.getBoundingClientRect().top + scroller.scrollTop - 8);
+  scroller.scrollTop = top;
+  document.documentElement.scrollTop = top;
+  document.body.scrollTop = top;
+}
 
 function parseOptionalPrice(value: string): number | undefined {
   const trimmed = value.trim();
@@ -117,6 +128,8 @@ export default function App() {
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
   const [boostBanner, setBoostBanner] = useState<"success" | "cancel" | null>(null);
+  const searchScrollTimer = useRef(0);
+  const searchScrollRetry = useRef(0);
   const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
 
@@ -373,6 +386,11 @@ export default function App() {
     }
   }, [tab, category, query, runSearch, deepLinkReady]);
 
+  useEffect(() => () => {
+    window.clearTimeout(searchScrollTimer.current);
+    window.clearTimeout(searchScrollRetry.current);
+  }, []);
+
   const onSignupSuccess = () => {
     setHasSession(true);
     setAccountRefresh((value) => value + 1);
@@ -384,17 +402,17 @@ export default function App() {
     setTab("list");
   };
 
-  const goToSearch = (type: ListingType, opts?: { scroll?: boolean }) => {
+  const goToSearch = (type: ListingType, opts?: { scroll?: boolean; delayMs?: number }) => {
     setCategory(type);
     setHubFocused(true);
     setTab("list");
     if (opts?.scroll === false) return;
-    window.setTimeout(() => {
-      document.getElementById("search-panel")?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 80);
+    window.clearTimeout(searchScrollTimer.current);
+    window.clearTimeout(searchScrollRetry.current);
+    searchScrollTimer.current = window.setTimeout(() => {
+      jumpToSearchPanel();
+      searchScrollRetry.current = window.setTimeout(jumpToSearchPanel, 280);
+    }, opts?.delayMs ?? 80);
   };
 
   const openAlerts = (type?: ListingType) => {
@@ -541,12 +559,13 @@ export default function App() {
         active={category}
         focused={hubFocused}
         onSelect={(type) => {
-          setHubFocused(true);
           if (tab === "publish") {
+            setHubFocused(true);
             setCategory(type);
             return;
           }
-          goToSearch(type, { scroll: false });
+          const alreadyHere = hubFocused && category === type && tab === "list";
+          goToSearch(type, { delayMs: alreadyHere ? 50 : 480 });
         }}
       />
       <DoorLinks

@@ -44,7 +44,12 @@ LinkSwiss is not the landlord/employer, always verify on the original listing.
 Style and limits:
 - Always reply in {language}, unless the user clearly writes in a different language — then \
 switch to their language.
-- Be concise and warm: 2-5 short sentences, no long essays.
+- Follow the conversation. Short follow-ups like "and that?", "the price?", "and in Geneva?" \
+refer to the previous topic — never restart as if this were a new chat, and never ignore \
+what they just said.
+- Remember names, cities, housing vs jobs, and constraints they already mentioned.
+- Be concise and warm: 2-5 short sentences, no long essays. Sound like a helpful person, \
+not a form.
 - You do NOT have live access to specific real listings — never invent a job/apartment offer, \
 a price, or a company name. Instead, tell the user to use the search bar or set up an alert.
 - You may give general, practical tips about job hunting or apartment hunting in Switzerland/\
@@ -90,7 +95,7 @@ def ask_assistant(
         "model": settings.assistant_model,
         "messages": _build_messages(message, lang, history, settings),
         "max_tokens": settings.assistant_max_output_tokens,
-        "temperature": 0.4,
+        "temperature": 0.55,
     }
     if settings.assistant_reasoning_effort:
         payload["reasoning_effort"] = settings.assistant_reasoning_effort

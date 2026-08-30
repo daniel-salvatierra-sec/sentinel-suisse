@@ -256,7 +256,7 @@ class Settings(BaseSettings):
     # reject this parameter.
     assistant_reasoning_effort: str = ""
     assistant_max_input_chars: int = 500
-    assistant_max_history_messages: int = 6
+    assistant_max_history_messages: int = 16
     # slowapi rate string, e.g. "20/day" — keeps API costs bounded
     assistant_rate_limit: str = "20/day"
     # Play Store TWA — package id + SHA-256 of the signing cert(s). Comma-separated

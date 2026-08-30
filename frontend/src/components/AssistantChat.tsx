@@ -1,24 +1,35 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { sendAssistantMessage, type AssistantChatMessage } from "../api";
 import { matchFaq } from "../assistantFaq";
+import { loadAssistantMessages, saveAssistantMessages } from "../guideStorage";
 import type { Messages } from "../i18n";
 
 type Props = {
   t: Messages;
   lang: string;
   onBack: () => void;
+  onBusyChange?: (busy: boolean) => void;
 };
 
-const MAX_HISTORY_SENT = 6;
+const MAX_HISTORY_SENT = 16;
 const MAX_INPUT_CHARS = 500;
 
 /** Free-form AI chat, shown inside the guide sheet when the assistant is enabled. */
-export function AssistantChat({ t, lang, onBack }: Props) {
-  const [messages, setMessages] = useState<AssistantChatMessage[]>([]);
+export function AssistantChat({ t, lang, onBack, onBusyChange }: Props) {
+  const [messages, setMessages] = useState<AssistantChatMessage[]>(loadAssistantMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    saveAssistantMessages(messages);
+  }, [messages]);
+
+  useEffect(() => {
+    onBusyChange?.(sending);
+    return () => onBusyChange?.(false);
+  }, [sending, onBusyChange]);
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -36,9 +47,7 @@ export function AssistantChat({ t, lang, onBack }: Props) {
     setInput("");
     setError(false);
 
-    // Answer common questions instantly from a canned phrase bank — no AI call, no
-    // tokens spent, no network round-trip, and the answer is always accurate.
-    const cannedReply = matchFaq(text, lang);
+    const cannedReply = matchFaq(text, lang, { hasHistory: messages.length > 0 });
     if (cannedReply) {
       setMessages((prev) => [...prev, { role: "assistant", content: cannedReply }]);
       scrollToBottom();
@@ -73,7 +82,11 @@ export function AssistantChat({ t, lang, onBack }: Props) {
         ))}
         {sending && (
           <div className="assistant-bubble assistant-bubble-assistant assistant-bubble-pending">
-            {t.assistantThinking}
+            <span className="assistant-typing" aria-label={t.assistantThinking}>
+              <span />
+              <span />
+              <span />
+            </span>
           </div>
         )}
         {error && (

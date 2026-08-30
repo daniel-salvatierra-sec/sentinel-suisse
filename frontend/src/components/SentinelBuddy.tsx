@@ -1,13 +1,17 @@
 type Props = {
   zone: "housing" | "job";
   searching: boolean;
+  talking?: boolean;
+  hidden?: boolean;
   label: string;
+  hint?: string;
   onOpen: () => void;
 };
 
 const FACE_SRC = "/hub/sentinel-buddy.png?v=2";
+const FIGURE_SRC = "/hub/sentinel-figure.png?v=2";
 
-/** Photoreal companion face — reused in dock + sheet. */
+/** Photoreal companion face — reused in sheet + alerts. */
 export function SentinelFace({ size = 40 }: { size?: number }) {
   return (
     <img
@@ -21,19 +25,31 @@ export function SentinelFace({ size = 40 }: { size?: number }) {
   );
 }
 
-/** Matte-black Avatar-style companion — dock FAB that opens the guide sheet. */
-export function SentinelBuddy({ zone, searching, label, onOpen }: Props) {
+/** Full-body cutout over the search page — not a circular button. */
+export function SentinelBuddy({
+  zone,
+  searching,
+  talking = false,
+  hidden = false,
+  label,
+  hint,
+  onOpen,
+}: Props) {
+  const live = searching || talking;
   return (
     <button
       type="button"
-      className={`sentinel-buddy zone-${zone}${searching ? " searching" : ""}`}
+      className={`sentinel-buddy zone-${zone}${searching ? " searching" : ""}${talking ? " talking" : ""}${hidden ? " is-hidden" : ""}`}
       onClick={onOpen}
       aria-label={label}
     >
-      <span className="sentinel-ring" aria-hidden />
-      <span className="sentinel-body" aria-hidden>
-        <SentinelFace size={44} />
-      </span>
+      {hint ? <span className="sentinel-hint">{hint}</span> : null}
+      <img
+        className={`sentinel-figure${live ? " is-live" : ""}`}
+        src={FIGURE_SRC}
+        alt=""
+        draggable={false}
+      />
     </button>
   );
 }

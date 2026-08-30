@@ -52,6 +52,7 @@ export function GuideBot({
   const [nudgeMode, setNudgeMode] = useState(false);
   const [nudgeDue, setNudgeDue] = useState(false);
   const [assistantEnabled, setAssistantEnabled] = useState(false);
+  const [chatBusy, setChatBusy] = useState(false);
 
   useEffect(() => {
     fetchAssistantConfig()
@@ -102,8 +103,16 @@ export function GuideBot({
       <SentinelBuddy
         zone={zone}
         searching={searching}
+        talking={chatBusy}
+        hidden={open}
         label={t.fireflyLabel}
-        onOpen={() => setOpen(true)}
+        hint={assistantEnabled ? t.assistantChatCta : undefined}
+        onOpen={() => {
+          setOpen(true);
+          if (assistantEnabled && !needsIntro) {
+            setChatMode(true);
+          }
+        }}
       />
       {open && (
         <div className="modal-backdrop sheet-backdrop" role="presentation" onClick={close}>
@@ -115,8 +124,8 @@ export function GuideBot({
           >
             <div className="guide-sheet-handle" aria-hidden />
             <div className="guide-header">
-              <span className="guide-avatar sentinel-avatar" aria-hidden>
-                <SentinelFace size={36} />
+              <span className={`guide-avatar sentinel-avatar${chatBusy ? " is-talking" : ""}`} aria-hidden>
+                <SentinelFace size={52} />
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">
@@ -127,7 +136,12 @@ export function GuideBot({
             </div>
 
             {chatMode ? (
-              <AssistantChat t={t} lang={lang} onBack={() => setChatMode(false)} />
+              <AssistantChat
+                t={t}
+                lang={lang}
+                onBack={() => setChatMode(false)}
+                onBusyChange={setChatBusy}
+              />
             ) : (
               <>
                 <p className="guide-message">
