@@ -374,11 +374,6 @@ body {
   pointer-events: none;
 }
 
-.sentinel-buddy.searching .sentinel-figure,
-.sentinel-buddy.talking .sentinel-figure {
-  animation: sentinel-talk-body 1.7s ease-in-out infinite;
-}
-
 .sentinel-hint {
   position: absolute;
   right: 72%;
@@ -460,35 +455,6 @@ body {
   width: auto;
   pointer-events: none;
   user-select: none;
-  transform-origin: 50% 100%;
-  animation: sentinel-planted 5.4s ease-in-out infinite;
-}
-
-.sentinel-figure.is-live {
-  animation-duration: 2.4s;
-}
-
-@keyframes sentinel-planted {
-  0%,
-  100% {
-    transform: scaleY(1);
-  }
-  50% {
-    transform: scaleY(1.012);
-  }
-}
-
-@keyframes sentinel-talk-body {
-  0%,
-  100% {
-    transform: scaleY(1) rotate(0deg);
-  }
-  35% {
-    transform: scaleY(1.035) rotate(-1.4deg);
-  }
-  70% {
-    transform: scaleY(1.015) rotate(1.1deg);
-  }
 }
 
 .sentinel-face {

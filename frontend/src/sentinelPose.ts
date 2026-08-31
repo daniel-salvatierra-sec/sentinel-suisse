@@ -4,7 +4,7 @@ const GESTURE_RE = /\[\[gesture:(idle|account|search|think)\]\]/gi;
 
 const POSE_SRC: Record<SentinelPose, string> = {
   idle: "/hub/sentinel-figure.png?v=3",
-  account: "/hub/sentinel-figure-account.png?v=1",
+  account: "/hub/sentinel-figure-account.png?v=2",
   search: "/hub/sentinel-figure-search.png?v=1",
   think: "/hub/sentinel-figure-think.png?v=1",
 };

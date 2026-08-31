@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { poseSrc, type SentinelPose } from "../sentinelPose";
 
 const POSES: SentinelPose[] = ["idle", "account", "search", "think"];
-const POINTING: SentinelPose[] = ["account", "search"];
 const POINT_HOLD_MS = 5000;
 
 if (typeof window !== "undefined") {
@@ -62,7 +61,7 @@ export function SentinelFace({ size = 40 }: { size?: number }) {
   );
 }
 
-/** Full-body cutout: feet planted, pose swaps head/arms/gaze. */
+/** Full-body cutout: a gesture lasts 5s, then she stands at ease. */
 export function SentinelBuddy({
   zone,
   pose = "idle",
@@ -82,10 +81,10 @@ export function SentinelBuddy({
 
   useEffect(() => {
     setShownPose(pose);
-    if (!POINTING.includes(pose) || hint) return;
+    if (pose === "idle") return;
     const timer = window.setTimeout(() => setShownPose("idle"), POINT_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [pose, hint]);
+  }, [pose]);
 
   return (
     <button
