@@ -1,4 +1,4 @@
-import type { CountryCode } from "./api";
+import type { CountryCode, ListingType } from "./api";
 import { matchSwissCity, SWISS_CITIES } from "./swissCities";
 
 /** Sentinel value for the first city-picker option in FR / DE / IT. */
@@ -33,9 +33,16 @@ export function isBorderQuery(query: string): boolean {
   return /^(CH|FR|DE|IT)-border$/i.test(query.trim());
 }
 
-export function citiesForZone(zone: CountryCode): string[] {
+export function citiesForZone(
+  zone: CountryCode,
+  listingType: ListingType = "job",
+): string[] {
   if (zone === "CH") {
     return [...SWISS_CITIES];
+  }
+  // Inland FR/DE/IT rentals have no licensed source yet — only the Swiss-border belt.
+  if (listingType === "housing") {
+    return [BORDER_CITY];
   }
   if (zone === "FR") {
     return [BORDER_CITY, ...FR_CITIES];
@@ -103,7 +110,11 @@ const CITY_ALIASES: Record<string, string> = {
   genova: "Genoa",
 };
 
-export function matchZoneCity(zone: CountryCode, query: string): string {
+export function matchZoneCity(
+  zone: CountryCode,
+  query: string,
+  listingType: ListingType = "job",
+): string {
   const trimmed = query.trim();
   if (!trimmed) {
     return zone === "CH" ? "" : BORDER_CITY;
@@ -116,7 +127,7 @@ export function matchZoneCity(zone: CountryCode, query: string): string {
   }
   const folded = fold(trimmed);
   const aliased = CITY_ALIASES[folded];
-  const catalog = citiesForZone(zone).filter((city) => city !== BORDER_CITY);
+  const catalog = citiesForZone(zone, listingType).filter((city) => city !== BORDER_CITY);
   if (aliased && catalog.includes(aliased)) {
     return aliased;
   }

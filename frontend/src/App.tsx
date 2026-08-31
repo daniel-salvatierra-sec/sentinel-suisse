@@ -409,6 +409,9 @@ export default function App() {
 
   const goToSearch = (type: ListingType, opts?: { scroll?: boolean; delayMs?: number }) => {
     setCategory(type);
+    if (type === "housing" && zoneChoice !== "CH") {
+      setQuery("");
+    }
     setHubFocused(true);
     setTab("list");
     if (opts?.scroll === false) return;
@@ -594,7 +597,7 @@ export default function App() {
               setAppliedZoneChoice(value);
               setQuery("");
             }}
-            cityChoice={matchZoneCity(zoneChoice, query)}
+            cityChoice={matchZoneCity(zoneChoice, query, category)}
             onCityChoiceChange={(value) => {
               setQuery(queryForCityChoice(zoneChoice, value));
             }}
@@ -725,7 +728,11 @@ export default function App() {
       {tab === "list" && !loading && !error && (
         <>
           {listings.length === 0 ? (
-            <p className="empty">{t.noResults}</p>
+            <p className="empty">
+              {category === "housing" && appliedZoneChoice !== "CH"
+                ? t.noResultsHousingNeighbor
+                : t.noResults}
+            </p>
           ) : (
             <VirtualizedListingList
               listings={listings}

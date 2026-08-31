@@ -188,7 +188,7 @@ export function FilterBar({
       </div>
 
       {(() => {
-        const cities = citiesForZone(zoneChoice);
+        const cities = citiesForZone(zoneChoice, category);
         const shown =
           zoneChoice === "CH" && stockedCities != null
             ? cities.filter((city) => stockedCities.includes(city) || city === cityChoice)

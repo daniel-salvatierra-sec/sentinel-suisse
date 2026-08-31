@@ -210,6 +210,7 @@ export type Messages = {
   assistantError: string;
   assistantBack: string;
   noResults: string;
+  noResultsHousingNeighbor: string;
   loading: string;
   privacy: string;
   terms: string;
