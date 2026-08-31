@@ -817,7 +817,6 @@ export default function App() {
               : "overview"
         }
         searching={loading || loadingMore}
-        searchTab={tab === "list" || tab === "map"}
         hasSession={hasSession}
         onPickCategory={(type) => {
           setCategory(type);

@@ -19,7 +19,6 @@ type Props = {
   zone: ListingType;
   page: "overview" | "search" | "account";
   searching: boolean;
-  searchTab: boolean;
   hasSession: boolean;
   onPickCategory: (type: ListingType) => void;
   onOpenAlerts: (type?: ListingType) => void;
@@ -39,7 +38,6 @@ export function GuideBot({
   zone,
   page,
   searching,
-  searchTab,
   hasSession,
   onPickCategory,
   onOpenAlerts,
