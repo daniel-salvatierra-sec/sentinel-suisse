@@ -17,6 +17,7 @@ type Props = {
   pose?: SentinelPose;
   searching: boolean;
   talking?: boolean;
+  sheetOpen?: boolean;
   label: string;
   hint?: string;
   name?: string;
@@ -63,6 +64,7 @@ export function SentinelBuddy({
   pose = "idle",
   searching,
   talking = false,
+  sheetOpen = false,
   label,
   hint,
   name = "Sentinela",
@@ -86,7 +88,8 @@ export function SentinelBuddy({
   return (
     <button
       type="button"
-      className={`sentinel-buddy zone-${zone} pose-${shownPose}${searching ? " searching" : ""}${talking ? " talking" : ""}`}
+      className={`sentinel-buddy zone-${zone} pose-${shownPose}${searching ? " searching" : ""}${talking ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}`}
+      aria-hidden={sheetOpen}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest(".sentinel-hint-actions")) return;
         onOpen();

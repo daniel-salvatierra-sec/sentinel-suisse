@@ -114,7 +114,6 @@ export function GuideBot({
       ? t.assistantPresent
       : undefined;
 
-  const radarMessage = zone === "job" ? t.guideRadarMessageJob : t.guideRadarMessageHousing;
   const chipPrimary = zone === "job" ? t.guideChipBestOpp : t.guideChipBestPrice;
   const chipSecondary = zone === "job" ? t.guideChipBestFit : t.guideChipBestMatch;
 
@@ -125,6 +124,7 @@ export function GuideBot({
         pose={pose}
         searching={searching}
         talking={chatBusy}
+        sheetOpen={open}
         label={t.fireflyLabel}
         name={t.sentinelName}
         hint={hint}
@@ -147,7 +147,9 @@ export function GuideBot({
             return;
           }
           setOpen(true);
-          if (assistantEnabled && !needsIntro) {
+          setNeedsIntro(false);
+          saveGuideSeen();
+          if (assistantEnabled) {
             setChatMode(true);
           }
         }}
@@ -187,14 +189,12 @@ export function GuideBot({
             ) : (
               <>
                 <p className="guide-message">
-                  {needsIntro ? (
-                    <NamedCopy text={t.guideHello} name={t.sentinelName} />
-                  ) : nudgeMode ? (
+                  {nudgeMode ? (
                     nudgeStep === "account" ? t.guidePointAccount : t.guideNudgeWhatsapp
                   ) : pickingAlertType ? (
                     t.alertsAskType
                   ) : (
-                    radarMessage
+                    <NamedCopy text={t.guideHello} name={t.sentinelName} />
                   )}
                 </p>
                 {nudgeMode && !hasSession ? (

@@ -1412,7 +1412,7 @@ body {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 1100;
+  z-index: 1300;
   padding: 1rem;
 }
 
