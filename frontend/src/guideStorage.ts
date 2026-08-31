@@ -1,5 +1,5 @@
 const GUIDE_SEEN_KEY = "linkswiss-guide-seen";
-const NUDGE_SEEN_KEY = "linkswiss-bot-nudge-seen";
+const NUDGE_SEEN_KEY = "linkswiss-bot-nudge-v2";
 
 export function loadGuideSeen(): boolean {
   return localStorage.getItem(GUIDE_SEEN_KEY) === "1";

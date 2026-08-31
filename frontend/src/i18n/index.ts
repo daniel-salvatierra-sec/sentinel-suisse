@@ -188,6 +188,12 @@ export type Messages = {
   guideNudgeAlerts: string;
   guideNudgeAccountCta: string;
   guideNudgeNo: string;
+  guideNudgeJob: string;
+  guideNudgeHome: string;
+  guidePitchJob: string;
+  guidePitchHome: string;
+  guidePitchOk: string;
+  guideNudgeLater: string;
   guideThinkHint: string;
   guideNudgeWhatsapp: string;
   guideYes: string;

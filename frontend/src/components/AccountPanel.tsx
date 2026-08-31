@@ -35,6 +35,7 @@ type Props = {
   onOpenPublish: () => void;
   onSearchHome: () => void;
   onSearchWork: () => void;
+  preferSignup?: boolean;
 };
 
 export function AccountPanel({
@@ -50,6 +51,7 @@ export function AccountPanel({
   onOpenPublish,
   onSearchHome,
   onSearchWork,
+  preferSignup = false,
 }: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -112,7 +114,7 @@ export function AccountPanel({
         location={location}
         searchQuery={searchQuery}
         onSuccess={onSignupSuccess}
-        initialMode="login"
+        initialMode={preferSignup ? "signup" : "login"}
       />
     );
   }

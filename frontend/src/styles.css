@@ -376,14 +376,14 @@ body {
 
 .sentinel-buddy.searching .sentinel-figure,
 .sentinel-buddy.talking .sentinel-figure {
-  animation-duration: 2.4s;
+  animation: sentinel-talk-body 1.7s ease-in-out infinite;
 }
 
 .sentinel-hint {
   position: absolute;
   right: 72%;
-  top: 10%;
-  max-width: 13.5rem;
+  top: 8%;
+  max-width: 14.5rem;
   white-space: normal;
   background: #fff;
   color: var(--text);
@@ -395,25 +395,33 @@ body {
   border-radius: 0.85rem 0.85rem 0.25rem 0.85rem;
   box-shadow: 0 8px 20px rgba(28, 45, 40, 0.14);
   text-align: left;
+  animation: sentinel-hint-in 0.35s ease-out;
+}
+
+.sentinel-hint.has-choices {
+  max-width: 15.5rem;
 }
 
 .sentinel-hint-actions {
   display: flex;
-  gap: 0.4rem;
+  flex-direction: column;
+  gap: 0.35rem;
   margin-top: 0.55rem;
 }
 
 .sentinel-hint-choice {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.6rem;
-  padding: 0.28rem 0.7rem;
+  width: 100%;
+  padding: 0.38rem 0.65rem;
   border-radius: 999px;
   background: var(--lake);
   color: #fff;
-  font-size: 0.78rem;
+  font-size: 0.75rem;
   font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
 }
 
 .sentinel-hint-choice.is-quiet {
@@ -430,8 +438,19 @@ body {
 
 @media (max-width: 380px) {
   .sentinel-hint {
-    max-width: 11rem;
+    max-width: 12rem;
     font-size: 0.74rem;
+  }
+}
+
+@keyframes sentinel-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -456,6 +475,19 @@ body {
   }
   50% {
     transform: scaleY(1.012);
+  }
+}
+
+@keyframes sentinel-talk-body {
+  0%,
+  100% {
+    transform: scaleY(1) rotate(0deg);
+  }
+  35% {
+    transform: scaleY(1.035) rotate(-1.4deg);
+  }
+  70% {
+    transform: scaleY(1.015) rotate(1.1deg);
   }
 }
 

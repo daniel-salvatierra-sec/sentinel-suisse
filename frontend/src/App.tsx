@@ -130,6 +130,7 @@ export default function App() {
   // the map tab freely) — in that case we show only that listing's pin, not every result.
   const [mapIsolate, setMapIsolate] = useState(false);
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
+  const [preferSignup, setPreferSignup] = useState(false);
   const [cityStock, setCityStock] = useState<CityStock[] | null>(null);
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
@@ -793,6 +794,7 @@ export default function App() {
           onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
           onSearchHome={() => goToSearch("housing")}
           onSearchWork={() => goToSearch("job")}
+          preferSignup={preferSignup}
         />
       )}
 
@@ -844,8 +846,12 @@ export default function App() {
         onOpenMap={() => {
           setTab("map");
         }}
-        onOpenAccount={() => {
+        onOpenAccount={(intent) => {
           setHubFocused(true);
+          if (intent === "job" || intent === "housing") {
+            setCategory(intent);
+            setPreferSignup(true);
+          }
           setTab("account");
         }}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
