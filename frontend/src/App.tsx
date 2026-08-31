@@ -739,7 +739,6 @@ export default function App() {
             <VirtualizedListingList
               listings={listings}
               t={t}
-              lang={lang}
               focusId={focusId}
               onSelect={(id) => {
                 setFocusId(id);

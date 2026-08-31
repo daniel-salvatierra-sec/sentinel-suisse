@@ -1,14 +1,13 @@
-import { useEffect, useState, type MouseEvent } from "react";
-import { translateListingText, type Listing } from "../api";
+import { useState, type MouseEvent } from "react";
+import type { Listing } from "../api";
 import { coordsForLocation, mapsDirectionsUrl } from "../geo";
-import type { Lang, Messages } from "../i18n";
+import type { Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
-import { listingNeedsBrowserTranslate, listingOutboundUrl } from "../listingOutboundUrl";
+import { listingOutboundUrl } from "../listingOutboundUrl";
 
 type Props = {
   listing: Listing;
   t: Messages;
-  lang: Lang;
   selected: boolean;
   onSelect: () => void;
   onShowOnMap: () => void;
@@ -18,14 +17,12 @@ type Props = {
 export function ListingCard({
   listing,
   t,
-  lang,
   selected,
   onSelect,
   onShowOnMap,
   signals,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const [translated, setTranslated] = useState<{ title: string; body: string } | null>(null);
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
   const goodPrice = Boolean(signals?.goodPrice);
@@ -46,41 +43,8 @@ export function ListingCard({
 
   const goToAd = () => {
     if (isDemo) return;
-    window.open(listingOutboundUrl(listing.source_url, lang), "_blank", "noopener,noreferrer");
+    window.open(listingOutboundUrl(listing.source_url, listing), "_blank", "noopener,noreferrer");
   };
-
-  useEffect(() => {
-    if (!detailOpen || isDemo) {
-      setTranslated(null);
-      return;
-    }
-    const title = listing.title.trim();
-    const body = listing.description?.trim() ?? "";
-    if (!title && !body) {
-      setTranslated(null);
-      return;
-    }
-    setTranslated(null);
-    const controller = new AbortController();
-    void translateListingText(lang, title, body, controller.signal)
-      .then((data) => {
-        if (!data) return;
-        setTranslated({
-          title: data.title.trim() || listing.title,
-          body: data.body.trim(),
-        });
-      })
-      .catch(() => undefined);
-    return () => controller.abort();
-  }, [detailOpen, isDemo, lang, listing.description, listing.id, listing.title]);
-
-  const detailTitle = translated?.title || listing.title;
-  const originalBody = listing.description?.trim() ?? "";
-  const detailBody = translated?.body || originalBody;
-  const showTranslatedBadge = Boolean(
-    translated &&
-      (translated.title !== listing.title || (originalBody !== "" && translated.body !== originalBody)),
-  );
 
   return (
     <>
@@ -168,7 +132,7 @@ export function ListingCard({
             <div className="guide-sheet-handle" aria-hidden />
             <div className="listing-card-title-row">
               <h2 id={`listing-detail-${listing.id}`} className="guide-title">
-                {detailTitle}
+                {listing.title}
               </h2>
               <span className="listing-badges">
                 {isDemo ? <span className="listing-demo-badge">{t.demoBadge}</span> : null}
@@ -201,11 +165,8 @@ export function ListingCard({
                 </>
               )}
             </p>
-            {showTranslatedBadge ? (
-              <p className="listing-translated-badge">{t.listingTranslated}</p>
-            ) : null}
             <p className="listing-detail-body">
-              {detailBody || t.listingNoDescription}
+              {listing.description?.trim() || t.listingNoDescription}
             </p>
             {isDemo ? <p className="listing-detail-demo-note">{t.listingDemoNote}</p> : null}
             <div className="listing-detail-actions listing-detail-actions-col">
@@ -229,9 +190,6 @@ export function ListingCard({
               >
                 {t.interested}
               </button>
-              {!isDemo && listingNeedsBrowserTranslate(listing.source_url, lang) ? (
-                <p className="listing-detail-hint">{t.listingBrowserTranslateHint}</p>
-              ) : null}
               <button type="button" className="secondary-btn" onClick={() => setDetailOpen(false)}>
                 {t.guideClose}
               </button>

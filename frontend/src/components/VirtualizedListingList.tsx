@@ -1,5 +1,5 @@
 import type { Listing } from "../api";
-import type { Lang, Messages } from "../i18n";
+import type { Messages } from "../i18n";
 import {
   computeListingSignals,
   type ListingSignalContext,
@@ -9,7 +9,6 @@ import { ListingCard } from "./ListingCard";
 type Props = {
   listings: Listing[];
   t: Messages;
-  lang: Lang;
   focusId: number | null;
   onSelect: (id: number) => void;
   hasMore: boolean;
@@ -21,7 +20,6 @@ type Props = {
 export function VirtualizedListingList({
   listings,
   t,
-  lang,
   focusId,
   onSelect,
   hasMore,
@@ -36,7 +34,6 @@ export function VirtualizedListingList({
           key={listing.id}
           listing={listing}
           t={t}
-          lang={lang}
           selected={listing.id === focusId}
           onSelect={() => onSelect(listing.id)}
           onShowOnMap={() => onSelect(listing.id)}

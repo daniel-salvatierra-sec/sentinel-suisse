@@ -27,7 +27,6 @@ from sentinel_suisse.schemas.public_signup import (
     PublicAlertSignup,
     PublicAlertSignupResponse,
 )
-from sentinel_suisse.schemas.public_translate import PublicTranslateIn, PublicTranslateOut
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.schemas.sponsor_ad import SponsorAdPublic, SponsorEventKind
 from sentinel_suisse.services.city_stock import list_stocked_picker_cities
@@ -44,7 +43,6 @@ from sentinel_suisse.services.magic_login import (
     request_magic_login,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
-from sentinel_suisse.services.public_translate import translate_listing_fields
 from sentinel_suisse.services.search import SearchSort, search_listings
 from sentinel_suisse.services.sponsor_ads import list_public_sponsors, record_sponsor_event
 
@@ -93,18 +91,6 @@ def public_cities(
 ) -> list[CityStock]:
     """Picker cities that currently have fresh housing or job listings."""
     return list_stocked_picker_cities(db)
-
-
-@router.post("/translate", response_model=PublicTranslateOut)
-@limiter.limit("40/minute")
-def public_translate(
-    request: Request,
-    payload: PublicTranslateIn,
-    _: None = Depends(_require_public_search),
-) -> PublicTranslateOut:
-    """Translate stored listing text into the app language for in-app reading."""
-    title, body = translate_listing_fields(payload.title, payload.body, payload.lang)
-    return PublicTranslateOut(title=title, body=body)
 
 
 @router.get("/sponsors", response_model=list[SponsorAdPublic])

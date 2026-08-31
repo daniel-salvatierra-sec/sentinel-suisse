@@ -1,11 +1,21 @@
-import type { Lang } from "./i18n";
+import { swissCityBoardLang, type SwissBoardLang } from "./swissCities";
 
-/** Swiss boards that speak de/fr/it/en — not es/pt. */
-function swissBoardLang(app: Lang): "de" | "fr" | "en" | "it" {
-  if (app === "fr" || app === "de" || app === "en") {
-    return app;
+export type BoardLang = SwissBoardLang;
+
+export function listingBoardLang(listing: {
+  country?: string;
+  location?: string | null;
+}): BoardLang {
+  if (listing.country === "FR") {
+    return "fr";
   }
-  return "en";
+  if (listing.country === "DE") {
+    return "de";
+  }
+  if (listing.country === "IT") {
+    return "it";
+  }
+  return swissCityBoardLang(listing.location) ?? "fr";
 }
 
 function hostOf(url: URL): string {
@@ -20,7 +30,13 @@ function replacePathLang(url: URL, lang: string): void {
   }
 }
 
-function rewriteJobup(url: URL, lang: "de" | "fr" | "en" | "it"): void {
+const JOBUP_VERB: Record<BoardLang, string> = {
+  fr: "emplois",
+  de: "stellen",
+  it: "impieghi",
+};
+
+function rewriteJobup(url: URL, lang: BoardLang): void {
   const parts = url.pathname.split("/");
   if (parts.length < 3) {
     replacePathLang(url, lang);
@@ -28,62 +44,33 @@ function rewriteJobup(url: URL, lang: "de" | "fr" | "en" | "it"): void {
   }
   parts[1] = lang;
   if (/^(emplois|jobs|stellen|impieghi)$/i.test(parts[2] ?? "")) {
-    parts[2] = lang === "fr" ? "emplois" : "jobs";
+    parts[2] = JOBUP_VERB[lang];
   }
   url.pathname = parts.join("/") || "/";
 }
 
-const HOMEGATE_VERB: Record<"de" | "fr" | "en" | "it", string> = {
+const HOMEGATE_VERB: Record<BoardLang, string> = {
   de: "mieten",
   fr: "louer",
-  en: "rent",
   it: "affittare",
 };
 
-function rewriteHomegate(url: URL, lang: "de" | "fr" | "en" | "it"): void {
+function rewriteHomegate(url: URL, lang: BoardLang): void {
   url.pathname = url.pathname.replace(
     /^\/(mieten|louer|rent|affittare)(?=\/|$)/i,
     `/${HOMEGATE_VERB[lang]}`,
   );
 }
 
-/** Adzuna country sites have one UI language and no switcher. */
-function adzunaUiLang(host: string): string | null {
-  const map: Record<string, string> = {
-    "adzuna.ch": "de",
-    "adzuna.de": "de",
-    "adzuna.at": "de",
-    "adzuna.fr": "fr",
-    "adzuna.it": "it",
-    "adzuna.es": "es",
-    "adzuna.pt": "pt",
-    "adzuna.co.uk": "en",
-    "adzuna.com": "en",
-  };
-  return map[host] ?? null;
-}
-
 /**
- * True when the destination board cannot switch to the app language.
- * We open the native page (Google website-translate is blocked with 403)
- * so the browser's own translator can offer to translate it.
+ * Open the original listing in the language of the place (FR / DE / IT),
+ * not the app UI language. Spanish and Portuguese have no board locale;
+ * people can translate in the browser if they want.
  */
-export function listingNeedsBrowserTranslate(sourceUrl: string, appLang: Lang): boolean {
-  try {
-    const url = new URL(sourceUrl);
-    const ui = adzunaUiLang(hostOf(url));
-    return ui != null && ui !== appLang;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Open the original listing, rewriting locale in the path when the board
- * supports it. Adzuna has no locale switcher and blocks translate.goog, so
- * those URLs stay native.
- */
-export function listingOutboundUrl(sourceUrl: string, appLang: Lang): string {
+export function listingOutboundUrl(
+  sourceUrl: string,
+  listing: { country?: string; location?: string | null },
+): string {
   let url: URL;
   try {
     url = new URL(sourceUrl);
@@ -95,11 +82,11 @@ export function listingOutboundUrl(sourceUrl: string, appLang: Lang): string {
   }
 
   const host = hostOf(url);
-  const boardLang = swissBoardLang(appLang);
+  const boardLang = listingBoardLang(listing);
 
   if (host === "flatfox.ch") {
-    // German /de/flat/... 404s on many listings; es/pt have no locale. French does.
-    const flatLang = appLang === "fr" ? "fr" : "en";
+    // German /de/flat/... and /it/flat/... 404 on many listings; French works.
+    const flatLang = boardLang === "fr" ? "fr" : "en";
     replacePathLang(url, flatLang);
     return url.toString();
   }

@@ -102,6 +102,50 @@ const CITY_ALIASES: Record<string, SwissCity> = {
   briga: "Brig",
 };
 
+const FRENCH_SWISS_CITIES: ReadonlySet<SwissCity> = new Set([
+  "Geneva",
+  "Lausanne",
+  "Fribourg",
+  "Neuchatel",
+  "La Chaux-de-Fonds",
+  "Sion",
+  "Nyon",
+  "Morges",
+  "Vevey",
+  "Montreux",
+  "Yverdon",
+  "Bulle",
+  "Martigny",
+  "Sierre",
+  "Monthey",
+  "Delemont",
+]);
+
+const ITALIAN_SWISS_CITIES: ReadonlySet<SwissCity> = new Set([
+  "Lugano",
+  "Bellinzona",
+  "Locarno",
+  "Mendrisio",
+  "Chiasso",
+]);
+
+export type SwissBoardLang = "fr" | "de" | "it";
+
+/** Language of the listing board for this Swiss city (Romandie / Ticino / rest). */
+export function swissCityBoardLang(location: string | null | undefined): SwissBoardLang | null {
+  const city = matchSwissCity(location ?? undefined);
+  if (!city) {
+    return null;
+  }
+  if (ITALIAN_SWISS_CITIES.has(city)) {
+    return "it";
+  }
+  if (FRENCH_SWISS_CITIES.has(city)) {
+    return "fr";
+  }
+  return "de";
+}
+
 export function matchSwissCity(location: string | undefined): SwissCity | "" {
   if (!location?.trim()) {
     return "";
