@@ -125,6 +125,26 @@ export async function fetchStockedCities(): Promise<CityStock[]> {
   return response.json() as Promise<CityStock[]>;
 }
 
+export async function translateListingText(
+  lang: string,
+  title: string,
+  body: string,
+  signal?: AbortSignal,
+): Promise<{ title: string; body: string } | null> {
+  const response = await fetch("/api/v1/public/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      lang,
+      title: title.slice(0, 500),
+      body: body.slice(0, 7500),
+    }),
+    signal,
+  });
+  if (!response.ok) return null;
+  return response.json() as Promise<{ title: string; body: string }>;
+}
+
 export const SEARCH_PAGE_SIZE = 20;
 
 export async function fetchPrivacy(lang: string): Promise<string> {

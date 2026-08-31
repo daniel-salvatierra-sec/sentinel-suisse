@@ -236,6 +236,8 @@ export type Messages = {
   signalGoodMatch: string;
   listingNoDescription: string;
   listingDemoNote: string;
+  listingTranslated: string;
+  listingBrowserTranslateHint: string;
   priceMonthly: string;
   route: string;
   consentLabel: string;

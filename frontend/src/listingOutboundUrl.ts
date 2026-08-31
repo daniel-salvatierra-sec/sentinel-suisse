@@ -63,19 +63,25 @@ function adzunaUiLang(host: string): string | null {
   return map[host] ?? null;
 }
 
-function wrapGoogleTranslate(target: string, sourceLang: string, appLang: Lang): string {
-  const wrapped = new URL("https://translate.google.com/translate");
-  wrapped.searchParams.set("sl", sourceLang);
-  wrapped.searchParams.set("tl", appLang);
-  wrapped.searchParams.set("hl", appLang);
-  wrapped.searchParams.set("u", target);
-  return wrapped.toString();
+/**
+ * True when the destination board cannot switch to the app language.
+ * We open the native page (Google website-translate is blocked with 403)
+ * so the browser's own translator can offer to translate it.
+ */
+export function listingNeedsBrowserTranslate(sourceUrl: string, appLang: Lang): boolean {
+  try {
+    const url = new URL(sourceUrl);
+    const ui = adzunaUiLang(hostOf(url));
+    return ui != null && ui !== appLang;
+  } catch {
+    return false;
+  }
 }
 
 /**
- * Open the original listing in the language the user picked in LinkSwiss.
- * Boards with a locale in the path are rewritten. Adzuna.ch is German-only,
- * so we send those through Google Translate when the app is not in German.
+ * Open the original listing, rewriting locale in the path when the board
+ * supports it. Adzuna has no locale switcher and blocks translate.goog, so
+ * those URLs stay native.
  */
 export function listingOutboundUrl(sourceUrl: string, appLang: Lang): string {
   let url: URL;
@@ -116,11 +122,6 @@ export function listingOutboundUrl(sourceUrl: string, appLang: Lang): string {
   if (host === "immoscout24.ch" || host === "anibis.ch" || host === "newhome.ch") {
     replacePathLang(url, boardLang);
     return url.toString();
-  }
-
-  const adzunaLang = adzunaUiLang(host);
-  if (adzunaLang && adzunaLang !== appLang) {
-    return wrapGoogleTranslate(url.toString(), adzunaLang, appLang);
   }
 
   return url.toString();

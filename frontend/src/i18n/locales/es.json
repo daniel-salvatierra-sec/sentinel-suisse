@@ -223,6 +223,8 @@
   "signalGoodMatch": "Buen match",
   "listingNoDescription": "Sin descripción disponible.",
   "listingDemoNote": "Anuncio de ejemplo — el enlace externo no está disponible.",
+  "listingTranslated": "Traducido",
+  "listingBrowserTranslateHint": "El sitio del anuncio no tiene español. Si sale en otro idioma, usa el traductor del navegador.",
   "priceMonthly": "CHF / mes",
   "route": "Ruta",
   "consentLabel": "Acepto la política de privacidad y las condiciones de uso",

@@ -224,6 +224,8 @@
   "signalGoodMatch": "Bon match",
   "listingNoDescription": "Aucune description disponible.",
   "listingDemoNote": "Annonce d'exemple — le lien externe n'est pas disponible.",
+  "listingTranslated": "Traduit",
+  "listingBrowserTranslateHint": "Le site de l'annonce peut être dans une autre langue. Utilisez le traducteur du navigateur si besoin.",
   "priceMonthly": "CHF / mois",
   "route": "Itinéraire",
   "consentLabel": "J'accepte la politique de confidentialité et les conditions d'utilisation",

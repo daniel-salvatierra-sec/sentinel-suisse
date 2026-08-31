@@ -1349,6 +1349,19 @@ body {
   white-space: pre-wrap;
 }
 
+.listing-translated-badge {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  color: #5a6b66;
+}
+
+.listing-detail-hint {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #5a6b66;
+}
+
 .listing-detail-demo-note {
   margin: 0 0 1rem;
   font-size: 0.85rem;
