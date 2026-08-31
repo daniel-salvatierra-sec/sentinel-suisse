@@ -5,9 +5,11 @@
 
 ## What changed
 
-- Flatfox walks named city boxes (Zurich, Bern, Basel, Lausanne, Lugano, …).
+- Flatfox walks named city boxes (Zurich, Bern, Basel, Lausanne, Lugano, … plus
+  the same extra towns as the job crawl, and FR/DE/IT border boxes).
 - Locations keep the real city (no more ", Geneva" suffix on every CH ad).
-- Caps: 30 details per region, 200 total, so one run stays shorter than a full Adzuna sweep.
+- Caps: 50 details per region, 2500 total. Each box prefers high-rent pins first
+  so 4–5 room homes are not drowned by the first 25 map pins.
 
 ## Notes
 

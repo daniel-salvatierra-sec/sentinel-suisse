@@ -14,6 +14,7 @@ from sentinel_suisse.ingest.connectors.flatfox import (
     fetch_search_listings,
     map_public_listing,
     parse_pin_list,
+    select_pin_pks,
 )
 from sentinel_suisse.models.enums import CountryCode
 
@@ -44,6 +45,23 @@ def test_format_location_does_not_force_geneva() -> None:
     assert _format_location("Zürich", "8001", CountryCode.CH) == "Zurich, 8001"
     assert _format_location("Olten", "4600", CountryCode.CH) == "Olten, 4600"
     assert _format_location("Annemasse", "74100", CountryCode.FR) == "Annemasse, 74100, FR"
+    assert _format_location("Konstanz", "78462", CountryCode.DE) == "Konstanz, 78462, DE"
+
+
+def test_select_pin_pks_prefers_expensive_family_homes() -> None:
+    records = [
+        (1, Decimal("900")),
+        (2, Decimal("4200")),
+        (3, Decimal("1100")),
+        (4, Decimal("6100")),
+        (5, Decimal("1500")),
+        (6, None),
+    ]
+    chosen = select_pin_pks(records, limit=4)
+    assert chosen[0] == 4
+    assert chosen[1] == 2
+    assert 1 in chosen or 3 in chosen or 5 in chosen
+    assert len(chosen) == 4
 
 
 def test_map_skips_parking_category() -> None:
@@ -69,6 +87,7 @@ def test_fetch_pins_then_details(mock_get: MagicMock) -> None:
     settings = Settings(
         ingest_flatfox_live=True,
         ingest_rate_limit_seconds=0,
+        flatfox_request_pause_seconds=0,
         flatfox_regions="geneva",
     )
     listings = fetch_search_listings(settings)
@@ -91,6 +110,7 @@ def test_fetch_walks_named_regions(mock_get: MagicMock) -> None:
         Settings(
             ingest_flatfox_live=True,
             ingest_rate_limit_seconds=0,
+            flatfox_request_pause_seconds=0,
             flatfox_regions="geneva,zurich",
             flatfox_max_per_region=1,
             flatfox_max_listings=1,
@@ -126,6 +146,7 @@ def test_fetch_shares_budget_across_late_regions(mock_get: MagicMock) -> None:
         Settings(
             ingest_flatfox_live=True,
             ingest_rate_limit_seconds=0,
+            flatfox_request_pause_seconds=0,
             flatfox_regions="geneva,zurich,fribourg",
             flatfox_max_per_region=30,
             flatfox_max_listings=3,

@@ -167,10 +167,19 @@ class Settings(BaseSettings):
     flatfox_regions: str = (
         "geneva,zurich,bern,basel,lausanne,lugano,luzern,stgallen,"
         "sion,fribourg,neuchatel,winterthur,nyon,vevey,montreux,"
-        "thun,chur,yverdon,chauxdefonds,biel,zug,schaffhausen,uster,annemasse"
+        "thun,chur,yverdon,chauxdefonds,biel,zug,schaffhausen,uster,"
+        "aarau,morges,bulle,martigny,sierre,monthey,delemont,olten,"
+        "baden,wil,frauenfeld,solothurn,langenthal,interlaken,liestal,"
+        "kreuzlingen,locarno,mendrisio,chiasso,bellinzona,brig,schwyz,"
+        "emmen,dietikon,horgen,"
+        "annemasse,ferney,stjulien,gaillard,thonon,annecy,"
+        "loerrach,weil,konstanz,waldshut,como,varese,domodossola"
     )
-    flatfox_max_listings: int = 400
-    flatfox_max_per_region: int = 25
+    flatfox_max_listings: int = 2500
+    flatfox_max_per_region: int = 50
+    # Pause between Flatfox JSON calls (pin + detail). Separate from the 3s HTML
+    # scrape budget so a national housing sweep stays under one cron slot.
+    flatfox_request_pause_seconds: float = 0.35
     immoscout_search_url: str = "https://www.immoscout24.ch/fr/immobilier/louer/lieu-geneve"
     newhome_search_url: str = "https://www.newhome.ch/fr/louer/geneve"
     anibis_search_url: str = "https://www.anibis.ch/fr/immobilier--8/annonces/geneve"

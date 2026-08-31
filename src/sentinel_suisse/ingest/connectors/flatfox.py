@@ -5,9 +5,11 @@ Two keyless endpoints power flatfox.ch search:
     GET https://flatfox.ch/api/v1/pin/?north=&south=&east=&west=
     GET https://flatfox.ch/api/v1/public-listing/{pk}/
 
-Pin search is geo-filtered (one bbox per Swiss region). List search ignores
-city/bbox, so we do not paginate the nationwide 35k feed. Apply URL is always
-the Flatfox listing page — LinkSwiss does not host applications.
+Pin search is geo-filtered (one bbox per Swiss / border town). List search
+ignores city/bbox and cannot filter by rooms, so we do not paginate the
+nationwide 35k feed. Instead we walk the same city list as jobs and, inside
+each box, take a mix of expensive pins first (family-size flats) then the
+rest. Apply URL is always the Flatfox listing page.
 
 Documented API: https://flatfox.ch/docs/api/  robots.txt allows /. Live ingest stays
 opt-in (`INGEST_FLATFOX_LIVE`). See docs/providers/flatfox.md.
@@ -31,8 +33,25 @@ _SITE = "https://flatfox.ch"
 
 _SKIP_CATEGORIES = frozenset({"PARK", "INDUSTRY", "GASTRO", "AGRICULTURE"})
 _MIN_MONTHLY_CHF = Decimal("500")
+_COUNTRY_MAP = {
+    "CH": CountryCode.CH,
+    "FR": CountryCode.FR,
+    "DE": CountryCode.DE,
+    "IT": CountryCode.IT,
+}
 
-# north, south, east, west — metro-scale boxes (not tiny city centres).
+
+def _box(lat: float, lon: float, span: float = 0.08) -> tuple[str, str, str, str]:
+    """north, south, east, west around a city centre."""
+    return (
+        f"{lat + span:.2f}",
+        f"{lat - span:.2f}",
+        f"{lon + span:.2f}",
+        f"{lon - span:.2f}",
+    )
+
+
+# north, south, east, west — metro boxes, then the same towns as the job crawl.
 _REGION_BOXES: dict[str, tuple[str, str, str, str]] = {
     "zurich": ("47.48", "47.28", "8.75", "8.35"),
     "bern": ("47.05", "46.85", "7.55", "7.30"),
@@ -56,7 +75,44 @@ _REGION_BOXES: dict[str, tuple[str, str, str, str]] = {
     "zug": ("47.20", "47.12", "8.55", "8.45"),
     "schaffhausen": ("47.74", "47.66", "8.70", "8.58"),
     "uster": ("47.38", "47.32", "8.76", "8.66"),
+    "aarau": _box(47.39, 8.04),
+    "morges": _box(46.51, 6.50, 0.06),
+    "bulle": _box(46.62, 7.06),
+    "martigny": _box(46.10, 7.07),
+    "sierre": _box(46.29, 7.54),
+    "monthey": _box(46.25, 6.95),
+    "delemont": _box(47.36, 7.34),
+    "olten": _box(47.35, 7.90),
+    "baden": _box(47.47, 8.31),
+    "wil": _box(47.46, 9.04),
+    "frauenfeld": _box(47.56, 8.90),
+    "solothurn": _box(47.21, 7.53),
+    "langenthal": _box(47.22, 7.80),
+    "interlaken": _box(46.69, 7.86),
+    "liestal": _box(47.48, 7.73, 0.06),
+    "kreuzlingen": _box(47.65, 9.18, 0.06),
+    "locarno": _box(46.17, 8.80),
+    "mendrisio": _box(45.87, 8.98, 0.06),
+    "chiasso": _box(45.83, 9.03, 0.05),
+    "bellinzona": _box(46.19, 9.02),
+    "brig": _box(46.32, 7.99),
+    "schwyz": _box(47.02, 8.65),
+    "emmen": _box(47.08, 8.30, 0.05),
+    "dietikon": _box(47.40, 8.40, 0.05),
+    "horgen": _box(47.26, 8.60, 0.05),
     "annemasse": ("46.22", "46.16", "6.30", "6.18"),
+    "ferney": _box(46.26, 6.11, 0.05),
+    "stjulien": _box(46.14, 6.08, 0.05),
+    "gaillard": _box(46.19, 6.21, 0.04),
+    "thonon": _box(46.37, 6.48),
+    "annecy": _box(45.90, 6.13, 0.10),
+    "loerrach": _box(47.61, 7.66, 0.06),
+    "weil": _box(47.59, 7.61, 0.05),
+    "konstanz": _box(47.66, 9.18, 0.06),
+    "waldshut": _box(47.62, 8.22, 0.06),
+    "como": _box(45.81, 9.09, 0.08),
+    "varese": _box(45.82, 8.83, 0.08),
+    "domodossola": _box(46.12, 8.29, 0.08),
 }
 
 
@@ -119,8 +175,8 @@ def _format_location(city: Any, zipcode: Any, country: CountryCode) -> str | Non
     if not parts:
         return None
     location = ", ".join(parts)
-    if country == CountryCode.FR and "FR" not in location:
-        location = f"{location}, FR"
+    if country != CountryCode.CH and country.value not in location:
+        location = f"{location}, {country.value}"
     return location[:200]
 
 
@@ -159,7 +215,7 @@ def map_public_listing(listing: dict[str, Any]) -> RawListing | None:
         return None
 
     country_raw = str(listing.get("country") or "CH").upper()
-    country = CountryCode.FR if country_raw == "FR" else CountryCode.CH
+    country = _COUNTRY_MAP.get(country_raw, CountryCode.CH)
     location = _format_location(listing.get("city"), listing.get("zipcode"), country)
 
     rooms = _as_decimal(listing.get("number_of_rooms"))
@@ -184,11 +240,11 @@ def map_public_listing(listing: dict[str, Any]) -> RawListing | None:
     )
 
 
-def parse_pin_list(payload: Any) -> list[int]:
+def parse_pin_records(payload: Any) -> list[tuple[int, Decimal | None]]:
     if not isinstance(payload, list):
         msg = "Unexpected Flatfox pin response (expected a JSON list)"
         raise FlatfoxFetchError(msg)
-    pks: list[int] = []
+    records: list[tuple[int, Decimal | None]] = []
     seen: set[int] = set()
     for pin in payload:
         if not isinstance(pin, dict):
@@ -201,8 +257,46 @@ def parse_pin_list(payload: Any) -> list[int]:
         pk = pin.get("pk")
         if isinstance(pk, int) and pk not in seen:
             seen.add(pk)
-            pks.append(pk)
-    return pks
+            records.append((pk, price))
+    return records
+
+
+def parse_pin_list(payload: Any) -> list[int]:
+    return [pk for pk, _price in parse_pin_records(payload)]
+
+
+def select_pin_pks(records: list[tuple[int, Decimal | None]], limit: int) -> list[int]:
+    """Prefer expensive pins (family-size homes) then fill with the rest.
+
+    Map pins have no room count. Rent is the only signal, so the first half of
+    the budget is the highest-priced ads — same idea as the job role-keyword pass.
+    """
+    if limit <= 0:
+        return []
+    if len(records) <= limit:
+        return [pk for pk, _price in records]
+
+    priced = [(pk, price) for pk, price in records if price is not None]
+    priced.sort(key=lambda item: item[1], reverse=True)
+
+    family_n = max(1, limit // 2)
+    chosen: list[int] = []
+    seen: set[int] = set()
+    for pk, _price in priced[:family_n]:
+        if pk not in seen:
+            seen.add(pk)
+            chosen.append(pk)
+            if len(chosen) >= limit:
+                return chosen
+
+    for pk, _price in records:
+        if pk in seen:
+            continue
+        seen.add(pk)
+        chosen.append(pk)
+        if len(chosen) >= limit:
+            break
+    return chosen[:limit]
 
 
 def fetch_search_listings(settings: Settings, search_url: str | None = None) -> list[RawListing]:
@@ -223,12 +317,13 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
     # after Geneva/Zurich fill the previous global cap first.
     fair_share = max(1, total_cap // len(boxes))
     per_region = min(max(1, settings.flatfox_max_per_region), fair_share)
+    pause = max(0.0, settings.flatfox_request_pause_seconds)
 
     for north, south, east, west in boxes:
         if len(listings) >= total_cap:
             break
         try:
-            time.sleep(settings.ingest_rate_limit_seconds)
+            time.sleep(pause)
             pin_response = httpx.get(
                 _PIN_URL,
                 params={"north": north, "south": south, "east": east, "west": west},
@@ -245,9 +340,10 @@ def fetch_search_listings(settings: Settings, search_url: str | None = None) -> 
             raise FlatfoxFetchError(msg) from exc
 
         remaining = total_cap - len(listings)
-        pks = parse_pin_list(pin_payload)[: min(per_region, remaining)]
+        records = parse_pin_records(pin_payload)
+        pks = select_pin_pks(records, min(per_region, remaining))
         for pk in pks:
-            detail = _fetch_detail(settings, headers, pk)
+            detail = _fetch_detail(headers, pk, pause)
             if detail is None:
                 continue
             mapped = map_public_listing(detail)
@@ -289,9 +385,9 @@ def _iter_region_boxes(settings: Settings) -> list[tuple[str, str, str, str]]:
     ]
 
 
-def _fetch_detail(settings: Settings, headers: dict[str, str], pk: int) -> dict[str, Any] | None:
+def _fetch_detail(headers: dict[str, str], pk: int, pause: float) -> dict[str, Any] | None:
     try:
-        time.sleep(settings.ingest_rate_limit_seconds)
+        time.sleep(pause)
         response = httpx.get(_DETAIL_URL.format(pk=pk), headers=headers, timeout=30.0)
         response.raise_for_status()
         payload = response.json()

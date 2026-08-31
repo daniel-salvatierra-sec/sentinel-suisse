@@ -26,15 +26,17 @@ off. Partnership email: `docs/outreach/smg-real-estate.md`.
 
 ## Technical
 
-- Pin search geo-filters per region (`FLATFOX_REGIONS`: Geneva, Zurich, Bern,
-  Basel, Lausanne, Lugano, Lucerne, St. Gallen, Sion, Fribourg, Neuchatel,
-  Winterthur, Nyon, Vevey, Montreux, Thun, Chur, Yverdon, La Chaux-de-Fonds,
-  Biel, Zug, Schaffhausen, Uster, Annemasse). List search ignores city/bbox
+- Pin search geo-filters per region (`FLATFOX_REGIONS`: the same Swiss cities as
+  the job crawl, plus FR/DE/IT border towns). List search ignores city/bbox
   and would return 35k ads.
 - Skip parking / industrial / CHF < 500 / yearly m² (offices).
-- Cap: `FLATFOX_MAX_PER_REGION` (default 25) and `FLATFOX_MAX_LISTINGS` (default 400).
+- Cap: `FLATFOX_MAX_PER_REGION` (default 50) and `FLATFOX_MAX_LISTINGS` (default 2500).
   The per-region budget is also capped to a fair share of the global total so
   late cities are not starved after Geneva/Zurich fill the queue.
+- Pins have no room count, so each box takes the **highest-rent half first**
+  (family-size flats) then fills with the rest — same idea as JobCloud role keywords.
+- `FLATFOX_REQUEST_PAUSE_SECONDS` (default 0.35) paces JSON calls separately from
+  the 3s HTML scrape budget.
 - `listing_type`: always `housing`.
 - Fixture for parser tests: `fixtures/flatfox_api_sample.json`
 
