@@ -1,12 +1,14 @@
 import { useState, type MouseEvent } from "react";
 import type { Listing } from "../api";
 import { coordsForLocation, mapsDirectionsUrl } from "../geo";
-import type { Messages } from "../i18n";
+import type { Lang, Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
+import { listingOutboundUrl } from "../listingOutboundUrl";
 
 type Props = {
   listing: Listing;
   t: Messages;
+  lang: Lang;
   selected: boolean;
   onSelect: () => void;
   onShowOnMap: () => void;
@@ -16,6 +18,7 @@ type Props = {
 export function ListingCard({
   listing,
   t,
+  lang,
   selected,
   onSelect,
   onShowOnMap,
@@ -42,7 +45,7 @@ export function ListingCard({
 
   const goToAd = () => {
     if (isDemo) return;
-    window.open(listing.source_url, "_blank", "noopener,noreferrer");
+    window.open(listingOutboundUrl(listing.source_url, lang), "_blank", "noopener,noreferrer");
   };
 
   return (

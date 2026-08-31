@@ -151,6 +151,7 @@ export function MyAlertsPanel({
                 key={listing.id}
                 listing={listing}
                 t={t}
+                lang={locale}
                 selected={false}
                 onSelect={() => onOpenListing(listing.id)}
                 onShowOnMap={() => onOpenListing(listing.id)}
