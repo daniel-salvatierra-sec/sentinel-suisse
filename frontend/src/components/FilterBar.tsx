@@ -6,7 +6,7 @@ import {
   JOB_ROLES,
   type JobField,
 } from "../jobTaxonomy";
-import { SWISS_CITIES } from "../swissCities";
+import { BORDER_CITY, citiesForZone } from "../zoneCities";
 
 export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "5";
 export type WorkloadChoice = "" | "40-60" | "80-100";
@@ -187,27 +187,31 @@ export function FilterBar({
         </button>
       </div>
 
-      {zoneChoice === "CH" ? (
-        <label className="filter-city">
-          {t.cityLabel}
-          <select
-            value={cityChoice}
-            onChange={(event) => onCityChoiceChange(event.target.value)}
-          >
-            <option value="">{t.cityAll}</option>
-            {(stockedCities == null
-              ? [...SWISS_CITIES]
-              : SWISS_CITIES.filter(
-                  (city) => stockedCities.includes(city) || city === cityChoice,
-                )
-            ).map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
+      {(() => {
+        const cities = citiesForZone(zoneChoice);
+        const shown =
+          zoneChoice === "CH" && stockedCities != null
+            ? cities.filter((city) => stockedCities.includes(city) || city === cityChoice)
+            : cities;
+        const selectValue =
+          cityChoice || (zoneChoice === "CH" ? "" : BORDER_CITY);
+        return (
+          <label className="filter-city">
+            {t.cityLabel}
+            <select
+              value={selectValue}
+              onChange={(event) => onCityChoiceChange(event.target.value)}
+            >
+              {zoneChoice === "CH" ? <option value="">{t.cityAll}</option> : null}
+              {shown.map((city) => (
+                <option key={city} value={city}>
+                  {city === BORDER_CITY ? t.zoneBorder : city}
+                </option>
+              ))}
+            </select>
+          </label>
+        );
+      })()}
 
       {category === "housing" && (
         <>

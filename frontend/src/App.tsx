@@ -41,8 +41,13 @@ import type { ListingSignalContext } from "./listingSignals";
 import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
-import { matchSwissCity } from "./swissCities";
 import { toSavedSearchQuery } from "./searchSummary";
+import {
+  isBorderQuery,
+  matchZoneCity,
+  queryForCityChoice,
+  searchLocation,
+} from "./zoneCities";
 import { capturePromoFromUrl } from "./promo";
 
 type Tab = "list" | "map" | "alerts" | "account" | "publish";
@@ -171,7 +176,7 @@ export default function App() {
       const listingType: ListingType = occupationQuery ? "job" : category;
       return {
         listing_type: listingType,
-        location: query,
+        location: searchLocation(zone, query),
         country: zone,
         price_min: listingType === "housing" ? parseOptionalPrice(pMin) : undefined,
         price_max: listingType === "housing" ? parseOptionalPrice(pMax) : undefined,
@@ -272,7 +277,7 @@ export default function App() {
       setHubFocused(true);
     }
     if (deep.location != null) {
-      setQuery(deep.location);
+      setQuery(isBorderQuery(deep.location) ? "" : deep.location);
     }
     if (deep.tab === "account") {
       setTab("account");
@@ -432,7 +437,8 @@ export default function App() {
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
     setCategory(saved.listing_type);
     setHubFocused(true);
-    setQuery(saved.location ?? "");
+    const savedLocation = saved.location ?? "";
+    setQuery(isBorderQuery(savedLocation) ? "" : savedLocation);
     if (
       saved.country === "CH" ||
       saved.country === "FR" ||
@@ -586,13 +592,11 @@ export default function App() {
             onZoneChoiceChange={(value) => {
               setZoneChoice(value);
               setAppliedZoneChoice(value);
-              if (value !== "CH") {
-                setQuery("");
-              }
+              setQuery("");
             }}
-            cityChoice={matchSwissCity(query)}
+            cityChoice={matchZoneCity(zoneChoice, query)}
             onCityChoiceChange={(value) => {
-              setQuery(value);
+              setQuery(queryForCityChoice(zoneChoice, value));
             }}
             stockedCities={stockedCities}
             roomsChoice={roomsChoice}

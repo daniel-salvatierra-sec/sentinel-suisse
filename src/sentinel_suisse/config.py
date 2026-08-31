@@ -106,12 +106,13 @@ class Settings(BaseSettings):
         "Langenthal,Interlaken,Liestal,Kreuzlingen,"
         "Locarno,Mendrisio,Chiasso,Brig,Schwyz,Emmen,Dietikon,Horgen"
     )
-    # Second Adzuna pass for France (Haute-Savoie / Geneva border). Same app_id/key;
+    # Second Adzuna pass for France (border + cities over 500k). Same app_id/key;
     # France Travail developer portal is not required.
     ingest_adzuna_fr_live: bool = False
     adzuna_fr_location: str = "Haute-Savoie"
     adzuna_fr_keywords: str = ""
-    # German and Italian border cities — same Adzuna keys, country=de / country=it.
+    # German and Italian jobs — Swiss border towns plus cities over 500k.
+    # Same Adzuna keys, country=de / country=it. Official API, not scraping.
     ingest_adzuna_de_live: bool = False
     adzuna_de_location: str = "Lorrach"
     adzuna_de_keywords: str = ""
@@ -119,6 +120,9 @@ class Settings(BaseSettings):
     adzuna_it_location: str = "Como"
     adzuna_it_keywords: str = ""
     adzuna_max_pages: int = 3
+    # Extra Adzuna pages for inland FR/DE/IT cities (500k+). 1 keeps the free
+    # 250 req/day cap when neighbor countries add Paris/Berlin/Rome etc.
+    adzuna_neighbor_max_pages: int = 1
     # SmartRecruiters — official, keyless Postings API used by several large Geneva
     # employers (e.g. HUG, SGS) for their public career sites. Not scraping.
     ingest_smartrecruiters_live: bool = False

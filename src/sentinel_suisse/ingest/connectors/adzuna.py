@@ -169,27 +169,45 @@ def fetch_country_locations(
     disabled_message: str,
     keywords: str = "",
     search_url: str | None = None,
+    max_pages: int | None = None,
+    extra_locations: list[str] | None = None,
+    extra_max_pages: int | None = None,
 ) -> list[RawListing]:
     """Run the official Adzuna API for one country across several `where` values."""
     if not enabled:
         raise disabled_error(disabled_message)
     seen: set[str] = set()
     parsed: list[RawListing] = []
-    for location in locations:
-        copy = settings.model_copy(
-            update={
-                "ingest_adzuna_live": True,
-                "adzuna_country": country,
-                "adzuna_location": location,
-                "adzuna_locations": "",
-                "adzuna_keywords": keywords,
-            }
-        )
-        for item in fetch_search_listings(copy, search_url=search_url):
+
+    def _absorb(batch: list[RawListing]) -> None:
+        for item in batch:
             if item.external_id in seen:
                 continue
             seen.add(item.external_id)
             parsed.append(item)
+
+    def _run(wheres: list[str], pages: int) -> None:
+        for location in wheres:
+            copy = settings.model_copy(
+                update={
+                    "ingest_adzuna_live": True,
+                    "adzuna_country": country,
+                    "adzuna_location": location,
+                    "adzuna_locations": "",
+                    "adzuna_keywords": keywords,
+                    "adzuna_max_pages": max(1, pages),
+                }
+            )
+            _absorb(fetch_search_listings(copy, search_url=search_url))
+
+    border_pages = max_pages if max_pages is not None else settings.adzuna_max_pages
+    _run(locations, border_pages)
+    extras = [item for item in (extra_locations or []) if item and item not in locations]
+    extra_pages = (
+        extra_max_pages if extra_max_pages is not None else settings.adzuna_neighbor_max_pages
+    )
+    if extras and extra_pages >= 1:
+        _run(extras, extra_pages)
     return parsed
 
 

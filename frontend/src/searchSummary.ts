@@ -6,6 +6,7 @@ import type {
 } from "./api";
 import type { Messages } from "./i18n";
 import { JOB_FIELDS, jobCategoryAncestors, type JobField } from "./jobTaxonomy";
+import { isBorderQuery } from "./zoneCities";
 
 type Query = {
   listing_type?: ListingType;
@@ -127,7 +128,7 @@ export function formatSearchSummary(t: Messages, query: Query): string {
 
   const location = query.location?.trim();
   if (location) {
-    parts.push(location);
+    parts.push(isBorderQuery(location) ? t.zoneBorder : location);
   }
   if (query.country && query.country !== "CH") {
     parts.push(zoneLabel(t, query.country));

@@ -63,9 +63,12 @@ Register the provider once via the admin API before the first run:
 
 - Single page per run (`results_per_page=50`) — no pagination loop yet
 - One country per run — `ADZUNA_COUNTRY` picks `ch`, `fr`, `de`, or `it`.
-  **Adzuna France** (`adzuna-fr`) queries `country=fr` plus Haute-Savoie border towns.
+  **Adzuna France** (`adzuna-fr`) queries `country=fr`: Haute-Savoie border
+  towns (full `ADZUNA_MAX_PAGES`) plus French cities over 500k inhabitants
+  (`ADZUNA_NEIGHBOR_MAX_PAGES`, default 1).
   **Adzuna Germany** (`adzuna-de`) and **Adzuna Italy** (`adzuna-it`) cover the
-  German and Italian borders the same way. Same keys; do not scrape portals.
+  German and Italian borders the same way, then Berlin / Rome / etc. Same keys;
+  do not scrape portals.
 - Pagination: `ADZUNA_MAX_PAGES` (default 3, 50 results per page).
 - Category comes from Adzuna's own taxonomy (`category.label`), not ours — matching
   against saved-search `job_category` filters may need a mapping layer later

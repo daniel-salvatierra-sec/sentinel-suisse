@@ -57,3 +57,31 @@ def test_smaller_swiss_town_aliases() -> None:
 def test_location_matches_suburb_for_geneva() -> None:
     assert location_matches("Châtelaine, 1219", "Geneva") is True
     assert location_matches("Lausanne, 1003", "Geneva") is False
+
+
+def test_neighbor_border_queries_expand_to_border_towns() -> None:
+    fr_terms = expand_location_query("FR-border")
+    assert "Annemasse" in fr_terms
+    assert "Annecy" in fr_terms
+    assert location_matches("Annemasse, 74100", "FR-border") is True
+    assert location_matches("Paris, Île-de-France", "FR-border") is False
+
+    de_terms = expand_location_query("DE-border")
+    assert "Konstanz" in de_terms
+    assert location_matches("Weil am Rhein", "DE-border") is True
+    assert location_matches("Berlin", "DE-border") is False
+
+    it_terms = expand_location_query("IT-border")
+    assert "Como" in it_terms
+    assert location_matches("Varese, Lombardia", "IT-border") is True
+    assert location_matches("Roma", "IT-border") is False
+
+
+def test_neighbor_city_aliases() -> None:
+    assert "München" in expand_location_query("Munich")
+    assert "Köln" in expand_location_query("Cologne")
+    assert "Roma" in expand_location_query("Rome")
+    assert "Milano" in expand_location_query("Milan")
+    assert location_matches("München, Bayern", "Munich") is True
+    assert location_matches("Roma, Lazio", "Rome") is True
+    assert location_matches("Paris", "Lyon") is False

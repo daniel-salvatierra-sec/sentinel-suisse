@@ -45,3 +45,4 @@ def test_fetch_uses_germany_endpoint_and_location(mock_get: MagicMock) -> None:
     wheres = [call.kwargs["params"]["where"] for call in mock_get.call_args_list]
     assert "Konstanz" in wheres
     assert "Lorrach" in wheres
+    assert "Berlin" in wheres

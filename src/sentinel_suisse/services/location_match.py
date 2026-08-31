@@ -189,6 +189,42 @@ _THUN_TERMS: tuple[str, ...] = ("Thun", "Thoune")
 _AARAU_TERMS: tuple[str, ...] = ("Aarau",)
 _CHAUX_TERMS: tuple[str, ...] = ("La Chaux-de-Fonds", "Chaux-de-Fonds")
 
+_FR_BORDER_TERMS: tuple[str, ...] = (
+    "Annemasse",
+    "Gaillard",
+    "Ferney",
+    "Ferney-Voltaire",
+    "Saint-Julien",
+    "Saint-Julien-en-Genevois",
+    "Thonon",
+    "Annecy",
+    "Haute-Savoie",
+    "74100",
+    "01210",
+    "74160",
+    "74240",
+)
+_DE_BORDER_TERMS: tuple[str, ...] = (
+    "Lorrach",
+    "Lörrach",
+    "Weil am Rhein",
+    "Konstanz",
+    "Constance",
+    "Waldshut",
+    "Waldshut-Tiengen",
+)
+_IT_BORDER_TERMS: tuple[str, ...] = (
+    "Como",
+    "Varese",
+    "Domodossola",
+)
+
+_BORDER_QUERIES: dict[str, tuple[str, ...]] = {
+    "fr-border": _FR_BORDER_TERMS,
+    "de-border": _DE_BORDER_TERMS,
+    "it-border": _IT_BORDER_TERMS,
+}
+
 _CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
     (_GENEVA_QUERY_ALIASES, _GENEVA_AREA_TERMS),
     (
@@ -247,6 +283,40 @@ _CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
     (_alias_set("emmen"), ("Emmen",)),
     (_alias_set("dietikon"), ("Dietikon",)),
     (_alias_set("horgen"), ("Horgen",)),
+    (_alias_set("paris", "parigi"), ("Paris", "Parigi")),
+    (_alias_set("marseille", "marsella"), ("Marseille", "Marsella")),
+    (_alias_set("lyon", "lione"), ("Lyon", "Lione")),
+    (_alias_set("toulouse", "tolosa"), ("Toulouse", "Tolosa")),
+    (_alias_set("berlin", "berlijn"), ("Berlin", "Berlijn")),
+    (_alias_set("hamburg", "hambourg", "hamburgo"), ("Hamburg", "Hambourg", "Hamburgo")),
+    (
+        _alias_set("munich", "munchen", "muenchen", "münchen"),
+        ("Munich", "München", "Munchen"),
+    ),
+    (_alias_set("cologne", "koln", "koeln", "köln"), ("Cologne", "Köln", "Koln")),
+    (_alias_set("frankfurt"), ("Frankfurt",)),
+    (_alias_set("stuttgart"), ("Stuttgart",)),
+    (
+        _alias_set("dusseldorf", "duesseldorf", "düsseldorf"),
+        ("Dusseldorf", "Düsseldorf"),
+    ),
+    (_alias_set("leipzig"), ("Leipzig",)),
+    (_alias_set("dortmund"), ("Dortmund",)),
+    (_alias_set("essen"), ("Essen",)),
+    (_alias_set("bremen"), ("Bremen",)),
+    (_alias_set("dresden", "dresde"), ("Dresden", "Dresde")),
+    (_alias_set("hanover", "hannover"), ("Hanover", "Hannover")),
+    (
+        _alias_set("nuremberg", "nurnberg", "nuernberg", "nürnberg"),
+        ("Nuremberg", "Nürnberg", "Nurnberg"),
+    ),
+    (_alias_set("duisburg"), ("Duisburg",)),
+    (_alias_set("rome", "roma"), ("Rome", "Roma")),
+    (_alias_set("milan", "milano"), ("Milan", "Milano")),
+    (_alias_set("naples", "napoli", "napoles"), ("Naples", "Napoli", "Napoles")),
+    (_alias_set("turin", "torino"), ("Turin", "Torino")),
+    (_alias_set("palermo"), ("Palermo",)),
+    (_alias_set("genoa", "genova"), ("Genoa", "Genova", "Génova")),
 )
 
 
@@ -256,6 +326,9 @@ def expand_location_query(query: str) -> list[str]:
     if not stripped:
         return []
     folded = _fold(stripped)
+    border_terms = _BORDER_QUERIES.get(folded)
+    if border_terms is not None:
+        return list(border_terms)
     for aliases, terms in _CITY_GROUPS:
         if folded in aliases:
             return list(terms)

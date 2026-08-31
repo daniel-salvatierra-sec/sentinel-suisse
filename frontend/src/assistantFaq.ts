@@ -307,11 +307,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       en: [["what cit", "what countr", "which region", "where does this work"]],
     },
     answer: {
-      fr: "LinkSwiss se concentre sur la Suisse (surtout Genève et le Léman) et la France voisine (Annemasse, Haute-Savoie). On élargit petit à petit — cherche ta ville dans la barre de recherche pour voir ce qui existe déjà.",
-      de: "LinkSwiss konzentriert sich auf die Schweiz (vor allem Genf und den Genfersee) und das nahe Frankreich (Annemasse, Haute-Savoie). Wir erweitern das Angebot laufend — suche deine Stadt in der Suchleiste, um zu sehen, was schon verfügbar ist.",
-      es: "LinkSwiss se centra en Suiza (sobre todo Ginebra y el lago Léman) y la Francia vecina (Annemasse, Alta Saboya). Vamos ampliando poco a poco — busca tu ciudad en la barra de búsqueda para ver qué hay ya disponible.",
-      pt: "O LinkSwiss foca-se na Suíça (sobretudo Genebra e o lago Léman) e a França vizinha (Annemasse, Alta Saboia). Estamos a expandir aos poucos — pesquisa a tua cidade na barra de pesquisa para ver o que já existe.",
-      en: "LinkSwiss focuses on Switzerland (especially Geneva and Lake Geneva) and nearby France (Annemasse, Haute-Savoie). We're expanding gradually — search your city in the search bar to see what's already available.",
+      fr: "LinkSwiss couvre la Suisse, la France, l'Allemagne et l'Italie. Dans chaque pays voisin, la première ville est la Frontière (communes proches de la Suisse), puis les villes de plus de 500 000 habitants. Cherche ta ville pour voir ce qui est déjà en ligne.",
+      de: "LinkSwiss deckt die Schweiz, Frankreich, Deutschland und Italien ab. In den Nachbarländern ist die erste Stadt die Grenze (Orte nahe der Schweiz), danach Städte über 500 000 Einwohner. Suche deine Stadt, um zu sehen, was schon da ist.",
+      es: "LinkSwiss cubre Suiza, Francia, Alemania e Italia. En cada país vecino la primera ciudad es Frontera (localidades junto a Suiza) y luego las ciudades de más de 500 000 habitantes. Busca tu ciudad para ver qué hay ya disponible.",
+      pt: "O LinkSwiss cobre a Suíça, a França, a Alemanha e a Itália. Em cada país vizinho a primeira cidade é a Fronteira (localidades junto à Suíça) e depois as cidades com mais de 500 000 habitantes. Pesquisa a tua cidade para ver o que já existe.",
+      en: "LinkSwiss covers Switzerland, France, Germany and Italy. In each neighbouring country the first city is Border (towns next to Switzerland), then cities over 500,000 people. Search your city to see what's already listed.",
     },
   },
   {

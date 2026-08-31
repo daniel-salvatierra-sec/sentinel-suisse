@@ -34,6 +34,7 @@ export type Messages = {
   zoneFR: string;
   zoneDE: string;
   zoneIT: string;
+  zoneBorder: string;
   cityLabel: string;
   cityAll: string;
   roomsLabel: string;
