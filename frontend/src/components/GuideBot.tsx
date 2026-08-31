@@ -7,15 +7,17 @@ import {
   saveNudgeSeen,
 } from "../guideStorage";
 import type { Messages } from "../i18n";
+import type { SentinelPose } from "../sentinelPose";
 import { AssistantChat } from "./AssistantChat";
-import { SentinelBuddy, SentinelFace } from "./SentinelBuddy";
+import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
-const NUDGE_AFTER_MS = 60_000;
+const NUDGE_AFTER_MS = 5 * 60 * 1000;
 
 type Props = {
   t: Messages;
   lang: string;
   zone: ListingType;
+  page: "overview" | "search" | "account";
   searching: boolean;
   searchTab: boolean;
   hasSession: boolean;
@@ -28,13 +30,14 @@ type Props = {
 };
 
 /**
- * Sentinel companion: dock FAB + bottom sheet with zone-specific radar chips.
- * After one minute on search, offers alerts + account once (not again).
+ * Sentinela: presents on open; after 5 minutes asks about alerts (yes/no).
+ * Yes → points to Account. No → she steps back.
  */
 export function GuideBot({
   t,
   lang,
   zone,
+  page,
   searching,
   searchTab,
   hasSession,
@@ -45,14 +48,17 @@ export function GuideBot({
   onOpenAccount,
   onOpenPublish,
 }: Props) {
-  const [open, setOpen] = useState(() => !loadGuideSeen());
+  const [open, setOpen] = useState(false);
   const [needsIntro, setNeedsIntro] = useState(() => !loadGuideSeen());
   const [pickingAlertType, setPickingAlertType] = useState(false);
   const [chatMode, setChatMode] = useState(false);
   const [nudgeMode, setNudgeMode] = useState(false);
   const [nudgeDue, setNudgeDue] = useState(false);
+  const [nudgeStep, setNudgeStep] = useState<"whatsapp" | "account">("whatsapp");
+  const [showPresent, setShowPresent] = useState(true);
   const [assistantEnabled, setAssistantEnabled] = useState(false);
   const [chatBusy, setChatBusy] = useState(false);
+  const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
 
   useEffect(() => {
     fetchAssistantConfig()
@@ -61,26 +67,21 @@ export function GuideBot({
   }, []);
 
   useEffect(() => {
-    if (loadNudgeSeen() || needsIntro) {
+    if (loadNudgeSeen() || hasSession) {
       return;
     }
-    const timer = window.setTimeout(() => setNudgeDue(true), NUDGE_AFTER_MS);
+    const timer = window.setTimeout(() => {
+      setNudgeDue(true);
+      setNudgeStep("whatsapp");
+    }, NUDGE_AFTER_MS);
     return () => window.clearTimeout(timer);
-  }, [needsIntro]);
-
-  useEffect(() => {
-    if (!nudgeDue || loadNudgeSeen() || needsIntro || !searchTab || chatMode) {
-      return;
-    }
-    setNudgeMode(true);
-    setPickingAlertType(false);
-    setOpen(true);
-  }, [nudgeDue, needsIntro, searchTab, chatMode]);
+  }, [hasSession]);
 
   const dismissNudge = () => {
     saveNudgeSeen();
     setNudgeMode(false);
     setNudgeDue(false);
+    setNudgeStep("whatsapp");
   };
 
   const close = () => {
@@ -91,8 +92,29 @@ export function GuideBot({
     setNeedsIntro(false);
     setPickingAlertType(false);
     setChatMode(false);
+    setChatPose(null);
     setOpen(false);
   };
+
+  const pose: SentinelPose =
+    chatPose ??
+    (nudgeDue && nudgeStep === "account"
+      ? "account"
+      : nudgeDue
+        ? "think"
+        : page === "account"
+          ? "account"
+          : page === "search"
+            ? "search"
+            : "idle");
+
+  const hint = nudgeDue
+    ? nudgeStep === "account"
+      ? t.guidePointAccount
+      : t.guideNudgeWhatsapp
+    : showPresent
+      ? t.assistantPresent
+      : undefined;
 
   const radarMessage = zone === "job" ? t.guideRadarMessageJob : t.guideRadarMessageHousing;
   const chipPrimary = zone === "job" ? t.guideChipBestOpp : t.guideChipBestPrice;
@@ -102,12 +124,30 @@ export function GuideBot({
     <>
       <SentinelBuddy
         zone={zone}
+        pose={pose}
         searching={searching}
         talking={chatBusy}
-        hidden={open}
         label={t.fireflyLabel}
-        hint={assistantEnabled ? t.assistantChatCta : undefined}
+        name={t.sentinelName}
+        hint={hint}
+        hintYes={nudgeDue && nudgeStep === "whatsapp" ? t.guideYes : undefined}
+        hintNo={nudgeDue && nudgeStep === "whatsapp" ? t.guideNo : undefined}
+        onHintYes={() => {
+          setShowPresent(false);
+          setNudgeStep("account");
+        }}
+        onHintNo={() => {
+          setShowPresent(false);
+          dismissNudge();
+        }}
         onOpen={() => {
+          setShowPresent(false);
+          if (nudgeDue && nudgeStep === "whatsapp") return;
+          if (nudgeDue && nudgeStep === "account") {
+            onOpenAccount();
+            dismissNudge();
+            return;
+          }
           setOpen(true);
           if (assistantEnabled && !needsIntro) {
             setChatMode(true);
@@ -129,7 +169,7 @@ export function GuideBot({
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">
-                  {t.guide}
+                  {t.sentinelName}
                 </h2>
                 <p className="guide-step-label">{t.guideRadarHint}</p>
               </div>
@@ -139,19 +179,25 @@ export function GuideBot({
               <AssistantChat
                 t={t}
                 lang={lang}
-                onBack={() => setChatMode(false)}
+                onBack={() => {
+                  setChatMode(false);
+                  setChatPose(null);
+                }}
                 onBusyChange={setChatBusy}
+                onPoseChange={setChatPose}
               />
             ) : (
               <>
                 <p className="guide-message">
-                  {needsIntro
-                    ? t.guideHello
-                    : nudgeMode
-                      ? t.guideNudgeMessage
-                      : pickingAlertType
-                        ? t.alertsAskType
-                        : radarMessage}
+                  {needsIntro ? (
+                    <NamedCopy text={t.guideHello} name={t.sentinelName} />
+                  ) : nudgeMode ? (
+                    nudgeStep === "account" ? t.guidePointAccount : t.guideNudgeWhatsapp
+                  ) : pickingAlertType ? (
+                    t.alertsAskType
+                  ) : (
+                    radarMessage
+                  )}
                 </p>
                 {nudgeMode && !hasSession ? (
                   <p className="guide-message guide-nudge-extra">{t.guideNudgeAccount}</p>
@@ -284,15 +330,6 @@ export function GuideBot({
                     >
                       {t.guideChipAccount}
                     </button>
-                    {assistantEnabled && (
-                      <button
-                        type="button"
-                        className="chip active assistant-chip"
-                        onClick={() => setChatMode(true)}
-                      >
-                        {t.assistantChatCta}
-                      </button>
-                    )}
                   </div>
                 )}
 

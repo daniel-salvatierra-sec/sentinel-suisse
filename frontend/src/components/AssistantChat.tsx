@@ -3,19 +3,22 @@ import { sendAssistantMessage, type AssistantChatMessage } from "../api";
 import { matchFaq } from "../assistantFaq";
 import { loadAssistantMessages, saveAssistantMessages } from "../guideStorage";
 import type { Messages } from "../i18n";
+import { extractGesture, type SentinelPose } from "../sentinelPose";
+import { NamedCopy } from "./SentinelBuddy";
 
 type Props = {
   t: Messages;
   lang: string;
   onBack: () => void;
   onBusyChange?: (busy: boolean) => void;
+  onPoseChange?: (pose: SentinelPose | null) => void;
 };
 
 const MAX_HISTORY_SENT = 16;
 const MAX_INPUT_CHARS = 500;
 
 /** Free-form AI chat, shown inside the guide sheet when the assistant is enabled. */
-export function AssistantChat({ t, lang, onBack, onBusyChange }: Props) {
+export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange }: Props) {
   const [messages, setMessages] = useState<AssistantChatMessage[]>(loadAssistantMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -49,7 +52,9 @@ export function AssistantChat({ t, lang, onBack, onBusyChange }: Props) {
 
     const cannedReply = matchFaq(text, lang, { hasHistory: messages.length > 0 });
     if (cannedReply) {
-      setMessages((prev) => [...prev, { role: "assistant", content: cannedReply }]);
+      const parsed = extractGesture(cannedReply);
+      onPoseChange?.(parsed.pose);
+      setMessages((prev) => [...prev, { role: "assistant", content: parsed.text }]);
       scrollToBottom();
       return;
     }
@@ -59,7 +64,9 @@ export function AssistantChat({ t, lang, onBack, onBusyChange }: Props) {
 
     try {
       const reply = await sendAssistantMessage(text, lang, history);
-      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+      const parsed = extractGesture(reply);
+      onPoseChange?.(parsed.pose);
+      setMessages((prev) => [...prev, { role: "assistant", content: parsed.text }]);
     } catch {
       setError(true);
     } finally {
@@ -71,7 +78,9 @@ export function AssistantChat({ t, lang, onBack, onBusyChange }: Props) {
   return (
     <div className="assistant-chat">
       <div className="assistant-chat-messages" ref={listRef}>
-        <div className="assistant-bubble assistant-bubble-assistant">{t.assistantIntro}</div>
+        <div className="assistant-bubble assistant-bubble-assistant">
+          <NamedCopy text={t.assistantIntro} name={t.sentinelName} />
+        </div>
         {messages.map((message, index) => (
           <div
             key={index}

@@ -52,7 +52,10 @@ def test_assistant_chat_success(client: TestClient, monkeypatch) -> None:
     assert response.json()["reply"] == "Bonjour ! Comment puis-je aider ?"
     assert mock_post.called
     sent_payload = mock_post.call_args.kwargs["json"]
-    assert sent_payload["messages"][0]["role"] == "system"
+    assert sent_payload["temperature"] == 0.72
+    system = sent_payload["messages"][0]["content"]
+    assert "[[gesture:account]]" in system
+    assert "[[gesture:search]]" in system
     assert sent_payload["messages"][-1] == {
         "role": "user",
         "content": "Comment fonctionne Premium ?",

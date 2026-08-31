@@ -809,6 +809,13 @@ export default function App() {
         t={t}
         lang={lang}
         zone={category}
+        page={
+          tab === "account" || tab === "publish"
+            ? "account"
+            : hubFocused
+              ? "search"
+              : "overview"
+        }
         searching={loading || loadingMore}
         searchTab={tab === "list" || tab === "map"}
         hasSession={hasSession}
@@ -825,7 +832,10 @@ export default function App() {
         onOpenMap={() => {
           setTab("map");
         }}
-        onOpenAccount={() => openAlerts()}
+        onOpenAccount={() => {
+          setHubFocused(true);
+          setTab("account");
+        }}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
       />
     </div>

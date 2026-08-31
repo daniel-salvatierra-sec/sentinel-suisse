@@ -153,6 +153,8 @@ export type Messages = {
   email: string;
   saveSearch: string;
   guide: string;
+  sentinelName: string;
+  assistantPresent: string;
   guideHello: string;
   guideStepCategory: string;
   guideStepSearch: string;
@@ -184,6 +186,12 @@ export type Messages = {
   guideNudgeAlerts: string;
   guideNudgeAccountCta: string;
   guideNudgeNo: string;
+  guideThinkHint: string;
+  guideNudgeWhatsapp: string;
+  guideYes: string;
+  guideNo: string;
+  guidePointAccount: string;
+  guidePointSearch: string;
   postAdCta: string;
   postAdBack: string;
   searchHomeCta: string;

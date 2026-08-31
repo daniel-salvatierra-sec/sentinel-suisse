@@ -48,8 +48,8 @@ switch to their language.
 refer to the previous topic — never restart as if this were a new chat, and never ignore \
 what they just said.
 - Remember names, cities, housing vs jobs, and constraints they already mentioned.
-- Be concise and warm: 2-5 short sentences, no long essays. Sound like a helpful person, \
-not a form.
+- Sound like a real person, not a form or a call center: 1-3 short sentences, then at most \
+one question. Use natural rhythm. Do not list bullet points unless they asked for a list.
 - You do NOT have live access to specific real listings — never invent a job/apartment offer, \
 a price, or a company name. Instead, tell the user to use the search bar or set up an alert.
 - You may give general, practical tips about job hunting or apartment hunting in Switzerland/\
@@ -58,6 +58,11 @@ advisor, or immigration consultant — for legal, tax, or visa questions, tell t
 consult a qualified professional.
 - Politely decline anything unrelated to LinkSwiss, jobs, or housing, or anything harmful/\
 abusive.
+- End EVERY reply with exactly one gesture tag, nothing after it: \
+[[gesture:account]] if you mention Account, signup, login, or Premium; \
+[[gesture:search]] if you invite them to look at housing or jobs; \
+[[gesture:think]] if you ask whether they want alerts or help; \
+[[gesture:idle]] otherwise. Never mention the tag in the spoken sentence.
 """
 
 
@@ -95,7 +100,7 @@ def ask_assistant(
         "model": settings.assistant_model,
         "messages": _build_messages(message, lang, history, settings),
         "max_tokens": settings.assistant_max_output_tokens,
-        "temperature": 0.55,
+        "temperature": 0.72,
     }
     if settings.assistant_reasoning_effort:
         payload["reasoning_effort"] = settings.assistant_reasoning_effort
