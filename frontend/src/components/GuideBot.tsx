@@ -185,6 +185,13 @@ export function GuideBot({
                 }}
                 onBusyChange={setChatBusy}
                 onPoseChange={setChatPose}
+                onPointAccount={() => {
+                  setShowPresent(false);
+                  setOpen(false);
+                  setChatMode(false);
+                  setChatPose("account");
+                  onOpenAccount();
+                }}
               />
             ) : (
               <>

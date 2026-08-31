@@ -12,18 +12,20 @@ type Props = {
   onBack: () => void;
   onBusyChange?: (busy: boolean) => void;
   onPoseChange?: (pose: SentinelPose | null) => void;
+  onPointAccount?: () => void;
 };
 
 const MAX_HISTORY_SENT = 16;
 const MAX_INPUT_CHARS = 500;
 
 /** Free-form AI chat, shown inside the guide sheet when the assistant is enabled. */
-export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange }: Props) {
+export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange, onPointAccount }: Props) {
   const [messages, setMessages] = useState<AssistantChatMessage[]>(loadAssistantMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const accountTimer = useRef<number>(0);
 
   useEffect(() => {
     saveAssistantMessages(messages);
@@ -33,6 +35,10 @@ export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange }: P
     onBusyChange?.(sending);
     return () => onBusyChange?.(false);
   }, [sending, onBusyChange]);
+
+  useEffect(() => {
+    return () => window.clearTimeout(accountTimer.current);
+  }, []);
 
   const scrollToBottom = () => {
     requestAnimationFrame(() => {
@@ -56,6 +62,10 @@ export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange }: P
       onPoseChange?.(parsed.pose);
       setMessages((prev) => [...prev, { role: "assistant", content: parsed.text }]);
       scrollToBottom();
+      if (parsed.pose === "account") {
+        window.clearTimeout(accountTimer.current);
+        accountTimer.current = window.setTimeout(() => onPointAccount?.(), 1400);
+      }
       return;
     }
 
@@ -67,6 +77,10 @@ export function AssistantChat({ t, lang, onBack, onBusyChange, onPoseChange }: P
       const parsed = extractGesture(reply);
       onPoseChange?.(parsed.pose);
       setMessages((prev) => [...prev, { role: "assistant", content: parsed.text }]);
+      if (parsed.pose === "account") {
+        window.clearTimeout(accountTimer.current);
+        accountTimer.current = window.setTimeout(() => onPointAccount?.(), 1400);
+      }
     } catch {
       setError(true);
     } finally {

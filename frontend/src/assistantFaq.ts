@@ -34,6 +34,38 @@ function normalize(text: string): string {
 
 const FAQ_ENTRIES: FaqEntry[] = [
   {
+    id: "where_is_account",
+    match: {
+      fr: [
+        ["ou est", "ou se trouve", "ou trouver", "ou cliquer"],
+        ["compte"],
+      ],
+      de: [
+        ["wo ist", "wo finde", "wo liegt"],
+        ["konto"],
+      ],
+      es: [
+        ["donde", "donde esta", "donde queda", "encuent", "hallar"],
+        ["cuenta"],
+      ],
+      pt: [
+        ["onde", "onde esta", "onde fica"],
+        ["conta"],
+      ],
+      en: [
+        ["where is", "where s", "where can i find", "where do i find"],
+        ["account"],
+      ],
+    },
+    answer: {
+      fr: "Le bouton Compte est en haut à droite. Je vous y emmène. [[gesture:account]]",
+      de: "Der Knopf Konto ist oben rechts. Ich führe Sie dorthin. [[gesture:account]]",
+      es: "El botón Cuenta está arriba a la derecha. La llevo ahora. [[gesture:account]]",
+      pt: "O botão Conta está no canto superior direito. Levo-o já. [[gesture:account]]",
+      en: "The Account button is at the top right. I'll take you there. [[gesture:account]]",
+    },
+  },
+  {
     id: "cancel_subscription",
     match: {
       fr: [
