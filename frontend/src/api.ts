@@ -111,6 +111,7 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
 
 export type CityStock = {
   city: string;
+  country: CountryCode;
   housing_count: number;
   job_count: number;
   total: number;

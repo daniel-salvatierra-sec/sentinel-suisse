@@ -37,6 +37,7 @@ export type Messages = {
   zoneBorder: string;
   cityLabel: string;
   cityAll: string;
+  cityGroupCities: string;
   roomsLabel: string;
   roomsStudio: string;
   rooms15: string;

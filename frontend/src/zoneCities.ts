@@ -1,4 +1,4 @@
-import type { CountryCode, ListingType } from "./api";
+import type { CityStock, CountryCode, ListingType } from "./api";
 import { matchSwissCity, SWISS_CITIES } from "./swissCities";
 
 /** Sentinel value for the first city-picker option in FR / DE / IT. */
@@ -140,6 +140,29 @@ export function queryForCityChoice(_zone: CountryCode, value: string): string {
     return "";
   }
   return value;
+}
+
+/** Picker values with stock for this zone and listing type. Null = catalog fallback. */
+export function stockedPickerValues(
+  zone: CountryCode,
+  listingType: ListingType,
+  stock: CityStock[] | null,
+): string[] | null {
+  if (stock == null) {
+    return null;
+  }
+  const names: string[] = [];
+  for (const row of stock) {
+    if (row.country !== zone) {
+      continue;
+    }
+    const count = listingType === "housing" ? row.housing_count : row.job_count;
+    if (count <= 0) {
+      continue;
+    }
+    names.push(row.city === `${zone}-border` ? BORDER_CITY : row.city);
+  }
+  return names;
 }
 
 /** Empty neighbor-country search means the border belt, not the whole country. */

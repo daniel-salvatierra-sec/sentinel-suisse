@@ -89,7 +89,7 @@ def public_cities(
     db: Session = Depends(get_db),
     _: None = Depends(_require_public_search),
 ) -> list[CityStock]:
-    """Swiss picker cities that currently have fresh housing or job listings."""
+    """Picker cities that currently have fresh housing or job listings."""
     return list_stocked_picker_cities(db)
 
 

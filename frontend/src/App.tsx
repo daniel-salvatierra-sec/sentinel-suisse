@@ -5,6 +5,7 @@ import {
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
+  type CityStock,
   type EmploymentType,
   type Listing,
   type ListingType,
@@ -47,6 +48,7 @@ import {
   matchZoneCity,
   queryForCityChoice,
   searchLocation,
+  stockedPickerValues,
 } from "./zoneCities";
 import { capturePromoFromUrl } from "./promo";
 
@@ -128,7 +130,7 @@ export default function App() {
   // the map tab freely) — in that case we show only that listing's pin, not every result.
   const [mapIsolate, setMapIsolate] = useState(false);
   const [hasSession, setHasSession] = useState(() => Boolean(getApiKey()));
-  const [stockedCities, setStockedCities] = useState<string[] | null>(null);
+  const [cityStock, setCityStock] = useState<CityStock[] | null>(null);
   const [accountRefresh, setAccountRefresh] = useState(0);
   const [deepLinkReady, setDeepLinkReady] = useState(false);
   const [premiumBanner, setPremiumBanner] = useState<"success" | "cancel" | null>(null);
@@ -235,12 +237,12 @@ export default function App() {
     void fetchStockedCities()
       .then((rows) => {
         if (!cancelled) {
-          setStockedCities(rows.map((row) => row.city));
+          setCityStock(rows);
         }
       })
       .catch(() => {
         if (!cancelled) {
-          setStockedCities(null);
+          setCityStock(null);
         }
       });
     return () => {
@@ -601,7 +603,7 @@ export default function App() {
             onCityChoiceChange={(value) => {
               setQuery(queryForCityChoice(zoneChoice, value));
             }}
-            stockedCities={stockedCities}
+            stockedCities={stockedPickerValues(zoneChoice, category, cityStock)}
             roomsChoice={roomsChoice}
             onRoomsChoiceChange={(value) => {
               setRoomsChoice(value);

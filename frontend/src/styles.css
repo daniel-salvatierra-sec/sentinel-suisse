@@ -781,6 +781,12 @@ body {
   border-radius: 0.85rem;
 }
 
+.filter-city optgroup {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--lake);
+}
+
 .filter-city select {
   width: 100%;
   font: inherit;

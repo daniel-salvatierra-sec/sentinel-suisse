@@ -190,11 +190,20 @@ export function FilterBar({
       {(() => {
         const cities = citiesForZone(zoneChoice, category);
         const shown =
-          zoneChoice === "CH" && stockedCities != null
+          stockedCities != null
             ? cities.filter((city) => stockedCities.includes(city) || city === cityChoice)
             : cities;
         const selectValue =
           cityChoice || (zoneChoice === "CH" ? "" : BORDER_CITY);
+        const borderShown = shown.filter((city) => city === BORDER_CITY);
+        const inlandShown = shown.filter((city) => city !== BORDER_CITY);
+        const useGroups =
+          zoneChoice !== "CH" && borderShown.length > 0 && inlandShown.length > 0;
+        const cityOption = (city: string) => (
+          <option key={city} value={city}>
+            {city === BORDER_CITY ? t.zoneBorder : city}
+          </option>
+        );
         return (
           <label className="filter-city">
             {t.cityLabel}
@@ -203,11 +212,14 @@ export function FilterBar({
               onChange={(event) => onCityChoiceChange(event.target.value)}
             >
               {zoneChoice === "CH" ? <option value="">{t.cityAll}</option> : null}
-              {shown.map((city) => (
-                <option key={city} value={city}>
-                  {city === BORDER_CITY ? t.zoneBorder : city}
-                </option>
-              ))}
+              {useGroups ? (
+                <>
+                  <optgroup label={t.zoneBorder}>{borderShown.map(cityOption)}</optgroup>
+                  <optgroup label={t.cityGroupCities}>{inlandShown.map(cityOption)}</optgroup>
+                </>
+              ) : (
+                shown.map(cityOption)
+              )}
             </select>
           </label>
         );
