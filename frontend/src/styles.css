@@ -552,6 +552,11 @@ body {
   animation: sheet-up 0.28s ease;
 }
 
+.listing-detail-sheet {
+  max-height: min(88dvh, 720px);
+  overflow-y: auto;
+}
+
 .guide-sheet-handle {
   width: 2.5rem;
   height: 0.28rem;
@@ -1360,6 +1365,93 @@ body {
   margin: 0 0 1rem;
   font-size: 0.85rem;
   color: #5a6b66;
+}
+
+.housing-dossier {
+  margin: 0.75rem 0 0.35rem;
+  padding: 0.85rem 0.9rem 1rem;
+  border-radius: 0.85rem;
+  background: #e7f0ee;
+}
+
+.housing-dossier h3,
+.housing-dossier h4 {
+  margin: 0 0 0.4rem;
+  font-size: 1rem;
+}
+
+.housing-dossier h4 {
+  margin-top: 0.7rem;
+}
+
+.housing-dossier-list {
+  margin: 0.35rem 0 0.55rem;
+  padding-left: 1.2rem;
+  line-height: 1.45;
+}
+
+.housing-dossier-disclaimer {
+  margin: 0.45rem 0 0.2rem;
+  font-size: 0.82rem;
+  color: #5a6b66;
+  line-height: 1.4;
+}
+
+.housing-dossier label {
+  display: block;
+  margin: 0.45rem 0 0.15rem;
+  font-size: 0.9rem;
+}
+
+.housing-dossier input,
+.housing-dossier-letter {
+  width: 100%;
+  margin-top: 0.25rem;
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #c5d4d0;
+  border-radius: 0.5rem;
+}
+
+.housing-dossier-letter {
+  min-height: 12rem;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.housing-dossier-teaser {
+  margin: 0.35rem 0 0.4rem;
+  padding: 0.65rem 0.7rem;
+  max-height: 5.4rem;
+  overflow: hidden;
+  position: relative;
+  font: inherit;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  background: #fff;
+  border-radius: 0.5rem;
+}
+
+.housing-dossier-teaser::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2.2rem;
+  background: linear-gradient(transparent, #fff);
+  pointer-events: none;
+}
+
+.housing-dossier .apply-btn {
+  width: 100%;
+  margin-top: 0.45rem;
+}
+
+.listing-detail-sheet > .apply-btn {
+  width: 100%;
+  margin: 0.15rem 0 0.25rem;
 }
 
 .map-wrap {

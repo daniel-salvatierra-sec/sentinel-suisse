@@ -35,6 +35,7 @@ type Props = {
   onApplyRemembered: (query: RememberedSearch["query"]) => void;
   onSignupSuccess: () => void;
   onGoToAccount: () => void;
+  onNeedPremium: () => void;
   onOpenListing: (id: number) => void;
 };
 
@@ -53,6 +54,7 @@ export function MyAlertsPanel({
   onApplyRemembered,
   onSignupSuccess,
   onGoToAccount,
+  onNeedPremium,
   onOpenListing,
 }: Props) {
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -181,6 +183,7 @@ export function MyAlertsPanel({
                 selected={false}
                 onSelect={() => onOpenListing(listing.id)}
                 onShowOnMap={() => onOpenListing(listing.id)}
+                onNeedPremium={onNeedPremium}
               />
             ))}
           </div>

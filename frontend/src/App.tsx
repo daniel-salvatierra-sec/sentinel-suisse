@@ -446,6 +446,16 @@ export default function App() {
     setTab("list");
   };
 
+  const goToPremiumPaywall = () => {
+    setTab("account");
+    window.setTimeout(() => {
+      document.getElementById("premium-paywall")?.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+    }, 120);
+  };
+
   const goToSearch = (type: ListingType, opts?: { scroll?: boolean; delayMs?: number }) => {
     setCategory(type);
     setHubFocused(true);
@@ -878,6 +888,7 @@ export default function App() {
                 setMapIsolate(true);
                 setTab("map");
               }}
+              onNeedPremium={goToPremiumPaywall}
               hasMore={hasMore}
               loadingMore={loadingMore}
               onLoadMore={() => void loadMore()}
@@ -904,6 +915,7 @@ export default function App() {
           onApplyRemembered={applyRememberedSearch}
           onSignupSuccess={onSignupSuccess}
           onGoToAccount={() => setTab("account")}
+          onNeedPremium={goToPremiumPaywall}
           onOpenListing={(id) => {
             setFocusId(id);
             setMapIsolate(true);

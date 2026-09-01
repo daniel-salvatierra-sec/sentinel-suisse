@@ -4,6 +4,7 @@ import { coordsForLocation, mapsDirectionsUrl } from "../geo";
 import type { Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
 import { listingOutboundUrl } from "../listingOutboundUrl";
+import { HousingDossierPanel } from "./HousingDossierPanel";
 
 type Props = {
   listing: Listing;
@@ -11,6 +12,7 @@ type Props = {
   selected: boolean;
   onSelect: () => void;
   onShowOnMap: () => void;
+  onNeedPremium?: () => void;
   signals?: ListingSignals;
 };
 
@@ -20,9 +22,11 @@ export function ListingCard({
   selected,
   onSelect,
   onShowOnMap,
+  onNeedPremium,
   signals,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
+  const [dossierOpen, setDossierOpen] = useState(false);
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
   const goodPrice = Boolean(signals?.goodPrice);
@@ -121,7 +125,10 @@ export function ListingCard({
         <div
           className="modal-backdrop sheet-backdrop"
           role="presentation"
-          onClick={() => setDetailOpen(false)}
+          onClick={() => {
+            setDetailOpen(false);
+            setDossierOpen(false);
+          }}
         >
           <div
             className="guide-sheet listing-detail-sheet"
@@ -169,6 +176,28 @@ export function ListingCard({
               {listing.description?.trim() || t.listingNoDescription}
             </p>
             {isDemo ? <p className="listing-detail-demo-note">{t.listingDemoNote}</p> : null}
+            {listing.listing_type === "housing" ? (
+              <>
+                <button
+                  type="button"
+                  className="apply-btn"
+                  onClick={() => setDossierOpen((open) => !open)}
+                >
+                  {dossierOpen ? t.dossierHide : t.dossierCta}
+                </button>
+                {dossierOpen ? (
+                  <HousingDossierPanel
+                    listing={listing}
+                    t={t}
+                    onNeedPremium={() => {
+                      setDetailOpen(false);
+                      setDossierOpen(false);
+                      onNeedPremium?.();
+                    }}
+                  />
+                ) : null}
+              </>
+            ) : null}
             <div className="listing-detail-actions listing-detail-actions-col">
               <button
                 type="button"
@@ -190,7 +219,10 @@ export function ListingCard({
               >
                 {t.interested}
               </button>
-              <button type="button" className="secondary-btn" onClick={() => setDetailOpen(false)}>
+              <button type="button" className="secondary-btn" onClick={() => {
+                setDetailOpen(false);
+                setDossierOpen(false);
+              }}>
                 {t.guideClose}
               </button>
             </div>

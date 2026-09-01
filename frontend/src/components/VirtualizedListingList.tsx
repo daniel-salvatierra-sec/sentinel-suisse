@@ -11,6 +11,7 @@ type Props = {
   t: Messages;
   focusId: number | null;
   onSelect: (id: number) => void;
+  onNeedPremium?: () => void;
   hasMore: boolean;
   loadingMore: boolean;
   onLoadMore: () => void;
@@ -22,6 +23,7 @@ export function VirtualizedListingList({
   t,
   focusId,
   onSelect,
+  onNeedPremium,
   hasMore,
   loadingMore,
   onLoadMore,
@@ -37,6 +39,7 @@ export function VirtualizedListingList({
           selected={listing.id === focusId}
           onSelect={() => onSelect(listing.id)}
           onShowOnMap={() => onSelect(listing.id)}
+          onNeedPremium={onNeedPremium}
           signals={computeListingSignals(listing, listings, signalContext)}
         />
       ))}
