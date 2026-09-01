@@ -3,6 +3,7 @@ import type { Listing } from "../api";
 import { coordsForLocation, mapsDirectionsUrl } from "../geo";
 import type { Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
+import type { AcceptReason } from "../acceptProfile";
 import { listingOutboundUrl } from "../listingOutboundUrl";
 import { HousingDossierPanel } from "./HousingDossierPanel";
 import { JobCvPanel } from "./JobCvPanel";
@@ -15,6 +16,7 @@ type Props = {
   onShowOnMap: () => void;
   onNeedPremium?: () => void;
   signals?: ListingSignals;
+  reasons?: AcceptReason[];
 };
 
 export function ListingCard({
@@ -25,6 +27,7 @@ export function ListingCard({
   onShowOnMap,
   onNeedPremium,
   signals,
+  reasons = [],
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [dossierOpen, setDossierOpen] = useState(false);
@@ -32,7 +35,7 @@ export function ListingCard({
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
   const goodPrice = Boolean(signals?.goodPrice);
-  const goodMatch = Boolean(signals?.goodMatch);
+  const goodMatch = Boolean(signals?.goodMatch) && reasons.length === 0;
   const accentClass = [
     "listing-card",
     isDemo ? "is-demo" : "",
@@ -95,10 +98,18 @@ export function ListingCard({
             <> · {t.parkingLabel}</>
           )}
         </div>
-        {(goodPrice || goodMatch) && (
+        {(goodPrice || goodMatch || reasons.length > 0) && (
           <div className="listing-signals" aria-label={t.signalLabel}>
             {goodPrice ? <span className="signal signal-price-tag">{t.signalGoodPrice}</span> : null}
             {goodMatch ? <span className="signal signal-match-tag">{t.signalGoodMatch}</span> : null}
+            {reasons.map((reason) => (
+              <span
+                key={reason.text}
+                className={reason.kind === "ask" ? "signal signal-ask-tag" : "signal signal-match-tag"}
+              >
+                {reason.text}
+              </span>
+            ))}
           </div>
         )}
         <div className="listing-card-actions">
@@ -175,6 +186,18 @@ export function ListingCard({
                 </>
               )}
             </p>
+            {reasons.length > 0 ? (
+              <div className="listing-signals listing-detail-reasons">
+                {reasons.map((reason) => (
+                  <span
+                    key={reason.text}
+                    className={reason.kind === "ask" ? "signal signal-ask-tag" : "signal signal-match-tag"}
+                  >
+                    {reason.text}
+                  </span>
+                ))}
+              </div>
+            ) : null}
             <p className="listing-detail-body">
               {listing.description?.trim() || t.listingNoDescription}
             </p>

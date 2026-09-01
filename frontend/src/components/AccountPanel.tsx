@@ -14,6 +14,7 @@ import {
   type SearchQueryParams,
   type UserProfile,
 } from "../api";
+import { AcceptProfileForm } from "./AcceptProfileForm";
 import { AlertSignup } from "./AlertSignup";
 import { DoorLinks } from "./DoorLinks";
 import { PremiumUpsell } from "./PremiumUpsell";
@@ -36,6 +37,7 @@ type Props = {
   onSearchHome: () => void;
   onSearchWork: () => void;
   preferSignup?: boolean;
+  onAcceptProfileSaved?: () => void;
 };
 
 export function AccountPanel({
@@ -52,6 +54,7 @@ export function AccountPanel({
   onSearchHome,
   onSearchWork,
   preferSignup = false,
+  onAcceptProfileSaved,
 }: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -206,6 +209,15 @@ export function AccountPanel({
         onSearchHome={onSearchHome}
         onSearchWork={onSearchWork}
         onPublish={onOpenPublish}
+      />
+
+      <AcceptProfileForm
+        t={t}
+        initial={profile.accept_profile ?? null}
+        onSaved={() => {
+          void load();
+          onAcceptProfileSaved?.();
+        }}
       />
 
       <SponsorCheckoutForm t={t} refreshToken={refreshToken} />

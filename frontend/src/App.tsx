@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  fetchMe,
   fetchStockedCities,
   fetchSponsors,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
+  type AcceptProfile,
   type CityStock,
   type EmploymentType,
   type Listing,
@@ -160,12 +162,31 @@ export default function App() {
   const [searchTick, setSearchTick] = useState(0);
   const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
+  const [acceptProfile, setAcceptProfile] = useState<AcceptProfile | null>(null);
 
   const t = messages[lang];
 
   useEffect(() => {
     listingsRef.current = listings;
   }, [listings]);
+
+  useEffect(() => {
+    if (!getApiKey()) {
+      setAcceptProfile(null);
+      return;
+    }
+    let cancelled = false;
+    void fetchMe()
+      .then((me) => {
+        if (!cancelled) setAcceptProfile(me.accept_profile ?? null);
+      })
+      .catch(() => {
+        if (!cancelled) setAcceptProfile(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [hasSession, accountRefresh]);
 
   const signalContext: ListingSignalContext = (() => {
     const rooms = roomsToFilters(appliedRoomsChoice);
@@ -893,6 +914,7 @@ export default function App() {
               loadingMore={loadingMore}
               onLoadMore={() => void loadMore()}
               signalContext={signalContext}
+              acceptProfile={acceptProfile}
             />
           )}
         </>
@@ -939,6 +961,7 @@ export default function App() {
           onSearchHome={() => goToSearch("housing")}
           onSearchWork={() => goToSearch("job")}
           preferSignup={preferSignup}
+          onAcceptProfileSaved={() => setAccountRefresh((value) => value + 1)}
         />
       )}
 

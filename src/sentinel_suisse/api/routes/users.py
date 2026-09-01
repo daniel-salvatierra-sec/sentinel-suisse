@@ -11,7 +11,15 @@ from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.erasure import UserErasureReport
-from sentinel_suisse.schemas.user import UserCreate, UserCreated, UserRead, UserUpdate, to_user_read
+from sentinel_suisse.schemas.user import (
+    UserAcceptProfileUpdate,
+    UserCreate,
+    UserCreated,
+    UserRead,
+    UserUpdate,
+    parse_accept_profile,
+    to_user_read,
+)
 from sentinel_suisse.security.pii import email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
 from sentinel_suisse.services.entitlements import count_saved_searches
@@ -61,6 +69,22 @@ def get_current_user_profile(
     current_user: User = Depends(get_current_user),
 ) -> UserRead:
     """Return the authenticated user's profile."""
+    return _user_read(db, current_user)
+
+
+@router.patch("/me", response_model=UserRead)
+@limiter.limit(lambda: get_settings().rate_limit)
+def patch_current_user_profile(
+    request: Request,
+    payload: UserAcceptProfileUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserRead:
+    """Save voluntary accept-profile. Empty payload clears it."""
+    parsed = parse_accept_profile(payload.accept_profile.model_dump())
+    current_user.accept_profile = parsed.model_dump() if parsed else None
+    db.commit()
+    db.refresh(current_user)
     return _user_read(db, current_user)
 
 

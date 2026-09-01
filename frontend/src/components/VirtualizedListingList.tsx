@@ -1,4 +1,5 @@
-import type { Listing } from "../api";
+import type { AcceptProfile, Listing } from "../api";
+import { acceptReasons } from "../acceptProfile";
 import type { Messages } from "../i18n";
 import {
   computeListingSignals,
@@ -16,6 +17,7 @@ type Props = {
   loadingMore: boolean;
   onLoadMore: () => void;
   signalContext: ListingSignalContext;
+  acceptProfile?: AcceptProfile | null;
 };
 
 export function VirtualizedListingList({
@@ -28,6 +30,7 @@ export function VirtualizedListingList({
   loadingMore,
   onLoadMore,
   signalContext,
+  acceptProfile,
 }: Props) {
   return (
     <div className="listing-list">
@@ -41,6 +44,7 @@ export function VirtualizedListingList({
           onShowOnMap={() => onSelect(listing.id)}
           onNeedPremium={onNeedPremium}
           signals={computeListingSignals(listing, listings, signalContext)}
+          reasons={acceptReasons(listing, acceptProfile, t)}
         />
       ))}
       {hasMore ? (

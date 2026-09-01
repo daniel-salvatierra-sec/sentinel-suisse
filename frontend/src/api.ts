@@ -184,6 +184,21 @@ async function apiFetch<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export type AcceptGoal = "housing" | "job" | "both";
+export type AcceptPermit = "G" | "B" | "C" | "L" | "none" | "other";
+
+export type AcceptProfile = {
+  goal?: AcceptGoal | null;
+  live_in?: string;
+  work_in?: string;
+  permit?: AcceptPermit | null;
+  languages?: string;
+  budget_chf?: number | null;
+  cities?: string;
+  move_in?: string;
+  household?: number | null;
+};
+
 export type UserProfile = {
   id: number;
   email: string;
@@ -193,6 +208,7 @@ export type UserProfile = {
   can_receive_alerts?: boolean;
   saved_search_limit?: number;
   saved_search_count?: number;
+  accept_profile?: AcceptProfile | null;
   created_at: string;
 };
 
@@ -223,6 +239,14 @@ export type AlertLog = {
 
 export function fetchMe(): Promise<UserProfile> {
   return apiFetch<UserProfile>("/api/v1/users/me");
+}
+
+export function updateAcceptProfile(profile: AcceptProfile): Promise<UserProfile> {
+  return apiFetch<UserProfile>("/api/v1/users/me", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ accept_profile: profile }),
+  });
 }
 
 export function fetchSavedSearches(): Promise<SavedSearch[]> {
