@@ -9,13 +9,21 @@ import {
   type Listing,
   type ListingType,
 } from "../api";
-import type { Messages } from "../i18n";
+import type { Lang, Messages } from "../i18n";
 import { JOB_FIELDS, type JobField } from "../jobTaxonomy";
 
 type Props = {
   t: Messages;
+  locale: Lang;
   listingType: ListingType;
+  refreshToken?: number;
 };
+
+const BOOST_CHF = "29";
+
+function fillBoost(template: string, days: number): string {
+  return template.replaceAll("{days}", String(days)).replaceAll("{price}", BOOST_CHF);
+}
 
 function fieldLabel(t: Messages, field: JobField): string {
   const map: Record<JobField, string> = {
@@ -34,7 +42,7 @@ function fieldLabel(t: Messages, field: JobField): string {
   return map[field];
 }
 
-export function PostListingForm({ t, listingType }: Props) {
+export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Props) {
   const isJob = listingType === "job";
   const [mine, setMine] = useState<Listing[]>([]);
   const [title, setTitle] = useState("");
@@ -60,7 +68,7 @@ export function PostListingForm({ t, listingType }: Props) {
 
   useEffect(() => {
     reload();
-  }, [listingType]);
+  }, [listingType, refreshToken]);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,6 +115,12 @@ export function PostListingForm({ t, listingType }: Props) {
       setDescription("");
       setSaved(true);
       reload();
+      window.setTimeout(() => {
+        document.getElementById("post-listing-mine")?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 80);
     } catch (err) {
       const message = err instanceof Error ? err.message : "";
       setError(message.includes("Maximum") ? t.postListingLimit : t.postListingError);
@@ -132,9 +146,7 @@ export function PostListingForm({ t, listingType }: Props) {
       <h3>{isJob ? t.postJobTitle : t.postListingTitle}</h3>
       <p className="plan-hint">{isJob ? t.postJobHint : t.postListingHint}</p>
       {boostEnabled ? (
-        <p className="plan-hint boost-hint">
-          {t.boostHint.replace("{days}", String(boostDays))}
-        </p>
+        <p className="plan-hint boost-hint">{fillBoost(t.boostHint, boostDays)}</p>
       ) : null}
       <form onSubmit={(event) => void onSubmit(event)}>
         <label>
@@ -240,16 +252,28 @@ export function PostListingForm({ t, listingType }: Props) {
           {t.postListingCta}
         </button>
       </form>
-      {saved ? <p className="alert-feedback">{isJob ? t.postJobSaved : t.postListingSaved}</p> : null}
+      {saved ? (
+        <p className="alert-feedback success">
+          {isJob ? t.postJobSaved : t.postListingSaved}
+          {boostEnabled ? ` ${fillBoost(t.boostAfterPublish, boostDays)}` : ""}
+        </p>
+      ) : null}
       {error ? <p className="alert-feedback error">{error}</p> : null}
-      <h4>{t.postListingMine}</h4>
+      <h4 id="post-listing-mine">{t.postListingMine}</h4>
       {mine.length === 0 ? (
         <p className="empty">{isJob ? t.postJobEmpty : t.postListingEmpty}</p>
       ) : (
         mine.map((item) => {
           const boosted = listingIsBoosted(item);
+          const until =
+            boosted && item.featured_until
+              ? t.boostUntil.replace(
+                  "{date}",
+                  new Date(item.featured_until).toLocaleDateString(locale),
+                )
+              : null;
           return (
-            <article key={item.id} className="listing-card account-search">
+            <article key={item.id} className="listing-card account-search" id={`own-listing-${item.id}`}>
               <h4>
                 {item.title}
                 {boosted ? (
@@ -260,6 +284,7 @@ export function PostListingForm({ t, listingType }: Props) {
                 {item.location}
                 {item.price != null ? ` · ${item.price}` : ""}
               </div>
+              {until ? <p className="plan-hint">{until}</p> : null}
               <div className="account-search-actions">
                 {boostEnabled && !boosted ? (
                   <button
@@ -268,7 +293,9 @@ export function PostListingForm({ t, listingType }: Props) {
                     disabled={boostBusyId === item.id}
                     onClick={() => void onBoost(item.id)}
                   >
-                    {boostBusyId === item.id ? t.boostPaying : t.boostCta}
+                    {boostBusyId === item.id
+                      ? t.boostPaying
+                      : fillBoost(t.boostCta, boostDays)}
                   </button>
                 ) : null}
                 <button

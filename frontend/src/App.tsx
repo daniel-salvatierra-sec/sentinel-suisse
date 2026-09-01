@@ -323,7 +323,7 @@ export default function App() {
     if (boost === "success" || boost === "cancel") {
       setBoostBanner(boost);
       if (boost === "success") {
-        setTab("account");
+        setTab("publish");
         setAccountRefresh((value) => value + 1);
       }
       params.delete("boost");
@@ -931,7 +931,7 @@ export default function App() {
       )}
 
       {tab === "publish" && (
-        <PostListingForm t={t} listingType={category} />
+        <PostListingForm t={t} locale={lang} listingType={category} refreshToken={accountRefresh} />
       )}
 
       <footer className="site-footer">

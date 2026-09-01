@@ -382,6 +382,8 @@ export type Messages = {
   boostBadge: string;
   boostHint: string;
   boostCta: string;
+  boostAfterPublish: string;
+  boostUntil: string;
   boostPaying: string;
   boostCheckoutError: string;
   boostSuccessBanner: string;
