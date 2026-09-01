@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { fetchAssistantConfig, type ListingType } from "../api";
+import { type ListingType } from "../api";
 import {
   loadGuideSeen,
   loadNudgeSeen,
+  loadPresentSeen,
   saveGuideSeen,
   saveNudgeSeen,
+  savePresentSeen,
 } from "../guideStorage";
 import type { Messages } from "../i18n";
 import type { SentinelPose } from "../sentinelPose";
+import type { SentinelaAction, SentinelaUiContext } from "../sentinela";
 import { AssistantChat } from "./AssistantChat";
 import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
@@ -22,12 +25,14 @@ type Props = {
   page: "overview" | "search" | "account";
   searching: boolean;
   hasSession: boolean;
-  onPickCategory: (type: ListingType) => void;
+  onPickCategory: (type: ListingType | "both") => void;
   onOpenAlerts: (type?: ListingType) => void;
   onStartSearch: (location: string) => void;
   onOpenMap: () => void;
   onOpenAccount: (intent?: "job" | "housing") => void;
   onOpenPublish: () => void;
+  uiContext: SentinelaUiContext;
+  onExecuteActions: (actions: SentinelaAction[]) => Promise<{ n: number }>;
 };
 
 /**
@@ -47,6 +52,8 @@ export function GuideBot({
   onOpenMap,
   onOpenAccount,
   onOpenPublish,
+  uiContext,
+  onExecuteActions,
 }: Props) {
   const [open, setOpen] = useState(false);
   const [needsIntro, setNeedsIntro] = useState(() => !loadGuideSeen());
@@ -56,27 +63,26 @@ export function GuideBot({
   const [nudgeDue, setNudgeDue] = useState(false);
   const [accountPitch, setAccountPitch] = useState<AccountIntent | null>(null);
   const [byeHint, setByeHint] = useState(false);
-  const [showPresent, setShowPresent] = useState(true);
-  const [assistantEnabled, setAssistantEnabled] = useState(false);
+  const [showPresent, setShowPresent] = useState(() => !loadPresentSeen());
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
 
   useEffect(() => {
-    fetchAssistantConfig()
-      .then((config) => setAssistantEnabled(config.enabled))
-      .catch(() => setAssistantEnabled(false));
-  }, []);
-
-  useEffect(() => {
-    if (loadNudgeSeen() || hasSession) {
+    if (loadNudgeSeen() || hasSession || showPresent) {
       return;
     }
     const timer = window.setTimeout(() => {
       setNudgeDue(true);
-      setShowPresent(false);
     }, NUDGE_AFTER_MS);
     return () => window.clearTimeout(timer);
-  }, [hasSession]);
+  }, [hasSession, showPresent]);
+
+  const dismissPresent = () => {
+    savePresentSeen();
+    setShowPresent(false);
+    setNeedsIntro(false);
+    saveGuideSeen();
+  };
 
   const dismissNudge = () => {
     saveNudgeSeen();
@@ -128,10 +134,15 @@ export function GuideBot({
           { id: "housing", label: t.guideNudgeHome },
           { id: "no", label: t.guideNudgeNo, quiet: true },
         ]
-      : undefined;
+      : showPresent
+        ? [
+            { id: "look-housing", label: t.guideLookHome },
+            { id: "look-job", label: t.guideLookJob },
+            { id: "look-both", label: t.guideLookBoth },
+          ]
+        : undefined;
 
   const onHintChoice = (id: string) => {
-    setShowPresent(false);
     if (id === "ok") {
       setAccountPitch(null);
       return;
@@ -141,6 +152,13 @@ export function GuideBot({
       setNudgeDue(false);
       setByeHint(true);
       window.setTimeout(() => setByeHint(false), 2800);
+      return;
+    }
+    if (id === "look-housing" || id === "look-job" || id === "look-both") {
+      dismissPresent();
+      if (id === "look-housing") onPickCategory("housing");
+      else if (id === "look-job") onPickCategory("job");
+      else onPickCategory("both");
       return;
     }
     if (id === "job" || id === "housing") {
@@ -169,14 +187,11 @@ export function GuideBot({
         hintChoices={hintChoices}
         onHintChoice={onHintChoice}
         onOpen={() => {
-          setShowPresent(false);
-          if (nudgeDue || accountPitch || byeHint) return;
+          if (showPresent || nudgeDue || accountPitch || byeHint) return;
           setOpen(true);
           setNeedsIntro(false);
           saveGuideSeen();
-          if (assistantEnabled) {
-            setChatMode(true);
-          }
+          setChatMode(true);
         }}
       />
       {open && (
@@ -204,6 +219,8 @@ export function GuideBot({
               <AssistantChat
                 t={t}
                 lang={lang}
+                uiContext={uiContext}
+                onExecuteActions={onExecuteActions}
                 onBack={() => {
                   setChatMode(false);
                   setChatPose(null);
@@ -238,22 +255,33 @@ export function GuideBot({
                       className="option"
                       onClick={() => {
                         onPickCategory("housing");
-                        setNeedsIntro(false);
-                        saveGuideSeen();
+                        dismissPresent();
+                        close();
                       }}
                     >
-                      {t.guideHousing}
+                      {t.guideLookHome}
                     </button>
                     <button
                       type="button"
                       className="option"
                       onClick={() => {
                         onPickCategory("job");
-                        setNeedsIntro(false);
-                        saveGuideSeen();
+                        dismissPresent();
+                        close();
                       }}
                     >
-                      {t.guideJob}
+                      {t.guideLookJob}
+                    </button>
+                    <button
+                      type="button"
+                      className="option"
+                      onClick={() => {
+                        onPickCategory("both");
+                        dismissPresent();
+                        close();
+                      }}
+                    >
+                      {t.guideLookBoth}
                     </button>
                   </div>
                 ) : nudgeMode ? (

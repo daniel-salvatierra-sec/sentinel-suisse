@@ -54,6 +54,7 @@ def test_assistant_chat_success(client: TestClient, monkeypatch) -> None:
     sent_payload = mock_post.call_args.kwargs["json"]
     assert sent_payload["temperature"] == 0.72
     system = sent_payload["messages"][0]["content"]
+    assert "Sentinela" in system
     assert "[[gesture:account]]" in system
     assert "[[gesture:search]]" in system
     assert sent_payload["messages"][-1] == {

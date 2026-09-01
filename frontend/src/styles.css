@@ -407,7 +407,7 @@ body {
 }
 
 .sentinel-hint.has-choices {
-  max-width: 15.5rem;
+  max-width: 17rem;
 }
 
 .sentinel-buddy.dock-left .sentinel-hint {
@@ -1574,10 +1574,26 @@ body {
   padding: 0.35rem;
 }
 
-.assistant-chip {
-  background: linear-gradient(135deg, var(--lake), var(--jet));
-  color: white;
-  border-color: transparent;
+.assistant-turn-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.35rem 0 0.55rem;
+}
+
+@keyframes sentinela-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(42, 157, 143, 0.0);
+  }
+  35% {
+    box-shadow: 0 0 0 6px rgba(42, 157, 143, 0.35);
+  }
+}
+
+.is-sentinela-pulse {
+  animation: sentinela-pulse 0.5s ease-out 3;
+  border-radius: 0.75rem;
 }
 
 .assistant-chat {

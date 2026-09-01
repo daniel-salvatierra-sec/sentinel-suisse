@@ -27,6 +27,7 @@ from sentinel_suisse.api.routes import (
     public,
     saved_searches,
     search,
+    sentinela,
     stripe_webhooks,
     users,
     webhooks,
@@ -121,6 +122,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     application.include_router(alerts.router, prefix="/api/v1")
     application.include_router(billing.router, prefix="/api/v1")
     application.include_router(assistant.router, prefix="/api/v1")
+    application.include_router(sentinela.router, prefix="/api/v1")
     application.include_router(legal.router, prefix="/api/v1")
     application.include_router(public.router, prefix="/api/v1")
     application.include_router(webhooks.router, prefix="/api/v1")

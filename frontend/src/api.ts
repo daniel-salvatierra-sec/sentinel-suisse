@@ -630,6 +630,26 @@ export async function sendAssistantMessage(
   return data.reply;
 }
 
+export type SentinelaTurnRequest = {
+  message: string;
+  locale: string;
+  ui_context: import("./sentinela").SentinelaUiContext;
+};
+
+export async function sendSentinelaTurn(
+  payload: SentinelaTurnRequest,
+): Promise<import("./sentinela").SentinelaTurn> {
+  const response = await fetch("/api/v1/sentinela/turn", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error("sentinela_error");
+  }
+  return response.json() as Promise<import("./sentinela").SentinelaTurn>;
+}
+
 export type SponsorAd = {
   id: number;
   placement: string;

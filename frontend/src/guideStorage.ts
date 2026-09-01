@@ -1,8 +1,18 @@
 const GUIDE_SEEN_KEY = "linkswiss-guide-seen";
 const NUDGE_SEEN_KEY = "linkswiss-bot-nudge-v2";
+const PRESENT_SEEN_KEY = "linkswiss-present-session";
 
 export function loadGuideSeen(): boolean {
   return localStorage.getItem(GUIDE_SEEN_KEY) === "1";
+}
+
+/** First Sentinela greeting + look-for chips, once per browser session. */
+export function loadPresentSeen(): boolean {
+  return sessionStorage.getItem(PRESENT_SEEN_KEY) === "1";
+}
+
+export function savePresentSeen(): void {
+  sessionStorage.setItem(PRESENT_SEEN_KEY, "1");
 }
 
 export function saveGuideSeen(): void {

@@ -43,6 +43,7 @@ import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribe
 import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
 import { toSavedSearchQuery } from "./searchSummary";
+import type { SentinelaAction } from "./sentinela";
 import {
   isBorderQuery,
   matchZoneCity,
@@ -80,6 +81,22 @@ function roomsToFilters(choice: RoomsChoice): {
   if (choice === "") return {};
   if (choice === "studio") return { property_type: "studio" };
   return { rooms_min: Number(choice) };
+}
+
+function asRoomsChoice(value: unknown): RoomsChoice {
+  const allowed: RoomsChoice[] = ["", "studio", "1.5", "2", "2.5", "3", "3.5", "4", "5"];
+  return allowed.includes(value as RoomsChoice) ? (value as RoomsChoice) : "";
+}
+
+function pulseSentinela(target: string) {
+  const active = document.activeElement;
+  if (active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement) {
+    return;
+  }
+  const node = document.querySelector(`[data-sentinela="${target}"]`);
+  if (!node) return;
+  node.classList.add("is-sentinela-pulse");
+  window.setTimeout(() => node.classList.remove("is-sentinela-pulse"), 1500);
 }
 
 function workloadToFilters(choice: WorkloadChoice): {
@@ -138,10 +155,18 @@ export default function App() {
   const [boostBanner, setBoostBanner] = useState<"success" | "cancel" | null>(null);
   const searchScrollTimer = useRef(0);
   const searchScrollRetry = useRef(0);
+  const listingsRef = useRef<Listing[]>([]);
+  const sentinelaWaiter = useRef<((n: number) => void) | null>(null);
+  const pendingOpenFirst = useRef(false);
+  const [searchTick, setSearchTick] = useState(0);
   const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
 
   const t = messages[lang];
+
+  useEffect(() => {
+    listingsRef.current = listings;
+  }, [listings]);
 
   const signalContext: ListingSignalContext = (() => {
     const rooms = roomsToFilters(appliedRoomsChoice);
@@ -344,8 +369,16 @@ export default function App() {
       const params = buildSearchParams(0, tab === "alerts" ? "live" : "applied");
       const results = await searchListings(params);
       setListings(results);
+      listingsRef.current = results;
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
-      setFocusId(results[0]?.id ?? null);
+      const focus = pendingOpenFirst.current ? (results[0]?.id ?? null) : (results[0]?.id ?? null);
+      setFocusId(focus);
+      if (pendingOpenFirst.current && results[0]) {
+        setMapIsolate(false);
+      }
+      pendingOpenFirst.current = false;
+      sentinelaWaiter.current?.(results.length);
+      sentinelaWaiter.current = null;
       if (tab !== "alerts") {
         const { limit: _l, offset: _o, ...remembered } = params;
         rememberSearch(remembered);
@@ -353,7 +386,11 @@ export default function App() {
     } catch {
       setError(true);
       setListings([]);
+      listingsRef.current = [];
       setHasMore(false);
+      pendingOpenFirst.current = false;
+      sentinelaWaiter.current?.(0);
+      sentinelaWaiter.current = null;
     } finally {
       setLoading(false);
     }
@@ -392,7 +429,7 @@ export default function App() {
     if (tab === "list" || tab === "map" || tab === "alerts") {
       void runSearch();
     }
-  }, [tab, category, query, runSearch, deepLinkReady]);
+  }, [tab, category, query, runSearch, deepLinkReady, searchTick]);
 
   useEffect(() => () => {
     window.clearTimeout(searchScrollTimer.current);
@@ -438,6 +475,100 @@ export default function App() {
         document.getElementById("signup") ?? document.getElementById("alerts-create");
       target?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 160);
+  };
+
+  const executeSentinelaActions = async (actions: SentinelaAction[]): Promise<{ n: number }> => {
+    let waitSearch = false;
+    for (const action of actions) {
+      const payload = action.payload;
+      if (action.type === "set_mode") {
+        const mode = payload.mode === "job" ? "job" : "housing";
+        setCategory(mode);
+        setHubFocused(true);
+      }
+      if (action.type === "apply_filters") {
+        if (payload.mode === "job" || payload.mode === "housing") {
+          setCategory(payload.mode);
+          setHubFocused(true);
+        }
+        if (payload.zone === "CH" || payload.zone === "FR" || payload.zone === "DE" || payload.zone === "IT") {
+          setZoneChoice(payload.zone);
+          setAppliedZoneChoice(payload.zone);
+        }
+        if (typeof payload.city === "string") {
+          setQuery(payload.city);
+        }
+        if (payload.rooms != null) {
+          const rooms = asRoomsChoice(payload.rooms);
+          setRoomsChoice(rooms);
+          setAppliedRoomsChoice(rooms);
+        }
+        if (typeof payload.price_max === "string" || typeof payload.price_max === "number") {
+          const max = String(payload.price_max);
+          setPriceMax(max);
+          setAppliedPriceMax(max);
+        }
+        if (payload.has_parking === true) {
+          setHasParking(true);
+          setAppliedHasParking(true);
+        }
+        if (payload.under_construction === true) {
+          setUnderConstruction(true);
+          setAppliedUnderConstruction(true);
+        }
+        if (payload.sort === "price_asc" || payload.sort === "price_desc" || payload.sort === "newest") {
+          setSort(payload.sort);
+        }
+      }
+      if (action.type === "run_search") {
+        waitSearch = true;
+      }
+      if (action.type === "switch_tab") {
+        const next = payload.tab;
+        if (next === "list" || next === "map" || next === "alerts" || next === "account") {
+          if (next === "map") {
+            setMapIsolate(false);
+          }
+          setTab(next);
+          if (next === "list" || next === "map") {
+            setHubFocused(true);
+          }
+        }
+      }
+      if (action.type === "focus_map") {
+        setMapIsolate(false);
+        setTab("map");
+        setHubFocused(true);
+      }
+      if (action.type === "compose_alert") {
+        openAlerts();
+      }
+      if (action.type === "open_listing" && payload.which === "first") {
+        pendingOpenFirst.current = true;
+        const first = listingsRef.current[0];
+        if (first && !waitSearch) {
+          setFocusId(first.id);
+        }
+      }
+      if (action.type === "point_to" && typeof payload.target === "string") {
+        window.setTimeout(() => pulseSentinela(payload.target as string), 200);
+      }
+    }
+
+    if (waitSearch) {
+      const n = await new Promise<number>((resolve) => {
+        sentinelaWaiter.current = resolve;
+        setSearchTick((tick) => tick + 1);
+        window.setTimeout(() => {
+          if (sentinelaWaiter.current === resolve) {
+            sentinelaWaiter.current = null;
+            resolve(listingsRef.current.length);
+          }
+        }, 10000);
+      });
+      return { n };
+    }
+    return { n: listingsRef.current.length };
   };
 
   const applyRememberedSearch = (saved: RememberedSearch["query"]) => {
@@ -543,6 +674,7 @@ export default function App() {
         <button
           type="button"
           className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
+          data-sentinela="account"
           onClick={() => {
             setTab("account");
             window.requestAnimationFrame(() => {
@@ -665,12 +797,13 @@ export default function App() {
       ) : null}
 
       <div className="tabs" id="tabs-panel">
-        <button type="button" className={tab === "list" ? "active" : ""} onClick={() => setTab("list")}>
+        <button type="button" className={tab === "list" ? "active" : ""} data-sentinela="list" onClick={() => setTab("list")}>
           {t.list}
         </button>
         <button
           type="button"
           className={tab === "map" ? "active" : ""}
+          data-sentinela="map"
           onClick={() => {
             setMapIsolate(false);
             setTab("map");
@@ -678,7 +811,7 @@ export default function App() {
         >
           {t.map}
         </button>
-        <button type="button" className={tab === "alerts" ? "active" : ""} onClick={() => setTab("alerts")}>
+        <button type="button" className={tab === "alerts" ? "active" : ""} data-sentinela="alerts" onClick={() => setTab("alerts")}>
           {t.alerts}
         </button>
       </div>
@@ -834,6 +967,11 @@ export default function App() {
         searching={loading || loadingMore}
         hasSession={hasSession}
         onPickCategory={(type) => {
+          if (type === "both") {
+            setHubFocused(false);
+            setTab("list");
+            return;
+          }
           setCategory(type);
           setHubFocused(true);
           setTab("list");
@@ -855,6 +993,25 @@ export default function App() {
           setTab("account");
         }}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
+        uiContext={{
+          tab,
+          mode: category,
+          zone: zoneChoice,
+          query,
+          rooms: roomsChoice,
+          price_max: priceMax,
+          has_session: hasSession,
+          result_count: listings.length,
+          open_listing:
+            focusId != null
+              ? {
+                  id: focusId,
+                  location: listings.find((item) => item.id === focusId)?.location ?? null,
+                  price: listings.find((item) => item.id === focusId)?.price ?? null,
+                }
+              : null,
+        }}
+        onExecuteActions={executeSentinelaActions}
       />
     </div>
   );
