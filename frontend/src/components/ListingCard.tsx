@@ -5,6 +5,7 @@ import type { Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
 import { listingOutboundUrl } from "../listingOutboundUrl";
 import { HousingDossierPanel } from "./HousingDossierPanel";
+import { JobCvPanel } from "./JobCvPanel";
 
 type Props = {
   listing: Listing;
@@ -27,6 +28,7 @@ export function ListingCard({
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [dossierOpen, setDossierOpen] = useState(false);
+  const [jobCvOpen, setJobCvOpen] = useState(false);
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
   const goodPrice = Boolean(signals?.goodPrice);
@@ -128,6 +130,7 @@ export function ListingCard({
           onClick={() => {
             setDetailOpen(false);
             setDossierOpen(false);
+            setJobCvOpen(false);
           }}
         >
           <div
@@ -192,6 +195,30 @@ export function ListingCard({
                     onNeedPremium={() => {
                       setDetailOpen(false);
                       setDossierOpen(false);
+                      setJobCvOpen(false);
+                      onNeedPremium?.();
+                    }}
+                  />
+                ) : null}
+              </>
+            ) : null}
+            {listing.listing_type === "job" ? (
+              <>
+                <button
+                  type="button"
+                  className="apply-btn"
+                  onClick={() => setJobCvOpen((open) => !open)}
+                >
+                  {jobCvOpen ? t.cvHide : t.cvCta}
+                </button>
+                {jobCvOpen ? (
+                  <JobCvPanel
+                    listing={listing}
+                    t={t}
+                    onNeedPremium={() => {
+                      setDetailOpen(false);
+                      setDossierOpen(false);
+                      setJobCvOpen(false);
                       onNeedPremium?.();
                     }}
                   />
@@ -222,6 +249,7 @@ export function ListingCard({
               <button type="button" className="secondary-btn" onClick={() => {
                 setDetailOpen(false);
                 setDossierOpen(false);
+                setJobCvOpen(false);
               }}>
                 {t.guideClose}
               </button>

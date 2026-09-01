@@ -87,6 +87,7 @@ export function PremiumUpsell({ t, compact = false }: Props) {
         <li>{t.premiumBenefitJobs}</li>
         <li>{t.premiumBenefitHousing}</li>
         <li>{t.premiumBenefitDossier}</li>
+        <li>{t.premiumBenefitCv}</li>
         <li>{t.premiumBenefitConstruction}</li>
         <li>{t.premiumBenefitWhatsapp}</li>
       </ul>
