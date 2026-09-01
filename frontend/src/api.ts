@@ -190,6 +190,7 @@ export type UserProfile = {
   locale: string;
   is_active: boolean;
   is_premium?: boolean;
+  can_receive_alerts?: boolean;
   saved_search_limit?: number;
   saved_search_count?: number;
   created_at: string;

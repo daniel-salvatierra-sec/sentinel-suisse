@@ -72,22 +72,16 @@ export function PremiumUpsell({ t, compact = false }: Props) {
       ? t.premiumLoginFirst
       : t.premiumComingSoon;
 
-  const offerVisible = Boolean(promoCode) || paymentsEnabled;
   const offerTitle = t.premiumLaunchOfferTitle
-    .replace("{percent}", String(promoPercent))
-    .replace("{months}", String(promoMonths));
-  const offerPrice = t.premiumLaunchOfferPrice
     .replace("{percent}", String(promoPercent))
     .replace("{months}", String(promoMonths));
 
   return (
-    <aside className={`premium-upsell${compact ? " is-compact" : ""}`}>
-      {!compact && <h3 className="premium-upsell-title">{t.premiumUpsellTitle}</h3>}
-      {offerVisible ? (
-        <p className="premium-launch-badge" role="status">
-          {offerTitle}
-        </p>
-      ) : null}
+    <aside
+      id="premium-paywall"
+      className={`premium-upsell${compact ? " is-compact" : ""}`}
+    >
+      <h3 className="premium-upsell-title">{t.premiumUpsellTitle}</h3>
       <p className="premium-upsell-desc">{t.premiumUpsellDesc}</p>
       <ul className="premium-upsell-list">
         <li>{t.premiumBenefitJobs}</li>
@@ -95,7 +89,12 @@ export function PremiumUpsell({ t, compact = false }: Props) {
         <li>{t.premiumBenefitConstruction}</li>
         <li>{t.premiumBenefitWhatsapp}</li>
       </ul>
-      <p className="premium-upsell-price">{offerPrice}</p>
+      <p className="premium-upsell-price">{t.premiumUpsellPrice}</p>
+      {promoCode || paymentsEnabled ? (
+        <p className="premium-launch-badge" role="status">
+          {offerTitle}
+        </p>
+      ) : null}
       <p className="premium-upsell-promo">
         {promoCode
           ? t.premiumPromoHintWithCode.replace("{code}", promoCode)

@@ -181,6 +181,7 @@ export function AccountPanel({
             {portalBusy ? t.premiumPaying : t.premiumManageCta}
           </button>
           {portalError && <p className="premium-upsell-error">{portalError}</p>}
+          <p className="plan-hint">{t.premiumActive}</p>
         </>
       )}
       {(profile.saved_search_count ?? searches.length) >=

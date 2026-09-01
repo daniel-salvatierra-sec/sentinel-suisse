@@ -170,7 +170,9 @@ export function AlertSignup({
             {status === "loading" ? t.loading : t.accountSignupCta}
           </button>
           {status === "success" && (
-            <p className="alert-feedback success">{t.alertSuccess}</p>
+            <p className="alert-feedback success">
+              {t.alertSuccess} {t.alertSavedNeedPremium}
+            </p>
           )}
           {status === "pending" && (
             <>

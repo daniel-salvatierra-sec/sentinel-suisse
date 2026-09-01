@@ -354,8 +354,10 @@ export type Messages = {
   premiumBadge: string;
   premiumWhatsapp: string;
   alertLimitReached: string;
+  alertSavedNeedPremium: string;
   alertQuota: string;
   searchFreeHint: string;
+  premiumActive: string;
   premiumUpsellTitle: string;
   premiumUpsellDesc: string;
   premiumUpsellPrice: string;

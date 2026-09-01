@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import {
   createSavedSearch,
   deleteSavedSearch,
+  fetchMe,
   fetchSavedSearches,
   getApiKey,
   type Listing,
@@ -60,17 +61,29 @@ export function MyAlertsPanel({
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveOk, setSaveOk] = useState(false);
+  const [isPremium, setIsPremium] = useState(false);
+  const [getsAlerts, setGetsAlerts] = useState(false);
+  const [atLimit, setAtLimit] = useState(false);
 
   const load = useCallback(async () => {
     setHistory(loadSearchHistory());
     if (!getApiKey()) {
       setLoading(false);
       setSearches([]);
+      setIsPremium(false);
+      setGetsAlerts(false);
+      setAtLimit(false);
       return;
     }
     setLoading(true);
     try {
-      setSearches(await fetchSavedSearches());
+      const [rows, me] = await Promise.all([fetchSavedSearches(), fetchMe()]);
+      setSearches(rows);
+      setIsPremium(Boolean(me.is_premium));
+      setGetsAlerts(Boolean(me.can_receive_alerts));
+      const limit = me.saved_search_limit ?? 1;
+      const count = me.saved_search_count ?? rows.length;
+      setAtLimit(count >= limit);
     } catch {
       setSearches([]);
     } finally {
@@ -99,11 +112,25 @@ export function MyAlertsPanel({
         query: toSavedSearchQuery(searchQuery),
       });
       setSaveOk(true);
+      if (!getsAlerts) {
+        window.setTimeout(() => {
+          document.getElementById("premium-paywall")?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        }, 80);
+      }
       await load();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "";
       if (msg.includes("saved_search_limit")) {
         setSaveError(t.alertLimitReached);
+        window.setTimeout(() => {
+          document.getElementById("premium-paywall")?.scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        }, 80);
       } else {
         setSaveError(t.alertErrorGeneric);
       }
@@ -167,7 +194,11 @@ export function MyAlertsPanel({
         >
           {saving ? t.loading : getApiKey() ? t.alertsSaveCurrent : t.alertsGuestCta}
         </button>
-        {saveOk && <p className="alert-feedback success">{t.alertSuccess}</p>}
+        {saveOk && (
+          <p className="alert-feedback success">
+            {getsAlerts ? t.alertSuccess : `${t.alertSuccess} ${t.alertSavedNeedPremium}`}
+          </p>
+        )}
         {saveError && <p className="alert-feedback error">{saveError}</p>}
       </div>
 
@@ -229,7 +260,11 @@ export function MyAlertsPanel({
           <button type="button" className="secondary-btn" onClick={onGoToAccount}>
             {t.viewAccount}
           </button>
-          <PremiumUpsell t={t} compact />
+          {isPremium ? (
+            <p className="plan-hint">{t.premiumActive}</p>
+          ) : (
+            <PremiumUpsell t={t} compact={!saveOk && !saveError && !atLimit} />
+          )}
         </>
       )}
 

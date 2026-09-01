@@ -14,6 +14,7 @@ from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.sponsor_ad import SponsorAd
 from sentinel_suisse.models.user import User
 from sentinel_suisse.security.pii import decrypt_pii
+from sentinel_suisse.services.premium_welcome import send_premium_welcome
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +171,10 @@ def apply_checkout_completed(db: Session, session_obj: dict[str, Any]) -> User |
     db.commit()
     db.refresh(user)
     logger.info("stripe premium activated user_id=%s", user.id)
+    try:
+        send_premium_welcome(user)
+    except Exception:
+        logger.exception("premium welcome failed user_id=%s", user.id)
     return user
 
 
