@@ -27,6 +27,9 @@ def test_pick_country() -> None:
     assert pick_country("Geneva, Switzerland") == CountryCode.CH
     assert pick_country("Plan-les-Ouates, Suisse") == CountryCode.CH
     assert pick_country("Grenoble, France") == CountryCode.FR
+    assert pick_country("Agrate Brianza, Italy") == CountryCode.IT
+    assert pick_country("Catania, Italia") == CountryCode.IT
+    assert pick_country("Munich, Germany") == CountryCode.DE
     assert pick_country("Greater Noida, India") is None
     assert pick_country(None) is None
 

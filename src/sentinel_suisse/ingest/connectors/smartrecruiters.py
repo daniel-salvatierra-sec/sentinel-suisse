@@ -7,14 +7,15 @@ SmartRecruiters' own `jobs.smartrecruiters.com/<company>` career pages, and is r
 consumed by external job boards/aggregators. Not scraping — see
 docs/providers/smartrecruiters.md.
 
-Several large Geneva-area employers publish through SmartRecruiters, notably HUG
-(Hôpitaux Universitaires de Genève, ~13k employees, one of the canton's biggest
-employers) and SGS (Geneva-headquartered, uses SmartRecruiters to syndicate external job
-ads alongside Workday internally). Configure SMARTRECRUITERS_COMPANIES as a
+Geneva-area employers on this API include HUG, CERN, IMAD, Hospice Général, and SGS
+(SGS is global — we only pull CH/FR/DE/IT). Configure SMARTRECRUITERS_COMPANIES as a
 comma-separated list of company identifiers — the token that appears in their
 careers.smartrecruiters.com/<identifier> URL.
 """
 
+from __future__ import annotations
+
+import logging
 import time
 from typing import Any
 
@@ -25,13 +26,18 @@ from sentinel_suisse.ingest.schemas import RawListing
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType
 from sentinel_suisse.services.job_taxonomy import canonical_job_category
 
+logger = logging.getLogger(__name__)
+
 _POSTINGS_URL = "https://api.smartrecruiters.com/v1/companies/{company}/postings"
 _POSTING_DETAIL_URL = "https://api.smartrecruiters.com/v1/companies/{company}/postings/{posting_id}"
 _PAGE_LIMIT = 100
+_COUNTRY_QUERY = ("ch", "fr", "de", "it")
 
 _COUNTRY_MAP: dict[str, CountryCode] = {
     "ch": CountryCode.CH,
     "fr": CountryCode.FR,
+    "de": CountryCode.DE,
+    "it": CountryCode.IT,
 }
 
 _EMPLOYMENT_TYPE_MAP: dict[str, EmploymentType] = {
@@ -51,9 +57,14 @@ _EMPLOYMENT_TYPE_MAP: dict[str, EmploymentType] = {
 # cross-language lookup), so normalize the handful of names that actually differ.
 _LOCATION_TRANSLATIONS: dict[str, str] = {
     "Genève": "Geneva",
+    "Geneve": "Geneva",
+    "Genf": "Geneva",
     "Zürich": "Zurich",
+    "Zurich": "Zurich",
     "Bâle": "Basel",
+    "Basel": "Basel",
     "Berne": "Bern",
+    "Bern": "Bern",
 }
 
 
@@ -126,7 +137,6 @@ def _map_posting(posting: dict[str, Any], settings: Settings, company: str) -> R
         country_code = _COUNTRY_MAP.get(str(location.get("country", "")).lower())
         city = location.get("city")
     if country_code is None:
-        # Only CH/FR are supported by the app — skip postings elsewhere.
         return None
 
     industry = posting.get("industry")
@@ -179,7 +189,7 @@ def parse_postings_response(
     return parsed
 
 
-def _fetch_company_postings(settings: Settings, company: str) -> list[RawListing]:
+def _fetch_company_country(settings: Settings, company: str, country: str) -> list[RawListing]:
     all_items: list[RawListing] = []
     offset = 0
     while True:
@@ -187,13 +197,24 @@ def _fetch_company_postings(settings: Settings, company: str) -> list[RawListing
             time.sleep(settings.ingest_rate_limit_seconds)
             response = httpx.get(
                 _POSTINGS_URL.format(company=company),
-                params={"limit": _PAGE_LIMIT, "offset": offset},
+                params={"limit": _PAGE_LIMIT, "offset": offset, "country": country},
                 headers={"User-Agent": settings.ingest_user_agent},
                 timeout=30.0,
             )
+            if response.status_code in {403, 404}:
+                logger.warning(
+                    "smartrecruiters skip company=%s country=%s status=%s",
+                    company,
+                    country,
+                    response.status_code,
+                )
+                return []
             response.raise_for_status()
         except httpx.HTTPError as exc:
-            msg = f"SmartRecruiters postings request failed for company={company!r}: {exc}"
+            msg = (
+                f"SmartRecruiters postings request failed for company={company!r} "
+                f"country={country!r}: {exc}"
+            )
             raise SmartRecruitersFetchError(msg) from exc
 
         try:
@@ -201,7 +222,7 @@ def _fetch_company_postings(settings: Settings, company: str) -> list[RawListing
         except ValueError as exc:
             msg = (
                 f"SmartRecruiters postings response was not valid JSON for "
-                f"company={company!r}: {exc}"
+                f"company={company!r} country={country!r}: {exc}"
             )
             raise SmartRecruitersFetchError(msg) from exc
 
@@ -212,6 +233,13 @@ def _fetch_company_postings(settings: Settings, company: str) -> list[RawListing
         if offset >= total_found:
             break
 
+    return all_items
+
+
+def _fetch_company_postings(settings: Settings, company: str) -> list[RawListing]:
+    all_items: list[RawListing] = []
+    for country in _COUNTRY_QUERY:
+        all_items.extend(_fetch_company_country(settings, company, country))
     return all_items
 
 

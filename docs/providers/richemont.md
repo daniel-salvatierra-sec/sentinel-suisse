@@ -29,7 +29,8 @@ Buccellati, etc.) are counted together.
 
 Richemont posts jobs globally (419+ open roles across every country when checked), so
 unlike the other connectors this one must filter a large multi-country result set down
-to Switzerland/France:
+to Switzerland/France/Germany/Italy (border cities plus CH/FR HQs; inland DE/IT
+volume stays on Adzuna):
 
 1. The list-level search results only carry a city name (`locationsText`), not a
    country code — Workday only puts a reliable, machine-readable country code
@@ -39,10 +40,9 @@ to Switzerland/France:
    (`LOCATION_HINTS` in `workday.py`) to build a candidate list of location IDs.
 3. It then pages through only those locations via `appliedFacets.locations`.
 4. For every candidate posting it fetches the detail endpoint anyway (needed for the
-   full job description), and uses that response's authoritative country code as the
-   final CH/FR filter — so a stray false-positive match in step 2 is harmless (one
-   wasted request), while a missing name in the curated list is the real risk (a CH/FR
-   posting could be skipped until the list is updated).
+  full job description), and uses that response's authoritative country code as the
+  final CH/FR/DE/IT filter — so a stray false-positive match in step 2 is harmless
+  (one wasted request), while a missing name in the curated list is the real risk.
 
 If Richemont opens a site in a city not already in `_LOCATION_HINTS`, add it via
 `RICHEMONT_EXTRA_LOCATION_HINTS` (comma-separated, case-insensitive) without a code
@@ -87,7 +87,8 @@ No account, no key, nothing else required.
 python -m sentinel_suisse.ingest --provider richemont --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied** (that migration seeds `richemont`):
 
 ```json
 {"name":"Richemont","slug":"richemont","base_url":"https://careers.richemont.com","is_active":true}
@@ -95,9 +96,9 @@ Register the provider once via the admin API before the first run:
 
 ## Limitations (MVP)
 
-- Relies on a curated, maintained list of CH/FR place names to decide which locations
-  to page through — not a full country-facet filter (Workday doesn't expose one on
-  this tenant). Extend via `RICHEMONT_EXTRA_LOCATION_HINTS` if a new site is missed.
+- Relies on a curated, maintained list of CH/FR/DE/IT place names to decide which
+  locations to page through — not a full country-facet filter. Inland DE/IT jobs stay
+  on Adzuna; extend via `RICHEMONT_EXTRA_LOCATION_HINTS` if a site is missed.
 - No salary data — Richemont/Workday postings don't expose it, so `price` is always
   `None`.
 - `job_category` holds the Maison/brand name, not a job-function taxonomy — matching

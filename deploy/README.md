@@ -123,4 +123,27 @@ Use `--dry-run` first to preview counts. Optional: `--provider jobup` to limit s
 `.env` — it's a no-op error (nonzero exit, logged) otherwise, so a disabled connector's
 cron entry stays harmless.
 
+### Official job feeds (no scraping)
+
+Git pull does **not** turn ingest on. After `alembic upgrade head` (seeds provider
+rows in migration `019`), set flags on the VPS `.env` and recreate `api`:
+
+```
+INGEST_SMARTRECRUITERS_LIVE=true
+SMARTRECRUITERS_COMPANIES=HUG,CERN,Imad,HospiceGeneral,SGS
+INGEST_RICHEMONT_LIVE=true
+INGEST_LOMBARD_ODIER_LIVE=true
+INGEST_LOGITECH_LIVE=true
+INGEST_PROCTER_GAMBLE_LIVE=true
+INGEST_TEMENOS_LIVE=true
+INGEST_STMICROELECTRONICS_LIVE=true
+```
+
+Adzuna / France Travail still need their API keys in `.env` plus
+`INGEST_ADZUNA_LIVE`, `INGEST_ADZUNA_FR_LIVE`, `INGEST_ADZUNA_DE_LIVE`,
+`INGEST_ADZUNA_IT_LIVE`, `INGEST_FRANCE_TRAVAIL_LIVE`.
+
+Leave Homegate / Leboncoin / jobs.ch / jobup / Indeed FR **false** — those are not
+licensed feeds.
+
 `/health` returns `database: ok` when Postgres is reachable; HTTP **503** when not.

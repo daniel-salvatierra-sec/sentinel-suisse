@@ -124,9 +124,10 @@ class Settings(BaseSettings):
     # 250 req/day cap when neighbor countries add Paris/Berlin/Rome etc.
     adzuna_neighbor_max_pages: int = 1
     # SmartRecruiters — official, keyless Postings API used by several large Geneva
-    # employers (e.g. HUG, SGS) for their public career sites. Not scraping.
+    # employers (HUG, CERN, IMAD, Hospice Général, SGS) for their public career sites.
+    # Not scraping.
     ingest_smartrecruiters_live: bool = False
-    smartrecruiters_companies: str = "HUG,SGS"
+    smartrecruiters_companies: str = "HUG,CERN,Imad,HospiceGeneral,SGS"
     smartrecruiters_fetch_details: bool = True
     # Richemont — public Workday "Candidate Experience" JSON API (same one the group's
     # own careers.richemont.com career site calls). Not scraping.

@@ -32,13 +32,17 @@ PAGE_LIMIT = 20
 _COUNTRY_ALPHA2_MAP: dict[str, CountryCode] = {
     "CH": CountryCode.CH,
     "FR": CountryCode.FR,
+    "DE": CountryCode.DE,
+    "IT": CountryCode.IT,
 }
 _COUNTRY_DESCRIPTOR_MAP: dict[str, CountryCode] = {
     "switzerland": CountryCode.CH,
     "france": CountryCode.FR,
+    "germany": CountryCode.DE,
+    "italy": CountryCode.IT,
 }
 
-# Curated CH/FR place names used ONLY to narrow which locations to page through.
+# Curated CH/FR/DE/IT names used ONLY to narrow which locations to page through.
 # Final country comes from the per-posting detail endpoint's alpha2Code.
 LOCATION_HINTS: frozenset[str] = frozenset(
     {
@@ -107,6 +111,20 @@ LOCATION_HINTS: frozenset[str] = frozenset(
         "COURCHEVEL",
         "MEGEVE",
         "FRANCE",
+        "LORRACH",
+        "LÖRRACH",
+        "WEIL AM RHEIN",
+        "FREIBURG",
+        "KONSTANZ",
+        "WALDSHUT",
+        "COMO",
+        "VARESE",
+        "MILAN",
+        "MILANO",
+        "TURIN",
+        "TORINO",
+        "DOMODOSSOLA",
+        "CHIASSO",
     }
 )
 

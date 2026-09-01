@@ -14,9 +14,9 @@ GET https://stmicroelectronics.eightfold.ai/api/apply/v2/jobs?domain=stmicroelec
 GET https://stmicroelectronics.eightfold.ai/api/apply/v2/jobs/{id}?domain=stmicroelectronics.com
 ```
 
-~480 open roles globally; typically ~120 in France (Crolles, Grenoble, Rousset, Tours)
-and occasional Geneva HQ roles. India/Singapore/US are dropped using the list-level
-`location` field *before* any detail call.
+~480 open roles globally; typically ~120 in France (Crolles, Grenoble, Rousset, Tours),
+Italian plants (Agrate, Catania), and occasional Geneva HQ roles. India/Singapore/US
+are dropped using the list-level `location` field *before* any detail call.
 
 ## Other Geneva employers checked (not this connector)
 
@@ -39,7 +39,7 @@ and occasional Geneva HQ roles. India/Singapore/US are dropped using the list-le
 python -m sentinel_suisse.ingest --provider stmicroelectronics --live
 ```
 
-Register once:
+Register once (or rely on Alembic `019`):
 
 ```json
 {"name":"STMicroelectronics","slug":"stmicroelectronics","base_url":"https://stmicroelectronics.eightfold.ai/careers","is_active":true}

@@ -17,6 +17,7 @@ from sentinel_suisse.ingest.connectors.richemont import (
     parse_search_page,
     pick_candidate_location_ids,
 )
+from sentinel_suisse.ingest.connectors.workday import pick_country as workday_pick_country
 from sentinel_suisse.models.enums import CountryCode, EmploymentType
 
 _FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
@@ -24,6 +25,20 @@ _FACETS_FIXTURE = _FIXTURES / "richemont_facets_sample.json"
 _SEARCH_FIXTURE = _FIXTURES / "richemont_search_sample.json"
 _DETAIL_GENEVA_FIXTURE = _FIXTURES / "richemont_detail_geneva_sample.json"
 _DETAIL_PARIS_FIXTURE = _FIXTURES / "richemont_detail_paris_sample.json"
+
+
+def test_workday_pick_country_accepts_de_it() -> None:
+    assert (
+        workday_pick_country({"jobRequisitionLocation": {"country": {"alpha2Code": "DE"}}})
+        == CountryCode.DE
+    )
+    assert (
+        workday_pick_country({"jobRequisitionLocation": {"country": {"alpha2Code": "IT"}}})
+        == CountryCode.IT
+    )
+    assert workday_pick_country({"country": {"descriptor": "Germany"}}) == CountryCode.DE
+    assert workday_pick_country({"country": {"descriptor": "Italy"}}) == CountryCode.IT
+    assert workday_pick_country({"country": {"descriptor": "United States"}}) is None
 
 
 def test_strip_html() -> None:

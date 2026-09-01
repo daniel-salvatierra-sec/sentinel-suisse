@@ -35,7 +35,7 @@ CH/FR place names if a Swiss/French office is missing from the shared hint list)
 - Search: `POST .../wday/cxs/logitech/Logitech/jobs` (`limit=20`).
 - Detail: `GET .../wday/cxs/logitech/Logitech{externalPath}` with
   `Accept: application/json`.
-- CH/FR filter: location-facet heuristic, then authoritative
+- CH/FR/DE/IT filter: location-facet heuristic, then authoritative
   `jobRequisitionLocation.country.alpha2Code` on each detail.
 - `external_id`: `logitech-{jobReqId}`.
 - Reuses Richemont JSON fixtures in unit tests (same CXS response shape).
@@ -46,7 +46,8 @@ CH/FR place names if a Swiss/French office is missing from the shared hint list)
 python -m sentinel_suisse.ingest --provider logitech --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```json
 {"name":"Logitech","slug":"logitech","base_url":"https://logitech.wd5.myworkdayjobs.com/Logitech","is_active":true}

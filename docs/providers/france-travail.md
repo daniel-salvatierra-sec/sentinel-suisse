@@ -53,7 +53,8 @@ No robots.txt concerns, no ToS conflict — this is the intended, sanctioned use
 python -m sentinel_suisse.ingest --provider france-travail --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```powershell
 # {"name":"France Travail","slug":"france-travail","base_url":"https://francetravail.io","is_active":true}

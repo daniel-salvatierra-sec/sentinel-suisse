@@ -7,9 +7,9 @@ app. The same JSON endpoints the site's own UI calls are public and keyless:
     GET {tenant}.eightfold.ai/api/apply/v2/jobs/{id}?domain={domain}
 
 List items omit the description (`job_description` is empty); the detail endpoint
-returns the full text. ST posts globally (~480 roles); we filter to CH/FR using the
-list-level `location` string *before* fetching details, so India/Singapore/US roles
-never cost a detail request.
+returns the full text. ST posts globally (~480 roles); we filter to CH/FR/DE/IT using
+the list-level `location` string *before* fetching details, so India/Singapore/US
+roles never cost a detail request.
 
 See docs/providers/stmicroelectronics.md.
 """
@@ -45,6 +45,8 @@ _CH_MARKERS = (
     "meyrin",
 )
 _FR_MARKERS = ("france",)
+_DE_MARKERS = ("germany", "deutschland", "allemagne", "munich", "münchen")
+_IT_MARKERS = ("italy", "italia", "italie", "agrate", "catania", "milan", "milano")
 
 
 class STMicroelectronicsFetchError(RuntimeError):
@@ -63,6 +65,10 @@ def pick_country(location: str | None) -> CountryCode | None:
         return CountryCode.CH
     if any(marker in lowered for marker in _FR_MARKERS):
         return CountryCode.FR
+    if any(marker in lowered for marker in _DE_MARKERS):
+        return CountryCode.DE
+    if any(marker in lowered for marker in _IT_MARKERS):
+        return CountryCode.IT
     return None
 
 

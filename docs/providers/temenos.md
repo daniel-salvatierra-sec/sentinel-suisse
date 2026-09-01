@@ -14,7 +14,7 @@ https://temenos.wd103.myworkdayjobs.com/Temenoscareers
 ```
 
 The shared client in `src/sentinel_suisse/ingest/connectors/workday.py` reads the same
-JSON API the site's own JavaScript calls. CH/FR only; India/UK/US postings are
+JSON API the site's own JavaScript calls. CH/FR/DE/IT only; India/UK/US postings are
 dropped after the detail `alpha2Code` check.
 
 ## Employers checked instead of this (not this connector)
@@ -48,7 +48,8 @@ CH/FR place names). Lancy is already in the shared hint list.
 python -m sentinel_suisse.ingest --provider temenos --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```json
 {"name":"Temenos","slug":"temenos","base_url":"https://temenos.wd103.myworkdayjobs.com/Temenoscareers","is_active":true}

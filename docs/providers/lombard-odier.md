@@ -29,9 +29,9 @@ CH/FR place names if a new Swiss/French office is missing from the shared hint l
 - Search: `POST .../wday/cxs/lombardodier/Lombard_Odier_Careers/jobs` (`limit=20`).
 - Detail: `GET .../wday/cxs/lombardodier/Lombard_Odier_Careers{externalPath}` with
   `Accept: application/json`.
-- CH/FR filter: location-facet heuristic, then authoritative
-  `jobRequisitionLocation.country.alpha2Code` on each detail (London/Singapore/etc.
-  are dropped).
+- CH/FR/DE/IT filter: location-facet heuristic (border cities included), then
+  authoritative `jobRequisitionLocation.country.alpha2Code` on each detail
+  (London/Singapore/etc. are dropped).
 - `external_id`: `lombard-odier-{jobReqId}`.
 - Volume is much smaller than Richemont (typically a few dozen global roles, a handful
   in Geneva/Paris). Rate-limit default (`INGEST_RATE_LIMIT_SECONDS=3`) is fine.
@@ -43,7 +43,8 @@ CH/FR place names if a new Swiss/French office is missing from the shared hint l
 python -m sentinel_suisse.ingest --provider lombard-odier --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```json
 {"name":"Lombard Odier","slug":"lombard-odier","base_url":"https://www.lombardodier.com/home/careers.html","is_active":true}

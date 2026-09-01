@@ -13,9 +13,9 @@ https://pg.wd5.myworkdayjobs.com/1000
 ```
 
 The shared client in `src/sentinel_suisse/ingest/connectors/workday.py` reads the same
-JSON API the site's own JavaScript calls. CH/FR only (Geneva, Schlieren/Zurich,
-Amiens/Paris plants, etc.); US/Asia postings are dropped after the detail
-`alpha2Code` check.
+JSON API the site's own JavaScript calls. CH/FR/DE/IT (Geneva, Schlieren/Zurich,
+Amiens/Paris, border cities); US/Asia postings are dropped after the detail
+`alpha2Code` check. Inland DE/IT volume stays on Adzuna.
 
 ## Before enabling live ingest
 
@@ -39,7 +39,8 @@ shared hint list). Petit-Lancy, Lancy, and Schlieren are already in that list.
 python -m sentinel_suisse.ingest --provider procter-gamble --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```json
 {"name":"Procter & Gamble","slug":"procter-gamble","base_url":"https://pg.wd5.myworkdayjobs.com/1000","is_active":true}

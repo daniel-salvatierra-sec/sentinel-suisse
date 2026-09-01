@@ -53,7 +53,8 @@ outreach to SECO/SMG (docs/outreach/) is pending.
 python -m sentinel_suisse.ingest --provider adzuna --live
 ```
 
-Register the provider once via the admin API before the first run:
+Register the provider once via the admin API before the first run **only if Alembic
+`019` has not been applied**:
 
 ```powershell
 # {"name":"Adzuna","slug":"adzuna","base_url":"https://www.adzuna.com","is_active":true}
