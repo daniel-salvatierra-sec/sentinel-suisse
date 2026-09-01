@@ -570,6 +570,9 @@ export default function App() {
       if (action.type === "compose_alert") {
         openAlerts();
       }
+      if (action.type === "point_to" && typeof payload.target === "string") {
+        pulseSentinela(payload.target);
+      }
       if (action.type === "open_listing" && payload.which === "first") {
         pendingOpenFirst.current = true;
         const first = listingsRef.current[0];
@@ -577,8 +580,15 @@ export default function App() {
           setFocusId(first.id);
         }
       }
-      if (action.type === "point_to" && typeof payload.target === "string") {
-        window.setTimeout(() => pulseSentinela(payload.target as string), 200);
+      if (action.type === "open_guide") {
+        const raw = payload.slug;
+        const slug =
+          raw === "cv" || raw === "permis-g" || raw === "dossier"
+            ? raw
+            : category === "job"
+              ? "cv"
+              : "dossier";
+        window.open(`/guides/${slug}?lang=${lang}`, "_blank", "noopener,noreferrer");
       }
     }
 
@@ -982,6 +992,15 @@ export default function App() {
           </a>
           <a className="privacy-link" href={`/api/v1/legal/privacy?lang=${lang}`} target="_blank" rel="noreferrer">
             {t.footerCookies}
+          </a>
+          <a className="privacy-link" href={`/guides/dossier?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.guideDossier}
+          </a>
+          <a className="privacy-link" href={`/guides/cv?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.guideCv}
+          </a>
+          <a className="privacy-link" href={`/guides/permis-g?lang=${lang}`} target="_blank" rel="noreferrer">
+            {t.guidePermit}
           </a>
         </div>
         <p className="footer-copyright">© {new Date().getFullYear()} LinkSwiss</p>

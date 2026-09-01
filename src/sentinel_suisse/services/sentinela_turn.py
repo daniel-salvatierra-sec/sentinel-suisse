@@ -92,11 +92,13 @@ def plan_turn(request: SentinelaTurnRequest) -> SentinelaTurnResponse:
                 slots["lieu"] = open_listing.location
             if open_listing.price is not None:
                 slots["prix"] = str(int(open_listing.price))
+        slug = intent.guide_slug or ("cv" if ctx.mode == "job" else "dossier")
+        actions.append(SentinelaAction(type="open_guide", payload={"slug": slug}))
         return SentinelaTurnResponse(
-            actions=[],
-            say_id="open_listing",
+            actions=actions,
+            say_id="guide",
             slots=slots,
-            chips=chips,
+            chips=chips or ["how_apply"],
         )
     if intent.intent in {"search", "cheaper"}:
         payload = _filters_payload(intent)

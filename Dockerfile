@@ -23,6 +23,7 @@ COPY src/ ./src/
 COPY fixtures/ ./fixtures/
 COPY docs/privacy/ ./docs/privacy/
 COPY docs/legal/ ./docs/legal/
+COPY docs/guides/ ./docs/guides/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 
 ENV PYTHONPATH=/app/src

@@ -227,6 +227,7 @@ export type Messages = {
   sentinelaSayOpen: string;
   sentinelaSayMap: string;
   sentinelaSayOutOfScope: string;
+  sentinelaSayGuide: string;
   sentinelaChipSeeFirst: string;
   sentinelaChipAlert: string;
   sentinelaChipMap: string;
@@ -239,6 +240,9 @@ export type Messages = {
   terms: string;
   mentionsLegales: string;
   footerCookies: string;
+  guideDossier: string;
+  guideCv: string;
+  guidePermit: string;
   openSource: string;
   interested: string;
   interestedGoToAd: string;

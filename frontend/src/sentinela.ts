@@ -10,7 +10,8 @@ export type SentinelaActionType =
   | "focus_map"
   | "compose_alert"
   | "point_to"
-  | "suggest_chips";
+  | "suggest_chips"
+  | "open_guide";
 
 export type SentinelaAction = {
   type: SentinelaActionType;
@@ -26,7 +27,8 @@ export type SentinelaSayId =
   | "open_first"
   | "open_listing"
   | "map"
-  | "out_of_scope";
+  | "out_of_scope"
+  | "guide";
 
 export type SentinelaTurn = {
   actions: SentinelaAction[];
@@ -74,6 +76,7 @@ export function formatSentinelaSay(
     open_listing: t.sentinelaSayOpen,
     map: t.sentinelaSayMap,
     out_of_scope: t.sentinelaSayOutOfScope,
+    guide: t.sentinelaSayGuide,
   };
   return fill(map[sayId] ?? t.sentinelaSayOutOfScope);
 }
@@ -101,5 +104,5 @@ export const SENTINELA_CHIP_ACTIONS: Record<string, SentinelaAction[]> = {
   keep_looking: [{ type: "switch_tab", payload: { tab: "list" } }],
   look_home: [{ type: "set_mode", payload: { mode: "housing" } }],
   look_job: [{ type: "set_mode", payload: { mode: "job" } }],
-  how_apply: [],
+  how_apply: [{ type: "open_guide", payload: {} }],
 };

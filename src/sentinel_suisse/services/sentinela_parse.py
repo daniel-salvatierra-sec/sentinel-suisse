@@ -71,12 +71,22 @@ _FIRST = ("primero", "premier", "erste", "first", "primeiro", "erster", "primera
 _CHEAP = ("barato", "moins cher", "gunstiger", "cheaper", "mais barato", "pas cher", "guter preis")
 _APPLY = (
     "como aplico",
+    "como aplicar",
+    "como postular",
     "comment postuler",
     "bewerb",
     "how to apply",
     "candidat",
     "postuler",
     "como me candidato",
+)
+_PERMIT_G = (
+    "permiso g",
+    "permis g",
+    "ausweis g",
+    "permit g",
+    "autorizacao g",
+    "permis-g",
 )
 _ZONE_FR = ("france", "francia", "frankreich", "francesa")
 _ZONE_DE = ("allemagne", "alemania", "deutschland", "alemana")
@@ -148,6 +158,7 @@ class SentinelaIntent:
     sort: str | None = None
     intent: Intent = "out_of_scope"
     unknown_city: str | None = None
+    guide_slug: str | None = None
     chips: list[str] = field(default_factory=list)
 
 
@@ -276,6 +287,11 @@ def parse_turn(
         if intent.mode is None:
             intent.mode = ui_mode or "housing"
         intent.chips = ["see_first", "create_alert"]
+        return intent
+    if _has_any(folded, _PERMIT_G):
+        intent.intent = "how_apply"
+        intent.guide_slug = "permis-g"
+        intent.chips = ["keep_looking"]
         return intent
     if _has_any(folded, _APPLY) or (has_open_listing and "aplic" in folded):
         intent.intent = "how_apply"

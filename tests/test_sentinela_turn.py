@@ -84,3 +84,32 @@ def test_keeps_current_mode_when_ambiguous() -> None:
     assert response.say_id == "filtered"
     set_mode = next(item for item in response.actions if item.type == "set_mode")
     assert set_mode.payload["mode"] == "job"
+
+
+def test_how_apply_opens_dossier_guide() -> None:
+    response = plan_turn(
+        SentinelaTurnRequest(message="cómo aplico", locale="es"),
+    )
+    assert response.say_id == "guide"
+    action = next(item for item in response.actions if item.type == "open_guide")
+    assert action.payload["slug"] == "dossier"
+
+
+def test_how_apply_job_opens_cv_guide() -> None:
+    response = plan_turn(
+        SentinelaTurnRequest(
+            message="comment postuler",
+            locale="fr",
+            ui_context=SentinelaUiContext(mode="job"),
+        ),
+    )
+    assert response.say_id == "guide"
+    action = next(item for item in response.actions if item.type == "open_guide")
+    assert action.payload["slug"] == "cv"
+
+
+def test_permit_g_opens_permit_guide() -> None:
+    response = plan_turn(SentinelaTurnRequest(message="permiso G", locale="es"))
+    assert response.say_id == "guide"
+    action = next(item for item in response.actions if item.type == "open_guide")
+    assert action.payload["slug"] == "permis-g"

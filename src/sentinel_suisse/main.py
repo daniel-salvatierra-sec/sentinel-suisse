@@ -5,7 +5,7 @@ import mimetypes
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, HTTPException, Response
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
@@ -33,6 +33,8 @@ from sentinel_suisse.api.routes import (
     webhooks,
 )
 from sentinel_suisse.config import Settings, get_settings
+from sentinel_suisse.guides import GUIDE_SLUGS, render_guide_page, render_guides_index
+from sentinel_suisse.i18n import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 from sentinel_suisse.services.health import check_database
 
 # Uvicorn only configures its own "uvicorn"/"uvicorn.error"/"uvicorn.access"
@@ -160,6 +162,24 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 },
             }
         ]
+
+    from fastapi.responses import HTMLResponse
+
+    @application.get("/guides", response_class=HTMLResponse)
+    @limiter.exempt
+    def guides_index(lang: str = DEFAULT_LANGUAGE) -> str:
+        if lang not in SUPPORTED_LANGUAGES:
+            lang = DEFAULT_LANGUAGE
+        return render_guides_index(lang=lang, origin=settings.public_app_url)
+
+    @application.get("/guides/{slug}", response_class=HTMLResponse)
+    @limiter.exempt
+    def guide_page(slug: str, lang: str = DEFAULT_LANGUAGE) -> str:
+        if slug not in GUIDE_SLUGS:
+            raise HTTPException(status_code=404, detail="Unknown guide")
+        if lang not in SUPPORTED_LANGUAGES:
+            lang = DEFAULT_LANGUAGE
+        return render_guide_page(slug=slug, lang=lang, origin=settings.public_app_url)
 
     dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
     if dist.is_dir():

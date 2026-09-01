@@ -19,6 +19,7 @@ SentinelaActionType = Literal[
     "compose_alert",
     "point_to",
     "suggest_chips",
+    "open_guide",
 ]
 SentinelaSayId = Literal[
     "filtered",
@@ -30,6 +31,7 @@ SentinelaSayId = Literal[
     "open_listing",
     "map",
     "out_of_scope",
+    "guide",
 ]
 
 
