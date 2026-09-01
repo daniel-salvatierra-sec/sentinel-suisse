@@ -29,7 +29,6 @@ import { LoginBanner } from "./components/LoginBanner";
 import { MapView } from "./components/MapView";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { PostListingForm } from "./components/PostListingForm";
-import { SearchBar } from "./components/SearchBar";
 import { VerifyBanner } from "./components/VerifyBanner";
 import { InstallAppButton } from "./components/InstallAppButton";
 import { ShareAppButton } from "./components/ShareAppButton";
@@ -202,10 +201,11 @@ export default function App() {
       const emp = live ? employmentType : appliedEmploymentType;
       const occupationQuery = queryLooksLikeJob(query);
       const listingType: ListingType = occupationQuery ? "job" : category;
+      const neighborHousing = listingType === "housing" && zone !== "CH";
       return {
         listing_type: listingType,
         location: searchLocation(zone, query),
-        country: zone,
+        country: neighborHousing ? undefined : zone,
         price_min: listingType === "housing" ? parseOptionalPrice(pMin) : undefined,
         price_max: listingType === "housing" ? parseOptionalPrice(pMax) : undefined,
         rooms_min: listingType === "housing" ? rooms.rooms_min : undefined,
@@ -722,7 +722,6 @@ export default function App() {
       />
       {tab !== "publish" && tab !== "account" ? (
         <div id="search-panel">
-          <SearchBar t={t} value={query} onChange={setQuery} onSearch={() => void runSearch()} />
           <FilterBar
             t={t}
             category={category}
@@ -731,8 +730,12 @@ export default function App() {
               setZoneChoice(value);
               setAppliedZoneChoice(value);
               setQuery("");
+              if (value !== "CH") {
+                setRoomsChoice("");
+                setAppliedRoomsChoice("");
+              }
             }}
-            cityChoice={matchZoneCity(zoneChoice, query, category)}
+            cityChoice={matchZoneCity(zoneChoice, query)}
             onCityChoiceChange={(value) => {
               setQuery(queryForCityChoice(zoneChoice, value));
             }}

@@ -1,11 +1,12 @@
 """Match listings against saved search filters."""
 
+from sentinel_suisse.models.enums import ListingType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.housing_construction import listing_looks_under_construction
 from sentinel_suisse.services.job_taxonomy import job_category_matches
 from sentinel_suisse.services.listing_freshness import listing_is_fresh
-from sentinel_suisse.services.location_match import location_matches
+from sentinel_suisse.services.location_match import is_border_location, location_matches
 from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
 
@@ -27,7 +28,10 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
                 return False
         elif not in_place:
             return False
-    if filters.country is not None and listing.country != filters.country:
+    skip_country = filters.listing_type == ListingType.HOUSING and is_border_location(
+        filters.location
+    )
+    if filters.country is not None and listing.country != filters.country and not skip_country:
         return False
     if filters.price_min is not None:
         if listing.price is None or listing.price < filters.price_min:

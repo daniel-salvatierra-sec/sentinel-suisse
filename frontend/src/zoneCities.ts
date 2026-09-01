@@ -33,24 +33,13 @@ export function isBorderQuery(query: string): boolean {
   return /^(CH|FR|DE|IT)-border$/i.test(query.trim());
 }
 
-export function citiesForZone(
-  zone: CountryCode,
-  listingType: ListingType = "job",
-): string[] {
+export function citiesForZone(zone: CountryCode): string[] {
   if (zone === "CH") {
     return [...SWISS_CITIES];
   }
-  // Inland FR/DE/IT rentals have no licensed source yet — only the Swiss-border belt.
-  if (listingType === "housing") {
-    return [BORDER_CITY];
-  }
-  if (zone === "FR") {
-    return [BORDER_CITY, ...FR_CITIES];
-  }
-  if (zone === "DE") {
-    return [BORDER_CITY, ...DE_CITIES];
-  }
-  return [BORDER_CITY, ...IT_CITIES];
+  // No licensed inland rental source, and job megacities stay out of the picker
+  // until we can actually stock them. Neighbor zones are the Swiss-border belt.
+  return [BORDER_CITY];
 }
 
 function fold(value: string): string {
@@ -110,11 +99,7 @@ const CITY_ALIASES: Record<string, string> = {
   genova: "Genoa",
 };
 
-export function matchZoneCity(
-  zone: CountryCode,
-  query: string,
-  listingType: ListingType = "job",
-): string {
+export function matchZoneCity(zone: CountryCode, query: string): string {
   const trimmed = query.trim();
   if (!trimmed) {
     return zone === "CH" ? "" : BORDER_CITY;
@@ -127,11 +112,12 @@ export function matchZoneCity(
   }
   const folded = fold(trimmed);
   const aliased = CITY_ALIASES[folded];
-  const catalog = citiesForZone(zone, listingType).filter((city) => city !== BORDER_CITY);
-  if (aliased && catalog.includes(aliased)) {
+  const inland: readonly string[] =
+    zone === "FR" ? FR_CITIES : zone === "DE" ? DE_CITIES : IT_CITIES;
+  if (aliased && inland.includes(aliased)) {
     return aliased;
   }
-  const exact = catalog.find((city) => fold(city) === folded);
+  const exact = inland.find((city) => fold(city) === folded);
   return exact ?? "";
 }
 

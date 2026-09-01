@@ -187,43 +187,37 @@ export function FilterBar({
         </button>
       </div>
 
-      {(() => {
-        const cities = citiesForZone(zoneChoice, category);
-        const shown =
-          stockedCities != null
-            ? cities.filter((city) => stockedCities.includes(city) || city === cityChoice)
-            : cities;
-        const selectValue =
-          cityChoice || (zoneChoice === "CH" ? "" : BORDER_CITY);
-        const borderShown = shown.filter((city) => city === BORDER_CITY);
-        const inlandShown = shown.filter((city) => city !== BORDER_CITY);
-        const useGroups =
-          zoneChoice !== "CH" && borderShown.length > 0 && inlandShown.length > 0;
-        const cityOption = (city: string) => (
-          <option key={city} value={city}>
-            {city === BORDER_CITY ? t.zoneBorder : city}
-          </option>
-        );
-        return (
-          <label className="filter-city">
-            {t.cityLabel}
-            <select
-              value={selectValue}
-              onChange={(event) => onCityChoiceChange(event.target.value)}
-            >
-              {zoneChoice === "CH" ? <option value="">{t.cityAll}</option> : null}
-              {useGroups ? (
-                <>
-                  <optgroup label={t.zoneBorder}>{borderShown.map(cityOption)}</optgroup>
-                  <optgroup label={t.cityGroupCities}>{inlandShown.map(cityOption)}</optgroup>
-                </>
-              ) : (
-                shown.map(cityOption)
-              )}
-            </select>
-          </label>
-        );
-      })()}
+      {zoneChoice === "CH" ? (
+        <label className="filter-city">
+          {t.cityLabel}
+          <select
+            value={cityChoice}
+            onChange={(event) => onCityChoiceChange(event.target.value)}
+          >
+            <option value="">{t.cityAll}</option>
+            {(stockedCities != null
+              ? citiesForZone("CH").filter(
+                  (city) => stockedCities.includes(city) || city === cityChoice,
+                )
+              : citiesForZone("CH")
+            ).map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : (
+        <label className="filter-city">
+          {t.cityLabel}
+          <select
+            value={BORDER_CITY}
+            onChange={(event) => onCityChoiceChange(event.target.value)}
+          >
+            <option value={BORDER_CITY}>{t.zoneBorder}</option>
+          </select>
+        </label>
+      )}
 
       {category === "housing" && (
         <>

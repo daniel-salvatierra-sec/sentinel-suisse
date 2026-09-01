@@ -307,11 +307,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       en: [["what cit", "what countr", "which region", "where does this work"]],
     },
     answer: {
-      fr: "LinkSwiss couvre la Suisse, la France, l'Allemagne et l'Italie. Dans chaque pays voisin, la première ville est Frontière-Suisse (communes collées à la Suisse), puis les villes de plus de 500 000 habitants. Cherche ta ville pour voir ce qui est déjà en ligne.",
-      de: "LinkSwiss deckt die Schweiz, Frankreich, Deutschland und Italien ab. In den Nachbarländern ist die erste Stadt Grenze-Schweiz (Orte an der Schweizer Grenze), danach Städte über 500 000 Einwohner. Suche deine Stadt, um zu sehen, was schon da ist.",
-      es: "LinkSwiss cubre Suiza, Francia, Alemania e Italia. En cada país vecino la primera ciudad es Frontera-Suiza (localidades junto a Suiza, no otras fronteras del país) y luego las ciudades de más de 500 000 habitantes. Busca tu ciudad para ver qué hay ya disponible.",
-      pt: "O LinkSwiss cobre a Suíça, a França, a Alemanha e a Itália. Em cada país vizinho a primeira cidade é Fronteira-Suíça (localidades junto à Suíça), depois as cidades com mais de 500 000 habitantes. Pesquisa a tua cidade para ver o que já existe.",
-      en: "LinkSwiss covers Switzerland, France, Germany and Italy. In each neighbouring country the first city is Swiss border (towns next to Switzerland, not other borders), then cities over 500,000 people. Search your city to see what's already listed.",
+      fr: "LinkSwiss couvre la Suisse et la Frontière-Suisse (France, Allemagne, Italie : communes collées à la Suisse). Pas encore les grandes villes de ces pays.",
+      de: "LinkSwiss deckt die Schweiz und die Grenze-Schweiz ab (Frankreich, Deutschland, Italien: Orte an der Schweizer Grenze). Die Grossstädte dieser Länder noch nicht.",
+      es: "LinkSwiss cubre Suiza y la Frontera-Suiza (Francia, Alemania, Italia: localidades junto a Suiza). Aún no las grandes ciudades de esos países.",
+      pt: "O LinkSwiss cobre a Suíça e a Fronteira-Suíça (França, Alemanha, Itália: localidades junto à Suíça). Ainda não as grandes cidades desses países.",
+      en: "LinkSwiss covers Switzerland and the Swiss border (France, Germany, Italy: towns next to Switzerland). Not the big inland cities of those countries yet.",
     },
   },
   {

@@ -28,3 +28,36 @@ def test_infirmier_search_sql_scans_titles() -> None:
     sql = _sql("infirmier")
     assert "title" in sql
     assert "description" in sql
+
+
+def test_housing_border_sql_does_not_require_country() -> None:
+    from sentinel_suisse.models.enums import CountryCode, ListingType
+
+    stmt = _apply_filters(
+        select(Listing.id),
+        SearchQuery(
+            listing_type=ListingType.HOUSING,
+            location="FR-border",
+            country=CountryCode.FR,
+        ),
+    )
+    sql = str(
+        stmt.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
+    ).lower()
+    assert "annemasse" in sql
+    assert "listings.country" not in sql
+
+
+def test_job_border_sql_still_requires_country() -> None:
+    from sentinel_suisse.models.enums import CountryCode, ListingType
+
+    stmt = _apply_filters(
+        select(Listing.id),
+        SearchQuery(
+            listing_type=ListingType.JOB,
+            location="FR-border",
+            country=CountryCode.FR,
+        ),
+    )
+    sql = str(stmt.compile(dialect=postgresql.dialect())).lower()
+    assert "listings.country" in sql

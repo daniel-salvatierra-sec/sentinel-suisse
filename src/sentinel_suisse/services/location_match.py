@@ -335,6 +335,12 @@ def expand_location_query(query: str) -> list[str]:
     return [stripped]
 
 
+def is_border_location(query: str | None) -> bool:
+    if not query or not query.strip():
+        return False
+    return _fold(query) in _BORDER_QUERIES
+
+
 def location_matches(listing_location: str | None, query: str) -> bool:
     if listing_location is None:
         return False

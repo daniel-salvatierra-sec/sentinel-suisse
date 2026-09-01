@@ -205,6 +205,18 @@ def test_country_filter() -> None:
     assert listing_matches_query(german, SearchQuery(country=CountryCode.IT)) is False
 
 
+def test_housing_border_matches_ch_tagged_annemasse() -> None:
+    listing = _sample_listing(country=CountryCode.CH, location="Annemasse, 74100")
+    query = SearchQuery(
+        listing_type=ListingType.HOUSING,
+        location="FR-border",
+        country=CountryCode.FR,
+    )
+    assert listing_matches_query(listing, query) is True
+    paris = _sample_listing(country=CountryCode.FR, location="Paris")
+    assert listing_matches_query(paris, query) is False
+
+
 def test_new_project_keyword_matches_unset_flag() -> None:
     listing = _sample_listing(title="Projet neuf — première location à Sion")
     listing.is_under_construction = None
