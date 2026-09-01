@@ -162,6 +162,7 @@ export function GuideBot({
         searching={searching}
         talking={chatBusy || Boolean(hint)}
         sheetOpen={open}
+        dock={page === "account" || accountPitch ? "left" : "right"}
         label={t.fireflyLabel}
         name={t.sentinelName}
         hint={hint}
