@@ -307,11 +307,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       en: [["what cit", "what countr", "which region", "where does this work"]],
     },
     answer: {
-      fr: "LinkSwiss couvre la Suisse et la Frontière-Suisse (France, Allemagne, Italie : communes collées à la Suisse). Pas encore les grandes villes de ces pays.",
-      de: "LinkSwiss deckt die Schweiz und die Grenze-Schweiz ab (Frankreich, Deutschland, Italien: Orte an der Schweizer Grenze). Die Grossstädte dieser Länder noch nicht.",
-      es: "LinkSwiss cubre Suiza y la Frontera-Suiza (Francia, Alemania, Italia: localidades junto a Suiza). Aún no las grandes ciudades de esos países.",
-      pt: "O LinkSwiss cobre a Suíça e a Fronteira-Suíça (França, Alemanha, Itália: localidades junto à Suíça). Ainda não as grandes cidades desses países.",
-      en: "LinkSwiss covers Switzerland and the Swiss border (France, Germany, Italy: towns next to Switzerland). Not the big inland cities of those countries yet.",
+      fr: "LinkSwiss couvre la Suisse et, à côté, France-frontière, Allemagne-frontière et Italie-frontière (communes collées à la Suisse). Pas encore Paris, Lyon, Munich ou Milan.",
+      de: "LinkSwiss deckt die Schweiz ab und daneben Frankreich-Grenze, Deutschland-Grenze und Italien-Grenze (Orte an der Schweizer Grenze). Noch nicht Paris, Lyon, München oder Mailand.",
+      es: "LinkSwiss cubre Suiza y, al lado, Francia-frontera, Alemania-frontera e Italia-frontera (localidades junto a Suiza). Aún no París, Lyon, Múnich o Milán.",
+      pt: "O LinkSwiss cobre a Suíça e, ao lado, França-fronteira, Alemanha-fronteira e Itália-fronteira (localidades junto à Suíça). Ainda não Paris, Lyon, Munique ou Milão.",
+      en: "LinkSwiss covers Switzerland and, next to it, France-border, Germany-border and Italy-border (towns next to Switzerland). Not Paris, Lyon, Munich or Milan yet.",
     },
   },
   {

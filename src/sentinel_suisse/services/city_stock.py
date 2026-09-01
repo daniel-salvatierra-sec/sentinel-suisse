@@ -13,7 +13,13 @@ from sentinel_suisse.models.enums import CountryCode, ListingType
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.public_cities import CityStock
 from sentinel_suisse.services.listing_freshness import apply_freshness_filter
-from sentinel_suisse.services.location_match import expand_location_query
+from sentinel_suisse.services.location_match import (
+    DE_BORDER_CITIES,
+    FR_BORDER_CITIES,
+    IT_BORDER_CITIES,
+    expand_location_query,
+    is_border_place,
+)
 
 # Same order/names as frontend/src/swissCities.ts (matching + map pins stay there).
 PICKER_CITIES: tuple[str, ...] = (
@@ -70,33 +76,11 @@ PICKER_CITIES: tuple[str, ...] = (
 # Same names as frontend/src/zoneCities.ts. Border keys match expand_location_query.
 NEIGHBOR_PICKER: tuple[tuple[CountryCode, str], ...] = (
     (CountryCode.FR, "FR-border"),
-    (CountryCode.FR, "Paris"),
-    (CountryCode.FR, "Marseille"),
-    (CountryCode.FR, "Lyon"),
-    (CountryCode.FR, "Toulouse"),
+    *[(CountryCode.FR, city) for city in FR_BORDER_CITIES],
     (CountryCode.DE, "DE-border"),
-    (CountryCode.DE, "Berlin"),
-    (CountryCode.DE, "Hamburg"),
-    (CountryCode.DE, "Munich"),
-    (CountryCode.DE, "Cologne"),
-    (CountryCode.DE, "Frankfurt"),
-    (CountryCode.DE, "Stuttgart"),
-    (CountryCode.DE, "Dusseldorf"),
-    (CountryCode.DE, "Leipzig"),
-    (CountryCode.DE, "Dortmund"),
-    (CountryCode.DE, "Essen"),
-    (CountryCode.DE, "Bremen"),
-    (CountryCode.DE, "Dresden"),
-    (CountryCode.DE, "Hanover"),
-    (CountryCode.DE, "Nuremberg"),
-    (CountryCode.DE, "Duisburg"),
+    *[(CountryCode.DE, city) for city in DE_BORDER_CITIES],
     (CountryCode.IT, "IT-border"),
-    (CountryCode.IT, "Rome"),
-    (CountryCode.IT, "Milan"),
-    (CountryCode.IT, "Naples"),
-    (CountryCode.IT, "Turin"),
-    (CountryCode.IT, "Palermo"),
-    (CountryCode.IT, "Genoa"),
+    *[(CountryCode.IT, city) for city in IT_BORDER_CITIES],
 )
 
 PICKER_ENTRIES: tuple[tuple[CountryCode, str], ...] = (
@@ -112,19 +96,22 @@ def _location_clause(city: str):
 
 
 def list_stocked_picker_cities(db: Session) -> list[CityStock]:
-    """Cities with at least one fresh housing or job listing in that country."""
+    """Cities with at least one fresh housing or job listing in that place.
+
+    Neighbor-belt towns ignore the portal country tag (Swiss sites often mark
+    Annemasse as CH).
+    """
     stocked: list[CityStock] = []
     for country, city in PICKER_ENTRIES:
         location_match = _location_clause(city)
         if location_match is None:
             continue
+        conditions = [Listing.is_hidden.is_(False), location_match]
+        if not is_border_place(city):
+            conditions.append(Listing.country == country)
         stmt = (
             select(Listing.listing_type, func.count())
-            .where(
-                Listing.is_hidden.is_(False),
-                Listing.country == country,
-                location_match,
-            )
+            .where(*conditions)
             .group_by(Listing.listing_type)
         )
         stmt = apply_freshness_filter(stmt)

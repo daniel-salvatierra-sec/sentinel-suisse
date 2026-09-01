@@ -48,7 +48,7 @@ def test_housing_border_sql_does_not_require_country() -> None:
     assert "listings.country" not in sql
 
 
-def test_job_border_sql_still_requires_country() -> None:
+def test_job_border_sql_does_not_require_country() -> None:
     from sentinel_suisse.models.enums import CountryCode, ListingType
 
     stmt = _apply_filters(
@@ -60,4 +60,16 @@ def test_job_border_sql_still_requires_country() -> None:
         ),
     )
     sql = str(stmt.compile(dialect=postgresql.dialect())).lower()
+    assert "listings.country" not in sql
+
+
+def test_switzerland_sql_excludes_neighbor_border_towns() -> None:
+    from sentinel_suisse.models.enums import CountryCode
+
+    stmt = _apply_filters(select(Listing.id), SearchQuery(country=CountryCode.CH))
+    sql = str(
+        stmt.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
+    ).lower()
+    assert "annemasse" in sql
     assert "listings.country" in sql
+    assert " not " in sql or "not (" in sql

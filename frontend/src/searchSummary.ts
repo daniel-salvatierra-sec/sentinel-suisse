@@ -127,8 +127,8 @@ export function formatSearchSummary(t: Messages, query: Query): string {
   }
 
   const location = query.location?.trim();
-  if (location) {
-    parts.push(isBorderQuery(location) ? t.zoneBorder : location);
+  if (location && !isBorderQuery(location)) {
+    parts.push(location);
   }
   if (query.country && query.country !== "CH") {
     parts.push(zoneLabel(t, query.country));

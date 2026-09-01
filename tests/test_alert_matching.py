@@ -217,6 +217,28 @@ def test_housing_border_matches_ch_tagged_annemasse() -> None:
     assert listing_matches_query(paris, query) is False
 
 
+def test_job_border_matches_ch_tagged_annemasse() -> None:
+    listing = _sample_listing(
+        listing_type=ListingType.JOB,
+        country=CountryCode.CH,
+        location="Annemasse, 74100",
+        title="Developer Annemasse",
+    )
+    query = SearchQuery(
+        listing_type=ListingType.JOB,
+        location="FR-border",
+        country=CountryCode.FR,
+    )
+    assert listing_matches_query(listing, query) is True
+
+
+def test_switzerland_excludes_border_town_even_if_tagged_ch() -> None:
+    listing = _sample_listing(country=CountryCode.CH, location="Annemasse, 74100")
+    assert listing_matches_query(listing, SearchQuery(country=CountryCode.CH)) is False
+    geneva = _sample_listing(country=CountryCode.CH, location="Geneva")
+    assert listing_matches_query(geneva, SearchQuery(country=CountryCode.CH)) is True
+
+
 def test_new_project_keyword_matches_unset_flag() -> None:
     listing = _sample_listing(title="Projet neuf — première location à Sion")
     listing.is_under_construction = None

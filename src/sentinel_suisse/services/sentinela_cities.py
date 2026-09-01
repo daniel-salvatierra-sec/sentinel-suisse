@@ -38,14 +38,26 @@ _NEIGHBOR: dict[str, str] = {
     "Genoa": "IT",
 }
 
-# France/Switzerland belt: legal jobs; housing uses the border belt, not fake flats.
+# France/Germany/Italy Swiss-border belt: legal jobs; housing uses the belt, not inland megacities.
 _BORDER: dict[str, str] = {
     "Annemasse": "FR",
-    "Thonon": "FR",
-    "Ferney": "FR",
     "Gaillard": "FR",
+    "Ferney": "FR",
+    "Ferney-Voltaire": "FR",
     "Saint-Julien": "FR",
+    "Saint-Julien-en-Genevois": "FR",
+    "Thonon": "FR",
+    "Thonon-les-Bains": "FR",
+    "Annecy": "FR",
     "Archamps": "FR",
+    "Lörrach": "DE",
+    "Lorrach": "DE",
+    "Weil am Rhein": "DE",
+    "Konstanz": "DE",
+    "Waldshut-Tiengen": "DE",
+    "Como": "IT",
+    "Varese": "IT",
+    "Domodossola": "IT",
     "Carouge": "CH",
     "Meyrin": "CH",
     "Vernier": "CH",
@@ -95,11 +107,18 @@ _ALIASES: dict[str, str] = {
     "napoles": "Naples",
     "torino": "Turin",
     "genova": "Genoa",
-    "thonon-les-bains": "Thonon",
-    "ferney-voltaire": "Ferney",
-    "st julien": "Saint-Julien",
-    "saint julien en genevois": "Saint-Julien",
+    "thonon-les-bains": "Thonon-les-Bains",
+    "ferney-voltaire": "Ferney-Voltaire",
+    "st julien": "Saint-Julien-en-Genevois",
+    "saint julien en genevois": "Saint-Julien-en-Genevois",
     "annemasse": "Annemasse",
+    "annecy": "Annecy",
+    "lorrach": "Lörrach",
+    "konstanz": "Konstanz",
+    "constance": "Konstanz",
+    "como": "Como",
+    "varese": "Varese",
+    "domodossola": "Domodossola",
 }
 
 

@@ -59,6 +59,14 @@ def test_location_matches_suburb_for_geneva() -> None:
     assert location_matches("Lausanne, 1003", "Geneva") is False
 
 
+def test_geneva_query_does_not_pull_french_border_towns() -> None:
+    terms = expand_location_query("Geneva")
+    assert "Annemasse" not in terms
+    assert "Gaillard" not in terms
+    assert location_matches("Annemasse, 74100", "Geneva") is False
+    assert location_matches("Carouge, 1227", "Geneva") is True
+
+
 def test_neighbor_border_queries_expand_to_border_towns() -> None:
     fr_terms = expand_location_query("FR-border")
     assert "Annemasse" in fr_terms
@@ -75,6 +83,19 @@ def test_neighbor_border_queries_expand_to_border_towns() -> None:
     assert "Como" in it_terms
     assert location_matches("Varese, Lombardia", "IT-border") is True
     assert location_matches("Roma", "IT-border") is False
+
+
+def test_named_border_city_is_a_border_place() -> None:
+    from sentinel_suisse.services.location_match import is_border_place, resolve_search_location
+
+    assert is_border_place("Annemasse") is True
+    assert is_border_place("Annecy") is True
+    assert is_border_place("Konstanz") is True
+    assert is_border_place("Como") is True
+    assert is_border_place("Geneva") is False
+    assert is_border_place("Paris") is False
+    assert resolve_search_location("FR", None) == "FR-border"
+    assert resolve_search_location("CH", None) is None
 
 
 def test_neighbor_city_aliases() -> None:

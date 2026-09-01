@@ -6,7 +6,7 @@ from typing import Literal
 from sqlalchemy import Select, and_, case, func, not_, nulls_last, or_, select
 from sqlalchemy.orm import Session
 
-from sentinel_suisse.models.enums import ListingType
+from sentinel_suisse.models.enums import CountryCode
 from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.schemas.search import SearchQuery
 from sentinel_suisse.services.housing_construction import construction_match_clause
@@ -17,7 +17,12 @@ from sentinel_suisse.services.job_taxonomy import (
     title_needles_for_filter,
 )
 from sentinel_suisse.services.listing_freshness import apply_freshness_filter
-from sentinel_suisse.services.location_match import expand_location_query, is_border_location
+from sentinel_suisse.services.location_match import (
+    expand_location_query,
+    is_border_place,
+    neighbor_belt_terms,
+    resolve_search_location,
+)
 from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
 
 SearchSort = Literal["newest", "price_asc", "price_desc"]
@@ -64,20 +69,28 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
     stmt = stmt.where(Listing.is_hidden.is_(False))
     if filters.listing_type is not None:
         stmt = stmt.where(Listing.listing_type == filters.listing_type)
-    if filters.location is not None:
-        terms = expand_location_query(filters.location)
+    location = resolve_search_location(
+        filters.country.value if filters.country is not None else None,
+        filters.location,
+    )
+    if location is not None:
+        terms = expand_location_query(location)
         clauses = [Listing.location.ilike(f"%{term}%") for term in terms]
         # Occupation words (fleuriste) search titles. City names must not:
         # ILIKE %sion% matches "pension" / "décision" in Lausanne ads.
-        if query_looks_like_job(filters.location):
-            for keyword in expand_text_query(filters.location):
+        if query_looks_like_job(location):
+            for keyword in expand_text_query(location):
                 like = f"%{keyword}%"
                 clauses.append(Listing.title.ilike(like))
                 clauses.append(Listing.description.ilike(like))
         if clauses:
             stmt = stmt.where(or_(*clauses))
-    if filters.country is not None and not _skip_country_for_border_housing(filters):
+    if filters.country is not None and not is_border_place(location):
         stmt = stmt.where(Listing.country == filters.country)
+    if filters.country == CountryCode.CH:
+        belt = [Listing.location.ilike(f"%{term}%") for term in neighbor_belt_terms()]
+        if belt:
+            stmt = stmt.where(not_(or_(*belt)))
     if filters.price_min is not None:
         stmt = stmt.where(Listing.price >= filters.price_min)
     if filters.price_max is not None:
@@ -143,8 +156,3 @@ def _apply_job_category_filter(
             ]
         )
     return stmt.where(or_(*clauses))
-
-
-def _skip_country_for_border_housing(filters: SearchQuery) -> bool:
-    """Swiss portals often tag Annemasse/Konstanz housing as CH. The border belt is the place."""
-    return filters.listing_type == ListingType.HOUSING and is_border_location(filters.location)

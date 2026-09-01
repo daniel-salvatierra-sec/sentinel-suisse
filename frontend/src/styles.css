@@ -750,6 +750,11 @@ body {
   margin-bottom: 0.65rem;
 }
 
+.zone-chips .chip {
+  font-size: 0.78rem;
+  padding: 0.32rem 0.6rem;
+}
+
 .sort-chips {
   margin-top: -0.15rem;
 }

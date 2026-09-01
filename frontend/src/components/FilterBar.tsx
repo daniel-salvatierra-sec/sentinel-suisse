@@ -6,7 +6,7 @@ import {
   JOB_ROLES,
   type JobField,
 } from "../jobTaxonomy";
-import { BORDER_CITY, citiesForZone } from "../zoneCities";
+import { citiesForZone } from "../zoneCities";
 
 export type RoomsChoice = "" | "studio" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "5";
 export type WorkloadChoice = "" | "40-60" | "80-100";
@@ -152,7 +152,7 @@ export function FilterBar({
       <p className="filter-bar-label">{t.filters}</p>
 
       <p className="filter-group-label">{t.zoneLabel}</p>
-      <div className="filter-chips" role="group" aria-label={t.zoneLabel}>
+      <div className="filter-chips zone-chips" role="group" aria-label={t.zoneLabel}>
         <button
           type="button"
           className={zoneChoice === "CH" ? "chip active" : "chip"}
@@ -187,37 +187,25 @@ export function FilterBar({
         </button>
       </div>
 
-      {zoneChoice === "CH" ? (
-        <label className="filter-city">
-          {t.cityLabel}
-          <select
-            value={cityChoice}
-            onChange={(event) => onCityChoiceChange(event.target.value)}
-          >
-            <option value="">{t.cityAll}</option>
-            {(stockedCities != null
-              ? citiesForZone("CH").filter(
-                  (city) => stockedCities.includes(city) || city === cityChoice,
-                )
-              : citiesForZone("CH")
-            ).map((city) => (
-              <option key={city} value={city}>
-                {city}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : (
-        <label className="filter-city">
-          {t.cityLabel}
-          <select
-            value={BORDER_CITY}
-            onChange={(event) => onCityChoiceChange(event.target.value)}
-          >
-            <option value={BORDER_CITY}>{t.zoneBorder}</option>
-          </select>
-        </label>
-      )}
+      <label className="filter-city">
+        {t.cityLabel}
+        <select
+          value={cityChoice}
+          onChange={(event) => onCityChoiceChange(event.target.value)}
+        >
+          <option value="">{t.cityAll}</option>
+          {(stockedCities != null
+            ? citiesForZone(zoneChoice).filter(
+                (city) => stockedCities.includes(city) || city === cityChoice,
+              )
+            : citiesForZone(zoneChoice)
+          ).map((city) => (
+            <option key={city} value={city}>
+              {city}
+            </option>
+          ))}
+        </select>
+      </label>
 
       {category === "housing" && (
         <>

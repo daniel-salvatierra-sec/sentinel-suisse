@@ -21,8 +21,8 @@ _GENEVA_QUERY_ALIASES = frozenset(
     }
 )
 
-# Substring terms OR'd when the user searches a Geneva alias. Keep this list to
-# communes/postcodes in the product area (canton + nearby France border).
+# Substring terms OR'd when the user searches a Geneva alias. Swiss side only —
+# French-border towns belong under FR-border, not Geneva.
 _GENEVA_AREA_TERMS: tuple[str, ...] = (
     "Geneva",
     "Genève",
@@ -50,10 +50,6 @@ _GENEVA_AREA_TERMS: tuple[str, ...] = (
     "Veyrier",
     "Grand-Saconnex",
     "Petit-Saconnex",
-    "Annemasse",
-    "Gaillard",
-    "Ferney",
-    "Saint-Julien",
     "1201",
     "1202",
     "1203",
@@ -80,10 +76,6 @@ _GENEVA_AREA_TERMS: tuple[str, ...] = (
     "1232",
     "1233",
     "1234",
-    "74100",
-    "01210",
-    "74160",
-    "74240",
     "GVA",
     "Cointrin",
 )
@@ -189,6 +181,28 @@ _THUN_TERMS: tuple[str, ...] = ("Thun", "Thoune")
 _AARAU_TERMS: tuple[str, ...] = ("Aarau",)
 _CHAUX_TERMS: tuple[str, ...] = ("La Chaux-de-Fonds", "Chaux-de-Fonds")
 
+# Picker names — keep in sync with frontend/src/zoneCities.ts
+FR_BORDER_CITIES: tuple[str, ...] = (
+    "Annemasse",
+    "Gaillard",
+    "Ferney-Voltaire",
+    "Saint-Julien-en-Genevois",
+    "Thonon-les-Bains",
+    "Annecy",
+    "Archamps",
+)
+DE_BORDER_CITIES: tuple[str, ...] = (
+    "Lörrach",
+    "Weil am Rhein",
+    "Konstanz",
+    "Waldshut-Tiengen",
+)
+IT_BORDER_CITIES: tuple[str, ...] = (
+    "Como",
+    "Varese",
+    "Domodossola",
+)
+
 _FR_BORDER_TERMS: tuple[str, ...] = (
     "Annemasse",
     "Gaillard",
@@ -197,7 +211,9 @@ _FR_BORDER_TERMS: tuple[str, ...] = (
     "Saint-Julien",
     "Saint-Julien-en-Genevois",
     "Thonon",
+    "Thonon-les-Bains",
     "Annecy",
+    "Archamps",
     "Haute-Savoie",
     "74100",
     "01210",
@@ -283,6 +299,46 @@ _CITY_GROUPS: tuple[tuple[frozenset[str], tuple[str, ...]], ...] = (
     (_alias_set("emmen"), ("Emmen",)),
     (_alias_set("dietikon"), ("Dietikon",)),
     (_alias_set("horgen"), ("Horgen",)),
+    (
+        _alias_set("annemasse"),
+        ("Annemasse", "74100"),
+    ),
+    (_alias_set("gaillard"), ("Gaillard", "74240")),
+    (
+        _alias_set("ferney", "ferney-voltaire", "ferney voltaire"),
+        ("Ferney", "Ferney-Voltaire", "01210"),
+    ),
+    (
+        _alias_set(
+            "saint-julien",
+            "saint-julien-en-genevois",
+            "st julien",
+            "saint julien en genevois",
+        ),
+        ("Saint-Julien", "Saint-Julien-en-Genevois", "74160"),
+    ),
+    (
+        _alias_set("thonon", "thonon-les-bains"),
+        ("Thonon", "Thonon-les-Bains"),
+    ),
+    (_alias_set("annecy"), ("Annecy",)),
+    (_alias_set("archamps"), ("Archamps",)),
+    (
+        _alias_set("lorrach", "lörrach"),
+        ("Lorrach", "Lörrach"),
+    ),
+    (_alias_set("weil am rhein"), ("Weil am Rhein",)),
+    (
+        _alias_set("konstanz", "constance"),
+        ("Konstanz", "Constance"),
+    ),
+    (
+        _alias_set("waldshut", "waldshut-tiengen"),
+        ("Waldshut", "Waldshut-Tiengen"),
+    ),
+    (_alias_set("como"), ("Como",)),
+    (_alias_set("varese"), ("Varese",)),
+    (_alias_set("domodossola"), ("Domodossola",)),
     (_alias_set("paris", "parigi"), ("Paris", "Parigi")),
     (_alias_set("marseille", "marsella"), ("Marseille", "Marsella")),
     (_alias_set("lyon", "lione"), ("Lyon", "Lione")),
@@ -339,6 +395,42 @@ def is_border_location(query: str | None) -> bool:
     if not query or not query.strip():
         return False
     return _fold(query) in _BORDER_QUERIES
+
+
+def neighbor_belt_terms() -> tuple[str, ...]:
+    return _FR_BORDER_TERMS + _DE_BORDER_TERMS + _IT_BORDER_TERMS
+
+
+def is_border_place(query: str | None) -> bool:
+    """True when the search is the neighbor belt or a named town in it."""
+    if not query or not query.strip():
+        return False
+    folded = _fold(query)
+    if folded in _BORDER_QUERIES:
+        return True
+    for aliases, _terms in _CITY_GROUPS:
+        if folded not in aliases:
+            continue
+        terms = _terms
+        if any(term in neighbor_belt_terms() for term in terms):
+            return True
+    return False
+
+
+def resolve_search_location(country: str | None, location: str | None) -> str | None:
+    """Empty neighbor-country search means the border belt, not the whole country."""
+    stripped = (location or "").strip()
+    if stripped:
+        return stripped
+    if country in {"FR", "DE", "IT"}:
+        return f"{country}-border"
+    return None
+
+
+def location_in_neighbor_belt(listing_location: str | None) -> bool:
+    if not listing_location:
+        return False
+    return any(_term_in_location(listing_location, term) for term in neighbor_belt_terms())
 
 
 def location_matches(listing_location: str | None, query: str) -> bool:

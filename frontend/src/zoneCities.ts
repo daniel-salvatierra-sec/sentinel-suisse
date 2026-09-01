@@ -4,26 +4,23 @@ import { matchSwissCity, SWISS_CITIES } from "./swissCities";
 /** Sentinel value for the first city-picker option in FR / DE / IT. */
 export const BORDER_CITY = "__border__";
 
-/** City-proper population over 500,000 (INSEE / Destatis / Istat). */
-export const FR_CITIES = ["Paris", "Marseille", "Lyon", "Toulouse"] as const;
-export const DE_CITIES = [
-  "Berlin",
-  "Hamburg",
-  "Munich",
-  "Cologne",
-  "Frankfurt",
-  "Stuttgart",
-  "Dusseldorf",
-  "Leipzig",
-  "Dortmund",
-  "Essen",
-  "Bremen",
-  "Dresden",
-  "Hanover",
-  "Nuremberg",
-  "Duisburg",
+/** Towns in the Swiss-border belt — keep in sync with location_match.py */
+export const FR_CITIES = [
+  "Annemasse",
+  "Gaillard",
+  "Ferney-Voltaire",
+  "Saint-Julien-en-Genevois",
+  "Thonon-les-Bains",
+  "Annecy",
+  "Archamps",
 ] as const;
-export const IT_CITIES = ["Rome", "Milan", "Naples", "Turin", "Palermo", "Genoa"] as const;
+export const DE_CITIES = [
+  "Lörrach",
+  "Weil am Rhein",
+  "Konstanz",
+  "Waldshut-Tiengen",
+] as const;
+export const IT_CITIES = ["Como", "Varese", "Domodossola"] as const;
 
 export function borderQuery(zone: CountryCode): string {
   return `${zone}-border`;
@@ -37,9 +34,13 @@ export function citiesForZone(zone: CountryCode): string[] {
   if (zone === "CH") {
     return [...SWISS_CITIES];
   }
-  // No licensed inland rental source, and job megacities stay out of the picker
-  // until we can actually stock them. Neighbor zones are the Swiss-border belt.
-  return [BORDER_CITY];
+  if (zone === "FR") {
+    return [...FR_CITIES];
+  }
+  if (zone === "DE") {
+    return [...DE_CITIES];
+  }
+  return [...IT_CITIES];
 }
 
 function fold(value: string): string {
@@ -51,69 +52,28 @@ function fold(value: string): string {
 }
 
 const CITY_ALIASES: Record<string, string> = {
-  paris: "Paris",
-  parigi: "Paris",
-  marseille: "Marseille",
-  marsella: "Marseille",
-  lyon: "Lyon",
-  lione: "Lyon",
-  toulouse: "Toulouse",
-  tolosa: "Toulouse",
-  berlin: "Berlin",
-  berlijn: "Berlin",
-  hamburg: "Hamburg",
-  hambourg: "Hamburg",
-  munich: "Munich",
-  munchen: "Munich",
-  monaco: "Munich",
-  cologne: "Cologne",
-  koln: "Cologne",
-  colonia: "Cologne",
-  frankfurt: "Frankfurt",
-  stuttgart: "Stuttgart",
-  dusseldorf: "Dusseldorf",
-  dusseldof: "Dusseldorf",
-  leipzig: "Leipzig",
-  dortmund: "Dortmund",
-  essen: "Essen",
-  bremen: "Bremen",
-  dresden: "Dresden",
-  dresde: "Dresden",
-  hanover: "Hanover",
-  hannover: "Hanover",
-  nuremberg: "Nuremberg",
-  nurnberg: "Nuremberg",
-  nuernberg: "Nuremberg",
-  duisburg: "Duisburg",
-  rome: "Rome",
-  roma: "Rome",
-  milan: "Milan",
-  milano: "Milan",
-  naples: "Naples",
-  napoli: "Naples",
-  napoles: "Naples",
-  turin: "Turin",
-  torino: "Turin",
-  palermo: "Palermo",
-  genoa: "Genoa",
-  genova: "Genoa",
+  ferney: "Ferney-Voltaire",
+  "ferney voltaire": "Ferney-Voltaire",
+  "saint julien": "Saint-Julien-en-Genevois",
+  "saint-julien": "Saint-Julien-en-Genevois",
+  "st julien": "Saint-Julien-en-Genevois",
+  thonon: "Thonon-les-Bains",
+  lorrach: "Lörrach",
+  constance: "Konstanz",
+  waldshut: "Waldshut-Tiengen",
 };
 
 export function matchZoneCity(zone: CountryCode, query: string): string {
   const trimmed = query.trim();
-  if (!trimmed) {
-    return zone === "CH" ? "" : BORDER_CITY;
-  }
-  if (zone !== "CH" && isBorderQuery(trimmed)) {
-    return BORDER_CITY;
+  if (!trimmed || isBorderQuery(trimmed)) {
+    return "";
   }
   if (zone === "CH") {
     return matchSwissCity(trimmed);
   }
   const folded = fold(trimmed);
+  const inland: readonly string[] = citiesForZone(zone);
   const aliased = CITY_ALIASES[folded];
-  const inland: readonly string[] =
-    zone === "FR" ? FR_CITIES : zone === "DE" ? DE_CITIES : IT_CITIES;
   if (aliased && inland.includes(aliased)) {
     return aliased;
   }
@@ -146,7 +106,10 @@ export function stockedPickerValues(
     if (count <= 0) {
       continue;
     }
-    names.push(row.city === `${zone}-border` ? BORDER_CITY : row.city);
+    if (row.city === `${zone}-border`) {
+      continue;
+    }
+    names.push(row.city);
   }
   return names;
 }

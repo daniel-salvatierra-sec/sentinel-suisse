@@ -201,11 +201,10 @@ export default function App() {
       const emp = live ? employmentType : appliedEmploymentType;
       const occupationQuery = queryLooksLikeJob(query);
       const listingType: ListingType = occupationQuery ? "job" : category;
-      const neighborHousing = listingType === "housing" && zone !== "CH";
       return {
         listing_type: listingType,
         location: searchLocation(zone, query),
-        country: neighborHousing ? undefined : zone,
+        country: zone,
         price_min: listingType === "housing" ? parseOptionalPrice(pMin) : undefined,
         price_max: listingType === "housing" ? parseOptionalPrice(pMax) : undefined,
         rooms_min: listingType === "housing" ? rooms.rooms_min : undefined,
@@ -449,9 +448,6 @@ export default function App() {
 
   const goToSearch = (type: ListingType, opts?: { scroll?: boolean; delayMs?: number }) => {
     setCategory(type);
-    if (type === "housing" && zoneChoice !== "CH") {
-      setQuery("");
-    }
     setHubFocused(true);
     setTab("list");
     if (opts?.scroll === false) return;

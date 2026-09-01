@@ -68,11 +68,11 @@ def test_public_cities_includes_neighbor_stock(operator_client: TestClient) -> N
         headers={"X-API-Key": api_key},
         json={
             "listing_type": "job",
-            "title": "Developpeur Paris stock",
-            "location": "Paris",
+            "title": "Developpeur Annemasse stock",
+            "location": "Annemasse",
             "country": "FR",
             "job_category": "it",
-            "contact_url": "https://example.com/paris-stock",
+            "contact_url": "https://example.com/annemasse-job-stock",
         },
     )
     assert paris_job.status_code == 201, paris_job.text
@@ -94,8 +94,9 @@ def test_public_cities_includes_neighbor_stock(operator_client: TestClient) -> N
     assert after.status_code == 200, after.text
     cities = {row["city"]: row for row in after.json()}
 
-    assert cities["Paris"]["country"] == "FR"
-    assert cities["Paris"]["job_count"] >= 1
+    assert cities["Annemasse"]["country"] == "FR"
+    assert cities["Annemasse"]["job_count"] >= 1
+    assert cities["Annemasse"]["housing_count"] >= 1
     assert cities["FR-border"]["country"] == "FR"
     assert cities["FR-border"]["housing_count"] >= 1
     assert all(row["total"] > 0 for row in after.json())
