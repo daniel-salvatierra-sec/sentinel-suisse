@@ -1,6 +1,6 @@
 # Terms of Service — Sentinel Suisse
 
-**Version:** 2026-08-21  
+**Version:** 2026-09-01  
 **Status:** Draft — legal review recommended before public launch  
 **Governing law:** Switzerland (Swiss Federal Act on Data Protection — nFADP / nLPD)
 
@@ -42,7 +42,7 @@ Most listings come from external portals. We are **not** the landlord, employer,
 
 ## 5b. Listings you post
 
-If you publish a housing or job ad from your account, **you** are the advertiser. LinkSwiss only displays the card and sends interested people to the contact URL you provide. We do not collect CVs or applications. You must have the right to advertise the property or role, and you may not post spam, false, or discriminatory ads. We may remove ads that violate these rules. Posted ads are deleted when you delete your account.
+If you publish a housing or job ad from your account, **you** are the advertiser. LinkSwiss only displays the card and sends interested people to the contact URL you provide. We do not collect CVs or applications. You must have the right to advertise the property or role, and you may not post spam, false, or discriminatory ads. State the **real country** and the price in the **local currency** (CHF in Switzerland, EUR in the FR/DE/IT border belt). Do not copy ads from other portals. We may remove ads that violate these rules. Posted ads are deleted when you delete your account.
 
 ## 6. Alerts and notifications
 

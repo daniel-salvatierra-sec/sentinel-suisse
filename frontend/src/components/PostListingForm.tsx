@@ -11,6 +11,8 @@ import {
 } from "../api";
 import type { Lang, Messages } from "../i18n";
 import { JOB_FIELDS, type JobField } from "../jobTaxonomy";
+import { listingCurrency } from "../geo";
+import type { CountryCode } from "../api";
 
 type Props = {
   t: Messages;
@@ -21,8 +23,26 @@ type Props = {
 
 const BOOST_CHF = "29";
 
+const LOCATION_EXAMPLE: Record<CountryCode, string> = {
+  CH: "Carouge, Genève…",
+  FR: "Annemasse, Gaillard…",
+  DE: "Lörrach, Konstanz…",
+  IT: "Como, Chiasso…",
+};
+
+const CONTACT_EXAMPLE: Record<CountryCode, string> = {
+  CH: "+41 79 123 45 67",
+  FR: "+33 6 12 34 56 78",
+  DE: "+49 171 1234567",
+  IT: "+39 333 123 4567",
+};
+
 function fillBoost(template: string, days: number): string {
   return template.replaceAll("{days}", String(days)).replaceAll("{price}", BOOST_CHF);
+}
+
+function fillCurrency(template: string, country: CountryCode): string {
+  return template.replaceAll("{currency}", listingCurrency(country));
 }
 
 function fieldLabel(t: Messages, field: JobField): string {
@@ -52,6 +72,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
   const [parking, setParking] = useState(false);
   const [jobField, setJobField] = useState<JobField>("other");
   const [contactUrl, setContactUrl] = useState("");
+  const [country, setCountry] = useState<CountryCode>("CH");
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [boostBusyId, setBoostBusyId] = useState<number | null>(null);
@@ -98,6 +119,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
         listing_type: listingType,
         title: title.trim(),
         location: location.trim(),
+        country,
         price: isJob ? priceNum : priceNum,
         rooms: isJob ? undefined : roomsNum,
         has_parking: isJob ? undefined : parking,
@@ -145,6 +167,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
     <section className="post-listing">
       <h3>{isJob ? t.postJobTitle : t.postListingTitle}</h3>
       <p className="plan-hint">{isJob ? t.postJobHint : t.postListingHint}</p>
+      <p className="plan-hint">{t.postListingAgencyNote}</p>
       {boostEnabled ? (
         <p className="plan-hint boost-hint">{fillBoost(t.boostHint, boostDays)}</p>
       ) : null}
@@ -160,12 +183,25 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
           />
         </label>
         <label>
+          {t.postListingCountry}
+          <select
+            value={country}
+            onChange={(e) => setCountry(e.target.value as CountryCode)}
+          >
+            <option value="CH">{t.zoneCH}</option>
+            <option value="FR">{t.zoneFR}</option>
+            <option value="DE">{t.zoneDE}</option>
+            <option value="IT">{t.zoneIT}</option>
+          </select>
+        </label>
+        <p className="plan-hint">{t.postListingCountryHint}</p>
+        <label>
           {isJob ? t.postJobLocation : t.postListingLocation}
           <input
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             required
-            placeholder={isJob ? t.postJobLocationHint : t.postListingLocationHint}
+            placeholder={LOCATION_EXAMPLE[country]}
           />
         </label>
         {isJob ? (
@@ -181,7 +217,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
               </select>
             </label>
             <label>
-              {t.postJobSalary}
+              {fillCurrency(t.postJobSalary, country)}
               <input
                 type="number"
                 min={1}
@@ -194,7 +230,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
         ) : (
           <>
             <label>
-              {t.postListingPrice}
+              {fillCurrency(t.postListingPrice, country)}
               <input
                 type="number"
                 min={1}
@@ -202,7 +238,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 required
-                placeholder={t.postListingPriceHint}
+                placeholder={fillCurrency(t.postListingPriceHint, country)}
               />
             </label>
             <label>
@@ -232,7 +268,7 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
             type="tel"
             inputMode="tel"
             autoComplete="tel"
-            placeholder={t.postListingContactPlaceholder}
+            placeholder={CONTACT_EXAMPLE[country]}
             value={contactUrl}
             onChange={(e) => setContactUrl(e.target.value)}
             required
@@ -282,7 +318,9 @@ export function PostListingForm({ t, locale, listingType, refreshToken = 0 }: Pr
               </h4>
               <div className="meta">
                 {item.location}
-                {item.price != null ? ` · ${item.price}` : ""}
+                {item.price != null
+                  ? ` · ${item.price} ${listingCurrency(item.country)}`
+                  : ""}
               </div>
               {until ? <p className="plan-hint">{until}</p> : null}
               <div className="account-search-actions">

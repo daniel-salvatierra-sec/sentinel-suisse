@@ -4,6 +4,22 @@ import uuid
 
 from fastapi.testclient import TestClient
 
+from sentinel_suisse.models.enums import CountryCode
+from sentinel_suisse.schemas.direct_listing import DirectListingCreate
+
+
+def test_schema_accepts_france_border_housing() -> None:
+    payload = DirectListingCreate(
+        title="T3 centre Annemasse parking",
+        location="Annemasse",
+        country=CountryCode.FR,
+        price=980,
+        rooms=3,
+        contact_url="+33 6 12 34 56 78",
+    )
+    assert payload.country == CountryCode.FR
+    assert payload.contact_url == "https://wa.me/33612345678"
+
 
 def _email(prefix: str) -> str:
     return f"{prefix}-{uuid.uuid4().hex[:8]}@example.com"
@@ -42,6 +58,7 @@ def test_user_can_post_and_delete_housing(client: TestClient, admin_auth: tuple[
     listing_id = created.json()["id"]
     assert created.json()["listing_type"] == "housing"
     assert created.json()["location"] == "Geneva, 1205"
+    assert created.json()["country"] == "CH"
 
     listed = client.get("/api/v1/me/listings", headers={"X-API-Key": key})
     assert listed.status_code == 200
@@ -100,3 +117,24 @@ def test_user_can_post_a_job_with_phone(client: TestClient, admin_auth: tuple[st
     )
     assert created.status_code == 201, created.text
     assert created.json()["source_url"] == "https://wa.me/41791234567"
+
+
+def test_user_can_post_housing_in_france_border(
+    client: TestClient, admin_auth: tuple[str, str]
+) -> None:
+    key = _create_user(client, admin_auth)
+    created = client.post(
+        "/api/v1/me/listings",
+        headers={"X-API-Key": key},
+        json={
+            "title": "T3 centre Annemasse parking",
+            "location": "Annemasse",
+            "country": "FR",
+            "price": 980,
+            "rooms": 3,
+            "contact_url": "+33 6 12 34 56 78",
+        },
+    )
+    assert created.status_code == 201, created.text
+    assert created.json()["country"] == "FR"
+    assert created.json()["location"] == "Annemasse"

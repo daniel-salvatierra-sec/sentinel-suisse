@@ -11,12 +11,17 @@ const NAME_PLACEHOLDER: Record<BoardLang, string> = {
   it: "[Nome e cognome]",
 };
 
-function priceBit(lang: BoardLang, price: number | null | undefined): string {
+function priceBit(
+  lang: BoardLang,
+  price: number | null | undefined,
+  country?: string,
+): string {
   if (price == null || !Number.isFinite(price)) return "";
   const n = String(Math.round(price));
-  if (lang === "de") return ` (${n} CHF / Monat)`;
-  if (lang === "it") return ` (${n} CHF / mese)`;
-  return ` (${n} CHF / mois)`;
+  const currency = country === "FR" || country === "DE" || country === "IT" ? "EUR" : "CHF";
+  if (lang === "de") return ` (${n} ${currency} / Monat)`;
+  if (lang === "it") return ` (${n} ${currency} / mese)`;
+  return ` (${n} ${currency} / mois)`;
 }
 
 function place(listing: Pick<Listing, "location">): string {
@@ -36,7 +41,7 @@ export function buildHousingCoverLetter(
   const lang = listingBoardLang(listing);
   const name = signerName.trim() || NAME_PLACEHOLDER[lang];
   const where = place(listing);
-  const price = priceBit(lang, listing.price);
+  const price = priceBit(lang, listing.price, listing.country);
   const title =
     listing.title.trim() ||
     (lang === "de" ? "diese Wohnung" : lang === "it" ? "questo alloggio" : "ce logement");

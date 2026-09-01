@@ -1,6 +1,6 @@
 # Nutzungsbedingungen — Sentinel Suisse
 
-**Version:** 2026-08-21  
+**Version:** 2026-09-01  
 **Status:** Entwurf — juristische Prüfung vor öffentlichem Launch empfohlen  
 **Anwendbares Recht:** Schweiz (nDSG / nLPD)
 
@@ -33,7 +33,7 @@ Die meisten Anzeigen stammen von externen Portalen. Wir sind **nicht** Vermieter
 
 ## 5b. Von Ihnen inserierte Anzeigen
 
-Wenn Sie über Ihr Konto eine Wohnung oder Stelle inserieren, sind **Sie** der Inserent. LinkSwiss zeigt die Karte und leitet Interessierte auf die von Ihnen angegebene Kontakt-URL. Wir nehmen keine Bewerbungen entgegen. Sie müssen berechtigt sein, die Immobilie oder Stelle zu inserieren; Spam, falsche oder diskriminierende Anzeigen sind verboten. Wir können Anzeigen entfernen. Beim Löschen des Kontos werden sie gelöscht.
+Wenn Sie über Ihr Konto eine Wohnung oder Stelle inserieren, sind **Sie** der Inserent. LinkSwiss zeigt die Karte und leitet Interessierte auf die von Ihnen angegebene Kontakt-URL. Wir nehmen keine Bewerbungen entgegen. Sie müssen berechtigt sein, die Immobilie oder Stelle zu inserieren; Spam, falsche oder diskriminierende Anzeigen sind verboten. Geben Sie das **tatsächliche Land** und den Preis in der **Landeswährung** an (CHF in der Schweiz, EUR im FR/DE/IT-Grenzgürtel). Kopieren Sie keine Anzeigen anderer Portale. Wir können Anzeigen entfernen. Beim Löschen des Kontos werden sie gelöscht.
 
 ## 6. Alerts
 

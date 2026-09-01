@@ -4,7 +4,7 @@ from sentinel_suisse.config import PROJECT_DIR
 from sentinel_suisse.i18n import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES
 
 TERMS_DIR = PROJECT_DIR / "docs" / "legal"
-TERMS_VERSION = "2026-08-21"
+TERMS_VERSION = "2026-09-01"
 SUPPORTED_LANGS = SUPPORTED_LANGUAGES
 
 

@@ -21,7 +21,7 @@ type Props = {
 
 function pinLabel(listing: Listing, t: Messages): string {
   if (listing.listing_type === "housing" && listing.price != null) {
-    return formatMapPrice(listing.price);
+    return formatMapPrice(listing.price, listing.country);
   }
   if (listing.listing_type === "job") {
     return t.job;
@@ -123,7 +123,7 @@ export function MapView({ listings, focusId, searchQuery, t, onSelect }: Props) 
                 {listing.price != null && listing.listing_type === "housing" ? (
                   <>
                     <br />
-                    {formatMapPrice(listing.price)}
+                    {formatMapPrice(listing.price, listing.country)}
                   </>
                 ) : null}
               </Popup>

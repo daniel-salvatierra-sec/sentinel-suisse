@@ -1,6 +1,6 @@
 import { useState, type MouseEvent } from "react";
 import type { Listing } from "../api";
-import { coordsForLocation, mapsDirectionsUrl } from "../geo";
+import { coordsForLocation, listingCurrency, mapsDirectionsUrl } from "../geo";
 import type { Messages } from "../i18n";
 import type { ListingSignals } from "../listingSignals";
 import type { AcceptReason } from "../acceptProfile";
@@ -92,7 +92,7 @@ export function ListingCard({
             </>
           )}
           {listing.price != null && listing.listing_type === "housing" && (
-            <> · {listing.price} {t.priceMonthly}</>
+            <> · {listing.price} {t.priceMonthly.replace("{currency}", listingCurrency(listing.country))}</>
           )}
           {listing.listing_type === "housing" && listing.has_parking === true && (
             <> · {t.parkingLabel}</>
@@ -173,7 +173,7 @@ export function ListingCard({
                 </>
               )}
               {listing.price != null && listing.listing_type === "housing" && (
-                <> · {listing.price} {t.priceMonthly}</>
+                <> · {listing.price} {t.priceMonthly.replace("{currency}", listingCurrency(listing.country))}</>
               )}
               {listing.listing_type === "housing" && listing.has_parking === true && (
                 <> · {t.parkingLabel}</>

@@ -20,7 +20,7 @@ def test_terms_of_service_all_languages(client: TestClient, lang: str) -> None:
     assert response.status_code == 200, response.text
     data = response.json()
     assert data["lang"] == lang
-    assert data["version"] == "2026-08-21"
+    assert data["version"] == "2026-09-01"
     assert CONTENT_MARKERS[lang] in data["content"]
     assert data["privacy_endpoint"] == "/api/v1/legal/privacy"
     assert set(data["supported_languages"]) == set(ALL_LANGUAGES)

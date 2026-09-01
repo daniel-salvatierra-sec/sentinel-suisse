@@ -335,9 +335,12 @@ export type Messages = {
   accountError: string;
   postListingTitle: string;
   postListingHint: string;
+  postListingAgencyNote: string;
   postListingCta: string;
   postListingTitleField: string;
   postListingTitleHint: string;
+  postListingCountry: string;
+  postListingCountryHint: string;
   postListingLocation: string;
   postListingLocationHint: string;
   postListingPrice: string;

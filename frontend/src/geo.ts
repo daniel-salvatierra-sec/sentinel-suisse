@@ -252,7 +252,16 @@ export function mapsDirectionsUrl(coords: [number, number]): string {
   return `https://www.google.com/maps/dir/?api=1&destination=${coords[0]},${coords[1]}`;
 }
 
-export function formatMapPrice(price: number): string {
+export function listingCurrency(country?: string | null): "CHF" | "EUR" {
+  if (country === "FR" || country === "DE" || country === "IT") {
+    return "EUR";
+  }
+  return "CHF";
+}
+
+export function formatMapPrice(price: number, country?: string | null): string {
   const rounded = Math.round(price);
-  return `CHF ${rounded.toLocaleString("de-CH")}`;
+  const currency = listingCurrency(country);
+  const locale = currency === "EUR" ? "fr-CH" : "de-CH";
+  return `${currency} ${rounded.toLocaleString(locale)}`;
 }

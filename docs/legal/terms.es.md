@@ -1,6 +1,6 @@
 # Condiciones de uso — Sentinel Suisse
 
-**Versión:** 2026-08-21  
+**Versión:** 2026-09-01  
 **Estado:** Borrador — revisión jurídica recomendada antes del lanzamiento público  
 **Derecho aplicable:** Suiza (nLPD)
 
@@ -33,7 +33,7 @@ La mayoría proceden de portales externos. No somos el anunciante. Verifica siem
 
 ## 5b. Anuncios que publicas tú
 
-Si publicas un piso o un empleo desde tu cuenta, **tú** eres el anunciante. LinkSwiss solo muestra la ficha y envía a los interesados a la URL de contacto que indiques. No recabamos CVs ni candidaturas. Debes tener derecho a anunciar el inmueble o el puesto; prohibido spam, anuncios falsos o discriminatorios. Podemos retirar anuncios que incumplan estas reglas. Se borran al eliminar tu cuenta.
+Si publicas un piso o un empleo desde tu cuenta, **tú** eres el anunciante. LinkSwiss solo muestra la ficha y envía a los interesados a la URL de contacto que indiques. No recabamos CVs ni candidaturas. Debes tener derecho a anunciar el inmueble o el puesto; prohibido spam, anuncios falsos o discriminatorios. Indica el **país real** y el precio en la **moneda local** (CHF en Suiza, EUR en la franja francesa, alemana o italiana). No copies anuncios de otros portales. Podemos retirar anuncios que incumplan estas reglas. Se borran al eliminar tu cuenta.
 
 ## 6. Alertas
 
