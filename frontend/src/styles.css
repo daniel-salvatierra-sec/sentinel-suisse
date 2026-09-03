@@ -359,7 +359,7 @@ body {
 .sentinel-buddy {
   position: fixed;
   right: 0;
-  bottom: 0;
+  bottom: calc(2.25rem + env(safe-area-inset-bottom, 0px));
   z-index: 1200;
   width: auto;
   height: min(42vh, 260px);
@@ -448,6 +448,12 @@ body {
   color: var(--lake);
   font-weight: 800;
   letter-spacing: -0.02em;
+}
+
+@media (max-width: 640px) {
+  .sentinel-buddy {
+    bottom: calc(3.25rem + env(safe-area-inset-bottom, 0px));
+  }
 }
 
 @media (max-width: 380px) {
