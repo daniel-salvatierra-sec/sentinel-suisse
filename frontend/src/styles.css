@@ -66,7 +66,7 @@ body {
 
   .sentinel-buddy {
     right: 1.25rem;
-    bottom: 0;
+    bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
     height: min(46vh, 340px);
   }
 
@@ -390,7 +390,8 @@ body {
 .sentinel-hint {
   position: absolute;
   right: 72%;
-  top: 8%;
+  top: auto;
+  bottom: 58%;
   max-width: 14.5rem;
   white-space: normal;
   background: #fff;
