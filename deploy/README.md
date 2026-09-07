@@ -79,6 +79,7 @@ Run these **once on the VPS** (Linux):
 | `deploy/backup-db.sh` | Postgres dump → `./backups/` (14-day retention) |
 | `deploy/restore-db.sh` | Restore from `.sql.gz` backup |
 | `deploy/monitor-health.sh` | Exit non-zero if `/health` or DB check fails |
+| `deploy/watchdog.py` | Every 5 min: health + ingest age → WhatsApp + email on change |
 | `deploy/run-ingest.sh <provider>` | Run a live ingest connector inside the `api` container + dispatch alerts |
 | `python -m sentinel_suisse.maintenance reclassify-jobs` | Re-apply job taxonomy to stored listings (use after taxonomy updates) |
 
@@ -88,7 +89,7 @@ Example cron on VPS:
 
 ```bash
 0 3 * * * /opt/sentinel-suisse/deploy/backup-db.sh
-*/5 * * * * /opt/sentinel-suisse/deploy/monitor-health.sh https://your-domain.example/health
+*/5 * * * * /opt/sentinel-suisse/deploy/run-watchdog.sh >> /var/log/linkswiss-watchdog.log 2>&1
 0 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh adzuna >> /var/log/linkswiss-ingest.log 2>&1
 5 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh jobup >> /var/log/linkswiss-ingest.log 2>&1
 15 * * * * /opt/sentinel-suisse/deploy/run-ingest.sh jobs >> /var/log/linkswiss-ingest.log 2>&1
