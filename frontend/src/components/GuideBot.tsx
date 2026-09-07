@@ -14,7 +14,7 @@ import type { SentinelaAction, SentinelaUiContext } from "../sentinela";
 import { AssistantChat } from "./AssistantChat";
 import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
-const NUDGE_AFTER_MS = 18_000;
+const NUDGE_AFTER_MS = 5 * 60 * 1000;
 
 type AccountIntent = "job" | "housing";
 
@@ -36,8 +36,8 @@ type Props = {
 };
 
 /**
- * Sentinela: greets on open; soon after, offers job or housing alerts.
- * A tap goes to Account with a short spoken pitch — no full-screen overlay.
+ * Sentinela: greets once; tap outside the answers hides the bubble.
+ * After 5 minutes she offers job/housing alerts. Searching hides the bubble.
  */
 export function GuideBot({
   t,
@@ -67,16 +67,6 @@ export function GuideBot({
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
 
-  useEffect(() => {
-    if (loadNudgeSeen() || hasSession || showPresent) {
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setNudgeDue(true);
-    }, NUDGE_AFTER_MS);
-    return () => window.clearTimeout(timer);
-  }, [hasSession, showPresent]);
-
   const dismissPresent = () => {
     savePresentSeen();
     setShowPresent(false);
@@ -89,6 +79,41 @@ export function GuideBot({
     setNudgeMode(false);
     setNudgeDue(false);
   };
+
+  useEffect(() => {
+    if (loadNudgeSeen() || hasSession || showPresent) {
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setNudgeDue(true);
+    }, NUDGE_AFTER_MS);
+    return () => window.clearTimeout(timer);
+  }, [hasSession, showPresent]);
+
+  useEffect(() => {
+    const bubbleOpen = showPresent || nudgeDue || Boolean(accountPitch) || byeHint;
+    if (!bubbleOpen || open) return;
+
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest(".sentinel-hint-actions")) return;
+      if (target.closest(".guide-sheet") || target.closest(".sheet-backdrop")) return;
+      if (showPresent) {
+        dismissPresent();
+        return;
+      }
+      if (nudgeDue) {
+        dismissNudge();
+        return;
+      }
+      setAccountPitch(null);
+      setByeHint(false);
+    };
+
+    document.addEventListener("pointerdown", onPointerDown);
+    return () => document.removeEventListener("pointerdown", onPointerDown);
+  }, [showPresent, nudgeDue, accountPitch, byeHint, open]);
 
   const close = () => {
     saveGuideSeen();
@@ -187,7 +212,16 @@ export function GuideBot({
         hintChoices={hintChoices}
         onHintChoice={onHintChoice}
         onOpen={() => {
-          if (showPresent || nudgeDue || accountPitch || byeHint) return;
+          if (showPresent) {
+            dismissPresent();
+            return;
+          }
+          if (nudgeDue || accountPitch || byeHint) {
+            if (nudgeDue) dismissNudge();
+            setAccountPitch(null);
+            setByeHint(false);
+            return;
+          }
           setOpen(true);
           setNeedsIntro(false);
           saveGuideSeen();
@@ -205,7 +239,7 @@ export function GuideBot({
             <div className="guide-sheet-handle" aria-hidden />
             <div className="guide-header">
               <span className={`guide-avatar sentinel-avatar${chatBusy ? " is-talking" : ""}`} aria-hidden>
-                <SentinelFace size={52} />
+                <SentinelFace size={52} zone={zone} />
               </span>
               <div>
                 <h2 id="guide-title" className="guide-title">

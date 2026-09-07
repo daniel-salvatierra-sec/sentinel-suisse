@@ -49,10 +49,16 @@ function NamedCopy({ text, name }: { text: string; name: string }) {
 export { NamedCopy };
 
 /** Photoreal companion face — reused in sheet + alerts. */
-export function SentinelFace({ size = 40 }: { size?: number }) {
+export function SentinelFace({
+  size = 40,
+  zone,
+}: {
+  size?: number;
+  zone?: "housing" | "job";
+}) {
   return (
     <img
-      className="sentinel-face"
+      className={`sentinel-face${zone ? ` zone-${zone}` : ""}`}
       src={FACE_SRC}
       alt=""
       width={size}

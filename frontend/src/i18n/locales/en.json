@@ -211,6 +211,8 @@
   "assistantIntro": "How can I help you?",
   "assistantPlaceholder": "Type your question…",
   "assistantSend": "Send",
+  "assistantSpeak": "Speak",
+  "assistantListening": "Listening…",
   "assistantThinking": "Sentinela is thinking…",
   "assistantError": "Sorry, I couldn't reply. Please try again in a moment.",
   "assistantBack": "Back",

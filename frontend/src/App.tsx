@@ -701,13 +701,6 @@ export default function App() {
         </div>
       )}
       <div className="app-topbar">
-        <LanguageBar
-          lang={lang}
-          onChange={(code) => {
-            saveLang(code);
-            setLang(code);
-          }}
-        />
         <button
           type="button"
           className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
@@ -837,6 +830,15 @@ export default function App() {
       ) : null}
 
       <div className="tabs" id="tabs-panel">
+        <LanguageBar
+          lang={lang}
+          label={t.chooseLang}
+          onChange={(code) => {
+            saveLang(code);
+            setLang(code);
+          }}
+        />
+        <div className="tabs-main">
         <button type="button" className={tab === "list" ? "active" : ""} data-sentinela="list" onClick={() => setTab("list")}>
           {t.list}
         </button>
@@ -854,6 +856,7 @@ export default function App() {
         <button type="button" className={tab === "alerts" ? "active" : ""} data-sentinela="alerts" onClick={() => setTab("alerts")}>
           {t.alerts}
         </button>
+        </div>
       </div>
 
       {tab !== "account" && tab !== "alerts" && tab !== "publish" ? (

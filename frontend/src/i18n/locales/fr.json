@@ -212,6 +212,8 @@
   "assistantIntro": "Comment puis-je t'aider ?",
   "assistantPlaceholder": "Écris ta question…",
   "assistantSend": "Envoyer",
+  "assistantSpeak": "Parler",
+  "assistantListening": "J'écoute…",
   "assistantThinking": "Sentinela réfléchit…",
   "assistantError": "Désolé, je n'ai pas pu répondre. Réessaie dans un instant.",
   "assistantBack": "Retour",

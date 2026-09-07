@@ -216,6 +216,8 @@ export type Messages = {
   assistantIntro: string;
   assistantPlaceholder: string;
   assistantSend: string;
+  assistantSpeak: string;
+  assistantListening: string;
   assistantThinking: string;
   assistantError: string;
   assistantBack: string;

@@ -109,19 +109,66 @@ body {
 }
 
 .lang-bar {
+  position: relative;
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.lang-bar-toggle {
   display: flex;
-  gap: 0.35rem;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  margin-bottom: 0;
-  flex: 1;
-  min-width: 0;
+  align-items: center;
+  gap: 0.28rem;
+  border: 1px solid rgba(30, 107, 140, 0.25);
+  background: var(--card);
+  color: var(--lake);
+  border-radius: 999px;
+  padding: 0.42rem 0.65rem;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  min-height: 2.35rem;
+}
+
+.lang-bar-globe {
+  display: flex;
+  color: var(--lake);
+}
+
+.lang-bar-menu {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.4rem);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 4.5rem;
+  padding: 0.35rem;
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 24px rgba(28, 45, 40, 0.16);
+}
+
+.lang-bar-menu button {
+  border: none;
+  background: transparent;
+  color: var(--lake);
+  border-radius: 0.5rem;
+  padding: 0.4rem 0.55rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.lang-bar-menu button.active {
+  background: var(--lake);
+  color: white;
 }
 
 .app-topbar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.65rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
@@ -156,19 +203,8 @@ body {
   background: #fff;
 }
 
-.lang-bar button {
-  border: 1px solid rgba(30, 107, 140, 0.25);
-  background: var(--card);
-  color: var(--lake);
-  border-radius: 999px;
-  padding: 0.35rem 0.7rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.lang-bar button.active {
-  background: var(--lake);
-  color: white;
+.lang-bar-toggle:hover {
+  filter: brightness(1.03);
 }
 
 .hero h1 {
@@ -481,6 +517,27 @@ body {
   width: auto;
   pointer-events: none;
   user-select: none;
+  transition: filter 0.55s ease;
+}
+
+.sentinel-buddy.zone-housing {
+  filter:
+    drop-shadow(0 0 18px rgba(52, 168, 110, 0.42))
+    drop-shadow(0 10px 16px rgba(8, 16, 24, 0.28));
+}
+
+.sentinel-buddy.zone-housing .sentinel-figure {
+  filter: hue-rotate(88deg) saturate(1.28) brightness(0.98) contrast(1.06);
+}
+
+.sentinel-buddy.zone-job {
+  filter:
+    drop-shadow(0 0 16px rgba(236, 248, 255, 0.85))
+    drop-shadow(0 10px 16px rgba(8, 16, 24, 0.22));
+}
+
+.sentinel-buddy.zone-job .sentinel-figure {
+  filter: saturate(0.22) brightness(1.2) contrast(1.08);
 }
 
 .sentinel-face {
@@ -492,6 +549,15 @@ body {
   display: block;
   pointer-events: none;
   filter: contrast(1.05) saturate(1.08);
+  transition: filter 0.55s ease;
+}
+
+.sentinel-face.zone-housing {
+  filter: hue-rotate(88deg) saturate(1.25) contrast(1.06);
+}
+
+.sentinel-face.zone-job {
+  filter: saturate(0.28) brightness(1.18) contrast(1.06);
 }
 
 .guide-avatar.sentinel-avatar {
@@ -861,11 +927,19 @@ body {
 
 .tabs {
   display: flex;
+  align-items: stretch;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.tabs button {
+.tabs-main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.tabs-main > button {
   flex: 1;
   border: 1px solid rgba(30, 107, 140, 0.2);
   background: white;
@@ -947,7 +1021,7 @@ body {
 }
 
 
-.tabs button.active {
+.tabs-main > button.active {
   background: var(--lake);
   color: white;
   border-color: var(--lake);
@@ -1824,6 +1898,41 @@ body {
 .assistant-chat-send:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.assistant-chat-mic {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.55rem;
+  height: 2.55rem;
+  border: 1px solid rgba(30, 107, 140, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--lake);
+  cursor: pointer;
+}
+
+.assistant-chat-mic.is-listening {
+  background: var(--lake);
+  color: #fff;
+  animation: sentinel-mic-pulse 1.1s ease-in-out infinite;
+}
+
+.assistant-chat-mic:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+@keyframes sentinel-mic-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(26, 111, 138, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(26, 111, 138, 0);
+  }
 }
 
 .assistant-chat-back {

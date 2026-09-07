@@ -378,6 +378,8 @@
   "assistantIntro": "Em que te posso ajudar?",
   "assistantPlaceholder": "Escreve a tua pergunta…",
   "assistantSend": "Enviar",
+  "assistantSpeak": "Falar",
+  "assistantListening": "Estou a ouvir…",
   "assistantThinking": "A Sentinela está a pensar…",
   "assistantError": "Desculpa, não consegui responder. Tenta novamente dentro de um instante.",
   "assistantBack": "Voltar",

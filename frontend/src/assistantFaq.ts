@@ -290,11 +290,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       en: [["language"]],
     },
     answer: {
-      fr: "En haut de l'écran, il y a un sélecteur FR/DE/ES/PT/EN — clique sur ta langue préférée, tout change instantanément.",
-      de: "Oben auf dem Bildschirm gibt es einen FR/DE/ES/PT/EN-Umschalter — klicke auf deine bevorzugte Sprache, alles ändert sich sofort.",
-      es: "Arriba de la pantalla hay un selector FR/DE/ES/PT/EN — toca tu idioma preferido y todo cambia al instante.",
-      pt: "No topo do ecrã há um seletor FR/DE/ES/PT/EN — toca no teu idioma preferido e tudo muda instantaneamente.",
-      en: "At the top of the screen there's an FR/DE/ES/PT/EN switcher — tap your preferred language and everything changes instantly.",
+      fr: "À côté de Liste / Carte / Alertes, touche l'icône de langue — la liste s'ouvre, tu choisis, et elle se referme.",
+      de: "Neben Liste / Karte / Alerts: auf das Sprachsymbol tippen — die Liste öffnet sich, du wählst, und sie schliesst sich wieder.",
+      es: "Junto a Lista / Mapa / Alertas, toca el icono de idioma — se abre la lista, eliges, y se cierra.",
+      pt: "Junto a Lista / Mapa / Alertas, toca no ícone de idioma — a lista abre, escolhes, e fecha.",
+      en: "Next to List / Map / Alerts, tap the language icon — the list opens, you pick one, and it closes.",
     },
   },
   {

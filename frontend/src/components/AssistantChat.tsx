@@ -28,6 +28,19 @@ type Props = {
 
 const MAX_INPUT_CHARS = 500;
 
+const SPEECH_LANG: Record<string, string> = {
+  fr: "fr-CH",
+  de: "de-CH",
+  es: "es-ES",
+  pt: "pt-PT",
+  en: "en-US",
+};
+
+function createSpeechRecognition(): SpeechRecognition | null {
+  const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
+  return Ctor ? new Ctor() : null;
+}
+
 /** Sentinela chat: FAQ for facts, then a turn that moves the UI. */
 export function AssistantChat({
   t,
@@ -43,8 +56,11 @@ export function AssistantChat({
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
+  const [listening, setListening] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const accountTimer = useRef<number>(0);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const canSpeak = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   useEffect(() => {
     saveAssistantMessages(messages.map(({ role, content }) => ({ role, content })));
@@ -56,7 +72,10 @@ export function AssistantChat({
   }, [sending, onBusyChange]);
 
   useEffect(() => {
-    return () => window.clearTimeout(accountTimer.current);
+    return () => {
+      window.clearTimeout(accountTimer.current);
+      recognitionRef.current?.abort();
+    };
   }, []);
 
   const scrollToBottom = () => {
@@ -125,6 +144,38 @@ export function AssistantChat({
       setSending(false);
       scrollToBottom();
     }
+  };
+
+  const stopListening = () => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    setListening(false);
+  };
+
+  const toggleVoice = () => {
+    if (sending) return;
+    if (listening) {
+      stopListening();
+      return;
+    }
+    const rec = createSpeechRecognition();
+    if (!rec) return;
+    rec.lang = SPEECH_LANG[lang] ?? "fr-CH";
+    rec.interimResults = false;
+    rec.onresult = (event) => {
+      const chunks: string[] = [];
+      for (let i = 0; i < event.results.length; i += 1) {
+        chunks.push(event.results[i][0].transcript);
+      }
+      const text = chunks.join(" ").trim();
+      stopListening();
+      if (text) void send(text);
+    };
+    rec.onerror = () => stopListening();
+    rec.onend = () => setListening(false);
+    recognitionRef.current = rec;
+    rec.start();
+    setListening(true);
   };
 
   const onChip = async (id: string) => {
@@ -200,10 +251,27 @@ export function AssistantChat({
           className="assistant-chat-input"
           value={input}
           maxLength={MAX_INPUT_CHARS}
-          placeholder={t.assistantPlaceholder}
+          placeholder={listening ? t.assistantListening : t.assistantPlaceholder}
           onChange={(event) => setInput(event.target.value)}
           disabled={sending}
         />
+        {canSpeak ? (
+          <button
+            type="button"
+            className={`assistant-chat-mic${listening ? " is-listening" : ""}`}
+            aria-label={t.assistantSpeak}
+            aria-pressed={listening}
+            disabled={sending}
+            onClick={toggleVoice}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+              <path
+                fill="currentColor"
+                d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"
+              />
+            </svg>
+          </button>
+        ) : null}
         <button type="submit" className="assistant-chat-send" disabled={sending || !input.trim()}>
           {t.assistantSend}
         </button>
