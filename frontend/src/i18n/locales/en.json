@@ -213,6 +213,7 @@
   "assistantSend": "Send",
   "assistantSpeak": "Speak",
   "assistantListening": "Listening…",
+  "assistantSpeakUnsupported": "To talk, open LinkSwiss in Chrome or Safari.",
   "assistantThinking": "Sentinela is thinking…",
   "assistantError": "Sorry, I couldn't reply. Please try again in a moment.",
   "assistantBack": "Back",

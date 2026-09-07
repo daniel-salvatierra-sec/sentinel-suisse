@@ -214,6 +214,7 @@
   "assistantSend": "Envoyer",
   "assistantSpeak": "Parler",
   "assistantListening": "J'écoute…",
+  "assistantSpeakUnsupported": "Pour parler, ouvre LinkSwiss dans Chrome ou Safari.",
   "assistantThinking": "Sentinela réfléchit…",
   "assistantError": "Désolé, je n'ai pas pu répondre. Réessaie dans un instant.",
   "assistantBack": "Retour",

@@ -66,6 +66,7 @@ export function GuideBot({
   const [showPresent, setShowPresent] = useState(() => !loadPresentSeen());
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
+  const [listenOnOpen, setListenOnOpen] = useState(false);
 
   const dismissPresent = () => {
     savePresentSeen();
@@ -211,6 +212,18 @@ export function GuideBot({
         hint={hint}
         hintChoices={hintChoices}
         onHintChoice={onHintChoice}
+        voiceLabel={t.assistantSpeak}
+        onVoice={() => {
+          if (showPresent) dismissPresent();
+          if (nudgeDue) dismissNudge();
+          setAccountPitch(null);
+          setByeHint(false);
+          setListenOnOpen(true);
+          setOpen(true);
+          setNeedsIntro(false);
+          saveGuideSeen();
+          setChatMode(true);
+        }}
         onOpen={() => {
           if (showPresent) {
             dismissPresent();
@@ -254,10 +267,12 @@ export function GuideBot({
                 t={t}
                 lang={lang}
                 uiContext={uiContext}
+                startListening={listenOnOpen}
                 onExecuteActions={onExecuteActions}
                 onBack={() => {
                   setChatMode(false);
                   setChatPose(null);
+                  setListenOnOpen(false);
                 }}
                 onBusyChange={setChatBusy}
                 onPoseChange={setChatPose}

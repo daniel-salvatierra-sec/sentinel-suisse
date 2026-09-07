@@ -380,6 +380,7 @@
   "assistantSend": "Senden",
   "assistantSpeak": "Sprechen",
   "assistantListening": "Ich höre zu…",
+  "assistantSpeakUnsupported": "Zum Sprechen LinkSwiss in Chrome oder Safari öffnen.",
   "assistantThinking": "Sentinela denkt nach…",
   "assistantError": "Entschuldigung, ich konnte nicht antworten. Bitte versuch es gleich noch einmal.",
   "assistantBack": "Zurück",

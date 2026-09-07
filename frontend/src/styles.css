@@ -520,6 +520,29 @@ body {
   transition: filter 0.55s ease;
 }
 
+.sentinel-mic-fab {
+  position: absolute;
+  left: 4%;
+  bottom: 18%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.15rem;
+  height: 3.15rem;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--lake);
+  color: #fff;
+  box-shadow: 0 6px 18px rgba(26, 111, 138, 0.5);
+  pointer-events: auto;
+}
+
+.sentinel-buddy.dock-left .sentinel-mic-fab {
+  left: auto;
+  right: 6%;
+}
+
 .sentinel-buddy.zone-housing {
   filter:
     drop-shadow(0 0 18px rgba(52, 168, 110, 0.42))
@@ -1874,15 +1897,18 @@ body {
 
 .assistant-chat-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .assistant-chat-input {
-  flex: 1;
+  flex: 1 1 10rem;
   border: 1px solid #d5d9e0;
   border-radius: 999px;
   padding: 0.55rem 0.9rem;
   font-size: 0.92rem;
+  min-width: 0;
 }
 
 .assistant-chat-send {
@@ -1902,21 +1928,24 @@ body {
 
 .assistant-chat-mic {
   flex: 0 0 auto;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.55rem;
-  height: 2.55rem;
-  border: 1px solid rgba(30, 107, 140, 0.28);
+  gap: 0.35rem;
+  min-height: 2.55rem;
+  padding: 0.45rem 0.85rem;
+  border: none;
   border-radius: 999px;
-  background: #fff;
-  color: var(--lake);
+  background: var(--lake);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .assistant-chat-mic.is-listening {
-  background: var(--lake);
-  color: #fff;
+  background: var(--mountain);
   animation: sentinel-mic-pulse 1.1s ease-in-out infinite;
 }
 

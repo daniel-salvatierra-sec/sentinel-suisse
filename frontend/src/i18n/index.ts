@@ -218,6 +218,7 @@ export type Messages = {
   assistantSend: string;
   assistantSpeak: string;
   assistantListening: string;
+  assistantSpeakUnsupported: string;
   assistantThinking: string;
   assistantError: string;
   assistantBack: string;

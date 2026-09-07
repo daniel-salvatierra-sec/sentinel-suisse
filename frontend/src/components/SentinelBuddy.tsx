@@ -30,6 +30,8 @@ type Props = {
   hintChoices?: HintChoice[];
   onHintChoice?: (id: string) => void;
   onOpen: () => void;
+  onVoice?: () => void;
+  voiceLabel?: string;
 };
 
 const FACE_SRC = "/hub/sentinel-buddy.png?v=2";
@@ -82,6 +84,8 @@ export function SentinelBuddy({
   hintChoices,
   onHintChoice,
   onOpen,
+  onVoice,
+  voiceLabel,
 }: Props) {
   const live = searching || talking || Boolean(hint);
   const choices = hintChoices?.length && onHintChoice ? hintChoices : null;
@@ -101,6 +105,7 @@ export function SentinelBuddy({
       aria-hidden={sheetOpen}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest(".sentinel-hint-actions")) return;
+        if ((event.target as HTMLElement).closest(".sentinel-mic-fab")) return;
         onOpen();
       }}
       aria-label={label}
@@ -141,6 +146,33 @@ export function SentinelBuddy({
         alt=""
         draggable={false}
       />
+      {onVoice ? (
+        <span
+          className="sentinel-mic-fab"
+          role="button"
+          tabIndex={0}
+          aria-label={voiceLabel ?? "mic"}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            onVoice();
+          }}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              event.stopPropagation();
+              onVoice();
+            }
+          }}
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden>
+            <path
+              fill="currentColor"
+              d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"
+            />
+          </svg>
+        </span>
+      ) : null}
     </button>
   );
 }

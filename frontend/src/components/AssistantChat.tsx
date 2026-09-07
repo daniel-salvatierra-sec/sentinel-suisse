@@ -24,6 +24,7 @@ type Props = {
   onPoseChange?: (pose: SentinelPose | null) => void;
   onPointAccount?: () => void;
   onExecuteActions: (actions: SentinelaAction[]) => Promise<{ n: number }>;
+  startListening?: boolean;
 };
 
 const MAX_INPUT_CHARS = 500;
@@ -51,6 +52,7 @@ export function AssistantChat({
   onPoseChange,
   onPointAccount,
   onExecuteActions,
+  startListening = false,
 }: Props) {
   const [messages, setMessages] = useState<ChatRow[]>(loadAssistantMessages);
   const [input, setInput] = useState("");
@@ -60,7 +62,6 @@ export function AssistantChat({
   const listRef = useRef<HTMLDivElement | null>(null);
   const accountTimer = useRef<number>(0);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const canSpeak = Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
 
   useEffect(() => {
     saveAssistantMessages(messages.map(({ role, content }) => ({ role, content })));
@@ -159,7 +160,10 @@ export function AssistantChat({
       return;
     }
     const rec = createSpeechRecognition();
-    if (!rec) return;
+    if (!rec) {
+      setMessages((prev) => [...prev, { role: "assistant", content: t.assistantSpeakUnsupported }]);
+      return;
+    }
     rec.lang = SPEECH_LANG[lang] ?? "fr-CH";
     rec.interimResults = false;
     rec.onresult = (event) => {
@@ -174,9 +178,21 @@ export function AssistantChat({
     rec.onerror = () => stopListening();
     rec.onend = () => setListening(false);
     recognitionRef.current = rec;
-    rec.start();
-    setListening(true);
+    try {
+      rec.start();
+      setListening(true);
+    } catch {
+      recognitionRef.current = null;
+      setListening(false);
+    }
   };
+
+  useEffect(() => {
+    if (!startListening) return;
+    toggleVoice();
+    // Open-from-mic should start once; parent clears the flag on back.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startListening]);
 
   const onChip = async (id: string) => {
     const label = sentinelaChipLabel(t, id);
@@ -255,23 +271,22 @@ export function AssistantChat({
           onChange={(event) => setInput(event.target.value)}
           disabled={sending}
         />
-        {canSpeak ? (
-          <button
-            type="button"
-            className={`assistant-chat-mic${listening ? " is-listening" : ""}`}
-            aria-label={t.assistantSpeak}
-            aria-pressed={listening}
-            disabled={sending}
-            onClick={toggleVoice}
-          >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
-              <path
-                fill="currentColor"
-                d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"
-              />
-            </svg>
-          </button>
-        ) : null}
+        <button
+          type="button"
+          className={`assistant-chat-mic${listening ? " is-listening" : ""}`}
+          aria-label={t.assistantSpeak}
+          aria-pressed={listening}
+          disabled={sending}
+          onClick={toggleVoice}
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden>
+            <path
+              fill="currentColor"
+              d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"
+            />
+          </svg>
+          <span>{listening ? t.assistantListening : t.assistantSpeak}</span>
+        </button>
         <button type="submit" className="assistant-chat-send" disabled={sending || !input.trim()}>
           {t.assistantSend}
         </button>
