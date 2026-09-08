@@ -7,6 +7,7 @@ via the system prompt. Cost is bounded by the caller (rate limiting,
 max_output_tokens, input length) — see api/routes/assistant.py.
 """
 
+import base64
 import logging
 
 import httpx
@@ -132,4 +133,103 @@ def ask_assistant(
         raise AssistantError("assistant_upstream_error") from exc
     except (httpx.HTTPError, KeyError, IndexError, ValueError) as exc:
         logger.warning("Assistant call failed: %s", exc)
+        raise AssistantError("assistant_upstream_error") from exc
+
+
+_MAX_AUDIO_BYTES = 1_500_000
+
+
+def transcriptions_url(chat_completions_url: str) -> str:
+    if "generativelanguage.googleapis.com" in chat_completions_url:
+        return chat_completions_url
+    if "chat/completions" in chat_completions_url:
+        return chat_completions_url.replace("chat/completions", "audio/transcriptions")
+    return "https://api.openai.com/v1/audio/transcriptions"
+
+
+def _uses_gemini(url: str) -> bool:
+    return "generativelanguage.googleapis.com" in url
+
+
+def _transcribe_gemini(data: bytes, content_type: str, lang: str, settings: Settings) -> str:
+    language = _LANGUAGE_NAMES.get(lang, "French")
+    model = settings.assistant_model.strip() or "gemini-2.0-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    mime = content_type.split(";")[0].strip() or "audio/webm"
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": (
+                            f"Transcribe this voice message into {language}. "
+                            "Reply with only the transcript, no quotes or extra words."
+                        )
+                    },
+                    {
+                        "inline_data": {
+                            "mime_type": mime,
+                            "data": base64.b64encode(data).decode("ascii"),
+                        }
+                    },
+                ]
+            }
+        ]
+    }
+    response = httpx.post(
+        url,
+        json=payload,
+        headers={"x-goog-api-key": settings.assistant_api_key},
+        timeout=30.0,
+    )
+    response.raise_for_status()
+    parts = response.json()["candidates"][0]["content"]["parts"]
+    return " ".join(str(part.get("text") or "") for part in parts).strip()
+
+
+def transcribe_audio(
+    data: bytes,
+    filename: str,
+    content_type: str,
+    lang: str,
+    settings: Settings,
+) -> str:
+    """Speech-to-text: Whisper on OpenAI, or Gemini when chat uses Google."""
+    if not settings.assistant_is_enabled():
+        raise AssistantError("assistant_disabled")
+    if not data or len(data) > _MAX_AUDIO_BYTES:
+        raise AssistantError("audio_too_large")
+
+    language = lang if lang in _LANGUAGE_NAMES else "fr"
+    try:
+        if _uses_gemini(settings.assistant_api_base_url):
+            text = _transcribe_gemini(data, content_type, language, settings)
+        else:
+            headers = {"Authorization": f"Bearer {settings.assistant_api_key}"}
+            files = {
+                "file": (filename or "voice.webm", data, content_type or "application/octet-stream")
+            }
+            response = httpx.post(
+                transcriptions_url(settings.assistant_api_base_url),
+                data={"model": "whisper-1", "language": language},
+                files=files,
+                headers=headers,
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            text = str(response.json().get("text") or "").strip()
+        if not text:
+            raise AssistantError("empty_transcript")
+        return text[: settings.assistant_max_input_chars]
+    except AssistantError:
+        raise
+    except httpx.HTTPStatusError as exc:
+        logger.warning(
+            "Transcribe upstream error: %s %s",
+            exc.response.status_code,
+            exc.response.text[:300],
+        )
+        raise AssistantError("assistant_upstream_error") from exc
+    except (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError) as exc:
+        logger.warning("Transcribe call failed: %s", exc)
         raise AssistantError("assistant_upstream_error") from exc

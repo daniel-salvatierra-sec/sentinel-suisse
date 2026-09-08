@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { sendSentinelaTurn, type AssistantChatMessage } from "../api";
+import { sendSentinelaTurn, transcribeVoice, type AssistantChatMessage } from "../api";
 import { matchFaq } from "../assistantFaq";
 import { loadAssistantMessages, saveAssistantMessages } from "../guideStorage";
 import type { Messages } from "../i18n";
@@ -28,16 +28,11 @@ type Props = {
 
 const MAX_INPUT_CHARS = 500;
 
-const SPEECH_LANG: Record<string, string> = {
-  fr: "fr-CH",
-  de: "de-CH",
-  es: "es-ES",
-  pt: "pt-PT",
-  en: "en-US",
-};
+const RECORD_MS = 20000;
 
-function speechRecognitionCtor(): (new () => SpeechRecognition) | null {
-  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+function pickRecorderMime(): string {
+  const types = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"];
+  return types.find((type) => window.MediaRecorder?.isTypeSupported(type)) ?? "";
 }
 
 /** Sentinela chat: FAQ for facts, then a turn that moves the UI. */
@@ -59,7 +54,9 @@ export function AssistantChat({
   const [micHint, setMicHint] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const accountTimer = useRef<number>(0);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const recordTimer = useRef<number>(0);
 
   useEffect(() => {
     saveAssistantMessages(messages.map(({ role, content }) => ({ role, content })));
@@ -73,7 +70,8 @@ export function AssistantChat({
   useEffect(() => {
     return () => {
       window.clearTimeout(accountTimer.current);
-      recognitionRef.current?.abort();
+      window.clearTimeout(recordTimer.current);
+      recorderRef.current?.stop();
     };
   }, []);
 
@@ -145,73 +143,64 @@ export function AssistantChat({
     }
   };
 
-  const stopListening = () => {
-    const rec = recognitionRef.current;
-    recognitionRef.current = null;
-    rec?.stop();
+  const stopRecorder = () => {
+    window.clearTimeout(recordTimer.current);
+    const recorder = recorderRef.current;
+    recorderRef.current = null;
+    if (recorder && recorder.state !== "inactive") recorder.stop();
     setListening(false);
+  };
+
+  const finishRecording = async (blob: Blob) => {
+    if (!blob.size) {
+      setMicHint(t.assistantSpeakNeedMic);
+      return;
+    }
+    setMicHint(t.assistantSpeakTranscribing);
+    try {
+      const text = await transcribeVoice(blob, lang);
+      setInput(text);
+      setMicHint(null);
+      if (text) void send(text);
+    } catch {
+      setMicHint(t.assistantSpeakNetwork);
+    }
   };
 
   const toggleVoice = () => {
     if (sending) return;
     if (listening) {
-      stopListening();
+      stopRecorder();
       return;
     }
-    setMicHint(null);
-    const Ctor = speechRecognitionCtor();
-    if (!Ctor) {
+    if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === "undefined") {
       setMicHint(t.assistantSpeakUnsupported);
       return;
     }
-    const rec = new Ctor();
-    rec.lang = SPEECH_LANG[lang] ?? "fr-CH";
-    rec.interimResults = true;
-    rec.continuous = false;
-    rec.maxAlternatives = 1;
-    rec.onresult = (event) => {
-      const chunks: string[] = [];
-      let final = false;
-      for (let i = 0; i < event.results.length; i += 1) {
-        chunks.push(event.results[i][0].transcript);
-        if (event.results[i].isFinal) final = true;
-      }
-      const text = chunks.join(" ").trim();
-      if (text) setInput(text);
-      if (final && text) {
-        stopListening();
-        void send(text);
-      }
-    };
-    rec.onerror = (event) => {
-      if (event.error === "no-speech" || event.error === "aborted") {
-        stopListening();
-        return;
-      }
-      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+    setMicHint(null);
+    void navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        const mime = pickRecorderMime();
+        const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        chunksRef.current = [];
+        recorder.ondataavailable = (event) => {
+          if (event.data.size) chunksRef.current.push(event.data);
+        };
+        recorder.onstop = () => {
+          stream.getTracks().forEach((track) => track.stop());
+          const blob = new Blob(chunksRef.current, { type: recorder.mimeType || "audio/webm" });
+          chunksRef.current = [];
+          void finishRecording(blob);
+        };
+        recorderRef.current = recorder;
+        recorder.start(250);
+        setListening(true);
+        recordTimer.current = window.setTimeout(() => stopRecorder(), RECORD_MS);
+      })
+      .catch(() => {
         setMicHint(t.assistantSpeakNeedMic);
-      } else if (event.error === "network") {
-        setMicHint(t.assistantSpeakNetwork);
-      } else {
-        setMicHint(t.assistantSpeakUnsupported);
-      }
-      stopListening();
-    };
-    rec.onend = () => {
-      if (recognitionRef.current === rec) {
-        recognitionRef.current = null;
-        setListening(false);
-      }
-    };
-    recognitionRef.current = rec;
-    try {
-      rec.start();
-      setListening(true);
-    } catch {
-      recognitionRef.current = null;
-      setListening(false);
-      setMicHint(t.assistantSpeakNeedMic);
-    }
+      });
   };
 
   const onChip = async (id: string) => {

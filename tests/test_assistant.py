@@ -163,3 +163,79 @@ def test_assistant_chat_rejects_empty_message(client: TestClient, monkeypatch) -
     assert response.json()["detail"] == "empty_message"
 
     get_settings.cache_clear()
+
+
+def test_assistant_transcribe_success(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_API_KEY", "sk-test-fake")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    fake_response = MagicMock()
+    fake_response.raise_for_status = MagicMock()
+    fake_response.json.return_value = {"text": "busco piso en Ginebra"}
+
+    with patch(
+        "sentinel_suisse.services.assistant.httpx.post", return_value=fake_response
+    ) as mock_post:
+        response = client.post(
+            "/api/v1/assistant/transcribe",
+            data={"lang": "es"},
+            files={"file": ("voice.webm", b"fake-audio", "audio/webm")},
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["text"] == "busco piso en Ginebra"
+    assert mock_post.called
+    assert "audio/transcriptions" in mock_post.call_args.args[0]
+
+    get_settings.cache_clear()
+
+
+def test_assistant_transcribe_disabled(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_API_KEY", "")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    response = client.post(
+        "/api/v1/assistant/transcribe",
+        data={"lang": "fr"},
+        files={"file": ("voice.webm", b"fake-audio", "audio/webm")},
+    )
+    assert response.status_code == 503
+    get_settings.cache_clear()
+
+
+def test_assistant_transcribe_uses_gemini_when_configured(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setenv("ASSISTANT_API_KEY", "AIza-test-fake")
+    monkeypatch.setenv(
+        "ASSISTANT_API_BASE_URL",
+        "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+    )
+    monkeypatch.setenv("ASSISTANT_MODEL", "gemini-2.0-flash")
+    from sentinel_suisse.config import get_settings
+
+    get_settings.cache_clear()
+
+    fake_response = MagicMock()
+    fake_response.raise_for_status = MagicMock()
+    fake_response.json.return_value = {
+        "candidates": [{"content": {"parts": [{"text": "cherche un job a Geneve"}]}}]
+    }
+
+    with patch(
+        "sentinel_suisse.services.assistant.httpx.post", return_value=fake_response
+    ) as mock_post:
+        response = client.post(
+            "/api/v1/assistant/transcribe",
+            data={"lang": "fr"},
+            files={"file": ("voice.webm", b"fake-audio", "audio/webm")},
+        )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["text"] == "cherche un job a Geneve"
+    assert "generateContent" in mock_post.call_args.args[0]
+    assert mock_post.call_args.kwargs["headers"]["x-goog-api-key"] == "AIza-test-fake"
+
+    get_settings.cache_clear()

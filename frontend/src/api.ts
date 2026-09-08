@@ -655,6 +655,22 @@ export async function sendAssistantMessage(
   return data.reply;
 }
 
+export async function transcribeVoice(blob: Blob, lang: string): Promise<string> {
+  const body = new FormData();
+  const ext = blob.type.includes("mp4") ? "m4a" : "webm";
+  body.append("lang", lang);
+  body.append("file", blob, `voice.${ext}`);
+  const response = await fetch("/api/v1/assistant/transcribe", {
+    method: "POST",
+    body,
+  });
+  if (!response.ok) {
+    throw new Error("transcribe_error");
+  }
+  const data = (await response.json()) as { text: string };
+  return (data.text || "").trim();
+}
+
 export type SentinelaTurnRequest = {
   message: string;
   locale: string;

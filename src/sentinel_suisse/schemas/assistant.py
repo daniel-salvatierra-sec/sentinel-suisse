@@ -26,3 +26,7 @@ class AssistantChatRequest(BaseModel):
 
 class AssistantChatResponse(BaseModel):
     reply: str
+
+
+class AssistantTranscribeResponse(BaseModel):
+    text: str

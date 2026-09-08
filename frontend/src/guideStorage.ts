@@ -39,7 +39,8 @@ export function loadAssistantMessages(): { role: "user" | "assistant"; content: 
       (item): item is { role: "user" | "assistant"; content: string } =>
         Boolean(item) &&
         (item.role === "user" || item.role === "assistant") &&
-        typeof item.content === "string",
+        typeof item.content === "string" &&
+        !/LinkSwiss (dans|in|en|no) Chrome/i.test(item.content),
     );
   } catch {
     return [];
