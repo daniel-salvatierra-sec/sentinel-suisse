@@ -24,7 +24,6 @@ type Props = {
   onPoseChange?: (pose: SentinelPose | null) => void;
   onPointAccount?: () => void;
   onExecuteActions: (actions: SentinelaAction[]) => Promise<{ n: number }>;
-  startListening?: boolean;
 };
 
 const MAX_INPUT_CHARS = 500;
@@ -37,9 +36,8 @@ const SPEECH_LANG: Record<string, string> = {
   en: "en-US",
 };
 
-function createSpeechRecognition(): SpeechRecognition | null {
-  const Ctor = window.SpeechRecognition || window.webkitSpeechRecognition;
-  return Ctor ? new Ctor() : null;
+function speechRecognitionCtor(): (new () => SpeechRecognition) | null {
+  return window.SpeechRecognition || window.webkitSpeechRecognition || null;
 }
 
 /** Sentinela chat: FAQ for facts, then a turn that moves the UI. */
@@ -52,13 +50,13 @@ export function AssistantChat({
   onPoseChange,
   onPointAccount,
   onExecuteActions,
-  startListening = false,
 }: Props) {
   const [messages, setMessages] = useState<ChatRow[]>(loadAssistantMessages);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState(false);
   const [listening, setListening] = useState(false);
+  const [micHint, setMicHint] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement | null>(null);
   const accountTimer = useRef<number>(0);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -148,8 +146,9 @@ export function AssistantChat({
   };
 
   const stopListening = () => {
-    recognitionRef.current?.stop();
+    const rec = recognitionRef.current;
     recognitionRef.current = null;
+    rec?.stop();
     setListening(false);
   };
 
@@ -159,24 +158,51 @@ export function AssistantChat({
       stopListening();
       return;
     }
-    const rec = createSpeechRecognition();
-    if (!rec) {
-      setMessages((prev) => [...prev, { role: "assistant", content: t.assistantSpeakUnsupported }]);
+    setMicHint(null);
+    const Ctor = speechRecognitionCtor();
+    if (!Ctor) {
+      setMicHint(t.assistantSpeakUnsupported);
       return;
     }
+    const rec = new Ctor();
     rec.lang = SPEECH_LANG[lang] ?? "fr-CH";
-    rec.interimResults = false;
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
     rec.onresult = (event) => {
       const chunks: string[] = [];
+      let final = false;
       for (let i = 0; i < event.results.length; i += 1) {
         chunks.push(event.results[i][0].transcript);
+        if (event.results[i].isFinal) final = true;
       }
       const text = chunks.join(" ").trim();
-      stopListening();
-      if (text) void send(text);
+      if (text) setInput(text);
+      if (final && text) {
+        stopListening();
+        void send(text);
+      }
     };
-    rec.onerror = () => stopListening();
-    rec.onend = () => setListening(false);
+    rec.onerror = (event) => {
+      if (event.error === "no-speech" || event.error === "aborted") {
+        stopListening();
+        return;
+      }
+      if (event.error === "not-allowed" || event.error === "service-not-allowed") {
+        setMicHint(t.assistantSpeakNeedMic);
+      } else if (event.error === "network") {
+        setMicHint(t.assistantSpeakNetwork);
+      } else {
+        setMicHint(t.assistantSpeakUnsupported);
+      }
+      stopListening();
+    };
+    rec.onend = () => {
+      if (recognitionRef.current === rec) {
+        recognitionRef.current = null;
+        setListening(false);
+      }
+    };
     recognitionRef.current = rec;
     try {
       rec.start();
@@ -184,15 +210,9 @@ export function AssistantChat({
     } catch {
       recognitionRef.current = null;
       setListening(false);
+      setMicHint(t.assistantSpeakNeedMic);
     }
   };
-
-  useEffect(() => {
-    if (!startListening) return;
-    toggleVoice();
-    // Open-from-mic should start once; parent clears the flag on back.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [startListening]);
 
   const onChip = async (id: string) => {
     const label = sentinelaChipLabel(t, id);
@@ -291,6 +311,7 @@ export function AssistantChat({
           {t.assistantSend}
         </button>
       </form>
+      {micHint ? <p className="assistant-mic-hint">{micHint}</p> : null}
 
       <button type="button" className="guide-skip assistant-chat-back" onClick={onBack}>
         {t.assistantBack}

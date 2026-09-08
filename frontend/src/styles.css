@@ -525,29 +525,6 @@ body {
   animation: sentinel-talk-face 0.7s ease-in-out infinite;
 }
 
-.sentinel-mic-fab {
-  position: absolute;
-  left: 4%;
-  bottom: 18%;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 3.15rem;
-  height: 3.15rem;
-  border: 3px solid #fff;
-  border-radius: 999px;
-  background: var(--lake);
-  color: #fff;
-  box-shadow: 0 6px 18px rgba(26, 111, 138, 0.5);
-  pointer-events: auto;
-}
-
-.sentinel-buddy.dock-left .sentinel-mic-fab {
-  left: auto;
-  right: 6%;
-}
-
 .sentinel-buddy.zone-housing {
   filter:
     drop-shadow(0 0 16px rgba(52, 168, 110, 0.38))
@@ -1947,6 +1924,13 @@ body {
 .assistant-chat-mic:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.assistant-mic-hint {
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--danger);
 }
 
 @keyframes sentinel-mic-pulse {
