@@ -11,6 +11,7 @@ import json
 import smtplib
 import ssl
 import subprocess
+import sys
 import urllib.error
 import urllib.request
 from datetime import UTC, datetime, timedelta
@@ -211,6 +212,14 @@ def notify(env: dict[str, str], status: str, detail: str) -> None:
 
 def main() -> int:
     env = load_env()
+    if "--test" in sys.argv:
+        notify(
+            env,
+            "ok",
+            "Prueba del vigilante LinkSwiss. Si ves esto, el aviso funciona.\n",
+        )
+        print("test notify sent")
+        return 0
     health = fetch_health(env.get("OPS_HEALTH_URL") or HEALTH_URL)
     last_fetch = listing_last_fetch()
     status = classify(health, last_fetch)
