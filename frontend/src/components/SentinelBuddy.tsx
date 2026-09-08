@@ -34,7 +34,7 @@ type Props = {
   voiceLabel?: string;
 };
 
-const FACE_SRC = "/hub/sentinel-buddy.png?v=2";
+const FACE_SRC = "/hub/sentinel-buddy.png?v=3";
 
 function NamedCopy({ text, name }: { text: string; name: string }) {
   const parts = text.split("{name}");

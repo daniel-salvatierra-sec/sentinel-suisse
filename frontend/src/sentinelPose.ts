@@ -3,10 +3,10 @@ export type SentinelPose = "idle" | "account" | "search" | "think";
 const GESTURE_RE = /\[\[gesture:(idle|account|search|think)\]\]/gi;
 
 const POSE_SRC: Record<SentinelPose, string> = {
-  idle: "/hub/sentinel-figure.png?v=3",
-  account: "/hub/sentinel-figure-account.png?v=2",
-  search: "/hub/sentinel-figure-search.png?v=1",
-  think: "/hub/sentinel-figure-think.png?v=1",
+  idle: "/hub/sentinel-figure.png?v=4",
+  account: "/hub/sentinel-figure-account.png?v=3",
+  search: "/hub/sentinel-figure-search.png?v=2",
+  think: "/hub/sentinel-figure-think.png?v=2",
 };
 
 export function poseSrc(pose: SentinelPose): string {

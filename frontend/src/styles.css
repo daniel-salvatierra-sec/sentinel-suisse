@@ -517,7 +517,12 @@ body {
   width: auto;
   pointer-events: none;
   user-select: none;
-  transition: filter 0.55s ease;
+  transform-origin: 50% 100%;
+  animation: sentinel-idle 4.8s ease-in-out infinite;
+}
+
+.sentinel-figure.is-live {
+  animation: sentinel-talk-face 0.7s ease-in-out infinite;
 }
 
 .sentinel-mic-fab {
@@ -545,42 +550,24 @@ body {
 
 .sentinel-buddy.zone-housing {
   filter:
-    drop-shadow(0 0 18px rgba(52, 168, 110, 0.42))
+    drop-shadow(0 0 16px rgba(52, 168, 110, 0.38))
     drop-shadow(0 10px 16px rgba(8, 16, 24, 0.28));
-}
-
-.sentinel-buddy.zone-housing .sentinel-figure {
-  filter: hue-rotate(88deg) saturate(1.28) brightness(0.98) contrast(1.06);
 }
 
 .sentinel-buddy.zone-job {
   filter:
-    drop-shadow(0 0 16px rgba(236, 248, 255, 0.85))
+    drop-shadow(0 0 16px rgba(94, 200, 240, 0.42))
     drop-shadow(0 10px 16px rgba(8, 16, 24, 0.22));
-}
-
-.sentinel-buddy.zone-job .sentinel-figure {
-  filter: saturate(0.22) brightness(1.2) contrast(1.08);
 }
 
 .sentinel-face {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 28%;
+  object-position: center 18%;
   border-radius: inherit;
   display: block;
   pointer-events: none;
-  filter: contrast(1.05) saturate(1.08);
-  transition: filter 0.55s ease;
-}
-
-.sentinel-face.zone-housing {
-  filter: hue-rotate(88deg) saturate(1.25) contrast(1.06);
-}
-
-.sentinel-face.zone-job {
-  filter: saturate(0.28) brightness(1.18) contrast(1.06);
 }
 
 .guide-avatar.sentinel-avatar {
@@ -596,10 +583,10 @@ body {
 @keyframes sentinel-idle {
   0%,
   100% {
-    transform: scaleY(1);
+    transform: scale(1, 1);
   }
   50% {
-    transform: scaleY(1.012);
+    transform: scale(1.008, 1.018);
   }
 }
 
@@ -635,6 +622,14 @@ body {
   }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .sentinel-figure,
+  .sentinel-figure.is-live,
+  .guide-avatar.sentinel-avatar.is-talking {
+    animation: none;
+  }
+}
+
 .sheet-backdrop {
   align-items: flex-end;
 }
@@ -664,7 +659,7 @@ body {
 .guide-avatar.sentinel-avatar {
   width: 3.35rem;
   height: 3.35rem;
-  background: #0a0c10;
+  background: radial-gradient(circle at 50% 40%, #1a2a32 0%, #0a0c10 72%);
   color: #fff;
   display: grid;
   place-items: center;
