@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { type ListingType } from "../api";
 import {
   loadGuideSeen,
@@ -15,6 +15,10 @@ import { AssistantChat } from "./AssistantChat";
 import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
 const NUDGE_AFTER_MS = 5 * 60 * 1000;
+const CHECKIN_AFTER_MS = 14 * 1000;
+const CHECKIN_AGAIN_MS = 90 * 1000;
+
+type CheckIn = "off" | "found" | "help";
 
 type AccountIntent = "job" | "housing";
 
@@ -63,7 +67,10 @@ export function GuideBot({
   const [nudgeDue, setNudgeDue] = useState(false);
   const [accountPitch, setAccountPitch] = useState<AccountIntent | null>(null);
   const [byeHint, setByeHint] = useState(false);
+  const [gladHint, setGladHint] = useState(false);
   const [showPresent, setShowPresent] = useState(() => !loadPresentSeen());
+  const [checkIn, setCheckIn] = useState<CheckIn>("off");
+  const checkInSeen = useRef(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
 
@@ -91,7 +98,20 @@ export function GuideBot({
   }, [hasSession, showPresent]);
 
   useEffect(() => {
-    const bubbleOpen = showPresent || nudgeDue || Boolean(accountPitch) || byeHint;
+    if (showPresent || open || checkIn !== "off") {
+      return;
+    }
+    const wait = checkInSeen.current ? CHECKIN_AGAIN_MS : CHECKIN_AFTER_MS;
+    const timer = window.setTimeout(() => {
+      checkInSeen.current = true;
+      setCheckIn("found");
+    }, wait);
+    return () => window.clearTimeout(timer);
+  }, [showPresent, open, checkIn]);
+
+  useEffect(() => {
+    const bubbleOpen =
+      showPresent || nudgeDue || Boolean(accountPitch) || byeHint || checkIn !== "off";
     if (!bubbleOpen || open) return;
 
     const onPointerDown = (event: PointerEvent) => {
@@ -107,13 +127,17 @@ export function GuideBot({
         dismissNudge();
         return;
       }
+      if (checkIn !== "off") {
+        setCheckIn("off");
+        return;
+      }
       setAccountPitch(null);
       setByeHint(false);
     };
 
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [showPresent, nudgeDue, accountPitch, byeHint, open]);
+  }, [showPresent, nudgeDue, accountPitch, byeHint, open, checkIn]);
 
   const close = () => {
     saveGuideSeen();
@@ -131,43 +155,93 @@ export function GuideBot({
     chatPose ??
     (accountPitch
       ? "account"
-      : nudgeDue
-        ? "think"
-        : page === "account"
-          ? "account"
-          : page === "search"
-            ? "search"
-            : "idle");
+      : gladHint
+        ? "found"
+        : checkIn === "help"
+        ? "help"
+        : checkIn === "found"
+          ? "ask"
+          : nudgeDue
+            ? "think"
+            : page === "account"
+              ? "account"
+              : "idle");
 
-  const hint = byeHint
-    ? t.guideNudgeLater
+  const hint = gladHint
+    ? t.guideFoundGlad
+    : byeHint
+      ? t.guideNudgeLater
     : accountPitch === "job"
       ? t.guidePitchJob
       : accountPitch === "housing"
         ? t.guidePitchHome
-        : nudgeDue
-          ? t.guideNudgeMessage
-          : showPresent
-            ? t.assistantPresent
-            : undefined;
+        : checkIn === "help"
+          ? t.guideOfferHelp
+          : checkIn === "found"
+            ? t.guideAskFound
+            : nudgeDue
+              ? t.guideNudgeMessage
+              : showPresent
+                ? t.assistantPresent
+                : undefined;
 
   const hintChoices = accountPitch
     ? [{ id: "ok", label: t.guidePitchOk, quiet: true }]
-    : nudgeDue
+    : checkIn === "help"
       ? [
-          { id: "job", label: t.guideNudgeJob },
-          { id: "housing", label: t.guideNudgeHome },
-          { id: "no", label: t.guideNudgeNo, quiet: true },
+          { id: "help-talk", label: t.guideOfferTalk },
+          { id: "help-alerts", label: t.guideOfferAlerts },
+          { id: "help-later", label: t.guideNudgeNo, quiet: true },
         ]
-      : showPresent
+      : checkIn === "found"
         ? [
-            { id: "look-housing", label: t.guideLookHome },
-            { id: "look-job", label: t.guideLookJob },
-            { id: "look-both", label: t.guideLookBoth },
+            { id: "found-yes", label: t.guideAskFoundYes },
+            { id: "found-no", label: t.guideAskFoundNo },
           ]
-        : undefined;
+        : nudgeDue
+          ? [
+              { id: "job", label: t.guideNudgeJob },
+              { id: "housing", label: t.guideNudgeHome },
+              { id: "no", label: t.guideNudgeNo, quiet: true },
+            ]
+          : showPresent
+            ? [
+                { id: "look-housing", label: t.guideLookHome },
+                { id: "look-job", label: t.guideLookJob },
+                { id: "look-both", label: t.guideLookBoth },
+              ]
+            : undefined;
 
   const onHintChoice = (id: string) => {
+    if (id === "found-yes") {
+      setCheckIn("off");
+      setGladHint(true);
+      window.setTimeout(() => setGladHint(false), 3200);
+      return;
+    }
+    if (id === "found-no" || id === "help-talk") {
+      if (id === "found-no") {
+        setCheckIn("help");
+        return;
+      }
+      setCheckIn("off");
+      setOpen(true);
+      setChatMode(true);
+      setNeedsIntro(false);
+      saveGuideSeen();
+      return;
+    }
+    if (id === "help-alerts") {
+      setCheckIn("off");
+      onOpenAlerts();
+      return;
+    }
+    if (id === "help-later") {
+      setCheckIn("off");
+      setByeHint(true);
+      window.setTimeout(() => setByeHint(false), 2800);
+      return;
+    }
     if (id === "ok") {
       setAccountPitch(null);
       return;
@@ -203,7 +277,7 @@ export function GuideBot({
         zone={zone}
         pose={pose}
         searching={searching}
-        talking={chatBusy || Boolean(hint)}
+        talking={chatBusy}
         sheetOpen={open}
         dock={page === "account" || accountPitch ? "left" : "right"}
         label={t.fireflyLabel}
@@ -214,13 +288,22 @@ export function GuideBot({
         onOpen={() => {
           if (showPresent) {
             dismissPresent();
+            setCheckIn("help");
             return;
           }
-          if (nudgeDue || accountPitch || byeHint) {
+          if (checkIn === "found") {
+            setCheckIn("help");
+            return;
+          }
+          if (nudgeDue || accountPitch || byeHint || gladHint) {
             if (nudgeDue) dismissNudge();
             setAccountPitch(null);
             setByeHint(false);
+            setGladHint(false);
             return;
+          }
+          if (checkIn === "help") {
+            setCheckIn("off");
           }
           setOpen(true);
           setNeedsIntro(false);

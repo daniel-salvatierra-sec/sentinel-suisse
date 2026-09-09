@@ -1,20 +1,40 @@
-export type SentinelPose = "idle" | "account" | "search" | "think";
+export type SentinelPose =
+  | "idle"
+  | "sit"
+  | "wave"
+  | "think"
+  | "search"
+  | "account"
+  | "ask"
+  | "help"
+  | "listen"
+  | "found";
 
-const GESTURE_RE = /\[\[gesture:(idle|account|search|think)\]\]/gi;
+const POSE_NAMES =
+  "idle|sit|wave|think|search|account|ask|help|listen|found";
+const GESTURE_RE = new RegExp(`\\[\\[gesture:(${POSE_NAMES})\\]\\]`, "gi");
 
 const POSE_SRC: Record<SentinelPose, string> = {
   idle: "/hub/sentinel-figure.png?v=4",
-  account: "/hub/sentinel-figure-account.png?v=3",
-  search: "/hub/sentinel-figure-search.png?v=2",
+  sit: "/hub/sentinel-figure-sit.png?v=3",
+  wave: "/hub/sentinel-figure-wave.png?v=1",
   think: "/hub/sentinel-figure-think.png?v=2",
+  search: "/hub/sentinel-figure-search.png?v=2",
+  account: "/hub/sentinel-figure-account.png?v=3",
+  ask: "/hub/sentinel-figure-ask.png?v=1",
+  help: "/hub/sentinel-figure-help.png?v=1",
+  listen: "/hub/sentinel-figure-listen.png?v=1",
+  found: "/hub/sentinel-figure-found.png?v=1",
 };
+
+export const ALL_POSES = Object.keys(POSE_SRC) as SentinelPose[];
 
 export function poseSrc(pose: SentinelPose): string {
   return POSE_SRC[pose];
 }
 
 export function extractGesture(raw: string): { text: string; pose: SentinelPose | null } {
-  const tagged = /\[\[gesture:(idle|account|search|think)\]\]/i.exec(raw);
+  const tagged = new RegExp(`\\[\\[gesture:(${POSE_NAMES})\\]\\]`, "i").exec(raw);
   const text = raw.replace(GESTURE_RE, "").trim();
   if (tagged) {
     return { text, pose: tagged[1].toLowerCase() as SentinelPose };
@@ -27,6 +47,12 @@ export function inferPoseFromText(text: string): SentinelPose | null {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
+  if (/(encontre|encontraste|trouve|gefunden|encontraste|found)/.test(n)) {
+    return "ask";
+  }
+  if (/(ayud|aider|helfen|help|ajuda)/.test(n)) {
+    return "help";
+  }
   if (
     /(cuenta|compte|konto|account|premium|suscri|abonn|inscri|login|sesion)/.test(n)
   ) {

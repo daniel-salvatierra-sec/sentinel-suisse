@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { poseSrc, type SentinelPose } from "../sentinelPose";
+import { poseSrc, ALL_POSES, type SentinelPose } from "../sentinelPose";
 
-const POSES: SentinelPose[] = ["idle", "account", "search", "think"];
 const POINT_HOLD_MS = 5000;
+const IDLE_BEATS: SentinelPose[] = ["sit", "wave", "listen", "think", "found", "help", "sit"];
+const IDLE_BEAT_MS = 2400;
 
 if (typeof window !== "undefined") {
-  for (const pose of POSES) {
+  for (const pose of ALL_POSES) {
     const preload = new Image();
     preload.src = poseSrc(pose);
   }
@@ -83,22 +84,49 @@ export function SentinelBuddy({
   onHintChoice,
   onOpen,
 }: Props) {
-  const live = searching || talking || Boolean(hint);
+  const live = talking;
   const choices = hintChoices?.length && onHintChoice ? hintChoices : null;
   const [shownPose, setShownPose] = useState<SentinelPose>(pose);
+  const [hover, setHover] = useState(false);
+  const [idleBeat, setIdleBeat] = useState<SentinelPose>("sit");
 
   useEffect(() => {
     setShownPose(pose);
-    if (pose === "idle") return;
+    if (pose === "idle" || hint) return;
     const timer = window.setTimeout(() => setShownPose("idle"), POINT_HOLD_MS);
     return () => window.clearTimeout(timer);
-  }, [pose]);
+  }, [pose, hint]);
+
+  useEffect(() => {
+    const canFidget = pose === "idle" && shownPose === "idle" && !hover && !sheetOpen;
+    if (!canFidget) {
+      return;
+    }
+    let i = 0;
+    const tick = () => {
+      i = (i + 1) % IDLE_BEATS.length;
+      setIdleBeat(IDLE_BEATS[i]);
+    };
+    const first = window.setTimeout(tick, 900);
+    const timer = window.setInterval(tick, IDLE_BEAT_MS);
+    return () => {
+      window.clearTimeout(first);
+      window.clearInterval(timer);
+    };
+  }, [pose, shownPose, hover, sheetOpen]);
+
+  const hoverPose: SentinelPose = dock === "left" ? "account" : "help";
+  const displayPose = hover ? hoverPose : shownPose !== "idle" ? shownPose : idleBeat;
 
   return (
     <button
       type="button"
-      className={`sentinel-buddy zone-${zone} pose-${shownPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}`}
+      className={`sentinel-buddy zone-${zone} pose-${displayPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}${hover ? " is-hover" : ""}`}
       aria-hidden={sheetOpen}
+      onPointerEnter={(event) => {
+        if (event.pointerType === "mouse") setHover(true);
+      }}
+      onPointerLeave={() => setHover(false)}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest(".sentinel-hint-actions")) return;
         onOpen();
@@ -137,7 +165,7 @@ export function SentinelBuddy({
       ) : null}
       <img
         className={`sentinel-figure${live ? " is-live" : ""}`}
-        src={poseSrc(shownPose)}
+        src={poseSrc(displayPose)}
         alt=""
         draggable={false}
       />

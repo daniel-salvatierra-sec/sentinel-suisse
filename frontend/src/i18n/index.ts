@@ -160,6 +160,13 @@ export type Messages = {
   guide: string;
   sentinelName: string;
   assistantPresent: string;
+  guideAskFound: string;
+  guideAskFoundYes: string;
+  guideAskFoundNo: string;
+  guideOfferHelp: string;
+  guideOfferTalk: string;
+  guideOfferAlerts: string;
+  guideFoundGlad: string;
   guideLookHome: string;
   guideLookJob: string;
   guideLookBoth: string;
@@ -242,6 +249,10 @@ export type Messages = {
   sentinelaChipMap: string;
   sentinelaChipHowApply: string;
   sentinelaChipKeepLooking: string;
+  sentinelaChipGeneva: string;
+  sentinelaChipLausanne: string;
+  sentinelaChipZurich: string;
+  sentinelaChipCheaper: string;
   noResults: string;
   noResultsHousingNeighbor: string;
   loading: string;
