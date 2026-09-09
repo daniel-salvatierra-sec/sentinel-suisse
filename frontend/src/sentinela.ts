@@ -90,6 +90,10 @@ export function sentinelaChipLabel(t: Messages, id: string): string {
     keep_looking: t.sentinelaChipKeepLooking,
     look_home: t.guideLookHome,
     look_job: t.guideLookJob,
+    city_geneva: t.sentinelaChipGeneva,
+    city_lausanne: t.sentinelaChipLausanne,
+    city_zurich: t.sentinelaChipZurich,
+    cheaper: t.sentinelaChipCheaper,
   };
   return labels[id] ?? id;
 }
@@ -102,7 +106,5 @@ export const SENTINELA_CHIP_ACTIONS: Record<string, SentinelaAction[]> = {
     { type: "focus_map", payload: {} },
   ],
   keep_looking: [{ type: "switch_tab", payload: { tab: "list" } }],
-  look_home: [{ type: "set_mode", payload: { mode: "housing" } }],
-  look_job: [{ type: "set_mode", payload: { mode: "job" } }],
   how_apply: [{ type: "open_guide", payload: {} }],
 };

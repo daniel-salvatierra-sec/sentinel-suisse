@@ -522,19 +522,12 @@ body {
   width: auto;
   pointer-events: none;
   user-select: none;
-  transform-origin: 50% 100%;
-  animation: sentinel-idle 2.6s ease-in-out infinite;
+  transform: none;
+  animation: none;
 }
 
 .sentinel-figure.is-live {
-  animation: sentinel-talk-face 0.7s ease-in-out infinite;
-}
-
-.sentinel-buddy.is-hover .sentinel-figure,
-.sentinel-buddy.is-hover .sentinel-figure.is-live,
-.sentinel-buddy.pose-wave .sentinel-figure,
-.sentinel-buddy.pose-wave .sentinel-figure.is-live {
-  animation: sentinel-wave 0.85s ease-in-out infinite;
+  animation: none;
 }
 
 .sentinel-buddy.zone-housing {

@@ -73,6 +73,20 @@ export function GuideBot({
   const checkInSeen = useRef(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
+  const [restKey, setRestKey] = useState(0);
+  const [mood, setMood] = useState<SentinelPose | null>(null);
+  const prevUi = useRef({
+    searching,
+    count: 0,
+    listing: null as number | null,
+    tab: "",
+    mode: "",
+    query: "",
+    zone: "",
+    rooms: "",
+    price: "",
+    page: "",
+  });
 
   const dismissPresent = () => {
     savePresentSeen();
@@ -108,6 +122,60 @@ export function GuideBot({
     }, wait);
     return () => window.clearTimeout(timer);
   }, [showPresent, open, checkIn]);
+
+  useEffect(() => {
+    setMood(null);
+  }, [restKey]);
+
+  useEffect(() => {
+    const prev = prevUi.current;
+    const listingId = uiContext.open_listing?.id ?? null;
+    let next: SentinelPose | null = null;
+
+    if (searching && !prev.searching) {
+      next = "search";
+    } else if (prev.searching && !searching) {
+      next = uiContext.result_count > 0 ? "found" : page === "search" ? "think" : "sit";
+    } else if (listingId != null && listingId !== prev.listing) {
+      next = "found";
+    } else if (uiContext.tab !== prev.tab && prev.tab) {
+      if (uiContext.tab === "map") next = "search";
+      else if (uiContext.tab === "alerts") next = "help";
+      else if (uiContext.tab === "account" || uiContext.tab === "publish") next = "account";
+      else if (uiContext.tab === "list" && uiContext.result_count > 0) next = "sit";
+    } else if (
+      prev.mode &&
+      (uiContext.mode !== prev.mode ||
+        uiContext.zone !== prev.zone ||
+        uiContext.query !== prev.query ||
+        uiContext.rooms !== prev.rooms ||
+        uiContext.price_max !== prev.price)
+    ) {
+      next = searching ? "search" : "listen";
+    }
+
+    if (next) setMood(next);
+    prevUi.current = {
+      searching,
+      count: uiContext.result_count,
+      listing: listingId,
+      tab: uiContext.tab,
+      mode: uiContext.mode,
+      query: uiContext.query,
+      zone: uiContext.zone,
+      rooms: uiContext.rooms,
+      price: uiContext.price_max,
+      page,
+    };
+  }, [searching, uiContext, page]);
+
+  useEffect(() => {
+    if (!mood || (mood === "search" && searching)) {
+      return;
+    }
+    const timer = window.setTimeout(() => setMood(null), 60 * 1000);
+    return () => window.clearTimeout(timer);
+  }, [mood, searching]);
 
   useEffect(() => {
     const bubbleOpen =
@@ -153,19 +221,27 @@ export function GuideBot({
 
   const pose: SentinelPose =
     chatPose ??
-    (accountPitch
-      ? "account"
-      : gladHint
-        ? "found"
-        : checkIn === "help"
-        ? "help"
-        : checkIn === "found"
-          ? "ask"
-          : nudgeDue
-            ? "think"
-            : page === "account"
-              ? "account"
-              : "idle");
+    (open && chatBusy
+      ? "listen"
+      : accountPitch
+        ? "account"
+        : gladHint
+          ? "found"
+          : checkIn === "help"
+            ? "sit"
+            : checkIn === "found"
+              ? "ask"
+              : showPresent
+                ? "wave"
+                : nudgeDue
+                  ? "think"
+                  : page === "account"
+                    ? "account"
+                    : mood
+                      ? mood
+                      : page === "search" && uiContext.result_count > 0 && uiContext.tab === "list"
+                        ? "sit"
+                        : "idle");
 
   const hint = gladHint
     ? t.guideFoundGlad
@@ -216,6 +292,7 @@ export function GuideBot({
     if (id === "found-yes") {
       setCheckIn("off");
       setGladHint(true);
+      setMood("found");
       window.setTimeout(() => setGladHint(false), 3200);
       return;
     }
@@ -227,18 +304,21 @@ export function GuideBot({
       setCheckIn("off");
       setOpen(true);
       setChatMode(true);
+      setChatPose("listen");
       setNeedsIntro(false);
       saveGuideSeen();
       return;
     }
     if (id === "help-alerts") {
       setCheckIn("off");
+      setMood("help");
       onOpenAlerts();
       return;
     }
     if (id === "help-later") {
       setCheckIn("off");
       setByeHint(true);
+      setRestKey((n) => n + 1);
       window.setTimeout(() => setByeHint(false), 2800);
       return;
     }
@@ -250,11 +330,13 @@ export function GuideBot({
       saveNudgeSeen();
       setNudgeDue(false);
       setByeHint(true);
+      setRestKey((n) => n + 1);
       window.setTimeout(() => setByeHint(false), 2800);
       return;
     }
     if (id === "look-housing" || id === "look-job" || id === "look-both") {
       dismissPresent();
+      setMood(id === "look-both" ? "listen" : "search");
       if (id === "look-housing") onPickCategory("housing");
       else if (id === "look-job") onPickCategory("job");
       else onPickCategory("both");
@@ -285,6 +367,7 @@ export function GuideBot({
         hint={hint}
         hintChoices={hintChoices}
         onHintChoice={onHintChoice}
+        restKey={restKey}
         onOpen={() => {
           if (showPresent) {
             dismissPresent();
@@ -309,6 +392,7 @@ export function GuideBot({
           setNeedsIntro(false);
           saveGuideSeen();
           setChatMode(true);
+          setChatPose("listen");
         }}
       />
       {open && (

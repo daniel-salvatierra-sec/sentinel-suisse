@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
 import { poseSrc, ALL_POSES, type SentinelPose } from "../sentinelPose";
 
-const POINT_HOLD_MS = 5000;
-const IDLE_BEATS: SentinelPose[] = ["sit", "wave", "listen", "think", "found", "help", "sit"];
-const IDLE_BEAT_MS = 2400;
+const POSE_HOLD_MS = 60 * 1000;
 
 if (typeof window !== "undefined") {
   for (const pose of ALL_POSES) {
@@ -31,6 +29,8 @@ type Props = {
   hintChoices?: HintChoice[];
   onHintChoice?: (id: string) => void;
   onOpen: () => void;
+  /** Bump after "no thanks" so she leans on the wall again, then thinks. */
+  restKey?: number;
 };
 
 const FACE_SRC = "/hub/sentinel-buddy.png?v=3";
@@ -69,7 +69,7 @@ export function SentinelFace({
   );
 }
 
-/** Full-body cutout: a gesture lasts 5s, then she stands at ease. */
+/** Still figure. Parent pose is the reaction; idle leans on the wall, then thinks after 1 min. */
 export function SentinelBuddy({
   zone,
   pose = "idle",
@@ -83,50 +83,27 @@ export function SentinelBuddy({
   hintChoices,
   onHintChoice,
   onOpen,
+  restKey = 0,
 }: Props) {
-  const live = talking;
   const choices = hintChoices?.length && onHintChoice ? hintChoices : null;
-  const [shownPose, setShownPose] = useState<SentinelPose>(pose);
-  const [hover, setHover] = useState(false);
   const [idleBeat, setIdleBeat] = useState<SentinelPose>("sit");
 
   useEffect(() => {
-    setShownPose(pose);
-    if (pose === "idle" || hint) return;
-    const timer = window.setTimeout(() => setShownPose("idle"), POINT_HOLD_MS);
-    return () => window.clearTimeout(timer);
-  }, [pose, hint]);
-
-  useEffect(() => {
-    const canFidget = pose === "idle" && shownPose === "idle" && !hover && !sheetOpen;
-    if (!canFidget) {
+    if (pose !== "idle" || sheetOpen) {
       return;
     }
-    let i = 0;
-    const tick = () => {
-      i = (i + 1) % IDLE_BEATS.length;
-      setIdleBeat(IDLE_BEATS[i]);
-    };
-    const first = window.setTimeout(tick, 900);
-    const timer = window.setInterval(tick, IDLE_BEAT_MS);
-    return () => {
-      window.clearTimeout(first);
-      window.clearInterval(timer);
-    };
-  }, [pose, shownPose, hover, sheetOpen]);
+    setIdleBeat("sit");
+    const timer = window.setTimeout(() => setIdleBeat("think"), POSE_HOLD_MS);
+    return () => window.clearTimeout(timer);
+  }, [pose, sheetOpen, restKey]);
 
-  const hoverPose: SentinelPose = dock === "left" ? "account" : "help";
-  const displayPose = hover ? hoverPose : shownPose !== "idle" ? shownPose : idleBeat;
+  const displayPose = pose !== "idle" ? pose : idleBeat;
 
   return (
     <button
       type="button"
-      className={`sentinel-buddy zone-${zone} pose-${displayPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}${hover ? " is-hover" : ""}`}
+      className={`sentinel-buddy zone-${zone} pose-${displayPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}`}
       aria-hidden={sheetOpen}
-      onPointerEnter={(event) => {
-        if (event.pointerType === "mouse") setHover(true);
-      }}
-      onPointerLeave={() => setHover(false)}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest(".sentinel-hint-actions")) return;
         onOpen();

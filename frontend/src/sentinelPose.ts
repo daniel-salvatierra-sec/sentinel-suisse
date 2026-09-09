@@ -47,10 +47,13 @@ export function inferPoseFromText(text: string): SentinelPose | null {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-  if (/(encontre|encontraste|trouve|gefunden|encontraste|found)/.test(n)) {
-    return "ask";
+  if (/(hola|hello|bonjour|hallo|oi\b|buenas)/.test(n)) {
+    return "wave";
   }
-  if (/(ayud|aider|helfen|help|ajuda)/.test(n)) {
+  if (/(encontre|encontraste|trouve|gefunden|found|me gusta|este anuncio|abrir|voir|open)/.test(n)) {
+    return "found";
+  }
+  if (/(ayud|aider|helfen|help|ajuda|alerta|alert|aviso|whatsapp)/.test(n)) {
     return "help";
   }
   if (
@@ -58,12 +61,21 @@ export function inferPoseFromText(text: string): SentinelPose | null {
   ) {
     return "account";
   }
+  if (/(nada|empty|ningun|aucun|keine|sem resultado|no hay|0 anunc)/.test(n)) {
+    return "think";
+  }
+  if (/(mapa|carte|karte|map\b)/.test(n)) {
+    return "search";
+  }
   if (
-    /(alerta|alert|aviso|whatsapp|buscar|recherche|search|casa|trabajo|logement|emploi|job|vivienda|pisos)/.test(
+    /(buscar|recherche|search|casa|trabajo|logement|emploi|job|vivienda|pisos|ciudad|ville|city|ginebra|geneve|zurich|lausanne)/.test(
       n,
     )
   ) {
     return "search";
+  }
+  if (/(pregunt|question|dime|tell me|erzahl|espera|wait)/.test(n)) {
+    return "listen";
   }
   return null;
 }
