@@ -13,6 +13,8 @@ def test_proposed_refines_other_sectors() -> None:
     assert proposed_job_category("other", "Cuisinier de production") == "kitchen"
     assert proposed_job_category("other", "Réceptionniste d'hôtel") == "hotel"
     assert proposed_job_category("other", "Aide-soignant diplômé") == "care"
+    assert proposed_job_category("other", "Agent de nettoyage") == "cleaner"
+    assert proposed_job_category("other", "Hauswart 60%") == "concierge"
 
 
 def test_proposed_keeps_specific_category() -> None:

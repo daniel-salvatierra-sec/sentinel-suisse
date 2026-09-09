@@ -11,6 +11,7 @@ export const JOB_FIELDS = [
   "education",
   "logistics",
   "watchmaking",
+  "cleaning",
   "other",
 ] as const;
 
@@ -27,6 +28,7 @@ export const JOB_BRANCHES: Record<JobField, readonly string[]> = {
   education: ["teaching", "social", "public"],
   logistics: ["warehouse", "transport", "purchasing"],
   watchmaking: ["watchmaker", "jewelry", "microtech", "aftersales"],
+  cleaning: ["cleaner", "concierge"],
   other: ["legal", "creative", "science", "manufacturing", "property"],
 };
 

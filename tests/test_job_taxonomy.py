@@ -75,6 +75,11 @@ def test_unknown_adzuna_tag_uses_job_title() -> None:
     assert classify_job_category("Unknown", "Florist/-in EFZ, BP oder HFP") == "florist"
     assert classify_job_category("Unknown", "Fleuriste 80%") == "florist"
     assert classify_job_category("sales", "Caissière-vendeuse / caissier-vendeur") == "cashier"
+    assert classify_job_category("Unknown", "Agent de nettoyage 80%") == "cleaner"
+    assert classify_job_category("Unknown", "Hauswart / Abwart 100%") == "concierge"
+    assert classify_job_category("other", "Conserje de inmueble") == "concierge"
+    assert classify_job_category("other", "Femme de ménage Genève") == "cleaner"
+    assert canonical_job_category("domestic-help-cleaning-jobs") == "cleaner"
 
 
 def test_logistics_and_purchasing_titles() -> None:

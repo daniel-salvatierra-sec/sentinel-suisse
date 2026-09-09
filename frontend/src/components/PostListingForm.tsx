@@ -57,6 +57,7 @@ function fieldLabel(t: Messages, field: JobField): string {
     education: t.jobCatEducation,
     logistics: t.jobCatLogistics,
     watchmaking: t.jobCatWatchmaking,
+    cleaning: t.jobCatCleaning,
     other: t.jobCatOther,
   };
   return map[field];

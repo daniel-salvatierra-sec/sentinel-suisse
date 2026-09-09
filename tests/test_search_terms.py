@@ -28,6 +28,8 @@ def test_city_query_stays_literal() -> None:
 def test_occupation_words_look_like_jobs() -> None:
     assert query_looks_like_job("floristeria") is True
     assert query_looks_like_job("cajero") is True
+    assert query_looks_like_job("limpieza") is True
+    assert query_looks_like_job("conserje") is True
     assert query_looks_like_job("Geneva") is False
     assert query_looks_like_job("Sion") is False
     assert query_looks_like_job("Lucerne") is False
@@ -46,6 +48,8 @@ def test_occupation_words_look_like_jobs() -> None:
         ("vendeur", "vendeur"),
         ("enfermero", "infirmier"),
         ("desarrollador", "developer"),
+        ("limpieza", "nettoyage"),
+        ("conserje", "concierge"),
     ],
 )
 def test_common_occupation_queries_expand(query: str, needle: str) -> None:

@@ -62,6 +62,7 @@ export type Messages = {
   jobCatEducation: string;
   jobCatLogistics: string;
   jobCatWatchmaking: string;
+  jobCatCleaning: string;
   jobCatOther: string;
   jobBranch_software: string;
   jobBranch_soc: string;
@@ -110,6 +111,8 @@ export type Messages = {
   jobBranch_science: string;
   jobBranch_manufacturing: string;
   jobBranch_property: string;
+  jobBranch_cleaner: string;
+  jobBranch_concierge: string;
   jobRole_bus: string;
   jobRole_truck: string;
   jobRole_delivery: string;

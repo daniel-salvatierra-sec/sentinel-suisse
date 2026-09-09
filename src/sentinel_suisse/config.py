@@ -200,7 +200,8 @@ class Settings(BaseSettings):
         "cuisinier,serveur,receptionniste,chef de rang,"
         "horloger,polisseur,uhrmacher,rhabilleur,"
         "comptable,fiduciaire,banquier,assurance,"
-        "vendeur,commercial,enseignant,educateur,secrétaire"
+        "vendeur,commercial,enseignant,educateur,secrétaire,"
+        "nettoyage,hauswart,concierge,reinigung,Abwart"
     )
     jobup_locations: str = (
         "Genève,Zurich,Bern,Basel,Lausanne,Lugano,Luzern,St. Gallen,Winterthur,"
