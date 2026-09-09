@@ -75,6 +75,7 @@ export function GuideBot({
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
   const [restKey, setRestKey] = useState(0);
   const [mood, setMood] = useState<SentinelPose | null>(null);
+  const [accountTip, setAccountTip] = useState(true);
   const prevUi = useRef({
     searching,
     count: 0,
@@ -122,6 +123,12 @@ export function GuideBot({
     }, wait);
     return () => window.clearTimeout(timer);
   }, [showPresent, open, checkIn]);
+
+  useEffect(() => {
+    if (page === "account" && !hasSession) {
+      setAccountTip(true);
+    }
+  }, [page, hasSession]);
 
   useEffect(() => {
     setMood(null);
@@ -177,9 +184,26 @@ export function GuideBot({
     return () => window.clearTimeout(timer);
   }, [mood, searching]);
 
+  const showAccountTip =
+    page === "account" &&
+    !hasSession &&
+    accountTip &&
+    !accountPitch &&
+    !showPresent &&
+    !nudgeDue &&
+    !byeHint &&
+    !gladHint &&
+    checkIn === "off" &&
+    !open;
+
   useEffect(() => {
     const bubbleOpen =
-      showPresent || nudgeDue || Boolean(accountPitch) || byeHint || checkIn !== "off";
+      showPresent ||
+      nudgeDue ||
+      Boolean(accountPitch) ||
+      byeHint ||
+      checkIn !== "off" ||
+      showAccountTip;
     if (!bubbleOpen || open) return;
 
     const onPointerDown = (event: PointerEvent) => {
@@ -199,13 +223,17 @@ export function GuideBot({
         setCheckIn("off");
         return;
       }
+      if (showAccountTip) {
+        setAccountTip(false);
+        return;
+      }
       setAccountPitch(null);
       setByeHint(false);
     };
 
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [showPresent, nudgeDue, accountPitch, byeHint, open, checkIn]);
+  }, [showPresent, nudgeDue, accountPitch, byeHint, open, checkIn, showAccountTip]);
 
   const close = () => {
     saveGuideSeen();
@@ -235,7 +263,7 @@ export function GuideBot({
                 ? "wave"
                 : nudgeDue
                   ? "think"
-                  : page === "account"
+                  : page === "account" && !hasSession
                     ? "account"
                     : mood
                       ? mood
@@ -259,7 +287,9 @@ export function GuideBot({
               ? t.guideNudgeMessage
               : showPresent
                 ? t.assistantPresent
-                : undefined;
+                : showAccountTip
+                  ? t.guidePointAccount
+                  : undefined;
 
   const hintChoices = accountPitch
     ? [{ id: "ok", label: t.guidePitchOk, quiet: true }]
@@ -361,7 +391,7 @@ export function GuideBot({
         searching={searching}
         talking={chatBusy}
         sheetOpen={open}
-        dock={page === "account" || accountPitch ? "left" : "right"}
+        dock="right"
         label={t.fireflyLabel}
         name={t.sentinelName}
         hint={hint}

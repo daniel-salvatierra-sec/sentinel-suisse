@@ -706,13 +706,14 @@ export default function App() {
           className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
           data-sentinela="account"
           onClick={() => {
+            setPreferSignup(true);
             setTab("account");
-            window.requestAnimationFrame(() => {
-              document.getElementById("tabs-panel")?.scrollIntoView({
+            window.setTimeout(() => {
+              document.getElementById("signup")?.scrollIntoView({
                 behavior: "smooth",
-                block: "start",
+                block: "center",
               });
-            });
+            }, 100);
           }}
         >
           {t.account}
@@ -1042,11 +1043,17 @@ export default function App() {
         }}
         onOpenAccount={(intent) => {
           setHubFocused(true);
+          setPreferSignup(true);
           if (intent === "job" || intent === "housing") {
             setCategory(intent);
-            setPreferSignup(true);
           }
           setTab("account");
+          window.setTimeout(() => {
+            document.getElementById("signup")?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }, 100);
         }}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
         uiContext={{

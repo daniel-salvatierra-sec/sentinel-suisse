@@ -403,16 +403,43 @@ body {
   right: auto;
 }
 
-/* Size bump only on PC — this must come after the base 260px height. */
+/* Account pose points up-left in the PNG: stay on the right so the finger aims at the form. */
+.sentinel-buddy.pose-account,
+.sentinel-buddy.pose-account.dock-left {
+  left: auto;
+  right: 0;
+}
+
+@media (min-width: 900px) {
+  .sentinel-buddy.pose-account,
+  .sentinel-buddy.pose-account.dock-left {
+    right: 1.5rem;
+    left: auto;
+  }
+}
+
+/* PC size — keep full body large; only the speech bubble is lowered. */
 @media (min-width: 900px) {
   .sentinel-buddy {
     right: 1.5rem;
     bottom: calc(2.25rem + env(safe-area-inset-bottom, 0px));
     height: min(82vh, 780px);
+    overflow: visible;
   }
 
   .sentinel-buddy.dock-left {
     left: 1.5rem;
+    right: auto;
+  }
+
+  .sentinel-hint {
+    bottom: 12%;
+    right: 62%;
+    max-width: 15.5rem;
+  }
+
+  .sentinel-buddy.dock-left .sentinel-hint {
+    left: 62%;
     right: auto;
   }
 }
@@ -430,9 +457,9 @@ body {
 
 .sentinel-hint {
   position: absolute;
-  right: 72%;
+  right: 68%;
   top: auto;
-  bottom: 58%;
+  bottom: 36%;
   max-width: 14.5rem;
   white-space: normal;
   background: #fff;
