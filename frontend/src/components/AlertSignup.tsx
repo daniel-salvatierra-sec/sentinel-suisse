@@ -122,6 +122,11 @@ export function AlertSignup({
           {showHeader && (
             <>
               <h2 className="account-signup-heading">{t.accountSignupTitle}</h2>
+              <p className="premium-launch-badge" role="status">
+                {t.premiumLaunchOfferTitle
+                  .replace("{percent}", "50")
+                  .replace("{months}", "3")}
+              </p>
               <p>{t.accountSignupDesc}</p>
             </>
           )}

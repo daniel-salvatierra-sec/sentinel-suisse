@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchMe,
+  fetchSavedSearches,
   fetchStockedCities,
   fetchSponsors,
   getApiKey,
@@ -163,6 +164,9 @@ export default function App() {
   const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
   const [acceptProfile, setAcceptProfile] = useState<AcceptProfile | null>(null);
+  const [isPremium, setIsPremium] = useState(false);
+  const [alertHousing, setAlertHousing] = useState(false);
+  const [alertJob, setAlertJob] = useState(false);
 
   const t = messages[lang];
 
@@ -173,15 +177,27 @@ export default function App() {
   useEffect(() => {
     if (!getApiKey()) {
       setAcceptProfile(null);
+      setIsPremium(false);
+      setAlertHousing(false);
+      setAlertJob(false);
       return;
     }
     let cancelled = false;
-    void fetchMe()
-      .then((me) => {
-        if (!cancelled) setAcceptProfile(me.accept_profile ?? null);
+    void Promise.all([fetchMe(), fetchSavedSearches()])
+      .then(([me, searches]) => {
+        if (cancelled) return;
+        setAcceptProfile(me.accept_profile ?? null);
+        setIsPremium(Boolean(me.is_premium));
+        const active = searches.filter((item) => item.is_active);
+        setAlertHousing(active.some((item) => item.query?.listing_type === "housing"));
+        setAlertJob(active.some((item) => item.query?.listing_type === "job"));
       })
       .catch(() => {
-        if (!cancelled) setAcceptProfile(null);
+        if (cancelled) return;
+        setAcceptProfile(null);
+        setIsPremium(false);
+        setAlertHousing(false);
+        setAlertJob(false);
       });
     return () => {
       cancelled = true;
@@ -1023,6 +1039,9 @@ export default function App() {
         }
         searching={loading || loadingMore}
         hasSession={hasSession}
+        isPremium={isPremium}
+        alertHousing={alertHousing}
+        alertJob={alertJob}
         onPickCategory={(type) => {
           if (type === "both") {
             setHubFocused(false);

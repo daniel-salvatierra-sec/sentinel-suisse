@@ -17,8 +17,12 @@ import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 const NUDGE_AFTER_MS = 5 * 60 * 1000;
 const CHECKIN_AFTER_MS = 14 * 1000;
 const CHECKIN_AGAIN_MS = 90 * 1000;
+const CARE_PHRASE_COUNT = 10;
+const CARE_IDX_KEY = "linkswiss.care.idx";
 
 type CheckIn = "off" | "found" | "help";
+type CareMode = "off" | "pick" | "ask";
+type CareLane = "housing" | "job";
 
 type AccountIntent = "job" | "housing";
 
@@ -29,6 +33,9 @@ type Props = {
   page: "overview" | "search" | "account";
   searching: boolean;
   hasSession: boolean;
+  isPremium?: boolean;
+  alertHousing?: boolean;
+  alertJob?: boolean;
   onPickCategory: (type: ListingType | "both") => void;
   onOpenAlerts: (type?: ListingType) => void;
   onStartSearch: (location: string) => void;
@@ -38,6 +45,25 @@ type Props = {
   uiContext: SentinelaUiContext;
   onExecuteActions: (actions: SentinelaAction[]) => Promise<{ n: number }>;
 };
+
+function nextCareIndex(lane: CareLane): number {
+  try {
+    const raw = sessionStorage.getItem(`${CARE_IDX_KEY}.${lane}`);
+    const prev = raw ? Number(raw) : -1;
+    const next = Number.isFinite(prev) ? (prev + 1) % CARE_PHRASE_COUNT : 0;
+    sessionStorage.setItem(`${CARE_IDX_KEY}.${lane}`, String(next));
+    return next;
+  } catch {
+    return Math.floor(Math.random() * CARE_PHRASE_COUNT);
+  }
+}
+
+function carePhrase(t: Messages, lane: CareLane, index: number): string {
+  const n = (index % CARE_PHRASE_COUNT) + 1;
+  const key = `${lane === "housing" ? "guidePremiumHome" : "guidePremiumJob"}${n}` as keyof Messages;
+  const value = t[key];
+  return typeof value === "string" ? value : "";
+}
 
 /**
  * Sentinela: greets once; tap outside the answers hides the bubble.
@@ -50,6 +76,9 @@ export function GuideBot({
   page,
   searching,
   hasSession,
+  isPremium = false,
+  alertHousing = false,
+  alertJob = false,
   onPickCategory,
   onOpenAlerts,
   onStartSearch,
@@ -71,6 +100,10 @@ export function GuideBot({
   const [showPresent, setShowPresent] = useState(() => !loadPresentSeen());
   const [checkIn, setCheckIn] = useState<CheckIn>("off");
   const checkInSeen = useRef(false);
+  const [care, setCare] = useState<CareMode>("off");
+  const [careLane, setCareLane] = useState<CareLane | null>(null);
+  const [careIndex, setCareIndex] = useState(0);
+  const careSeen = useRef(false);
   const [chatBusy, setChatBusy] = useState(false);
   const [chatPose, setChatPose] = useState<SentinelPose | null>(null);
   const [restKey, setRestKey] = useState(0);
@@ -112,17 +145,40 @@ export function GuideBot({
     return () => window.clearTimeout(timer);
   }, [hasSession, showPresent]);
 
+  const premiumCareReady = isPremium && (alertHousing || alertJob);
+
+  const startCareAsk = (lane: CareLane) => {
+    setCareLane(lane);
+    setCareIndex(nextCareIndex(lane));
+    setCare("ask");
+  };
+
   useEffect(() => {
-    if (showPresent || open || checkIn !== "off") {
+    if (showPresent || open || checkIn !== "off" || care !== "off") {
       return;
     }
-    const wait = checkInSeen.current ? CHECKIN_AGAIN_MS : CHECKIN_AFTER_MS;
+    const wait = premiumCareReady
+      ? careSeen.current
+        ? CHECKIN_AGAIN_MS
+        : CHECKIN_AFTER_MS
+      : checkInSeen.current
+        ? CHECKIN_AGAIN_MS
+        : CHECKIN_AFTER_MS;
     const timer = window.setTimeout(() => {
+      if (premiumCareReady) {
+        careSeen.current = true;
+        if (alertHousing && alertJob) {
+          setCare("pick");
+          return;
+        }
+        startCareAsk(alertHousing ? "housing" : "job");
+        return;
+      }
       checkInSeen.current = true;
       setCheckIn("found");
     }, wait);
     return () => window.clearTimeout(timer);
-  }, [showPresent, open, checkIn]);
+  }, [showPresent, open, checkIn, care, premiumCareReady, alertHousing, alertJob]);
 
   useEffect(() => {
     if (page === "account" && !hasSession) {
@@ -194,6 +250,7 @@ export function GuideBot({
     !byeHint &&
     !gladHint &&
     checkIn === "off" &&
+    care === "off" &&
     !open;
 
   useEffect(() => {
@@ -203,6 +260,7 @@ export function GuideBot({
       Boolean(accountPitch) ||
       byeHint ||
       checkIn !== "off" ||
+      care !== "off" ||
       showAccountTip;
     if (!bubbleOpen || open) return;
 
@@ -223,6 +281,11 @@ export function GuideBot({
         setCheckIn("off");
         return;
       }
+      if (care !== "off") {
+        setCare("off");
+        setCareLane(null);
+        return;
+      }
       if (showAccountTip) {
         setAccountTip(false);
         return;
@@ -233,7 +296,7 @@ export function GuideBot({
 
     document.addEventListener("pointerdown", onPointerDown);
     return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [showPresent, nudgeDue, accountPitch, byeHint, open, checkIn, showAccountTip]);
+  }, [showPresent, nudgeDue, accountPitch, byeHint, open, checkIn, care, showAccountTip]);
 
   const close = () => {
     saveGuideSeen();
@@ -255,7 +318,9 @@ export function GuideBot({
         ? "account"
         : gladHint
           ? "found"
-          : checkIn === "help"
+          : care === "pick" || care === "ask"
+            ? "ask"
+            : checkIn === "help"
             ? "sit"
             : checkIn === "found"
               ? "ask"
@@ -279,7 +344,11 @@ export function GuideBot({
       ? t.guidePitchJob
       : accountPitch === "housing"
         ? t.guidePitchHome
-        : checkIn === "help"
+        : care === "pick"
+          ? t.guidePremiumPick
+          : care === "ask" && careLane
+            ? carePhrase(t, careLane, careIndex)
+            : checkIn === "help"
           ? t.guideOfferHelp
           : checkIn === "found"
             ? t.guideAskFound
@@ -293,6 +362,18 @@ export function GuideBot({
 
   const hintChoices = accountPitch
     ? [{ id: "ok", label: t.guidePitchOk, quiet: true }]
+    : care === "pick"
+      ? [
+          { id: "care-home", label: t.guidePremiumPickHome },
+          { id: "care-job", label: t.guidePremiumPickJob },
+          { id: "care-later", label: t.guidePremiumLater, quiet: true },
+        ]
+      : care === "ask"
+        ? [
+            { id: "care-yes", label: t.guidePremiumYes },
+            { id: "care-alerts", label: t.guidePremiumRefine },
+            { id: "care-later", label: t.guidePremiumLater, quiet: true },
+          ]
     : checkIn === "help"
       ? [
           { id: "help-talk", label: t.guideOfferTalk },
@@ -319,6 +400,49 @@ export function GuideBot({
             : undefined;
 
   const onHintChoice = (id: string) => {
+    if (id === "care-home") {
+      startCareAsk("housing");
+      return;
+    }
+    if (id === "care-job") {
+      startCareAsk("job");
+      return;
+    }
+    if (id === "care-yes") {
+      const lane = careLane;
+      const idx = careIndex;
+      setCare("off");
+      setCareLane(null);
+      if (idx === 9) {
+        if (lane === "housing") onPickCategory("housing");
+        if (lane === "job") onPickCategory("job");
+        onOpenMap();
+        return;
+      }
+      if (lane === "housing") onPickCategory("housing");
+      if (lane === "job") onPickCategory("job");
+      setOpen(true);
+      setChatMode(true);
+      setChatPose("listen");
+      setNeedsIntro(false);
+      saveGuideSeen();
+      return;
+    }
+    if (id === "care-alerts") {
+      const lane = careLane;
+      setCare("off");
+      setCareLane(null);
+      onOpenAlerts(lane ?? undefined);
+      return;
+    }
+    if (id === "care-later") {
+      setCare("off");
+      setCareLane(null);
+      setByeHint(true);
+      setRestKey((n) => n + 1);
+      window.setTimeout(() => setByeHint(false), 2800);
+      return;
+    }
     if (id === "found-yes") {
       setCheckIn("off");
       setGladHint(true);
@@ -407,6 +531,13 @@ export function GuideBot({
           if (checkIn === "found") {
             setCheckIn("help");
             return;
+          }
+          if (care === "pick") {
+            return;
+          }
+          if (care === "ask") {
+            setCare("off");
+            setCareLane(null);
           }
           if (nudgeDue || accountPitch || byeHint || gladHint) {
             if (nudgeDue) dismissNudge();
