@@ -141,7 +141,7 @@ export function SentinelBuddy({
         </span>
       ) : null}
       <img
-        className={`sentinel-figure${live ? " is-live" : ""}`}
+        className="sentinel-figure"
         src={poseSrc(displayPose)}
         alt=""
         draggable={false}
