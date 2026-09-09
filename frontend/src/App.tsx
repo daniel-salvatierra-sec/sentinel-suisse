@@ -737,7 +737,17 @@ export default function App() {
         </button>
       </div>
       <header className="hero">
-        <h1>{t.appName}</h1>
+        <div className="hero-brand">
+          <img
+            className="hero-logo"
+            src="/icons/icon-192.png?v=d1"
+            alt=""
+            width={56}
+            height={56}
+            decoding="async"
+          />
+          <h1>{t.appName}</h1>
+        </div>
         <p>{t.tagline}</p>
         <div className="hero-actions">
           <ShareAppButton t={t} />

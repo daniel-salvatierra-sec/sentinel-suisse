@@ -192,6 +192,21 @@ body {
   filter: brightness(1.03);
 }
 
+.hero-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.hero-logo {
+  width: 3.35rem;
+  height: 3.35rem;
+  border-radius: 0.85rem;
+  flex-shrink: 0;
+  box-shadow: 0 6px 16px rgba(28, 45, 40, 0.12);
+  background: #fff;
+}
+
 .hero h1 {
   margin: 0;
   font-size: clamp(2.1rem, 7vw, 2.45rem);
