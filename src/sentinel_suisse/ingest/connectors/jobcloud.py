@@ -125,6 +125,10 @@ def workload_from_title(title: str) -> tuple[int | None, int | None]:
         return None, None
     low = int(match.group(1))
     high = int(match.group(2)) if match.group(2) else low
+    if low < 0 or low > 100 or high < 0 or high > 100:
+        return None, None
+    if low > high:
+        low, high = high, low
     return low, high
 
 

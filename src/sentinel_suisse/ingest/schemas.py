@@ -1,10 +1,24 @@
 """Parsed listing ready for database upsert."""
 
 from decimal import Decimal
+from typing import Any
 
-from pydantic import BaseModel, Field, HttpUrl, model_validator
+from pydantic import BaseModel, Field, HttpUrl, field_validator, model_validator
 
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
+
+
+def _normalize_workload_percent(value: Any) -> int | None:
+    """Keep Swiss pensum % (0–100). Drop garbage like 360 so one ad cannot abort ingest."""
+    if value is None or value == "":
+        return None
+    try:
+        number = int(value)
+    except (TypeError, ValueError):
+        return None
+    if number < 0 or number > 100:
+        return None
+    return number
 
 
 class RawListing(BaseModel):
@@ -25,6 +39,11 @@ class RawListing(BaseModel):
     workload_max: int | None = Field(default=None, ge=0, le=100)
     source_url: HttpUrl
     raw_payload: dict | None = None
+
+    @field_validator("workload_min", "workload_max", mode="before")
+    @classmethod
+    def coerce_workload_percent(cls, value: Any) -> int | None:
+        return _normalize_workload_percent(value)
 
     @model_validator(mode="after")
     def validate_workload_range(self) -> "RawListing":

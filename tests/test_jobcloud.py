@@ -44,6 +44,7 @@ def test_map_json_ld_job_posting() -> None:
 def test_workload_from_title() -> None:
     assert workload_from_title("Collaborateur vente 30%") == (30, 30)
     assert workload_from_title("Engineer 80-100%") == (80, 100)
+    assert workload_from_title("Odd pensum 360%") == (None, None)
 
 
 def test_employment_type_from_french_label() -> None:
