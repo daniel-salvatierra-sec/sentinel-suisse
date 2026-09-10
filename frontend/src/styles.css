@@ -201,10 +201,11 @@ body {
 .hero-logo {
   width: 3.35rem;
   height: 3.35rem;
-  border-radius: 0.85rem;
+  border-radius: 0;
   flex-shrink: 0;
-  box-shadow: 0 6px 16px rgba(28, 45, 40, 0.12);
-  background: #fff;
+  box-shadow: none;
+  background: transparent;
+  object-fit: contain;
 }
 
 .hero h1 {
