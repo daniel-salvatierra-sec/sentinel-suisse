@@ -199,13 +199,14 @@ body {
 }
 
 .hero-logo {
-  width: 3.35rem;
-  height: 3.35rem;
+  width: 3.85rem;
+  height: 3.85rem;
   border-radius: 0;
   flex-shrink: 0;
   box-shadow: none;
   background: transparent;
   object-fit: contain;
+  display: block;
 }
 
 .hero h1 {

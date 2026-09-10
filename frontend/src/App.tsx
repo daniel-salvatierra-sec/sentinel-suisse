@@ -740,7 +740,7 @@ export default function App() {
         <div className="hero-brand">
           <img
             className="hero-logo"
-            src="/icons/icon-192.png?v=ls-gold2"
+            src="/icons/icon-192.png?v=ls-gold3"
             alt=""
             width={56}
             height={56}
