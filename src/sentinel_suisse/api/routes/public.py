@@ -32,7 +32,6 @@ from sentinel_suisse.schemas.sponsor_ad import SponsorAdPublic, SponsorEventKind
 from sentinel_suisse.services.city_stock import list_stocked_picker_cities
 from sentinel_suisse.services.email_verification import (
     send_channel_verification_email,
-    send_channel_verification_whatsapp,
     verify_channel_by_token,
     verify_email_channel,
 )
@@ -212,19 +211,10 @@ def public_signup(
             user_id=result.user.id,
         )
         verification_email_sent = True
-        if payload.phone and result.whatsapp_channel_id is not None:
-            send_channel_verification_whatsapp(
-                settings,
-                phone=payload.phone,
-                locale=payload.locale,
-                channel_id=result.whatsapp_channel_id,
-                user_id=result.user.id,
-            )
-            whatsapp_verification_sent = True
+        # WhatsApp verify/send only once Premium is active (Meta + entitlement).
+        # Phone is stored at signup; delivery stays gated by can_receive_alerts.
 
-    verification_pending = not result.email_verified or (
-        payload.phone is not None and not result.whatsapp_verified
-    )
+    verification_pending = not result.email_verified
     return PublicAlertSignupResponse(
         api_key=result.api_key,
         user_id=result.user.id,

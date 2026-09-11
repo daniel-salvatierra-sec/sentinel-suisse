@@ -82,14 +82,24 @@ def test_public_signup_creates_user_channels_and_search(dev_client: TestClient) 
     assert profile["saved_search_count"] == 1
 
 
-def test_public_signup_rejects_whatsapp_on_free(dev_client: TestClient) -> None:
+def test_public_signup_accepts_phone_for_premium_intent(dev_client: TestClient) -> None:
+    """Premium signup may collect WhatsApp before payment; delivery stays gated."""
     settings = get_settings()
     if not settings.database_url:
         pytest.skip("DATABASE_URL not configured in .env")
 
     response = dev_client.post("/api/v1/public/signup", json=_signup_payload(with_phone=True))
-    assert response.status_code == 403, response.text
-    assert response.json()["detail"] == "whatsapp_requires_premium"
+    assert response.status_code == 201, response.text
+    body = response.json()
+    assert body.get("whatsapp_verification_sent") is False
+    api_key = body["api_key"]
+    channels = dev_client.get(
+        "/api/v1/notification-channels",
+        headers={"X-API-Key": api_key},
+    )
+    assert channels.status_code == 200
+    types = {item["channel_type"] for item in channels.json()}
+    assert types == {"email", "whatsapp"}
 
 
 def test_public_signup_rejects_duplicate_email(dev_client: TestClient) -> None:

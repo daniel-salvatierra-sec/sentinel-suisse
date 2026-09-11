@@ -363,6 +363,7 @@ export type Messages = {
   consentLabel: string;
   consentRequired: string;
   emailRequired: string;
+  phoneRequired: string;
   alertSuccess: string;
   alertPending: string;
   alertErrorDuplicate: string;

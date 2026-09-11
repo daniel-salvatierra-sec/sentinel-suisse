@@ -1,9 +1,14 @@
-import { useState } from "react";
-import { subscribeAlerts, type ListingType, type SearchQueryParams } from "../api";
+import { useEffect, useState } from "react";
+import {
+  createCheckoutSession,
+  fetchBillingConfig,
+  subscribeAlerts,
+  type ListingType,
+  type SearchQueryParams,
+} from "../api";
 import { CountryCodePicker } from "./CountryCodePicker";
 import { LoginPanel } from "./LoginPanel";
-import { PremiumUpsell } from "./PremiumUpsell";
-import { SubscribeQr } from "./SubscribeQr";
+import { readStoredPromo } from "../promo";
 import type { Lang, Messages } from "../i18n";
 
 type Props = {
@@ -20,6 +25,11 @@ type Props = {
 
 type Status = "idle" | "loading" | "success" | "pending" | "error";
 
+/**
+ * Only Premium inscription: email + WhatsApp phone, then Stripe checkout
+ * with the launch promo (−50% for 3 months when configured).
+ * Searching the app stays free with no account.
+ */
 export function AlertSignup({
   t,
   locale,
@@ -35,14 +45,52 @@ export function AlertSignup({
   const [email, setEmail] = useState("");
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
-  const [pendingWhatsApp, setPendingWhatsApp] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [mode, setMode] = useState<"login" | "signup">(initialMode);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const [promoCode, setPromoCode] = useState<string | null>(null);
+  const [promoPercent, setPromoPercent] = useState(50);
+  const [promoMonths, setPromoMonths] = useState(3);
+  const [paymentsEnabled, setPaymentsEnabled] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void fetchBillingConfig()
+      .then((cfg) => {
+        if (cancelled) return;
+        setPaymentsEnabled(cfg.payments_enabled);
+        const fromApi = cfg.launch_promo_code?.trim() || null;
+        const fromLink = readStoredPromo();
+        setPromoCode(fromLink || fromApi);
+        if (cfg.launch_promo_percent != null) setPromoPercent(cfg.launch_promo_percent);
+        if (cfg.launch_promo_months != null) setPromoMonths(cfg.launch_promo_months);
+      })
+      .catch(() => {
+        if (!cancelled) setPaymentsEnabled(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const offerTitle = t.premiumLaunchOfferTitle
+    .replace("{percent}", String(promoPercent))
+    .replace("{months}", String(promoMonths));
+
+  const fullPhone = () => {
+    const local = phoneLocal.replace(/\D/g, "");
+    if (!local) return undefined;
+    return `${dial}${local}`;
+  };
 
   const handleSubmit = async () => {
     if (!email.trim()) {
       setErrorMessage(t.emailRequired);
+      setStatus("error");
+      return;
+    }
+    if (!phoneLocal.replace(/\D/g, "")) {
+      setErrorMessage(t.phoneRequired);
       setStatus("error");
       return;
     }
@@ -56,30 +104,37 @@ export function AlertSignup({
     setErrorMessage("");
     setIsDuplicate(false);
     try {
-      // Free tier: email only — never send phone on public signup.
       const result = await subscribeAlerts({
         email: email.trim(),
+        phone: fullPhone(),
         locale,
         query: searchQuery ?? {
           listing_type: listingType,
           location,
         },
       });
+      onSuccess?.();
+
+      if (paymentsEnabled) {
+        try {
+          const { checkout_url } = await createCheckoutSession(promoCode);
+          window.location.assign(checkout_url);
+          return;
+        } catch {
+          setErrorMessage(t.premiumCheckoutError);
+          setStatus("error");
+          return;
+        }
+      }
+
       if (result.verification_email_sent || result.verification_pending) {
-        setPendingWhatsApp(Boolean(result.whatsapp_verification_sent));
         setStatus("pending");
       } else {
-        setPendingWhatsApp(false);
         setStatus("success");
       }
-      onSuccess?.();
     } catch (error) {
       const message = error instanceof Error ? error.message : "";
-      if (message.includes("whatsapp_requires_premium")) {
-        setErrorMessage(t.premiumWhatsapp);
-      } else if (message.includes("saved_search_limit")) {
-        setErrorMessage(t.alertLimitReached);
-      } else if (message.includes("already exists")) {
+      if (message.includes("already exists")) {
         setErrorMessage(t.alertErrorDuplicate);
         setIsDuplicate(true);
       } else {
@@ -123,15 +178,12 @@ export function AlertSignup({
             <>
               <h2 className="account-signup-heading">{t.accountSignupTitle}</h2>
               <p className="premium-launch-badge" role="status">
-                {t.premiumLaunchOfferTitle
-                  .replace("{percent}", "50")
-                  .replace("{months}", "3")}
+                {offerTitle}
               </p>
               <p>{t.accountSignupDesc}</p>
             </>
           )}
           <p className="plan-hint">{t.searchFreeHint}</p>
-          <p className="plan-hint">{t.freePlanHint}</p>
           <label>
             {t.email}
             <input
@@ -143,9 +195,7 @@ export function AlertSignup({
             />
           </label>
           <div className="premium-channel-block">
-            <p className="premium-channel-label">
-              {t.phone} <span className="listing-demo-badge">{t.premiumBadge}</span>
-            </p>
+            <p className="premium-channel-label">{t.phone}</p>
             <p className="whatsapp-hint">{t.premiumWhatsapp}</p>
             <CountryCodePicker
               lang={locale}
@@ -154,7 +204,6 @@ export function AlertSignup({
               local={phoneLocal}
               onDialChange={setDial}
               onLocalChange={setPhoneLocal}
-              disabled
             />
           </div>
           <label className="consent-row">
@@ -175,17 +224,10 @@ export function AlertSignup({
             {status === "loading" ? t.loading : t.accountSignupCta}
           </button>
           {status === "success" && (
-            <p className="alert-feedback success">
-              {t.alertSuccess} {t.alertSavedNeedPremium}
-            </p>
+            <p className="alert-feedback success">{t.premiumComingSoon}</p>
           )}
           {status === "pending" && (
-            <>
-              <p className="alert-feedback pending">{t.alertCheckEmail}</p>
-              {pendingWhatsApp && (
-                <p className="alert-feedback pending">{t.alertCheckWhatsapp}</p>
-              )}
-            </>
+            <p className="alert-feedback pending">{t.alertCheckEmail}</p>
           )}
           {status === "error" && errorMessage && (
             <p className="alert-feedback error">
@@ -200,8 +242,12 @@ export function AlertSignup({
               )}
             </p>
           )}
-          <PremiumUpsell t={t} compact />
-          <SubscribeQr t={t} lang={locale} listingType={listingType} location={location} />
+          <p className="premium-upsell-price">{t.premiumUpsellPrice}</p>
+          {promoCode ? (
+            <p className="premium-upsell-promo">
+              {t.premiumPromoHintWithCode.replace("{code}", promoCode)}
+            </p>
+          ) : null}
         </>
       )}
     </section>

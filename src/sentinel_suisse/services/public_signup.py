@@ -13,7 +13,6 @@ from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.public_signup import PublicAlertSignup
 from sentinel_suisse.security.pii import email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
-from sentinel_suisse.services.entitlements import assert_can_use_whatsapp
 
 
 @dataclass
@@ -64,9 +63,8 @@ def subscribe_public_alert(
     whatsapp_verified = False
     whatsapp_channel_id: int | None = None
 
-    if payload.phone:
-        # New signups are free; WhatsApp is a Premium channel.
-        assert_can_use_whatsapp(user)
+    # Phone may be collected at Premium signup before Stripe payment.
+    # Alert *delivery* stays gated by entitlements (can_receive_alerts / premium).
 
     email_channel = NotificationChannel(
         user_id=user.id,
