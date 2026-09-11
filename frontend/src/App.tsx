@@ -1002,6 +1002,10 @@ export default function App() {
           onSearchWork={() => goToSearch("job")}
           preferSignup={preferSignup}
           onAcceptProfileSaved={() => setAccountRefresh((value) => value + 1)}
+          onAcceptGoalChange={(goal) => {
+            if (goal === "housing") setCategory("housing");
+            else setCategory("job");
+          }}
         />
       )}
 

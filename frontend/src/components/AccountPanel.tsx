@@ -38,6 +38,7 @@ type Props = {
   onSearchWork: () => void;
   preferSignup?: boolean;
   onAcceptProfileSaved?: () => void;
+  onAcceptGoalChange?: (goal: "housing" | "job" | "both") => void;
 };
 
 export function AccountPanel({
@@ -55,6 +56,7 @@ export function AccountPanel({
   onSearchWork,
   preferSignup = false,
   onAcceptProfileSaved,
+  onAcceptGoalChange,
 }: Props) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [searches, setSearches] = useState<SavedSearch[]>([]);
@@ -214,6 +216,7 @@ export function AccountPanel({
       <AcceptProfileForm
         t={t}
         initial={profile.accept_profile ?? null}
+        onGoalChange={onAcceptGoalChange}
         onSaved={() => {
           void load();
           onAcceptProfileSaved?.();

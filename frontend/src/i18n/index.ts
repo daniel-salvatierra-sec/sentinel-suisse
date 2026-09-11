@@ -465,6 +465,7 @@ export type Messages = {
   acceptIntro: string;
   acceptGoal: string;
   acceptGoalUnset: string;
+  acceptPickGoal: string;
   acceptGoalHousing: string;
   acceptGoalJob: string;
   acceptGoalBoth: string;
@@ -495,6 +496,7 @@ export type Messages = {
   acceptWhyPermit: string;
   acceptWhyPermitAsk: string;
   acceptWhyPermitNone: string;
+  acceptWhyLanguages: string;
   premiumActive: string;
   premiumUpsellTitle: string;
   premiumUpsellDesc: string;
