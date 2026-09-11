@@ -33,13 +33,13 @@ body {
 .app {
   max-width: 480px;
   margin: 0 auto;
-  padding: 1rem 1rem 5rem;
+  padding: 0.55rem 1rem 5rem;
 }
 
 @media (min-width: 768px) {
   .app {
     max-width: 720px;
-    padding: 1.5rem 1.5rem 5.5rem;
+    padding: 0.85rem 1.5rem 5.5rem;
   }
 
   .hero h1 {
@@ -122,8 +122,10 @@ body {
 
 .lang-bar-menu {
   position: absolute;
-  left: 0;
-  bottom: calc(100% + 0.4rem);
+  right: 0;
+  left: auto;
+  top: calc(100% + 0.4rem);
+  bottom: auto;
   z-index: 40;
   display: flex;
   flex-direction: column;
@@ -150,13 +152,19 @@ body {
   color: white;
 }
 
-.app-topbar {
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.hero-tools {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.65rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
+  gap: 0.4rem;
+  flex-shrink: 0;
 }
 
 .account-top-btn {
@@ -164,15 +172,16 @@ body {
   background: var(--mountain);
   color: #fff;
   border-radius: var(--radius-btn);
-  padding: 0.45rem 1rem;
+  padding: 0.42rem 0.85rem;
   font: inherit;
   font-weight: 700;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   line-height: 1.2;
   cursor: pointer;
   box-shadow: 0 4px 14px rgba(47, 106, 69, 0.28);
   flex-shrink: 0;
   white-space: nowrap;
+  min-height: 2.35rem;
 }
 
 .account-top-btn:hover {
@@ -192,10 +201,28 @@ body {
   filter: brightness(1.03);
 }
 
-.hero-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
+.hero-tools .lang-bar-toggle {
+  padding: 0.42rem 0.55rem;
+}
+
+.hero-tools .lang-bar-current {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 380px) {
+  .hero-tools .lang-bar-current {
+    display: none;
+  }
+
+  .account-top-btn {
+    padding: 0.42rem 0.7rem;
+    font-size: 0.78rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.7rem, 8vw, 2.1rem);
+  }
 }
 
 .hero-logo {

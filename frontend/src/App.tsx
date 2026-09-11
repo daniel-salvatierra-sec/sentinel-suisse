@@ -716,37 +716,47 @@ export default function App() {
           </button>
         </div>
       )}
-      <div className="app-topbar">
-        <button
-          type="button"
-          className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
-          data-sentinela="account"
-          onClick={() => {
-            setPreferSignup(true);
-            setTab("account");
-            window.setTimeout(() => {
-              document.getElementById("account-panel")?.scrollIntoView({
-                behavior: "smooth",
-                block: "start",
-              });
-            }, 280);
-          }}
-        >
-          {t.account}
-          {hasSession && <span className="tab-dot" aria-hidden />}
-        </button>
-      </div>
       <header className="hero">
-        <div className="hero-brand">
-          <img
-            className="hero-logo"
-            src="/icons/icon-192.png?v=ls-gold3"
-            alt=""
-            width={56}
-            height={56}
-            decoding="async"
-          />
-          <h1>{t.appName}</h1>
+        <div className="hero-top">
+          <div className="hero-brand">
+            <img
+              className="hero-logo"
+              src="/icons/icon-192.png?v=ls-gold3"
+              alt=""
+              width={56}
+              height={56}
+              decoding="async"
+            />
+            <h1>{t.appName}</h1>
+          </div>
+          <div className="hero-tools">
+            <LanguageBar
+              lang={lang}
+              label={t.chooseLang}
+              onChange={(code) => {
+                saveLang(code);
+                setLang(code);
+              }}
+            />
+            <button
+              type="button"
+              className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
+              data-sentinela="account"
+              onClick={() => {
+                setPreferSignup(true);
+                setTab("account");
+                window.setTimeout(() => {
+                  document.getElementById("account-panel")?.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                  });
+                }, 280);
+              }}
+            >
+              {t.account}
+              {hasSession && <span className="tab-dot" aria-hidden />}
+            </button>
+          </div>
         </div>
         <p>{t.tagline}</p>
         <div className="hero-actions">
@@ -857,14 +867,6 @@ export default function App() {
       ) : null}
 
       <div className="tabs" id="tabs-panel">
-        <LanguageBar
-          lang={lang}
-          label={t.chooseLang}
-          onChange={(code) => {
-            saveLang(code);
-            setLang(code);
-          }}
-        />
         <div className="tabs-main">
         <button type="button" className={tab === "list" ? "active" : ""} data-sentinela="list" onClick={() => setTab("list")}>
           {t.list}
