@@ -102,7 +102,7 @@ export function MyAlertsPanel({
 
   const saveCurrent = async () => {
     if (!getApiKey()) {
-      document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" });
+      document.getElementById("account-panel")?.scrollIntoView({ behavior: "smooth" });
       return;
     }
     setSaving(true);

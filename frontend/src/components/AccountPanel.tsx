@@ -160,7 +160,7 @@ export function AccountPanel({
   };
 
   return (
-    <section className="account-panel">
+    <section className="account-panel" id="account-panel">
       <h2 style={{ marginTop: 0 }}>{t.accountTitle}</h2>
       <p className="account-email">
         {profile.email} · {profile.locale.toUpperCase()}

@@ -515,7 +515,7 @@ export default function App() {
     setTab("alerts");
     window.setTimeout(() => {
       const target =
-        document.getElementById("signup") ?? document.getElementById("alerts-create");
+        document.getElementById("account-panel") ?? document.getElementById("alerts-create");
       target?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 160);
   };
@@ -725,11 +725,11 @@ export default function App() {
             setPreferSignup(true);
             setTab("account");
             window.setTimeout(() => {
-              document.getElementById("signup")?.scrollIntoView({
+              document.getElementById("account-panel")?.scrollIntoView({
                 behavior: "smooth",
-                block: "center",
+                block: "start",
               });
-            }, 100);
+            }, 280);
           }}
         >
           {t.account}
@@ -1082,11 +1082,11 @@ export default function App() {
           }
           setTab("account");
           window.setTimeout(() => {
-            document.getElementById("signup")?.scrollIntoView({
+            document.getElementById("account-panel")?.scrollIntoView({
               behavior: "smooth",
-              block: "center",
+              block: "start",
             });
-          }, 100);
+          }, 280);
         }}
         onOpenPublish={() => setTab(hasSession ? "publish" : "account")}
         uiContext={{

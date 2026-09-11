@@ -467,7 +467,7 @@
   "acceptPermitNone": "Ninguno aún",
   "acceptPermitOther": "Otro",
   "acceptLanguages": "Idiomas",
-  "acceptLanguagesHint": "español, francés B1, english… (aunque esté mal escrito)",
+  "acceptLanguagesHint": "ES, FR, EN…",
   "acceptBudget": "Alquiler máximo (CHF / mes)",
   "acceptHousehold": "Personas en el hogar",
   "acceptMoveIn": "Entrada (mes)",

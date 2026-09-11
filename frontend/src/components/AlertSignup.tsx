@@ -145,7 +145,7 @@ export function AlertSignup({
   };
 
   return (
-    <section className="alert-panel" id="signup">
+    <section className="alert-panel" id="account-panel">
       <div className="account-auth-tabs" role="tablist" aria-label={t.accountAuthTabsLabel}>
         <button
           type="button"

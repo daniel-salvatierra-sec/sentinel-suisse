@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { poseSrc, ALL_POSES, type SentinelPose } from "../sentinelPose";
 
-const POSE_HOLD_MS = 60 * 1000;
+const POSE_ROTATE_MS = 2 * 60 * 1000;
+const IDLE_CYCLE: SentinelPose[] = ["sit", "think", "listen", "wave", "ask", "help"];
 
 if (typeof window !== "undefined") {
   for (const pose of ALL_POSES) {
@@ -69,7 +70,7 @@ export function SentinelFace({
   );
 }
 
-/** Still figure. Parent pose is the reaction; idle leans on the wall, then thinks after 1 min. */
+/** Still figure. Parent pose is the reaction; idle rotates pose every 2 min. */
 export function SentinelBuddy({
   zone,
   pose = "idle",
@@ -92,9 +93,13 @@ export function SentinelBuddy({
     if (pose !== "idle" || sheetOpen) {
       return;
     }
-    setIdleBeat("sit");
-    const timer = window.setTimeout(() => setIdleBeat("think"), POSE_HOLD_MS);
-    return () => window.clearTimeout(timer);
+    setIdleBeat(IDLE_CYCLE[0]);
+    let index = 0;
+    const timer = window.setInterval(() => {
+      index = (index + 1) % IDLE_CYCLE.length;
+      setIdleBeat(IDLE_CYCLE[index]);
+    }, POSE_ROTATE_MS);
+    return () => window.clearInterval(timer);
   }, [pose, sheetOpen, restKey]);
 
   const displayPose = pose !== "idle" ? pose : idleBeat;

@@ -15,8 +15,8 @@ import { AssistantChat } from "./AssistantChat";
 import { NamedCopy, SentinelBuddy, SentinelFace } from "./SentinelBuddy";
 
 const NUDGE_AFTER_MS = 5 * 60 * 1000;
-const CHECKIN_AFTER_MS = 14 * 1000;
-const CHECKIN_AGAIN_MS = 90 * 1000;
+const CHECKIN_AFTER_MS = 5 * 60 * 1000;
+const CHECKIN_AGAIN_MS = 5 * 60 * 1000;
 const CARE_PHRASE_COUNT = 10;
 const CARE_IDX_KEY = "linkswiss.care.idx";
 
