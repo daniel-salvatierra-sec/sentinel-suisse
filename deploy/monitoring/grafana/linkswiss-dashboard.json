@@ -1,0 +1,178 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "ok": { "color": "green", "index": 0, "text": "OK" } }, "type": "value" },
+            { "options": { "from": 1, "result": { "color": "red", "index": 1, "text": "DOWN" }, "to": 999 }, "type": "range" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^status$/", "values": false },
+        "textMode": "auto"
+      },
+      "title": "App status",
+      "type": "stat",
+      "targets": [
+        {
+          "columns": [],
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+          "filters": [],
+          "format": "table",
+          "global_query_id": "",
+          "refId": "A",
+          "root_selector": "",
+          "source": "url",
+          "type": "json",
+          "url": "https://linkswiss.ch/health",
+          "url_options": { "data": "", "method": "GET" }
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            { "options": { "ok": { "color": "green", "index": 0, "text": "OK" } }, "type": "value" }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "green", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^database$/", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Database",
+      "type": "stat",
+      "targets": [
+        {
+          "columns": [],
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+          "filters": [],
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "https://linkswiss.ch/health",
+          "url_options": { "method": "GET" }
+        }
+      ]
+    },
+    {
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "/^env$/", "values": false },
+        "textMode": "auto"
+      },
+      "title": "Environment",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_LINKSWISS_HEALTH}" },
+          "format": "table",
+          "refId": "A",
+          "source": "url",
+          "type": "json",
+          "url": "https://linkswiss.ch/health",
+          "url_options": { "method": "GET" }
+        }
+      ]
+    },
+    {
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+      "id": 4,
+      "options": {
+        "code": {
+          "language": "markdown",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## LinkSwiss probes\n\n- Endpoint: `https://linkswiss.ch/health`\n- Expect JSON: `status=ok`, `database=ok`, `env=production`\n- Pair with Wazuh FIM on `/opt/sentinel-suisse/.env` and compose/Caddy\n- VPS watchdog: `deploy/run-watchdog.sh` every 5 minutes\n- Alert if health fails for **2 consecutive minutes** or disk ≥ **90%**",
+        "mode": "markdown"
+      },
+      "title": "Runbook",
+      "type": "text"
+    }
+  ],
+  "refresh": "1m",
+  "schemaVersion": 39,
+  "tags": ["linkswiss", "health"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Health datasource",
+        "name": "DS_LINKSWISS_HEALTH",
+        "options": [],
+        "query": "yesoreyeram-infinity-datasource",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-6h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "LinkSwiss health",
+  "uid": "linkswiss-health",
+  "version": 1
+}

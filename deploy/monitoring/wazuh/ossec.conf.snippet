@@ -1,0 +1,30 @@
+<!--
+  Merge into the Wazuh agent on the LinkSwiss VPS.
+  Manager address / enrollment keys stay in your existing agent install.
+-->
+
+  <syscheck>
+    <disabled>no</disabled>
+    <frequency>900</frequency>
+    <directories check_all="yes" realtime="yes">/opt/sentinel-suisse</directories>
+    <ignore>/opt/sentinel-suisse/var</ignore>
+    <ignore type="sregex">.log$|.pyc$|__pycache__|frontend/node_modules|.git</ignore>
+  </syscheck>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/auth.log</location>
+  </localfile>
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/fail2ban.log</location>
+  </localfile>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/lib/docker/containers/*/*-json.log</location>
+  </localfile>
+  <localfile>
+    <log_format>command</log_format>
+    <command>df -P / | tail -1</command>
+    <frequency>300</frequency>
+  </localfile>

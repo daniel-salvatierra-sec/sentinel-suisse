@@ -80,6 +80,7 @@ Run these **once on the VPS** (Linux):
 | `deploy/restore-db.sh` | Restore from `.sql.gz` backup |
 | `deploy/monitor-health.sh` | Exit non-zero if `/health` or DB check fails |
 | `deploy/watchdog.py` | Every 5 min: health + ingest age → WhatsApp + email on change |
+| `deploy/monitoring/` | Minimal Wazuh + Grafana rules for LinkSwiss |
 | `deploy/run-ingest.sh <provider>` | Run a live ingest connector inside the `api` container + dispatch alerts |
 | `python -m sentinel_suisse.maintenance reclassify-jobs` | Re-apply job taxonomy to stored listings (use after taxonomy updates) |
 

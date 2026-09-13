@@ -1,0 +1,52 @@
+<!--
+  Append to the Wazuh manager local_rules.xml then restart wazuh-manager.
+  IDs 100800–100820 are reserved for LinkSwiss.
+-->
+<group name="linkswiss,">
+
+  <rule id="100800" level="12">
+    <if_sid>550</if_sid>
+    <match>/opt/sentinel-suisse/.env</match>
+    <description>LinkSwiss: production .env integrity changed</description>
+    <mitre>
+      <id>T1565</id>
+    </mitre>
+  </rule>
+
+  <rule id="100801" level="10">
+    <if_sid>550</if_sid>
+    <match>/opt/sentinel-suisse/deploy/Caddyfile|/opt/sentinel-suisse/docker-compose.prod.yml</match>
+    <description>LinkSwiss: edge or compose config changed</description>
+  </rule>
+
+  <rule id="100802" level="12">
+    <if_sid>550</if_sid>
+    <match>/opt/sentinel-suisse/deploy/</match>
+    <description>LinkSwiss: deploy scripts changed</description>
+  </rule>
+
+  <rule id="100810" level="10">
+    <match>sentinel-api-prod|sentinel-caddy-prod|sentinel-postgres-prod</match>
+    <regex>died|unhealthy|OOMKilled|Error|exited</regex>
+    <description>LinkSwiss: container unhealthy or stopped</description>
+  </rule>
+
+  <rule id="100811" level="12">
+    <if_sid>5710,5712,5716</if_sid>
+    <description>LinkSwiss host: SSH auth failure / brute force signal</description>
+    <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
+  </rule>
+
+  <rule id="100812" level="10">
+    <match>Ban|Banned</match>
+    <location>fail2ban</location>
+    <description>LinkSwiss host: fail2ban banned an IP</description>
+  </rule>
+
+  <rule id="100820" level="12">
+    <match>^/dev/</match>
+    <regex>9[0-9]%|100%</regex>
+    <description>LinkSwiss host: disk usage critical (>=90%)</description>
+  </rule>
+
+</group>
