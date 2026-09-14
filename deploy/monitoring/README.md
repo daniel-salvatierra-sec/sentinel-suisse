@@ -9,6 +9,8 @@ Minimal pack for the Infomaniak VPS (`linkswiss.ch`). Import these on your
 |------|------|---------|
 | Wazuh agent | `wazuh/ossec.conf.snippet` | FIM on `.env` / compose / Caddy + Docker logs |
 | Wazuh manager | `wazuh/local_rules.xml` | Alerts when those files change or containers die |
+| Wazuh blacklist | `wazuh/lists/linkswiss-bad-ips` + `wazuh/BAD-IPS.md` | Reincident SSH IPs → 7-day ban |
+| Wazuh helper | `wazuh/add-bad-ip.sh` | Safe add IP (blocks your home/Tailscale) |
 | Grafana | `grafana/linkswiss-dashboard.json` | Health + uptime panel (Infinity / JSON) |
 | Grafana | `grafana/contact-points.md` | What to alert on |
 | Probe | `../monitor-health.sh` | Already in deploy — cron every 5 min |
@@ -18,6 +20,7 @@ Minimal pack for the Infomaniak VPS (`linkswiss.ch`). Import these on your
 1. Install the Wazuh agent on `84.234.31.127` pointing to your manager.
 2. Merge `wazuh/ossec.conf.snippet` into `/var/ossec/etc/ossec.conf` (or use agent groups).
 3. Copy `wazuh/local_rules.xml` rules into the **manager** (`/var/ossec/etc/rules/local_rules.xml`) and restart the manager.
+   Rule chain for SSH: `5710/5712/5716/5763` → `100811` (1h ban) → `100830` if IP is in `linkswiss-bad-ips` (7d ban).
 4. Restart the agent: `systemctl restart wazuh-agent`.
 
 Expect alerts when:

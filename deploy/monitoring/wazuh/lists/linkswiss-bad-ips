@@ -1,0 +1,4 @@
+# Placeholder so CDB compile works while the list is empty.
+# Real entries: one IPv4 per line as  KEY:   (example below — do not use these)
+# 203.0.113.50:
+0.0.0.0:

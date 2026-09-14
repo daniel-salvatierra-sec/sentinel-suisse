@@ -32,7 +32,7 @@
   </rule>
 
   <rule id="100811" level="12">
-    <if_sid>5710,5712,5716</if_sid>
+    <if_sid>5710,5712,5716,5763</if_sid>
     <description>LinkSwiss host: SSH auth failure / brute force signal</description>
     <group>authentication_failed,pci_dss_10.2.4,pci_dss_10.2.5,</group>
   </rule>
@@ -47,6 +47,14 @@
     <match>^/dev/</match>
     <regex>9[0-9]%|100%</regex>
     <description>LinkSwiss host: disk usage critical (>=90%)</description>
+  </rule>
+
+  <!-- Child of 100811 only — not sibling of the same SSH parents -->
+  <rule id="100830" level="15">
+    <if_sid>100811</if_sid>
+    <list field="srcip" lookup="address_match_key">etc/lists/linkswiss-bad-ips</list>
+    <description>LinkSwiss: SSH attack from listed bad IP (extended ban)</description>
+    <group>authentication_failed,linkswiss_bad_ip,</group>
   </rule>
 
 </group>
