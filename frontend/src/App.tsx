@@ -762,7 +762,7 @@ export default function App() {
           <div className="hero-brand">
             <img
               className="hero-logo"
-              src="/icons/logo-transparent.png?v=ls-clear1"
+              src="/icons/logo-transparent.png?v=ls-clear2"
               alt=""
               width={56}
               height={56}
