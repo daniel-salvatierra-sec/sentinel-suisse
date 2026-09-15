@@ -771,14 +771,6 @@ export default function App() {
             <h1>{t.appName}</h1>
           </div>
           <div className="hero-tools">
-            <LanguageBar
-              lang={lang}
-              label={t.chooseLang}
-              onChange={(code) => {
-                saveLang(code);
-                setLang(code);
-              }}
-            />
             <button
               type="button"
               className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
@@ -806,20 +798,32 @@ export default function App() {
         </div>
       </header>
 
-      <GoalHub
-        t={t}
-        active={category}
-        focused={hubFocused}
-        onSelect={(type) => {
-          if (tab === "publish") {
-            setHubFocused(true);
-            setCategory(type);
-            return;
-          }
-          const alreadyHere = hubFocused && category === type && tab === "list";
-          goToSearch(type, { delayMs: alreadyHere ? 50 : 480 });
-        }}
-      />
+      <div className="goal-hub-wrap">
+        <div className="goal-hub-lang">
+          <LanguageBar
+            lang={lang}
+            label={t.chooseLang}
+            onChange={(code) => {
+              saveLang(code);
+              setLang(code);
+            }}
+          />
+        </div>
+        <GoalHub
+          t={t}
+          active={category}
+          focused={hubFocused}
+          onSelect={(type) => {
+            if (tab === "publish") {
+              setHubFocused(true);
+              setCategory(type);
+              return;
+            }
+            const alreadyHere = hubFocused && category === type && tab === "list";
+            goToSearch(type, { delayMs: alreadyHere ? 50 : 480 });
+          }}
+        />
+      </div>
       <DoorLinks
         t={t}
         showSearch={tab === "account" || tab === "alerts" || tab === "publish"}

@@ -222,6 +222,36 @@ body {
   text-transform: uppercase;
 }
 
+.goal-hub-wrap {
+  position: relative;
+}
+
+.goal-hub-lang {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  z-index: 6;
+}
+
+.goal-hub-lang .lang-bar-toggle {
+  min-height: 2.4rem;
+  min-width: 2.4rem;
+  padding: 0.45rem;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 6px 18px rgba(8, 16, 24, 0.22);
+  backdrop-filter: blur(6px);
+}
+
+.goal-hub-lang .lang-bar-current {
+  display: none;
+}
+
+.goal-hub-lang .lang-bar-menu {
+  z-index: 8;
+}
+
 @media (max-width: 380px) {
   .hero-tools .lang-bar-current {
     display: none;
