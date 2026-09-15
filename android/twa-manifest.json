@@ -4,15 +4,23 @@
   "name": "LinkSwiss",
   "launcherName": "LinkSwiss",
   "display": "standalone",
-  "themeColor": "#DA291C",
-  "navigationColor": "#DA291C",
+  "themeColor": "#1A6F8A",
+  "themeColorDark": "#1A6F8A",
+  "navigationColor": "#1A6F8A",
+  "navigationColorDark": "#1A6F8A",
+  "navigationDividerColor": "#1A6F8A",
+  "navigationDividerColorDark": "#1A6F8A",
   "backgroundColor": "#DCEEF4",
   "enableNotifications": false,
   "startUrl": "/",
   "iconUrl": "https://linkswiss.ch/icons/icon-512.png",
   "maskableIconUrl": "https://linkswiss.ch/icons/icon-512.png",
   "splashScreenFadeOutDuration": 300,
-  "appVersionName": "1",
+  "signingKey": {
+    "path": "C:/Users/danin/LinkSwiss-keys/linkswiss-upload.keystore",
+    "alias": "upload"
+  },
+  "appVersionName": "1.0.0",
   "appVersionCode": 1,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
@@ -20,5 +28,9 @@
   "fallbackType": "customtabs",
   "fullScopeUrl": "https://linkswiss.ch/",
   "minSdkVersion": 21,
-  "orientation": "portrait-primary"
+  "orientation": "portrait",
+  "fingerprints": [],
+  "additionalTrustedOrigins": [],
+  "retainedBundles": [],
+  "features": {}
 }

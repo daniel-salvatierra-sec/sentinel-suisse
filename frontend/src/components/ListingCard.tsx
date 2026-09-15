@@ -1,4 +1,4 @@
-import { useState, type MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import type { Listing } from "../api";
 import { coordsForLocation, listingCurrency, mapsDirectionsUrl } from "../geo";
 import type { Messages } from "../i18n";
@@ -17,6 +17,7 @@ type Props = {
   onNeedPremium?: () => void;
   signals?: ListingSignals;
   reasons?: AcceptReason[];
+  autoOpen?: boolean;
 };
 
 export function ListingCard({
@@ -28,10 +29,17 @@ export function ListingCard({
   onNeedPremium,
   signals,
   reasons = [],
+  autoOpen = false,
 }: Props) {
   const [detailOpen, setDetailOpen] = useState(false);
   const [dossierOpen, setDossierOpen] = useState(false);
   const [jobCvOpen, setJobCvOpen] = useState(false);
+
+  useEffect(() => {
+    if (autoOpen) {
+      setDetailOpen(true);
+    }
+  }, [autoOpen, listing.id]);
   const coords = coordsForLocation(listing.location);
   const isDemo = Boolean(listing.is_demo);
   const goodPrice = Boolean(signals?.goodPrice);

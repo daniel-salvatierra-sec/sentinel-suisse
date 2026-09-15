@@ -78,4 +78,12 @@ def test_email_notifier_sends_message(mock_smtp: MagicMock) -> None:
     smtp_instance.starttls.assert_called_once()
     smtp_instance.login.assert_called_once_with("user", "pass")
     sent = smtp_instance.send_message.call_args[0][0]
-    assert "Location" in sent.get_content() or "Lieu" in sent.get_content()
+    plain = sent.get_body(preferencelist=("plain",))
+    html = sent.get_body(preferencelist=("html",))
+    assert plain is not None
+    text = plain.get_content()
+    assert "Location" in text or "Lieu" in text
+    assert html is not None
+    html_body = html.get_content()
+    assert "<a href=" in html_body
+    assert "listing=1" in html_body

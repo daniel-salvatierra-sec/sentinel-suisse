@@ -16,7 +16,7 @@ from sentinel_suisse.services.job_taxonomy import (
     stored_job_category_values,
     title_needles_for_filter,
 )
-from sentinel_suisse.services.listing_freshness import apply_freshness_filter
+from sentinel_suisse.services.listing_freshness import apply_freshness_filter, listing_is_fresh
 from sentinel_suisse.services.location_match import (
     expand_location_query,
     is_border_place,
@@ -63,6 +63,15 @@ def _apply_sort(stmt: Select[tuple[Listing]], sort: SearchSort) -> Select[tuple[
     if sort == "price_desc":
         return stmt.order_by(featured, nulls_last(Listing.price.desc()), Listing.id.desc())
     return stmt.order_by(featured, Listing.fetched_at.desc(), Listing.id.desc())
+
+
+def get_public_listing(db: Session, listing_id: int) -> Listing | None:
+    listing = db.get(Listing, listing_id)
+    if listing is None or listing.is_hidden:
+        return None
+    if not listing_is_fresh(listing):
+        return None
+    return listing
 
 
 def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select[tuple[Listing]]:

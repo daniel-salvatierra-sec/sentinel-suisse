@@ -10,6 +10,9 @@ RUN npm run build
 FROM python:3.12-slim AS runtime
 WORKDIR /app
 
+# Hetzner/Docker IPv6 often has no route; pip then dies with ENETUNREACH.
+RUN echo "precedence ::ffff:0:0/96  100" >> /etc/gai.conf
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends libpq5 \
     && rm -rf /var/lib/apt/lists/*

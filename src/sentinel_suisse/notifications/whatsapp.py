@@ -36,7 +36,10 @@ class WhatsAppNotifier(Notifier):
                 "messaging_product": "whatsapp",
                 "to": phone,
                 "type": "text",
-                "text": {"body": format_whatsapp_alert(message)},
+                "text": {
+                    "preview_url": True,
+                    "body": format_whatsapp_alert(message, app_url=self._settings.public_app_url),
+                },
             },
             timeout=30.0,
         )

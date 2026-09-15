@@ -109,6 +109,14 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   return response.json();
 }
 
+export async function fetchPublicListing(id: number): Promise<Listing> {
+  const response = await fetch(`/api/v1/public/listings/${id}`);
+  if (!response.ok) {
+    throw new Error("listing failed");
+  }
+  return response.json() as Promise<Listing>;
+}
+
 export type CityStock = {
   city: string;
   country: CountryCode;

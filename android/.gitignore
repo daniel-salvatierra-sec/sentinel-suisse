@@ -9,3 +9,6 @@ app/
 build/
 .gradle/
 local.properties
+app-release*.apk
+app-release*.aab
+manifest-checksum.txt

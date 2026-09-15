@@ -68,7 +68,17 @@ _ALERT = (
     "notifica",
 )
 _FIRST = ("primero", "premier", "erste", "first", "primeiro", "erster", "primera")
-_CHEAP = ("barato", "moins cher", "gunstiger", "cheaper", "mais barato", "pas cher", "guter preis")
+_CHEAP = (
+    "barato",
+    "moins cher",
+    "gunstiger",
+    "cheaper",
+    "mais barato",
+    "pas cher",
+    "guter preis",
+    "mas barato",
+    "günstiger",
+)
 _APPLY = (
     "como aplico",
     "como aplicar",
@@ -245,7 +255,7 @@ def parse_turn(
     if unknown and not place:
         intent.unknown_city = unknown
         intent.intent = "unknown_city"
-        intent.chips = []
+        intent.chips = ["city_geneva", "city_lausanne", "city_zurich", "look_home", "look_job"]
         return intent
 
     if _has_any(folded, _HOUSING) and not _has_any(folded, _JOB):
@@ -271,31 +281,31 @@ def parse_turn(
 
     if _has_any(folded, _MAP):
         intent.intent = "map"
-        intent.chips = ["keep_looking"]
+        intent.chips = ["keep_looking", "see_first", "create_alert", "look_home", "look_job"]
         return intent
     if _has_any(folded, _ALERT):
         intent.intent = "alert"
-        intent.chips = []
+        intent.chips = ["keep_looking", "look_home", "look_job", "on_map"]
         return intent
     if _has_any(folded, _FIRST):
         intent.intent = "open_first"
-        intent.chips = ["on_map", "create_alert"]
+        intent.chips = ["on_map", "create_alert", "how_apply", "keep_looking"]
         return intent
     if _has_any(folded, _CHEAP):
         intent.intent = "cheaper"
         intent.sort = "price_asc"
         if intent.mode is None:
             intent.mode = ui_mode or "housing"
-        intent.chips = ["see_first", "create_alert"]
+        intent.chips = ["see_first", "create_alert", "on_map", "cheaper", "keep_looking"]
         return intent
     if _has_any(folded, _PERMIT_G):
         intent.intent = "how_apply"
         intent.guide_slug = "permis-g"
-        intent.chips = ["keep_looking"]
+        intent.chips = ["keep_looking", "look_home", "look_job", "create_alert"]
         return intent
     if _has_any(folded, _APPLY) or (has_open_listing and "aplic" in folded):
         intent.intent = "how_apply"
-        intent.chips = ["keep_looking"]
+        intent.chips = ["keep_looking", "create_alert", "see_first", "on_map"]
         return intent
 
     searchish = any(
@@ -317,12 +327,33 @@ def parse_turn(
                 intent.mode = ui_mode
         if intent.mode == "housing" and not intent.city:
             intent.intent = "need_city"
-            intent.chips = []
+            intent.chips = [
+                "city_geneva",
+                "city_lausanne",
+                "city_zurich",
+                "look_job",
+                "create_alert",
+            ]
             return intent
         intent.intent = "search"
-        intent.chips = ["see_first", "create_alert", "on_map"]
+        intent.chips = [
+            "see_first",
+            "create_alert",
+            "on_map",
+            "how_apply",
+            "cheaper",
+            "keep_looking",
+        ]
         return intent
 
     intent.intent = "out_of_scope"
-    intent.chips = ["look_home", "look_job"]
+    intent.chips = [
+        "look_home",
+        "look_job",
+        "city_geneva",
+        "city_lausanne",
+        "create_alert",
+        "how_apply",
+        "on_map",
+    ]
     return intent

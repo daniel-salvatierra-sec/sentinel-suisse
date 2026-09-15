@@ -10,6 +10,7 @@ from sentinel_suisse.api.deps import get_db
 from sentinel_suisse.api.rate_limit import limiter
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.models.enums import CountryCode, EmploymentType, ListingType, PropertyType
+from sentinel_suisse.models.listing import Listing
 from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
@@ -42,7 +43,7 @@ from sentinel_suisse.services.magic_login import (
     request_magic_login,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
-from sentinel_suisse.services.search import SearchSort, search_listings
+from sentinel_suisse.services.search import SearchSort, get_public_listing, search_listings
 from sentinel_suisse.services.sponsor_ads import list_public_sponsors, record_sponsor_event
 
 router = APIRouter(prefix="/public", tags=["public"])
@@ -168,6 +169,20 @@ def public_search(
             detail="invalid search filters",
         ) from exc
     return search_listings(db, filters, limit=limit, offset=offset, sort=sort)
+
+
+@router.get("/listings/{listing_id}", response_model=ListingRead)
+@limiter.limit(lambda: get_settings().rate_limit)
+def public_listing(
+    request: Request,
+    listing_id: int,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_search),
+) -> Listing:
+    listing = get_public_listing(db, listing_id)
+    if listing is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Listing not found")
+    return listing
 
 
 @router.post(

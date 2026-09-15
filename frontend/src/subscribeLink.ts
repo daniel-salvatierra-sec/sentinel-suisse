@@ -69,18 +69,39 @@ export function parseSubscribeDeepLink(search: string): Partial<{
   return result;
 }
 
-/** Keep ?verify=… when clearing subscribe deep-link params. */
+/** Keep ?verify=… and ?login=… when clearing subscribe deep-link params. */
 export function stripSubscribeParamsFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
   const had =
-    params.has("tab") || params.has("type") || params.has("q") || params.has("lang");
+    params.has("tab") ||
+    params.has("type") ||
+    params.has("q") ||
+    params.has("lang") ||
+    params.has("listing");
   if (!had) return;
 
-  const verify = params.get("verify");
   const next = new URLSearchParams();
+  const verify = params.get("verify");
   if (verify) {
     next.set("verify", verify);
   }
+  const login = params.get("login");
+  if (login) {
+    next.set("login", login);
+  }
   const qs = next.toString();
   window.history.replaceState({}, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);
+}
+
+export function parseListingDeepLink(search: string): number | null {
+  const params = new URLSearchParams(search.startsWith("?") ? search : `?${search}`);
+  const raw = params.get("listing");
+  if (!raw || !/^\d{1,10}$/.test(raw)) {
+    return null;
+  }
+  const id = Number(raw);
+  if (!Number.isInteger(id) || id <= 0) {
+    return null;
+  }
+  return id;
 }

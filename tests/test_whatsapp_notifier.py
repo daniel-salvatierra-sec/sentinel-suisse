@@ -73,3 +73,5 @@ def test_whatsapp_notifier_sends_message(mock_post: MagicMock) -> None:
     assert call_kwargs["headers"]["Authorization"] == "Bearer test-token"
     assert call_kwargs["json"]["to"] == "41791234567"
     assert call_kwargs["json"]["type"] == "text"
+    assert call_kwargs["json"]["text"]["preview_url"] is True
+    assert "https://example.com/listing" in call_kwargs["json"]["text"]["body"]

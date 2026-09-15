@@ -23,6 +23,8 @@ type Props = {
   searching: boolean;
   talking?: boolean;
   sheetOpen?: boolean;
+  /** Face-only FAB while the user has scrolled down. */
+  collapsed?: boolean;
   dock?: "left" | "right";
   label: string;
   hint?: string;
@@ -77,6 +79,7 @@ export function SentinelBuddy({
   searching,
   talking = false,
   sheetOpen = false,
+  collapsed = false,
   dock = "right",
   label,
   hint,
@@ -88,9 +91,11 @@ export function SentinelBuddy({
 }: Props) {
   const choices = hintChoices?.length && onHintChoice ? hintChoices : null;
   const [idleBeat, setIdleBeat] = useState<SentinelPose>("sit");
+  const faceOnly = collapsed && !sheetOpen;
+  const hidden = sheetOpen || searching;
 
   useEffect(() => {
-    if (pose !== "idle" || sheetOpen) {
+    if (pose !== "idle" || sheetOpen || faceOnly) {
       return;
     }
     setIdleBeat(IDLE_CYCLE[0]);
@@ -100,57 +105,65 @@ export function SentinelBuddy({
       setIdleBeat(IDLE_CYCLE[index]);
     }, POSE_ROTATE_MS);
     return () => window.clearInterval(timer);
-  }, [pose, sheetOpen, restKey]);
+  }, [pose, sheetOpen, restKey, faceOnly]);
 
   const displayPose = pose !== "idle" ? pose : idleBeat;
 
   return (
     <button
       type="button"
-      className={`sentinel-buddy zone-${zone} pose-${displayPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${sheetOpen ? " is-hidden" : ""}`}
-      aria-hidden={sheetOpen}
+      className={`sentinel-buddy zone-${zone} pose-${displayPose} dock-${dock}${searching ? " searching" : ""}${talking || hint ? " talking" : ""}${faceOnly ? " is-collapsed" : ""}${hidden ? " is-hidden" : ""}`}
+      aria-hidden={hidden}
       onClick={(event) => {
         if ((event.target as HTMLElement).closest(".sentinel-hint-actions")) return;
         onOpen();
       }}
       aria-label={label}
     >
-      {hint ? (
-        <span className={`sentinel-hint${choices ? " has-choices" : ""}`}>
-          <NamedCopy text={hint} name={name} />
-          {choices ? (
-            <span className="sentinel-hint-actions">
-              {choices.map((choice) => (
-                <span
-                  key={choice.id}
-                  className={`sentinel-hint-choice${choice.quiet ? " is-quiet" : ""}`}
-                  role="button"
-                  tabIndex={0}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    onHintChoice?.(choice.id);
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      onHintChoice?.(choice.id);
-                    }
-                  }}
-                >
-                  {choice.label}
+      {faceOnly ? (
+        <span className="sentinel-fab-face" aria-hidden>
+          <SentinelFace size={56} zone={zone} />
+        </span>
+      ) : (
+        <>
+          {hint ? (
+            <span className={`sentinel-hint${choices ? " has-choices" : ""}`}>
+              <NamedCopy text={hint} name={name} />
+              {choices ? (
+                <span className="sentinel-hint-actions">
+                  {choices.map((choice) => (
+                    <span
+                      key={choice.id}
+                      className={`sentinel-hint-choice${choice.quiet ? " is-quiet" : ""}`}
+                      role="button"
+                      tabIndex={0}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        onHintChoice?.(choice.id);
+                      }}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          onHintChoice?.(choice.id);
+                        }
+                      }}
+                    >
+                      {choice.label}
+                    </span>
+                  ))}
                 </span>
-              ))}
+              ) : null}
             </span>
           ) : null}
-        </span>
-      ) : null}
-      <img
-        className="sentinel-figure"
-        src={poseSrc(displayPose)}
-        alt=""
-        draggable={false}
-      />
+          <img
+            className="sentinel-figure"
+            src={poseSrc(displayPose)}
+            alt=""
+            draggable={false}
+          />
+        </>
+      )}
     </button>
   );
 }

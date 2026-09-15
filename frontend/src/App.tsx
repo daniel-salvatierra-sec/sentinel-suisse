@@ -4,6 +4,7 @@ import {
   fetchSavedSearches,
   fetchStockedCities,
   fetchSponsors,
+  fetchPublicListing,
   getApiKey,
   SEARCH_PAGE_SIZE,
   searchListings,
@@ -41,7 +42,7 @@ import { loadLang, messages, saveLang, type Lang } from "./i18n";
 import { resolveJobCategory, type JobField } from "./jobTaxonomy";
 import { queryLooksLikeJob } from "./jobQueryAliases";
 import type { ListingSignalContext } from "./listingSignals";
-import { parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
+import { parseListingDeepLink, parseSubscribeDeepLink, stripSubscribeParamsFromUrl } from "./subscribeLink";
 import { rememberSearch } from "./searchHistory";
 import type { RememberedSearch } from "./searchHistory";
 import { toSavedSearchQuery } from "./searchSummary";
@@ -160,6 +161,9 @@ export default function App() {
   const listingsRef = useRef<Listing[]>([]);
   const sentinelaWaiter = useRef<((n: number) => void) | null>(null);
   const pendingOpenFirst = useRef(false);
+  const pinnedListingRef = useRef<Listing | null>(null);
+  const [autoOpenListingId, setAutoOpenListingId] = useState<number | null>(null);
+  const [pendingListingId, setPendingListingId] = useState<number | null>(null);
   const [searchTick, setSearchTick] = useState(0);
   const [sponsorBanner, setSponsorBanner] = useState<"success" | "cancel" | null>(null);
   const [sponsors, setSponsors] = useState<SponsorAd[]>([]);
@@ -346,6 +350,12 @@ export default function App() {
     if (deep.tab === "account") {
       setTab("account");
     }
+    const listingId = parseListingDeepLink(window.location.search);
+    if (listingId != null) {
+      setPendingListingId(listingId);
+      setHubFocused(true);
+      setTab("list");
+    }
     const params = new URLSearchParams(window.location.search);
     const premium = params.get("premium");
     if (premium === "success" || premium === "cancel") {
@@ -386,11 +396,35 @@ export default function App() {
       const path = window.location.pathname;
       window.history.replaceState({}, "", next ? `${path}?${next}` : path);
     }
-    if (deep.tab || deep.lang || deep.listingType || deep.location != null) {
+    if (deep.tab || deep.lang || deep.listingType || deep.location != null || listingId != null) {
       stripSubscribeParamsFromUrl();
     }
     setDeepLinkReady(true);
   }, []);
+
+  useEffect(() => {
+    if (pendingListingId == null) return;
+    let cancelled = false;
+    void fetchPublicListing(pendingListingId)
+      .then((item) => {
+        if (cancelled) return;
+        pinnedListingRef.current = item;
+        setCategory(item.listing_type);
+        setHubFocused(true);
+        setTab("list");
+        setFocusId(item.id);
+        setAutoOpenListingId(item.id);
+        setListings((prev) => [item, ...prev.filter((row) => row.id !== item.id)]);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          pinnedListingRef.current = null;
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [pendingListingId]);
 
   useEffect(() => {
     if (!queryLooksLikeJob(query) || category === "job") return;
@@ -404,10 +438,17 @@ export default function App() {
     try {
       const params = buildSearchParams(0, tab === "alerts" ? "live" : "applied");
       const results = await searchListings(params);
-      setListings(results);
-      listingsRef.current = results;
+      const pin = pinnedListingRef.current;
+      const merged =
+        pin == null
+          ? results
+          : [pin, ...results.filter((row) => row.id !== pin.id)];
+      setListings(merged);
+      listingsRef.current = merged;
       setHasMore(results.length >= SEARCH_PAGE_SIZE);
-      const focus = pendingOpenFirst.current ? (results[0]?.id ?? null) : (results[0]?.id ?? null);
+      const focus =
+        pin?.id ??
+        (pendingOpenFirst.current ? (merged[0]?.id ?? null) : (merged[0]?.id ?? null));
       setFocusId(focus);
       if (pendingOpenFirst.current && results[0]) {
         setMapIsolate(false);
@@ -721,7 +762,7 @@ export default function App() {
           <div className="hero-brand">
             <img
               className="hero-logo"
-              src="/icons/icon-192.png?v=ls-gold3"
+              src="/icons/logo-transparent.png?v=ls-clear1"
               alt=""
               width={56}
               height={56}
@@ -957,6 +998,7 @@ export default function App() {
               onLoadMore={() => void loadMore()}
               signalContext={signalContext}
               acceptProfile={acceptProfile}
+              autoOpenId={autoOpenListingId}
             />
           )}
         </>

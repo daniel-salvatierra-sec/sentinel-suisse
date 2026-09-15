@@ -18,6 +18,7 @@ type Props = {
   onLoadMore: () => void;
   signalContext: ListingSignalContext;
   acceptProfile?: AcceptProfile | null;
+  autoOpenId?: number | null;
 };
 
 export function VirtualizedListingList({
@@ -31,6 +32,7 @@ export function VirtualizedListingList({
   onLoadMore,
   signalContext,
   acceptProfile,
+  autoOpenId = null,
 }: Props) {
   return (
     <div className="listing-list">
@@ -45,6 +47,7 @@ export function VirtualizedListingList({
           onNeedPremium={onNeedPremium}
           signals={computeListingSignals(listing, listings, signalContext)}
           reasons={acceptReasons(listing, acceptProfile, t)}
+          autoOpen={listing.id === autoOpenId}
         />
       ))}
       {hasMore ? (

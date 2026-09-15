@@ -59,6 +59,14 @@ def test_email_alert_localized_labels(locale: str) -> None:
     assert EMAIL_MARKERS[locale] in body
     assert "Studio Geneva" in body
     assert "https://example.com/listing" in body
+    assert "Lien:" in body or "Link:" in body or "Enlace:" in body or "Ligação:" in body
+
+
+@pytest.mark.parametrize("locale", ALL_LANGUAGES)
+def test_email_alert_includes_app_deep_link(locale: str) -> None:
+    _subject, body = format_email_alert(_message(locale), app_url="https://linkswiss.ch")
+    assert "https://linkswiss.ch/?listing=1" in body
+    assert "https://example.com/listing" in body
 
 
 @pytest.mark.parametrize("locale", ALL_LANGUAGES)
@@ -66,6 +74,16 @@ def test_whatsapp_alert_includes_listing_title(locale: str) -> None:
     body = format_whatsapp_alert(_message(locale))
     assert "Studio Geneva" in body
     assert "*Geneva*" in body
+    assert "https://example.com/listing" in body
+
+
+def test_whatsapp_alert_puts_app_url_first() -> None:
+    body = format_whatsapp_alert(_message("fr"), app_url="https://linkswiss.ch")
+    app_at = body.find("https://linkswiss.ch/?listing=1")
+    source_at = body.find("https://example.com/listing")
+    assert app_at != -1
+    assert source_at != -1
+    assert app_at < source_at
 
 
 def test_email_alert_falls_back_to_french_for_unknown_locale() -> None:

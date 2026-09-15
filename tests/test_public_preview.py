@@ -158,3 +158,28 @@ def test_public_providers_and_provider_filter(dev_client: TestClient) -> None:
 def test_public_providers_hidden_in_production(prod_client: TestClient) -> None:
     response = prod_client.get("/api/v1/public/providers")
     assert response.status_code == 404
+
+
+def test_public_listing_by_id(dev_client: TestClient) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    search = dev_client.get("/api/v1/public/search?listing_type=job&limit=1")
+    assert search.status_code == 200, search.text
+    rows = search.json()
+    if not rows:
+        search = dev_client.get("/api/v1/public/search?listing_type=housing&limit=1")
+        assert search.status_code == 200, search.text
+        rows = search.json()
+    if not rows:
+        pytest.skip("no listings in database")
+
+    item_id = rows[0]["id"]
+    got = dev_client.get(f"/api/v1/public/listings/{item_id}")
+    assert got.status_code == 200, got.text
+    assert got.json()["id"] == item_id
+    assert got.json()["source_url"]
+
+    missing = dev_client.get("/api/v1/public/listings/999999999")
+    assert missing.status_code == 404

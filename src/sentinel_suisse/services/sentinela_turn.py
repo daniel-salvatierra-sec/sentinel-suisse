@@ -62,7 +62,7 @@ def plan_turn(request: SentinelaTurnRequest) -> SentinelaTurnResponse:
             actions=[],
             say_id="unknown_city",
             slots=slots,
-            chips=[],
+            chips=chips or ["city_geneva", "city_lausanne", "city_zurich", "look_home", "look_job"],
         )
     if intent.intent == "need_city":
         payload = _filters_payload(intent)
@@ -72,7 +72,8 @@ def plan_turn(request: SentinelaTurnRequest) -> SentinelaTurnResponse:
             actions=actions,
             say_id="need_city",
             slots=slots,
-            chips=[],
+            chips=chips
+            or ["city_geneva", "city_lausanne", "city_zurich", "look_job", "create_alert"],
         )
     if intent.intent == "map":
         actions.append(SentinelaAction(type="switch_tab", payload={"tab": "map"}))
@@ -98,7 +99,7 @@ def plan_turn(request: SentinelaTurnRequest) -> SentinelaTurnResponse:
             actions=actions,
             say_id="guide",
             slots=slots,
-            chips=chips or ["how_apply"],
+            chips=chips or ["keep_looking", "create_alert", "see_first", "on_map", "look_home"],
         )
     if intent.intent in {"search", "cheaper"}:
         payload = _filters_payload(intent)
@@ -112,12 +113,22 @@ def plan_turn(request: SentinelaTurnRequest) -> SentinelaTurnResponse:
             actions=actions,
             say_id="filtered",
             slots=slots,
-            chips=chips or ["see_first", "create_alert", "on_map"],
+            chips=chips
+            or ["see_first", "create_alert", "on_map", "how_apply", "cheaper", "keep_looking"],
         )
 
     return SentinelaTurnResponse(
         actions=[],
         say_id="out_of_scope",
         slots=slots,
-        chips=chips or ["look_home", "look_job"],
+        chips=chips
+        or [
+            "look_home",
+            "look_job",
+            "city_geneva",
+            "city_lausanne",
+            "create_alert",
+            "how_apply",
+            "on_map",
+        ],
     )

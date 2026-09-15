@@ -89,6 +89,7 @@ export function GuideBot({
   onExecuteActions,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [scrolledAway, setScrolledAway] = useState(false);
   const [needsIntro, setNeedsIntro] = useState(() => !loadGuideSeen());
   const [pickingAlertType, setPickingAlertType] = useState(false);
   const [chatMode, setChatMode] = useState(false);
@@ -144,6 +145,34 @@ export function GuideBot({
     }, NUDGE_AFTER_MS);
     return () => window.clearTimeout(timer);
   }, [hasSession, showPresent]);
+
+  useEffect(() => {
+    let hideTimer = 0;
+    const update = () => {
+      const y = window.scrollY || document.documentElement.scrollTop || 0;
+      setScrolledAway(y > 140);
+    };
+    const onScroll = () => {
+      update();
+      // While the user keeps scrolling through results, tuck the FAB away.
+      if ((window.scrollY || 0) > 140) {
+        document.documentElement.dataset.sentinelScroll = "1";
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(() => {
+          document.documentElement.dataset.sentinelScroll = "0";
+        }, 650);
+      } else {
+        document.documentElement.dataset.sentinelScroll = "0";
+      }
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.clearTimeout(hideTimer);
+      window.removeEventListener("scroll", onScroll);
+      delete document.documentElement.dataset.sentinelScroll;
+    };
+  }, []);
 
   const premiumCareReady = isPremium && (alertHousing || alertJob);
 
@@ -515,11 +544,12 @@ export function GuideBot({
         searching={searching}
         talking={chatBusy}
         sheetOpen={open}
+        collapsed={scrolledAway && !showPresent}
         dock="right"
         label={t.fireflyLabel}
         name={t.sentinelName}
-        hint={hint}
-        hintChoices={hintChoices}
+        hint={scrolledAway && !showPresent ? undefined : hint}
+        hintChoices={scrolledAway && !showPresent ? undefined : hintChoices}
         onHintChoice={onHintChoice}
         restKey={restKey}
         onOpen={() => {
