@@ -795,35 +795,33 @@ export default function App() {
         <div className="hero-actions">
           <ShareAppButton t={t} />
           <InstallAppButton t={t} />
+          <div className="hero-actions-lang">
+            <LanguageBar
+              lang={lang}
+              label={t.chooseLang}
+              onChange={(code) => {
+                saveLang(code);
+                setLang(code);
+              }}
+            />
+          </div>
         </div>
       </header>
 
-      <div className="goal-hub-wrap">
-        <div className="goal-hub-lang">
-          <LanguageBar
-            lang={lang}
-            label={t.chooseLang}
-            onChange={(code) => {
-              saveLang(code);
-              setLang(code);
-            }}
-          />
-        </div>
-        <GoalHub
-          t={t}
-          active={category}
-          focused={hubFocused}
-          onSelect={(type) => {
-            if (tab === "publish") {
-              setHubFocused(true);
-              setCategory(type);
-              return;
-            }
-            const alreadyHere = hubFocused && category === type && tab === "list";
-            goToSearch(type, { delayMs: alreadyHere ? 50 : 480 });
-          }}
-        />
-      </div>
+      <GoalHub
+        t={t}
+        active={category}
+        focused={hubFocused}
+        onSelect={(type) => {
+          if (tab === "publish") {
+            setHubFocused(true);
+            setCategory(type);
+            return;
+          }
+          const alreadyHere = hubFocused && category === type && tab === "list";
+          goToSearch(type, { delayMs: alreadyHere ? 50 : 480 });
+        }}
+      />
       <DoorLinks
         t={t}
         showSearch={tab === "account" || tab === "alerts" || tab === "publish"}

@@ -222,34 +222,27 @@ body {
   text-transform: uppercase;
 }
 
-.goal-hub-wrap {
-  position: relative;
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.35rem;
 }
 
-.goal-hub-lang {
-  position: absolute;
-  top: 0.7rem;
-  right: 0.7rem;
-  z-index: 6;
+.hero-actions-lang {
+  margin-left: auto;
 }
 
-.goal-hub-lang .lang-bar-toggle {
-  min-height: 2.4rem;
-  min-width: 2.4rem;
-  padding: 0.45rem;
+.hero-actions-lang .lang-bar-toggle {
+  min-height: 2.35rem;
+  min-width: 2.35rem;
+  padding: 0.42rem;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 6px 18px rgba(8, 16, 24, 0.22);
-  backdrop-filter: blur(6px);
 }
 
-.goal-hub-lang .lang-bar-current {
+.hero-actions-lang .lang-bar-current {
   display: none;
-}
-
-.goal-hub-lang .lang-bar-menu {
-  z-index: 8;
 }
 
 @media (max-width: 380px) {
@@ -2366,13 +2359,6 @@ html[data-sentinel-scroll="1"] .sentinel-buddy.is-collapsed {
 
 .apply-btn:hover {
   filter: brightness(1.06);
-}
-
-.hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin: 0 0 0.35rem;
 }
 
 .post-ad-link,
