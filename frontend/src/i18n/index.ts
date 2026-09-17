@@ -378,6 +378,8 @@ export type Messages = {
   accountDelete: string;
   accountConfirmDelete: string;
   accountDeleteWarning: string;
+  accountLogout: string;
+  accountLogoutHint: string;
   accountLoginHint: string;
   accountError: string;
   postListingTitle: string;

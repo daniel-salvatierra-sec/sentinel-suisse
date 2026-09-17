@@ -229,6 +229,8 @@
   "accountDelete": "Konto löschen",
   "accountConfirmDelete": "Löschen bestätigen",
   "accountDeleteWarning": "Diese Aktion ist endgültig (nDSG).",
+  "accountLogout": "Abmelden",
+  "accountLogoutHint": "Beendet die Sitzung auf diesem Gerät. Beim nächsten Mal brauchst du den E-Mail-Anmeldelink.",
   "accountLoginHint": "Erstelle ein Konto unter Konto, um Alerts zu aktivieren.",
   "accountError": "Sitzung abgelaufen oder ungültig.",
   "postListingTitle": "Wohnung inserieren (wenn du vermietest)",

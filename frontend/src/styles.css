@@ -1164,6 +1164,28 @@ html[data-sentinel-scroll="1"] .sentinel-buddy.is-collapsed {
   font-size: 0.95rem;
 }
 
+.account-logout-btn {
+  display: block;
+  width: 100%;
+  margin: 0.55rem 0 0.25rem;
+  padding: 0.65rem 1rem;
+  border: 1px solid rgba(26, 111, 138, 0.35);
+  border-radius: 0.75rem;
+  background: #fff;
+  color: var(--lake);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.account-logout-btn:hover {
+  background: rgba(26, 111, 138, 0.08);
+}
+
+.account-logout-hint {
+  margin: 0 0 0.85rem;
+}
+
 .post-listing form {
   display: grid;
   gap: 0.55rem;

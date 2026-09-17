@@ -367,6 +367,8 @@
   "accountDelete": "Supprimer mon compte",
   "accountConfirmDelete": "Confirmer la suppression",
   "accountDeleteWarning": "Cette action est définitive (nLPD).",
+  "accountLogout": "Se déconnecter",
+  "accountLogoutHint": "Ferme la session sur cet appareil. Pour revenir, il faudra le lien par e-mail.",
   "accountLoginHint": "Créez un compte dans l'onglet Compte pour activer les alertes.",
   "accountError": "Session expirée ou invalide. Réactivez une alerte.",
   "postListingTitle": "Publier un logement (si tu le loues)",

@@ -138,6 +138,12 @@ export function AccountPanel({
     setSearches((prev) => prev.filter((item) => item.id !== id));
   };
 
+  const handleLogout = () => {
+    clearApiKey();
+    clearDeviceTrust();
+    onLoggedOut();
+  };
+
   const handleDeleteAccount = async () => {
     if (!confirmDelete) {
       setConfirmDelete(true);
@@ -171,6 +177,14 @@ export function AccountPanel({
           {profile.is_premium ? t.premiumBadge : t.freeBadge}
         </span>
       </p>
+      <button
+        type="button"
+        className="account-logout-btn"
+        onClick={handleLogout}
+      >
+        {t.accountLogout}
+      </button>
+      <p className="plan-hint account-logout-hint">{t.accountLogoutHint}</p>
       <p className="plan-hint">
         {t.alertQuota
           .replace("{count}", String(profile.saved_search_count ?? searches.length))

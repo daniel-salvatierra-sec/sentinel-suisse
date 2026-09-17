@@ -229,6 +229,8 @@
   "accountDelete": "Eliminar a minha conta",
   "accountConfirmDelete": "Confirmar eliminação",
   "accountDeleteWarning": "Esta ação é definitiva (nLPD).",
+  "accountLogout": "Terminar sessão",
+  "accountLogoutHint": "Fecha a sessão neste dispositivo. Para voltar a entrar, será preciso o link por email.",
   "accountLoginHint": "Crie uma conta no separador Conta para ativar alertas.",
   "accountError": "Sessão expirada ou inválida.",
   "postListingTitle": "Publicar um alojamento (se o alugas)",
