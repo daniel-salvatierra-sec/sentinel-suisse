@@ -95,3 +95,26 @@ def parse_login_token(token: str, secret: str) -> int:
         raise VerificationTokenError("Invalid token claims")
 
     return user_id
+
+
+def create_device_trust_token(*, user_id: int, secret: str, ttl_days: int = 400) -> str:
+    """Long-lived token so a browser can re-login without another email click."""
+    payload = {
+        "typ": "device",
+        "uid": user_id,
+        "exp": int(time.time()) + ttl_days * 86400,
+    }
+    body = _b64_encode(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    signature = hmac.new(secret.encode("utf-8"), body.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"{body}.{signature}"
+
+
+def parse_device_trust_token(token: str, secret: str) -> int:
+    """Return the user_id from a device-trust token, or raise."""
+    payload = _decode_and_verify(token, secret)
+    if payload.get("typ") != "device":
+        raise VerificationTokenError("Invalid token type")
+    user_id = payload.get("uid")
+    if not isinstance(user_id, int):
+        raise VerificationTokenError("Invalid token claims")
+    return user_id

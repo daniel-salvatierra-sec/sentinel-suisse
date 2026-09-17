@@ -106,14 +106,60 @@ def test_login_confirm_issues_working_api_key(dev_client: TestClient) -> None:
 
     confirm = dev_client.post("/api/v1/public/login/confirm", json={"token": token})
     assert confirm.status_code == 200, confirm.text
-    new_api_key = confirm.json()["api_key"]
+    body = confirm.json()
+    new_api_key = body["api_key"]
     assert new_api_key != old_api_key
+    assert body.get("device_token")
 
     old_key_check = dev_client.get("/api/v1/users/me", headers={"X-API-Key": old_api_key})
     assert old_key_check.status_code == 401
 
     new_key_check = dev_client.get("/api/v1/users/me", headers={"X-API-Key": new_api_key})
     assert new_key_check.status_code == 200
+
+
+def test_login_with_device_trust_skips_email(
+    dev_client: TestClient,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    email = _unique_email()
+    _signup(dev_client, email)
+
+    # First confirm via magic link to get a device token
+    from sentinel_suisse.db.session import SessionLocal
+    from sentinel_suisse.models.user import User
+    from sentinel_suisse.security.pii import email_lookup
+    from sentinel_suisse.security.verification_tokens import create_device_trust_token
+
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email_lookup == email_lookup(email)).one()
+        device_token = create_device_trust_token(
+            user_id=user.id,
+            secret=settings.secret_key or settings.pii_encryption_key,
+        )
+    finally:
+        db.close()
+
+    monkeypatch.setenv("SMTP_HOST", "")
+    get_settings.cache_clear()
+
+    response = dev_client.post(
+        "/api/v1/public/login",
+        json={"email": email, "locale": "fr", "device_token": device_token},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["sent"] is False
+    assert data["api_key"]
+    assert data["device_token"]
+    me = dev_client.get("/api/v1/users/me", headers={"X-API-Key": data["api_key"]})
+    assert me.status_code == 200
+    get_settings.cache_clear()
 
 
 def test_login_confirm_rejects_invalid_token(dev_client: TestClient) -> None:

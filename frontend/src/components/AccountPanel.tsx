@@ -1,5 +1,6 @@
 import {
   clearApiKey,
+  clearDeviceTrust,
   createPortalSession,
   deleteAccount,
   deleteSavedSearch,
@@ -144,6 +145,7 @@ export function AccountPanel({
     }
     await deleteAccount();
     clearApiKey();
+    clearDeviceTrust();
     onLoggedOut();
   };
 

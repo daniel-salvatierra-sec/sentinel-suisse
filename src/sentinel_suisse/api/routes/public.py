@@ -40,6 +40,7 @@ from sentinel_suisse.services.entitlements import EntitlementError
 from sentinel_suisse.services.magic_login import (
     MagicLoginError,
     confirm_magic_login,
+    make_device_trust_for_user,
     request_magic_login,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
@@ -239,6 +240,7 @@ def public_signup(
         verification_pending=verification_pending,
         verification_email_sent=verification_email_sent,
         whatsapp_verification_sent=whatsapp_verification_sent,
+        device_token=make_device_trust_for_user(result.user.id, settings),
     )
 
 
@@ -291,13 +293,25 @@ def public_request_login(
     db: Session = Depends(get_db),
     _: None = Depends(_require_public_signup),
 ) -> MagicLoginRequestResponse:
-    """Send a passwordless login link if the email has an account.
+    """Send a passwordless login link, or reconnect with a trusted device token.
 
-    Always returns success, whether or not the email is known, so we don't
-    leak account existence.
+    Always returns success for unknown emails so we don't leak account existence.
     """
     settings = get_settings()
-    request_magic_login(db, settings, str(payload.email), payload.locale)
+    trusted = request_magic_login(
+        db,
+        settings,
+        str(payload.email),
+        payload.locale,
+        device_token=payload.device_token,
+    )
+    if trusted is not None:
+        return MagicLoginRequestResponse(
+            sent=False,
+            api_key=trusted.api_key,
+            user_id=trusted.user.id,
+            device_token=trusted.device_token,
+        )
     return MagicLoginRequestResponse(sent=True)
 
 
@@ -308,10 +322,14 @@ def public_confirm_login(
     payload: MagicLoginConfirm,
     db: Session = Depends(get_db),
 ) -> MagicLoginConfirmResponse:
-    """Exchange a magic-login token for a fresh API key."""
+    """Exchange a magic-login token for a fresh API key + device trust."""
     settings = get_settings()
     try:
         result = confirm_magic_login(db, settings, payload.token)
     except MagicLoginError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.code) from exc
-    return MagicLoginConfirmResponse(api_key=result.api_key, user_id=result.user.id)
+    return MagicLoginConfirmResponse(
+        api_key=result.api_key,
+        user_id=result.user.id,
+        device_token=result.device_token,
+    )

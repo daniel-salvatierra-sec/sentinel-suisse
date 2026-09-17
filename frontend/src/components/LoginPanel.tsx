@@ -1,24 +1,30 @@
 import { useState } from "react";
-import { requestMagicLogin } from "../api";
+import { getLastLoginEmail, requestMagicLogin } from "../api";
 import type { Lang, Messages } from "../i18n";
 
 type Props = {
   t: Messages;
   locale: Lang;
   onBackToSignup?: () => void;
+  onLoggedIn?: () => void;
 };
 
-type Status = "idle" | "loading" | "sent" | "error";
+type Status = "idle" | "loading" | "sent" | "ready" | "error";
 
-export function LoginPanel({ t, locale, onBackToSignup }: Props) {
-  const [email, setEmail] = useState("");
+export function LoginPanel({ t, locale, onBackToSignup, onLoggedIn }: Props) {
+  const [email, setEmail] = useState(() => getLastLoginEmail() ?? "");
   const [status, setStatus] = useState<Status>("idle");
 
   const handleSubmit = async () => {
     if (!email.trim()) return;
     setStatus("loading");
     try {
-      await requestMagicLogin(email.trim(), locale);
+      const result = await requestMagicLogin(email.trim(), locale);
+      if (result.kind === "session") {
+        setStatus("ready");
+        onLoggedIn?.();
+        return;
+      }
       setStatus("sent");
     } catch {
       setStatus("error");
@@ -49,6 +55,7 @@ export function LoginPanel({ t, locale, onBackToSignup }: Props) {
         {status === "loading" ? t.loading : t.loginCta}
       </button>
       {status === "sent" && <p className="alert-feedback success">{t.loginEmailSent}</p>}
+      {status === "ready" && <p className="alert-feedback success">{t.loginSuccess}</p>}
       {status === "error" && <p className="alert-feedback error">{t.loginError}</p>}
       {onBackToSignup && (
         <button type="button" className="linkish" onClick={onBackToSignup}>

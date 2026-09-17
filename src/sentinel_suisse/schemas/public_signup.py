@@ -32,6 +32,7 @@ class PublicAlertSignupResponse(BaseModel):
     verification_pending: bool
     verification_email_sent: bool = False
     whatsapp_verification_sent: bool = False
+    device_token: str | None = None
 
 
 class ChannelVerificationResponse(BaseModel):

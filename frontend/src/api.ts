@@ -151,9 +151,12 @@ export type SignupResponse = {
   verification_pending: boolean;
   verification_email_sent?: boolean;
   whatsapp_verification_sent?: boolean;
+  device_token?: string;
 };
 
 const API_KEY_STORAGE = "linkswiss-api-key";
+const DEVICE_TRUST_STORAGE = "linkswiss-device-trust";
+const LAST_EMAIL_STORAGE = "linkswiss-last-email";
 
 export function getApiKey(): string | null {
   return localStorage.getItem(API_KEY_STORAGE);
@@ -165,6 +168,26 @@ export function saveApiKey(key: string): void {
 
 export function clearApiKey(): void {
   localStorage.removeItem(API_KEY_STORAGE);
+}
+
+export function getDeviceTrust(): string | null {
+  return localStorage.getItem(DEVICE_TRUST_STORAGE);
+}
+
+export function saveDeviceTrust(token: string): void {
+  localStorage.setItem(DEVICE_TRUST_STORAGE, token);
+}
+
+export function clearDeviceTrust(): void {
+  localStorage.removeItem(DEVICE_TRUST_STORAGE);
+}
+
+export function getLastLoginEmail(): string | null {
+  return localStorage.getItem(LAST_EMAIL_STORAGE);
+}
+
+export function saveLastLoginEmail(email: string): void {
+  localStorage.setItem(LAST_EMAIL_STORAGE, email.trim().toLowerCase());
 }
 
 export function isUnauthorizedError(err: unknown): boolean {
@@ -579,14 +602,26 @@ export async function subscribeAlerts(params: {
   }
   const data: SignupResponse = await response.json();
   saveApiKey(data.api_key);
+  saveLastLoginEmail(params.email);
+  if (data.device_token) {
+    saveDeviceTrust(data.device_token);
+  }
   return data;
 }
 
-export async function requestMagicLogin(email: string, locale: string): Promise<void> {
+export type MagicLoginResult =
+  | { kind: "sent" }
+  | { kind: "session"; api_key: string; user_id: number; device_token: string };
+
+export async function requestMagicLogin(email: string, locale: string): Promise<MagicLoginResult> {
   const response = await fetch("/api/v1/public/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, locale }),
+    body: JSON.stringify({
+      email,
+      locale,
+      device_token: getDeviceTrust() || undefined,
+    }),
   });
   if (!response.ok) {
     let message = "login request failed";
@@ -598,6 +633,25 @@ export async function requestMagicLogin(email: string, locale: string): Promise<
     }
     throw new Error(message);
   }
+  const data = (await response.json()) as {
+    sent: boolean;
+    api_key?: string | null;
+    user_id?: number | null;
+    device_token?: string | null;
+  };
+  if (data.api_key && data.device_token && data.user_id != null) {
+    saveApiKey(data.api_key);
+    saveDeviceTrust(data.device_token);
+    saveLastLoginEmail(email);
+    return {
+      kind: "session",
+      api_key: data.api_key,
+      user_id: data.user_id,
+      device_token: data.device_token,
+    };
+  }
+  saveLastLoginEmail(email);
+  return { kind: "sent" };
 }
 
 export async function confirmMagicLogin(token: string): Promise<{ api_key: string; user_id: number }> {
@@ -616,8 +670,15 @@ export async function confirmMagicLogin(token: string): Promise<{ api_key: strin
     }
     throw new Error(message);
   }
-  const data = (await response.json()) as { api_key: string; user_id: number };
+  const data = (await response.json()) as {
+    api_key: string;
+    user_id: number;
+    device_token?: string;
+  };
   saveApiKey(data.api_key);
+  if (data.device_token) {
+    saveDeviceTrust(data.device_token);
+  }
   return data;
 }
 

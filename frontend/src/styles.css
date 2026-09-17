@@ -177,6 +177,13 @@ body {
   justify-content: flex-end;
   gap: 0.4rem;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1300;
+}
+
+.hero-tools .lang-bar {
+  position: relative;
+  z-index: 1301;
 }
 
 .account-top-btn {

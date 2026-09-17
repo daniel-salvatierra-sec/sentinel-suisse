@@ -762,7 +762,7 @@ export default function App() {
           <div className="hero-brand">
             <img
               className="hero-logo"
-              src="/icons/logo-transparent.png?v=ls-clear2"
+              src="/icons/logo-transparent.png?v=ls-gold5"
               alt=""
               width={56}
               height={56}
@@ -771,6 +771,14 @@ export default function App() {
             <h1>{t.appName}</h1>
           </div>
           <div className="hero-tools">
+            <LanguageBar
+              lang={lang}
+              label={t.chooseLang}
+              onChange={(code) => {
+                saveLang(code);
+                setLang(code);
+              }}
+            />
             <button
               type="button"
               className={`account-top-btn${tab === "account" ? " is-active" : ""}`}
@@ -795,16 +803,6 @@ export default function App() {
         <div className="hero-actions">
           <ShareAppButton t={t} />
           <InstallAppButton t={t} />
-          <div className="hero-actions-lang">
-            <LanguageBar
-              lang={lang}
-              label={t.chooseLang}
-              onChange={(code) => {
-                saveLang(code);
-                setLang(code);
-              }}
-            />
-          </div>
         </div>
       </header>
 

@@ -169,7 +169,7 @@ export function AlertSignup({
 
       {mode === "login" ? (
         <>
-          <LoginPanel t={t} locale={locale} />
+          <LoginPanel t={t} locale={locale} onLoggedIn={onSuccess} />
           <p className="plan-hint login-stay-hint">{t.loginStayHint}</p>
         </>
       ) : (
