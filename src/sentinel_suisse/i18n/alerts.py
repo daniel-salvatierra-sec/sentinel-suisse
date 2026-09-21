@@ -13,7 +13,7 @@ _ALERT_COPY: dict[str, dict[str, str]] = {
         "open_app": "Ouvrir dans LinkSwiss",
         "open_source": "Offre originale",
         "price_na": "non communiqué",
-        "subject_prefix": "Sentinel Suisse",
+        "subject_prefix": "LinkSwiss",
         "whatsapp_price_suffix": "CHF",
     },
     "de": {
@@ -24,7 +24,7 @@ _ALERT_COPY: dict[str, dict[str, str]] = {
         "open_app": "In LinkSwiss öffnen",
         "open_source": "Originalangebot",
         "price_na": "k. A.",
-        "subject_prefix": "Sentinel Suisse",
+        "subject_prefix": "LinkSwiss",
         "whatsapp_price_suffix": "CHF",
     },
     "es": {
@@ -35,7 +35,7 @@ _ALERT_COPY: dict[str, dict[str, str]] = {
         "open_app": "Abrir en LinkSwiss",
         "open_source": "Oferta original",
         "price_na": "no indicado",
-        "subject_prefix": "Sentinel Suisse",
+        "subject_prefix": "LinkSwiss",
         "whatsapp_price_suffix": "CHF",
     },
     "pt": {
@@ -46,7 +46,7 @@ _ALERT_COPY: dict[str, dict[str, str]] = {
         "open_app": "Abrir no LinkSwiss",
         "open_source": "Oferta original",
         "price_na": "não indicado",
-        "subject_prefix": "Sentinel Suisse",
+        "subject_prefix": "LinkSwiss",
         "whatsapp_price_suffix": "CHF",
     },
     "en": {
@@ -57,7 +57,7 @@ _ALERT_COPY: dict[str, dict[str, str]] = {
         "open_app": "Open in LinkSwiss",
         "open_source": "Original listing",
         "price_na": "n/a",
-        "subject_prefix": "Sentinel Suisse",
+        "subject_prefix": "LinkSwiss",
         "whatsapp_price_suffix": "CHF",
     },
 }

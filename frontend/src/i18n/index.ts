@@ -299,6 +299,7 @@ export type Messages = {
   alertsRecentSearches: string;
   alertsRememberHint: string;
   alertsSaveCurrent: string;
+  alertsUpdateCurrent: string;
   alertsPreviewTitle: string;
   alertsPreviewEmpty: string;
   alertsGuestCta: string;

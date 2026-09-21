@@ -1,9 +1,9 @@
 """Alert dispatch and audit logging."""
 
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from sentinel_suisse.models.alert_log import AlertLog
@@ -19,6 +19,9 @@ from sentinel_suisse.security.pii import decrypt_pii
 from sentinel_suisse.services.entitlements import can_receive_alerts
 from sentinel_suisse.services.matching import listing_matches_query
 
+# Hard cap so one Flatfox dump cannot flood an inbox in a single hour.
+_MAX_ALERTS_PER_USER_PER_HOUR = 8
+
 
 @dataclass
 class DispatchStats:
@@ -32,6 +35,7 @@ class AlertService:
     def __init__(self, db: Session, notifier: Notifier | None = None) -> None:
         self.db = db
         self._override_notifier = notifier
+        self._sends_this_run: dict[int, int] = {}
 
     def dispatch_for_listing(self, listing_id: int) -> DispatchStats:
         listing = self.db.get(Listing, listing_id)
@@ -64,6 +68,10 @@ class AlertService:
                 stats.skipped += 1
                 continue
 
+            if self._over_hourly_cap(saved_search.user_id):
+                stats.skipped += 1
+                continue
+
             alert = self._record_alert(
                 saved_search,
                 listing,
@@ -88,6 +96,9 @@ class AlertService:
                 alert.status = AlertStatus.SENT
                 alert.sent_at = datetime.now(UTC)
                 stats.sent += 1
+                self._sends_this_run[saved_search.user_id] = (
+                    self._sends_this_run.get(saved_search.user_id, 0) + 1
+                )
             except Exception as exc:  # noqa: BLE001 — delivery backends may raise varied errors
                 alert.status = AlertStatus.FAILED
                 alert.error_message = str(exc)[:1000]
@@ -116,6 +127,23 @@ class AlertService:
             )
         )
         return existing is not None
+
+    def _over_hourly_cap(self, user_id: int) -> bool:
+        already_this_run = self._sends_this_run.get(user_id, 0)
+        if already_this_run >= _MAX_ALERTS_PER_USER_PER_HOUR:
+            return True
+        since = datetime.now(UTC) - timedelta(hours=1)
+        recent = self.db.scalar(
+            select(func.count())
+            .select_from(AlertLog)
+            .where(
+                AlertLog.user_id == user_id,
+                AlertLog.status == AlertStatus.SENT,
+                AlertLog.sent_at.is_not(None),
+                AlertLog.sent_at >= since,
+            )
+        )
+        return int(recent or 0) + already_this_run >= _MAX_ALERTS_PER_USER_PER_HOUR
 
     def _record_alert(
         self,

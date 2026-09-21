@@ -5,6 +5,7 @@ import {
   fetchMe,
   fetchSavedSearches,
   getApiKey,
+  updateSavedSearch,
   type Listing,
   type ListingType,
   type SavedSearch,
@@ -109,10 +110,18 @@ export function MyAlertsPanel({
     setSaveError(null);
     setSaveOk(false);
     try {
-      await createSavedSearch({
+      const payload = {
         name: currentLabel.slice(0, 120),
         query: toSavedSearchQuery(searchQuery),
-      });
+      };
+      // At the free/premium slot limit, replace the oldest alert instead of failing —
+      // so changing price/rooms actually updates what emails match.
+      if (atLimit && searches.length > 0) {
+        const target = searches[0];
+        await updateSavedSearch(target.id, payload);
+      } else {
+        await createSavedSearch(payload);
+      }
       setSaveOk(true);
       if (!getsAlerts) {
         window.setTimeout(() => {
@@ -195,7 +204,13 @@ export function MyAlertsPanel({
           disabled={saving}
           onClick={() => void saveCurrent()}
         >
-          {saving ? t.loading : getApiKey() ? t.alertsSaveCurrent : t.alertsGuestCta}
+          {saving
+            ? t.loading
+            : getApiKey()
+              ? atLimit && searches.length > 0
+                ? t.alertsUpdateCurrent
+                : t.alertsSaveCurrent
+              : t.alertsGuestCta}
         </button>
         {saveOk && (
           <p className="alert-feedback success">
