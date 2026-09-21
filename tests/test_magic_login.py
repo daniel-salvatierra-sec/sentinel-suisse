@@ -1,6 +1,5 @@
-"""Tests for the passwordless magic-login flow."""
+"""Tests for the passwordless email-login flow."""
 
-import re
 import uuid
 
 import pytest
@@ -48,37 +47,26 @@ def test_login_request_unknown_email_returns_generic_success(dev_client: TestCli
     assert response.json()["sent"] is True
 
 
-def test_login_request_known_email_logs_link(
-    dev_client: TestClient,
-    caplog: pytest.LogCaptureFixture,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_login_request_known_email_returns_session(dev_client: TestClient) -> None:
     settings = get_settings()
     if not settings.database_url:
         pytest.skip("DATABASE_URL not configured in .env")
 
     email = _unique_email()
-    _signup(dev_client, email)
+    old_api_key = _signup(dev_client, email)
 
-    # Force the "no SMTP configured" fallback path regardless of the local
-    # dev .env, so this test is deterministic and never sends a real email.
-    monkeypatch.setenv("SMTP_HOST", "")
-    get_settings.cache_clear()
-    no_smtp_settings = get_settings()
-
-    from sentinel_suisse.db.session import SessionLocal
-    from sentinel_suisse.services.magic_login import request_magic_login
-
-    db = SessionLocal()
-    try:
-        with caplog.at_level("INFO"):
-            request_magic_login(db, no_smtp_settings, email, "fr")
-    finally:
-        db.close()
-        get_settings.cache_clear()
-
-    match = re.search(r"MAGIC LOGIN EMAIL to=\S+ url=(\S+)", caplog.text)
-    assert match, "expected the login link to be logged when SMTP is not configured"
+    response = dev_client.post(
+        "/api/v1/public/login",
+        json={"email": email, "locale": "fr"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["sent"] is False
+    assert data["api_key"]
+    assert data["api_key"] != old_api_key
+    assert data["device_token"]
+    me = dev_client.get("/api/v1/users/me", headers={"X-API-Key": data["api_key"]})
+    assert me.status_code == 200
 
 
 def test_login_confirm_issues_working_api_key(dev_client: TestClient) -> None:

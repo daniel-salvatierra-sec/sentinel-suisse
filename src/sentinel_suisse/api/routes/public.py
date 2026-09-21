@@ -293,9 +293,10 @@ def public_request_login(
     db: Session = Depends(get_db),
     _: None = Depends(_require_public_signup),
 ) -> MagicLoginRequestResponse:
-    """Send a passwordless login link, or reconnect with a trusted device token.
+    """Sign in with email only for known accounts (no inbox click).
 
-    Always returns success for unknown emails so we don't leak account existence.
+    Unknown emails still get a generic success with no session, so we do
+    not reveal which addresses have an account.
     """
     settings = get_settings()
     trusted = request_magic_login(

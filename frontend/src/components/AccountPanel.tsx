@@ -139,8 +139,8 @@ export function AccountPanel({
   };
 
   const handleLogout = () => {
+    // Keep device trust so the same browser can reconnect with email only.
     clearApiKey();
-    clearDeviceTrust();
     onLoggedOut();
   };
 
