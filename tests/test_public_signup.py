@@ -35,6 +35,7 @@ def prod_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
 def _signup_payload(email: str | None = None, *, with_phone: bool = False) -> dict:
     payload: dict = {
         "email": email or _unique_email(),
+        "password": "testpass12",
         "locale": "fr",
         "consent": True,
         "query": {"listing_type": "housing", "location": "Geneva"},

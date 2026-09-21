@@ -1,4 +1,4 @@
-"""Tests for the passwordless email-login flow."""
+"""Tests for email+password login and set-password flow."""
 
 import uuid
 
@@ -7,7 +7,10 @@ from fastapi.testclient import TestClient
 
 from sentinel_suisse.config import get_settings
 from sentinel_suisse.main import create_app
-from sentinel_suisse.security.verification_tokens import create_login_token
+from sentinel_suisse.security.verification_tokens import (
+    create_login_token,
+    create_set_password_token,
+)
 
 
 def _unique_email() -> str:
@@ -22,9 +25,10 @@ def dev_client(monkeypatch: pytest.MonkeyPatch) -> TestClient:
     return TestClient(create_app())
 
 
-def _signup(dev_client: TestClient, email: str) -> str:
+def _signup(dev_client: TestClient, email: str, password: str = "testpass12") -> str:  # noqa: S107
     payload = {
         "email": email,
+        "password": password,
         "locale": "fr",
         "consent": True,
         "query": {"listing_type": "housing", "location": "Geneva"},
@@ -34,30 +38,33 @@ def _signup(dev_client: TestClient, email: str) -> str:
     return str(response.json()["api_key"])
 
 
-def test_login_request_unknown_email_returns_generic_success(dev_client: TestClient) -> None:
+def test_login_unknown_email_returns_invalid_credentials(dev_client: TestClient) -> None:
     settings = get_settings()
     if not settings.database_url:
         pytest.skip("DATABASE_URL not configured in .env")
 
     response = dev_client.post(
         "/api/v1/public/login",
-        json={"email": _unique_email(), "locale": "fr"},
+        json={"email": _unique_email(), "password": "testpass12", "locale": "fr"},
     )
     assert response.status_code == 200, response.text
-    assert response.json()["sent"] is True
+    data = response.json()
+    assert data["invalid_credentials"] is True
+    assert data.get("api_key") is None
 
 
-def test_login_request_known_email_returns_session(dev_client: TestClient) -> None:
+def test_login_with_password_returns_session(dev_client: TestClient) -> None:
     settings = get_settings()
     if not settings.database_url:
         pytest.skip("DATABASE_URL not configured in .env")
 
     email = _unique_email()
-    old_api_key = _signup(dev_client, email)
+    password = "testpass12"  # noqa: S105
+    old_api_key = _signup(dev_client, email, password)
 
     response = dev_client.post(
         "/api/v1/public/login",
-        json={"email": email, "locale": "fr"},
+        json={"email": email, "password": password, "locale": "fr"},
     )
     assert response.status_code == 200, response.text
     data = response.json()
@@ -67,6 +74,24 @@ def test_login_request_known_email_returns_session(dev_client: TestClient) -> No
     assert data["device_token"]
     me = dev_client.get("/api/v1/users/me", headers={"X-API-Key": data["api_key"]})
     assert me.status_code == 200
+
+
+def test_login_wrong_password_rejected(dev_client: TestClient) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    email = _unique_email()
+    _signup(dev_client, email, "testpass12")
+
+    response = dev_client.post(
+        "/api/v1/public/login",
+        json={"email": email, "password": "wrongpass99", "locale": "fr"},
+    )
+    assert response.status_code == 200, response.text
+    data = response.json()
+    assert data["invalid_credentials"] is True
+    assert data.get("api_key") is None
 
 
 def test_login_confirm_issues_working_api_key(dev_client: TestClient) -> None:
@@ -106,48 +131,60 @@ def test_login_confirm_issues_working_api_key(dev_client: TestClient) -> None:
     assert new_key_check.status_code == 200
 
 
-def test_login_with_device_trust_skips_email(
-    dev_client: TestClient,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_set_password_from_token(dev_client: TestClient) -> None:
     settings = get_settings()
     if not settings.database_url:
         pytest.skip("DATABASE_URL not configured in .env")
 
     email = _unique_email()
-    _signup(dev_client, email)
+    _signup(dev_client, email, "oldpass123")
 
-    # First confirm via magic link to get a device token
     from sentinel_suisse.db.session import SessionLocal
     from sentinel_suisse.models.user import User
     from sentinel_suisse.security.pii import email_lookup
-    from sentinel_suisse.security.verification_tokens import create_device_trust_token
 
     db = SessionLocal()
     try:
         user = db.query(User).filter(User.email_lookup == email_lookup(email)).one()
-        device_token = create_device_trust_token(
+        # Simulate legacy account without password
+        user.password_hash = None
+        db.commit()
+        token = create_set_password_token(
             user_id=user.id,
             secret=settings.secret_key or settings.pii_encryption_key,
+            ttl_minutes=settings.login_token_ttl_minutes,
         )
     finally:
         db.close()
 
-    monkeypatch.setenv("SMTP_HOST", "")
-    get_settings.cache_clear()
-
     response = dev_client.post(
-        "/api/v1/public/login",
-        json={"email": email, "locale": "fr", "device_token": device_token},
+        "/api/v1/public/login/set-password",
+        json={"token": token, "password": "newpass123"},
     )
     assert response.status_code == 200, response.text
     data = response.json()
-    assert data["sent"] is False
     assert data["api_key"]
     assert data["device_token"]
-    me = dev_client.get("/api/v1/users/me", headers={"X-API-Key": data["api_key"]})
-    assert me.status_code == 200
-    get_settings.cache_clear()
+
+    login = dev_client.post(
+        "/api/v1/public/login",
+        json={"email": email, "password": "newpass123", "locale": "fr"},
+    )
+    assert login.status_code == 200
+    assert login.json()["api_key"]
+
+
+def test_forgot_password_generic_success(dev_client: TestClient) -> None:
+    settings = get_settings()
+    if not settings.database_url:
+        pytest.skip("DATABASE_URL not configured in .env")
+
+    response = dev_client.post(
+        "/api/v1/public/login/forgot",
+        json={"email": _unique_email(), "locale": "fr"},
+    )
+    assert response.status_code == 200
+    assert response.json()["sent"] is True
 
 
 def test_login_confirm_rejects_invalid_token(dev_client: TestClient) -> None:

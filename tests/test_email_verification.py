@@ -71,6 +71,7 @@ def test_signup_sends_verification_when_auto_verify_disabled(
 
     payload = {
         "email": _unique_email(),
+        "password": "testpass12",
         "locale": "fr",
         "consent": True,
         "query": {"listing_type": "housing", "location": "Lausanne"},

@@ -15,10 +15,14 @@ from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.provider import Provider
 from sentinel_suisse.schemas.listing import ListingRead
 from sentinel_suisse.schemas.login import (
+    ForgotPasswordRequest,
+    ForgotPasswordResponse,
     MagicLoginConfirm,
     MagicLoginConfirmResponse,
     MagicLoginRequest,
     MagicLoginRequestResponse,
+    SetPasswordRequest,
+    SetPasswordResponse,
 )
 from sentinel_suisse.schemas.provider import ProviderRead
 from sentinel_suisse.schemas.public_cities import CityStock
@@ -42,6 +46,8 @@ from sentinel_suisse.services.magic_login import (
     confirm_magic_login,
     make_device_trust_for_user,
     request_magic_login,
+    request_set_password_email,
+    set_password_with_token,
 )
 from sentinel_suisse.services.public_signup import subscribe_public_alert
 from sentinel_suisse.services.search import SearchSort, get_public_listing, search_listings
@@ -293,27 +299,62 @@ def public_request_login(
     db: Session = Depends(get_db),
     _: None = Depends(_require_public_signup),
 ) -> MagicLoginRequestResponse:
-    """Sign in with email only for known accounts (no inbox click).
-
-    Unknown emails still get a generic success with no session, so we do
-    not reveal which addresses have an account.
-    """
+    """Sign in with email + password; legacy accounts get a set-password email."""
     settings = get_settings()
-    trusted = request_magic_login(
+    attempt = request_magic_login(
         db,
         settings,
         str(payload.email),
         payload.locale,
+        password=payload.password,
         device_token=payload.device_token,
     )
-    if trusted is not None:
+    if attempt.session is not None:
         return MagicLoginRequestResponse(
             sent=False,
-            api_key=trusted.api_key,
-            user_id=trusted.user.id,
-            device_token=trusted.device_token,
+            api_key=attempt.session.api_key,
+            user_id=attempt.session.user.id,
+            device_token=attempt.session.device_token,
         )
-    return MagicLoginRequestResponse(sent=True)
+    return MagicLoginRequestResponse(
+        sent=attempt.sent_reset,
+        needs_password=attempt.needs_password,
+        invalid_credentials=attempt.invalid_credentials,
+    )
+
+
+@router.post("/login/forgot", response_model=ForgotPasswordResponse)
+@limiter.limit("3/minute")
+def public_forgot_password(
+    request: Request,
+    payload: ForgotPasswordRequest,
+    db: Session = Depends(get_db),
+    _: None = Depends(_require_public_signup),
+) -> ForgotPasswordResponse:
+    """Email a set/reset-password link (generic success for unknown addresses)."""
+    settings = get_settings()
+    request_set_password_email(db, settings, str(payload.email), payload.locale)
+    return ForgotPasswordResponse(sent=True)
+
+
+@router.post("/login/set-password", response_model=SetPasswordResponse)
+@limiter.limit("10/minute")
+def public_set_password(
+    request: Request,
+    payload: SetPasswordRequest,
+    db: Session = Depends(get_db),
+) -> SetPasswordResponse:
+    """Set password from emailed token and open a session."""
+    settings = get_settings()
+    try:
+        result = set_password_with_token(db, settings, payload.token, payload.password)
+    except MagicLoginError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=exc.code) from exc
+    return SetPasswordResponse(
+        api_key=result.api_key,
+        user_id=result.user.id,
+        device_token=result.device_token,
+    )
 
 
 @router.post("/login/confirm", response_model=MagicLoginConfirmResponse)
@@ -323,7 +364,7 @@ def public_confirm_login(
     payload: MagicLoginConfirm,
     db: Session = Depends(get_db),
 ) -> MagicLoginConfirmResponse:
-    """Exchange a magic-login token for a fresh API key + device trust."""
+    """Exchange a legacy magic-login token for a fresh API key + device trust."""
     settings = get_settings()
     try:
         result = confirm_magic_login(db, settings, payload.token)

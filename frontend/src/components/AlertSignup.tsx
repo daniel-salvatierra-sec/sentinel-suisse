@@ -43,6 +43,7 @@ export function AlertSignup({
   const [dial, setDial] = useState("+41");
   const [phoneLocal, setPhoneLocal] = useState("");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [consent, setConsent] = useState(false);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -89,6 +90,11 @@ export function AlertSignup({
       setStatus("error");
       return;
     }
+    if (password.length < 8) {
+      setErrorMessage(t.passwordTooShort);
+      setStatus("error");
+      return;
+    }
     if (!phoneLocal.replace(/\D/g, "")) {
       setErrorMessage(t.phoneRequired);
       setStatus("error");
@@ -106,6 +112,7 @@ export function AlertSignup({
     try {
       const result = await subscribeAlerts({
         email: email.trim(),
+        password,
         phone: fullPhone(),
         locale,
         query: searchQuery ?? {
@@ -189,9 +196,22 @@ export function AlertSignup({
             <input
               type="email"
               required
+              autoComplete="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               placeholder="you@example.com"
+            />
+          </label>
+          <label>
+            {t.passwordLabel}
+            <input
+              type="password"
+              required
+              autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder={t.passwordPlaceholder}
+              minLength={8}
             />
           </label>
           <div className="premium-channel-block">

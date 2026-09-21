@@ -205,11 +205,11 @@ const FAQ_ENTRIES: FaqEntry[] = [
       ],
     },
     answer: {
-      fr: "Pas de panique, il n'y a pas de mot de passe à retenir. Va dans Compte → « Se connecter », entre ton email, et on t'envoie un lien magique (valable 20 min) qui te reconnecte directement, sans rien à taper.",
-      de: "Keine Sorge, es gibt kein Passwort zu merken. Gehe zu Konto → „Anmelden“, gib deine E-Mail ein, und wir schicken dir einen Magic Link (20 Min. gültig), der dich direkt wieder einloggt.",
-      es: "Tranquilo, no hay contraseña que recordar. Ve a Cuenta → «Iniciar sesión», pon tu email, y te mandamos un enlace mágico (válido 20 min) que te reconecta directo, sin escribir nada más.",
-      pt: "Sem stress, não há palavra-passe para lembrar. Vai a Conta → «Iniciar sessão», põe o teu email, e enviamos-te um link mágico (válido 20 min) que te liga logo de volta, sem escreveres mais nada.",
-      en: "No worries, there's no password to remember. Go to Account → \"Log in\", enter your email, and we'll send you a magic link (valid 20 min) that logs you straight back in — nothing else to type.",
+      fr: "Va dans Compte → « Se connecter », entre ton e-mail et ton mot de passe. Si tu l'as oublié, utilise « Mot de passe oublié ? » pour recevoir un lien.",
+      de: "Gehe zu Konto → „Anmelden“, gib E-Mail und Passwort ein. Vergessen? Tippe „Passwort vergessen?“ für einen Link per E-Mail.",
+      es: "Ve a Cuenta → «Iniciar sesión», pon email y contraseña. Si la olvidaste, usa «¿Olvidaste la contraseña?» para recibir un enlace.",
+      pt: "Vai a Conta → «Iniciar sessão», põe email e palavra-passe. Se esqueceste, usa «Esqueceste a palavra-passe?» para receber um link.",
+      en: "Go to Account → \"Log in\", enter your email and password. Forgot it? Use \"Forgot password?\" to get a reset link by email.",
     },
   },
   {

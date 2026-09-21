@@ -118,3 +118,25 @@ def parse_device_trust_token(token: str, secret: str) -> int:
     if not isinstance(user_id, int):
         raise VerificationTokenError("Invalid token claims")
     return user_id
+
+
+def create_set_password_token(*, user_id: int, secret: str, ttl_minutes: int = 60) -> str:
+    """Short-lived token to set or reset a password from email."""
+    payload = {
+        "typ": "setpw",
+        "uid": user_id,
+        "exp": int(time.time()) + ttl_minutes * 60,
+    }
+    body = _b64_encode(json.dumps(payload, separators=(",", ":")).encode("utf-8"))
+    signature = hmac.new(secret.encode("utf-8"), body.encode("ascii"), hashlib.sha256).hexdigest()
+    return f"{body}.{signature}"
+
+
+def parse_set_password_token(token: str, secret: str) -> int:
+    payload = _decode_and_verify(token, secret)
+    if payload.get("typ") != "setpw":
+        raise VerificationTokenError("Invalid token type")
+    user_id = payload.get("uid")
+    if not isinstance(user_id, int):
+        raise VerificationTokenError("Invalid token claims")
+    return user_id

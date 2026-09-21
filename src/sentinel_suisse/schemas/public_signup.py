@@ -7,6 +7,7 @@ from sentinel_suisse.schemas.user import UserLocale
 
 class PublicAlertSignup(BaseModel):
     email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
     phone: str | None = Field(default=None, min_length=8, max_length=30)
     locale: UserLocale = DEFAULT_LANGUAGE
     query: SearchQuery

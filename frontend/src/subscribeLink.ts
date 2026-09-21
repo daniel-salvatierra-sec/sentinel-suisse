@@ -69,7 +69,7 @@ export function parseSubscribeDeepLink(search: string): Partial<{
   return result;
 }
 
-/** Keep ?verify=… and ?login=… when clearing subscribe deep-link params. */
+/** Keep ?verify=…, ?login=… and ?setpw=… when clearing subscribe deep-link params. */
 export function stripSubscribeParamsFromUrl(): void {
   const params = new URLSearchParams(window.location.search);
   const had =
@@ -88,6 +88,10 @@ export function stripSubscribeParamsFromUrl(): void {
   const login = params.get("login");
   if (login) {
     next.set("login", login);
+  }
+  const setpw = params.get("setpw");
+  if (setpw) {
+    next.set("setpw", setpw);
   }
   const qs = next.toString();
   window.history.replaceState({}, "", qs ? `${window.location.pathname}?${qs}` : window.location.pathname);

@@ -11,6 +11,7 @@ from sentinel_suisse.models.notification_channel import NotificationChannel
 from sentinel_suisse.models.saved_search import SavedSearch
 from sentinel_suisse.models.user import User
 from sentinel_suisse.schemas.public_signup import PublicAlertSignup
+from sentinel_suisse.security.passwords import hash_password
 from sentinel_suisse.security.pii import email_lookup, encrypt_pii
 from sentinel_suisse.security.tokens import generate_api_token, hash_api_token
 
@@ -55,6 +56,7 @@ def subscribe_public_alert(
         is_active=True,
         locale=payload.locale,
         api_token_hash=hash_api_token(api_key),
+        password_hash=hash_password(payload.password),
     )
     db.add(user)
     db.flush()

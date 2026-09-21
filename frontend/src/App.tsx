@@ -30,6 +30,7 @@ import { GoalHub } from "./components/GoalHub";
 import { GuideBot } from "./components/GuideBot";
 import { LanguageBar } from "./components/LanguageBar";
 import { LoginBanner } from "./components/LoginBanner";
+import { SetPasswordBanner } from "./components/SetPasswordBanner";
 import { MapView } from "./components/MapView";
 import { MyAlertsPanel } from "./components/MyAlertsPanel";
 import { PostListingForm } from "./components/PostListingForm";
@@ -697,6 +698,14 @@ export default function App() {
         }}
       />
       <LoginBanner
+        t={t}
+        onLoggedIn={() => {
+          setHasSession(true);
+          setAccountRefresh((value) => value + 1);
+          setTab("account");
+        }}
+      />
+      <SetPasswordBanner
         t={t}
         onLoggedIn={() => {
           setHasSession(true);

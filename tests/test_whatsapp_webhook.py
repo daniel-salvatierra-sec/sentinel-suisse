@@ -221,6 +221,7 @@ def test_webhook_auto_verifies_matching_whatsapp_channel(
             "/api/v1/public/signup",
             json={
                 "email": email,
+                "password": "testpass12",
                 "phone": phone_e164,
                 "locale": "fr",
                 "consent": True,

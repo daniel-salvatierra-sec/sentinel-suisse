@@ -561,6 +561,7 @@ export async function verifyEmailToken(token: string): Promise<void> {
 
 export async function subscribeAlerts(params: {
   email: string;
+  password: string;
   phone?: string;
   locale: string;
   query: Omit<SearchQueryParams, "limit" | "offset">;
@@ -570,6 +571,7 @@ export async function subscribeAlerts(params: {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email: params.email,
+      password: params.password,
       phone: params.phone?.trim() || undefined,
       locale: params.locale,
       consent: true,
@@ -610,15 +612,22 @@ export async function subscribeAlerts(params: {
 }
 
 export type MagicLoginResult =
-  | { kind: "sent" }
-  | { kind: "session"; api_key: string; user_id: number; device_token: string };
+  | { kind: "session"; api_key: string; user_id: number; device_token: string }
+  | { kind: "needs_password" }
+  | { kind: "invalid_credentials" }
+  | { kind: "sent" };
 
-export async function requestMagicLogin(email: string, locale: string): Promise<MagicLoginResult> {
+export async function requestMagicLogin(
+  email: string,
+  locale: string,
+  password: string,
+): Promise<MagicLoginResult> {
   const response = await fetch("/api/v1/public/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       email,
+      password,
       locale,
       device_token: getDeviceTrust() || undefined,
     }),
@@ -638,6 +647,8 @@ export async function requestMagicLogin(email: string, locale: string): Promise<
     api_key?: string | null;
     user_id?: number | null;
     device_token?: string | null;
+    needs_password?: boolean;
+    invalid_credentials?: boolean;
   };
   if (data.api_key && data.device_token && data.user_id != null) {
     saveApiKey(data.api_key);
@@ -651,7 +662,51 @@ export async function requestMagicLogin(email: string, locale: string): Promise<
     };
   }
   saveLastLoginEmail(email);
+  if (data.needs_password) return { kind: "needs_password" };
+  if (data.invalid_credentials) return { kind: "invalid_credentials" };
   return { kind: "sent" };
+}
+
+export async function requestForgotPassword(email: string, locale: string): Promise<void> {
+  const response = await fetch("/api/v1/public/login/forgot", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, locale }),
+  });
+  if (!response.ok) {
+    throw new Error("forgot_password_failed");
+  }
+}
+
+export async function setPasswordWithToken(
+  token: string,
+  password: string,
+): Promise<{ api_key: string; user_id: number }> {
+  const response = await fetch("/api/v1/public/login/set-password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password }),
+  });
+  if (!response.ok) {
+    let message = "set_password_failed";
+    try {
+      const body = await response.json();
+      if (typeof body.detail === "string") message = body.detail;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  const data = (await response.json()) as {
+    api_key: string;
+    user_id: number;
+    device_token?: string;
+  };
+  saveApiKey(data.api_key);
+  if (data.device_token) {
+    saveDeviceTrust(data.device_token);
+  }
+  return data;
 }
 
 export async function confirmMagicLogin(token: string): Promise<{ api_key: string; user_id: number }> {

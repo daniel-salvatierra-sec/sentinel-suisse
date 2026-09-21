@@ -93,6 +93,30 @@ body {
   color: var(--danger);
 }
 
+.setpw-banner {
+  display: grid;
+  gap: 0.65rem;
+  font-weight: 500;
+  background: #f4f7fb;
+  color: var(--ink);
+}
+
+.setpw-banner .setpw-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.setpw-banner label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.setpw-banner input {
+  width: 100%;
+}
+
 .lang-bar {
   position: relative;
   flex: 0 0 auto;
