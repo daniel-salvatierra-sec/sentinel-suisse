@@ -447,13 +447,14 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%nursing%",
     ),
     "hospital": (
-        "%hôpital%",
-        "%hopital%",
-        "%hospital%",
+        "%infirmier%",
+        "%infirmière%",
+        "%pflegefach%",
     ),
     "homecare": (
         "%spitex%",
-        "%domicile%",
+        "%soins à domicile%",
+        "%soins a domicile%",
         "%home care%",
     ),
     "geriatric": (
@@ -465,7 +466,8 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
     ),
     "clinic": (
         "%clinique%",
-        "%cabinet%",
+        "%cabinet médical%",
+        "%cabinet medical%",
         "%praxis%",
     ),
     "doctor": (
@@ -552,7 +554,9 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
     ),
     "pharma": (
         "%pharmacien%",
-        "%pharma%",
+        "%pharmacienne%",
+        "%apotheker%",
+        "%droguist%",
     ),
     "logistics": (
         "%logisticien%",
@@ -597,10 +601,6 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%chauffeur de ligne%",
         "%conducteur tl%",
         "%chauffeur tl%",
-        "%region lausannoise%",
-        "%transports publics%",
-        "%mobi-lausanne%",
-        "%unireso%",
         "%autocar%",
         "%autobus%",
         "%kleinbus%",
@@ -613,9 +613,6 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%tramfahrer%",
         "%linienbus%",
         "%stadtbus%",
-        "%tpg%",
-        "%vbsh%",
-        "%verkehrsbetriebe%",
     ),
     "taxi": (
         "%taxifahrer%",
@@ -637,7 +634,8 @@ TITLE_SEARCH_NEEDLES: dict[str, tuple[str, ...]] = {
         "%repartidor%",
         "%coursier%",
         "%kurier%",
-        "%delivery%",
+        "%delivery driver%",
+        "%lieferdienst%",
     ),
     "crane": (
         "%grutier%",

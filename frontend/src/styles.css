@@ -1089,6 +1089,19 @@ html[data-sentinel-scroll="1"] .sentinel-buddy.is-collapsed {
   color: var(--lake);
 }
 
+.filter-city input[type="search"] {
+  width: 100%;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text);
+  min-height: 2.85rem;
+  border: 1.5px solid rgba(26, 111, 138, 0.4);
+  border-radius: var(--radius-btn);
+  padding: 0.6rem 0.8rem;
+  background: #fff;
+}
+
 .filter-city select {
   width: 100%;
   font: inherit;

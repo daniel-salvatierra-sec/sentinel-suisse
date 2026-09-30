@@ -18,16 +18,31 @@ def test_city_search_sql_does_not_scan_titles() -> None:
     assert "description" not in sql
 
 
-def test_occupation_search_sql_still_scans_titles() -> None:
+def test_occupation_search_sql_scans_titles_not_descriptions() -> None:
     sql = _sql("fleuriste")
     assert "title" in sql
-    assert "description" in sql
+    assert "description" not in sql
 
 
-def test_infirmier_search_sql_scans_titles() -> None:
+def test_infirmier_search_sql_scans_titles_not_descriptions() -> None:
     sql = _sql("infirmier")
     assert "title" in sql
-    assert "description" in sql
+    assert "description" not in sql
+
+
+def test_chofer_search_rejects_site_managers() -> None:
+    stmt = _apply_filters(
+        select(Listing.id),
+        SearchQuery(keyword="chofer"),
+    )
+    sql = str(
+        stmt.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True})
+    ).lower()
+    assert "chauffeur" in sql
+    assert "title" in sql
+    assert "description" not in sql
+    assert "travaux" in sql
+    assert " not " in sql or "not (" in sql
 
 
 def test_housing_border_sql_does_not_require_country() -> None:

@@ -19,6 +19,8 @@ type Props = {
   onZoneChoiceChange: (value: ZoneChoice) => void;
   cityChoice: string;
   onCityChoiceChange: (value: string) => void;
+  keyword: string;
+  onKeywordChange: (value: string) => void;
   /** Empty = show full catalog (fallback). Otherwise only stocked cities + current choice. */
   stockedCities?: string[] | null;
   roomsChoice: RoomsChoice;
@@ -122,6 +124,8 @@ export function FilterBar({
   onZoneChoiceChange,
   cityChoice,
   onCityChoiceChange,
+  keyword,
+  onKeywordChange,
   stockedCities = null,
   roomsChoice,
   onRoomsChoiceChange,
@@ -151,6 +155,23 @@ export function FilterBar({
   return (
     <div className="filter-bar">
       <p className="filter-bar-label">{t.filters}</p>
+
+      <form
+        className="filter-city"
+        onSubmit={(event) => {
+          event.preventDefault();
+        }}
+      >
+        <label>
+          {t.search}
+          <input
+            type="search"
+            value={keyword}
+            placeholder={t.searchPlaceholder}
+            onChange={(event) => onKeywordChange(event.target.value)}
+          />
+        </label>
+      </form>
 
       <p className="filter-group-label">{t.zoneLabel}</p>
       <div className="filter-chips zone-chips" role="group" aria-label={t.zoneLabel}>

@@ -81,6 +81,38 @@ def test_lucerne_aliases_match() -> None:
     assert listing_matches_query(listing, SearchQuery(location="Lucerna")) is True
 
 
+def test_tpg_conducteur_alert_rejects_other_jobs() -> None:
+    query = SearchQuery(
+        listing_type=ListingType.JOB,
+        keyword="TPG conducteur",
+        location="Plan-les-Ouates",
+    )
+    junk = _sample_listing(
+        listing_type=ListingType.JOB,
+        title="Un/une Assistant social H/F",
+        location="Chêne-Bougeries",
+    )
+    other_trade = _sample_listing(
+        listing_type=ListingType.JOB,
+        title="Responsable de la gestion administrative du personnel",
+        location="Genève",
+    )
+    other_driver = _sample_listing(
+        listing_type=ListingType.JOB,
+        title="Chauffeur Kat. C",
+        location="Plan-les-Ouates",
+    )
+    match = _sample_listing(
+        listing_type=ListingType.JOB,
+        title="Conducteur de bus TPG",
+        location="Plan-les-Ouates",
+    )
+    assert listing_matches_query(junk, query) is False
+    assert listing_matches_query(other_trade, query) is False
+    assert listing_matches_query(other_driver, query) is False
+    assert listing_matches_query(match, query) is True
+
+
 def test_florist_query_still_matches_title() -> None:
     listing = _sample_listing(
         listing_type=ListingType.JOB,

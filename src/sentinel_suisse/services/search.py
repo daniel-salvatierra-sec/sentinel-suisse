@@ -23,7 +23,13 @@ from sentinel_suisse.services.location_match import (
     neighbor_belt_terms,
     resolve_search_location,
 )
-from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
+from sentinel_suisse.services.search_terms import (
+    expand_text_query,
+    is_occupation_query,
+    occupation_category,
+    occupation_title_rejects,
+    query_looks_like_job,
+)
 
 SearchSort = Literal["newest", "price_asc", "price_desc"]
 
@@ -52,16 +58,53 @@ def search_listings(
 ) -> list[Listing]:
     stmt = _apply_filters(select(Listing), filters)
     stmt = apply_freshness_filter(stmt)
-    stmt = _apply_sort(stmt, sort).limit(limit).offset(offset)
+    stmt = _apply_sort(stmt, sort, filters).limit(limit).offset(offset)
     return list(db.scalars(stmt).all())
 
 
-def _apply_sort(stmt: Select[tuple[Listing]], sort: SearchSort) -> Select[tuple[Listing]]:
+def _occupation_text(filters: SearchQuery) -> str | None:
+    keyword = (filters.keyword or "").strip()
+    if keyword and is_occupation_query(keyword):
+        return keyword
+    location = (filters.location or "").strip()
+    if location and is_occupation_query(location):
+        return location
+    return None
+
+
+def _driver_section_rank():
+    """Bus, truck, taxi, delivery, then other driver titles."""
+    sections = (
+        ("%bus%", "%trolley%", "%tram%", "%postauto%", "%autobus%", "%autocar%"),
+        ("%lkw%", "%poids lourd%", "%camion%", "%sattel%", "%anhänger%", "%anhaenger%"),
+        ("%taxi%", "%vtc%"),
+        ("%livreur%", "%liefer%", "%zustell%", "%coursier%", "%kurier%"),
+    )
+    whens = [
+        (or_(*(Listing.title.ilike(needle) for needle in needles)), index)
+        for index, needles in enumerate(sections)
+    ]
+    return case(*whens, else_=len(sections))
+
+
+def _apply_sort(
+    stmt: Select[tuple[Listing]],
+    sort: SearchSort,
+    filters: SearchQuery | None = None,
+) -> Select[tuple[Listing]]:
     featured = _featured_rank().desc()
     if sort == "price_asc":
         return stmt.order_by(featured, nulls_last(Listing.price.asc()), Listing.id.desc())
     if sort == "price_desc":
         return stmt.order_by(featured, nulls_last(Listing.price.desc()), Listing.id.desc())
+    text = _occupation_text(filters) if filters is not None else None
+    if text and occupation_category(text) == "transport":
+        return stmt.order_by(
+            featured,
+            _driver_section_rank().asc(),
+            Listing.fetched_at.desc(),
+            Listing.id.desc(),
+        )
     return stmt.order_by(featured, Listing.fetched_at.desc(), Listing.id.desc())
 
 
@@ -82,18 +125,35 @@ def _apply_filters(stmt: Select[tuple[Listing]], filters: SearchQuery) -> Select
         filters.country.value if filters.country is not None else None,
         filters.location,
     )
-    if location is not None:
-        terms = expand_location_query(location)
+    keyword = (filters.keyword or "").strip()
+    occupation = _occupation_text(filters)
+    # A bare occupation in `location` is the job word, not a city.
+    place = None if occupation and is_occupation_query(location or "") and not keyword else location
+    if place is not None:
+        terms = expand_location_query(place)
         clauses = [Listing.location.ilike(f"%{term}%") for term in terms]
-        # Occupation words (fleuriste) search titles. City names must not:
-        # ILIKE %sion% matches "pension" / "décision" in Lausanne ads.
-        if query_looks_like_job(location):
-            for keyword in expand_text_query(location):
-                like = f"%{keyword}%"
-                clauses.append(Listing.title.ilike(like))
-                clauses.append(Listing.description.ilike(like))
+        # Occupation words typed with a city ("fleuriste Genève") still scan titles.
+        # City names must not: ILIKE %sion% matches "pension" / "décision".
+        if query_looks_like_job(place) and not is_occupation_query(place):
+            for needle in expand_text_query(place):
+                clauses.append(Listing.title.ilike(f"%{needle}%"))
         if clauses:
             stmt = stmt.where(or_(*clauses))
+    if keyword and not is_occupation_query(keyword):
+        stmt = stmt.where(
+            or_(
+                Listing.location.ilike(f"%{keyword}%"),
+                Listing.title.ilike(f"%{keyword}%"),
+            )
+        )
+    if occupation is not None:
+        title_hits = [
+            Listing.title.ilike(f"%{needle}%") for needle in expand_text_query(occupation)
+        ]
+        if title_hits:
+            stmt = stmt.where(or_(*title_hits))
+        for reject in occupation_title_rejects(occupation):
+            stmt = stmt.where(~Listing.title.ilike(f"%{reject}%"))
     if filters.country is not None and not is_border_place(location):
         stmt = stmt.where(Listing.country == filters.country)
     if filters.country == CountryCode.CH:
@@ -153,7 +213,6 @@ def _apply_job_category_filter(
     clauses = [func.lower(Listing.job_category).in_(values)]
     for needle in title_needles_for_filter(filter_category, for_search=True):
         clauses.append(Listing.title.ilike(needle))
-        clauses.append(Listing.description.ilike(needle))
     parent = parent_field(filter_category)
     if parent == "other" or filter_category == "other":
         excluded = [item.casefold() for item in non_other_stored_values()]

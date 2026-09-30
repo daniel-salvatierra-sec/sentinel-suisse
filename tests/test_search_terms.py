@@ -21,6 +21,34 @@ def test_fleuriste_expands_to_florist() -> None:
     assert "florist" in needles
 
 
+def test_chef_stays_on_kitchen_titles() -> None:
+    needles = [item.casefold() for item in expand_text_query("chef")]
+    assert "cuisinier" in needles
+    assert "chef" not in needles
+    assert "cuisine" not in needles
+
+
+def test_vendedor_stays_on_seller_titles() -> None:
+    needles = [item.casefold() for item in expand_text_query("vendedor")]
+    assert "vendeur" in needles
+    assert "commercial" not in needles
+    assert "vente" not in needles
+
+
+def test_desarrollador_stays_on_developer_titles() -> None:
+    needles = [item.casefold() for item in expand_text_query("desarrollador")]
+    assert "developer" in needles
+    assert "software" not in needles
+    assert "informatique" not in needles
+
+
+def test_chofer_expands_to_driver_titles() -> None:
+    needles = expand_text_query("chofer")
+    assert "chauffeur" in needles
+    assert "Fahrer" in needles
+    assert query_looks_like_job("chofer") is True
+
+
 def test_city_query_stays_literal() -> None:
     assert expand_text_query("Geneva") == ["Geneva"]
 

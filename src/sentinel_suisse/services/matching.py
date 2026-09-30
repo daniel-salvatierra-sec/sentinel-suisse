@@ -12,7 +12,17 @@ from sentinel_suisse.services.location_match import (
     location_matches,
     resolve_search_location,
 )
-from sentinel_suisse.services.search_terms import expand_text_query, query_looks_like_job
+from sentinel_suisse.services.search_terms import (
+    _fold,
+    is_occupation_query,
+    occupation_tokens,
+    required_extra_terms,
+    title_matches_job_query,
+)
+
+
+def _fold_listing_text(title: str | None, location: str | None) -> str:
+    return _fold(f"{title or ''} {location or ''}")
 
 
 def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
@@ -26,14 +36,27 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         filters.country.value if filters.country is not None else None,
         filters.location,
     )
-    if location is not None:
-        in_place = location_matches(listing.location, location)
-        if query_looks_like_job(location):
-            hay = f"{listing.title or ''} {listing.description or ''}".casefold()
-            text_hit = any(needle.casefold() in hay for needle in expand_text_query(location))
-            if not in_place and not text_hit:
+    keyword = (filters.keyword or "").strip()
+    occupation = keyword if keyword and is_occupation_query(keyword) else None
+    if occupation is None and location and is_occupation_query(location):
+        occupation = location
+    place = location
+    if occupation and location and is_occupation_query(location) and not keyword:
+        place = None
+    if place is not None and not occupation_tokens(place):
+        if not location_matches(listing.location, place):
+            return False
+    role_text = " ".join(part for part in (keyword, location or "") if part)
+    if occupation_tokens(role_text) or (occupation is not None):
+        if not title_matches_job_query(listing.title, role_text):
+            return False
+        blob = _fold_listing_text(listing.title, listing.location)
+        for term in required_extra_terms(role_text):
+            if term not in blob:
                 return False
-        elif not in_place:
+    elif keyword and not is_occupation_query(keyword):
+        blob = _fold_listing_text(listing.title, listing.location)
+        if _fold(keyword) not in blob:
             return False
     skip_country = is_border_place(location)
     if filters.country is not None and listing.country != filters.country and not skip_country:
@@ -63,8 +86,7 @@ def listing_matches_query(listing: Listing, filters: SearchQuery) -> bool:
         if listing_looks_under_construction(listing):
             return False
     if filters.job_category is not None:
-        hay = f"{listing.title or ''} {listing.description or ''}"
-        if not job_category_matches(listing.job_category, filters.job_category, hay):
+        if not job_category_matches(listing.job_category, filters.job_category, listing.title):
             return False
     if filters.employment_type is not None and listing.employment_type is not None:
         if listing.employment_type != filters.employment_type:

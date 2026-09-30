@@ -11,6 +11,7 @@ import { isBorderQuery } from "./zoneCities";
 type Query = {
   listing_type?: ListingType;
   location?: string;
+  keyword?: string;
   country?: CountryCode;
   price_min?: number;
   price_max?: number;
@@ -127,6 +128,10 @@ export function formatSearchSummary(t: Messages, query: Query): string {
     }
   }
 
+  const keyword = query.keyword?.trim();
+  if (keyword) {
+    parts.push(keyword);
+  }
   const location = query.location?.trim();
   if (location && !isBorderQuery(location)) {
     parts.push(location);

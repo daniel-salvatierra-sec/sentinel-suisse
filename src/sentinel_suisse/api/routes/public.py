@@ -134,6 +134,7 @@ def public_search(
     _: None = Depends(_require_public_search),
     listing_type: ListingType | None = Query(default=None),
     location: str | None = Query(default=None, min_length=1, max_length=200),
+    keyword: str | None = Query(default=None, min_length=1, max_length=200),
     country: CountryCode | None = Query(default=None),
     price_min: float | None = Query(default=None, ge=0),
     price_max: float | None = Query(default=None, ge=0),
@@ -156,6 +157,7 @@ def public_search(
         filters = SearchQuery(
             listing_type=listing_type,
             location=location,
+            keyword=keyword,
             country=country,
             price_min=price_min,
             price_max=price_max,

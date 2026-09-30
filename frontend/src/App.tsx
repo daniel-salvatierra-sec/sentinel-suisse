@@ -117,6 +117,8 @@ export default function App() {
   const [category, setCategory] = useState<ListingType>("housing");
   const [hubFocused, setHubFocused] = useState(false);
   const [query, setQuery] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [appliedKeyword, setAppliedKeyword] = useState("");
   const [zoneChoice, setZoneChoice] = useState<ZoneChoice>("CH");
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
@@ -241,11 +243,13 @@ export default function App() {
       const branch = live ? jobBranch : appliedJobBranch;
       const role = live ? jobRole : appliedJobRole;
       const emp = live ? employmentType : appliedEmploymentType;
-      const occupationQuery = queryLooksLikeJob(query);
+      const occupationQuery = queryLooksLikeJob(appliedKeyword);
       const listingType: ListingType = occupationQuery ? "job" : category;
+      const typed = appliedKeyword.trim();
       return {
         listing_type: listingType,
         location: searchLocation(zone, query),
+        keyword: typed || undefined,
         country: zone,
         price_min: listingType === "housing" ? parseOptionalPrice(pMin) : undefined,
         price_max: listingType === "housing" ? parseOptionalPrice(pMax) : undefined,
@@ -292,6 +296,7 @@ export default function App() {
       appliedJobRole,
       appliedEmploymentType,
       appliedWorkloadChoice,
+      appliedKeyword,
     ],
   );
 
@@ -428,10 +433,15 @@ export default function App() {
   }, [pendingListingId]);
 
   useEffect(() => {
-    if (!queryLooksLikeJob(query) || category === "job") return;
+    const id = window.setTimeout(() => setAppliedKeyword(keyword.trim()), 300);
+    return () => window.clearTimeout(id);
+  }, [keyword]);
+
+  useEffect(() => {
+    if (!queryLooksLikeJob(appliedKeyword) || category === "job") return;
     setCategory("job");
     setHubFocused(true);
-  }, [query, category]);
+  }, [appliedKeyword, category]);
 
   const runSearch = useCallback(async () => {
     setLoading(true);
@@ -856,6 +866,8 @@ export default function App() {
             onCityChoiceChange={(value) => {
               setQuery(queryForCityChoice(zoneChoice, value));
             }}
+            keyword={keyword}
+            onKeywordChange={setKeyword}
             stockedCities={stockedPickerValues(zoneChoice, category, cityStock)}
             roomsChoice={roomsChoice}
             onRoomsChoiceChange={(value) => {

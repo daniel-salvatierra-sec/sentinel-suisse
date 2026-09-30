@@ -42,6 +42,7 @@ export type SearchSort = "newest" | "price_asc" | "price_desc";
 export type SearchQueryParams = {
   listing_type: ListingType;
   location?: string;
+  keyword?: string;
   country?: CountryCode;
   price_min?: number;
   price_max?: number;
@@ -63,6 +64,9 @@ export async function searchListings(params: SearchQueryParams): Promise<Listing
   query.set("listing_type", params.listing_type);
   if (params.location?.trim()) {
     query.set("location", params.location.trim());
+  }
+  if (params.keyword?.trim()) {
+    query.set("keyword", params.keyword.trim());
   }
   if (params.country) {
     query.set("country", params.country);

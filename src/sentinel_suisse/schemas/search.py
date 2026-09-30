@@ -10,6 +10,7 @@ class SearchQuery(BaseModel):
 
     listing_type: ListingType | None = None
     location: str | None = Field(default=None, min_length=1, max_length=200)
+    keyword: str | None = Field(default=None, min_length=1, max_length=200)
     country: CountryCode | None = None
     price_min: Decimal | None = Field(default=None, ge=0)
     price_max: Decimal | None = Field(default=None, ge=0)
@@ -24,9 +25,9 @@ class SearchQuery(BaseModel):
     provider_id: int | None = Field(default=None, gt=0)
     provider_ids: list[int] | None = Field(default=None, min_length=1)
 
-    @field_validator("location", mode="before")
+    @field_validator("location", "keyword", mode="before")
     @classmethod
-    def blank_location_to_none(cls, value: object) -> object:
+    def blank_text_to_none(cls, value: object) -> object:
         if isinstance(value, str) and not value.strip():
             return None
         return value

@@ -15,6 +15,21 @@ def test_price_asc_orders_nulls_last() -> None:
     assert "nulls last" in sql
 
 
+def test_chofer_orders_bus_then_truck_then_date() -> None:
+    from sentinel_suisse.schemas.search import SearchQuery
+
+    sql = str(
+        _apply_sort(select(Listing), "newest", SearchQuery(keyword="chofer")).compile(
+            dialect=postgresql.dialect(),
+            compile_kwargs={"literal_binds": True},
+        )
+    ).lower()
+    assert "fetched_at" in sql
+    assert "%bus%" in sql
+    assert "%lkw%" in sql
+    assert sql.index("%bus%") < sql.index("%lkw%")
+
+
 def test_newest_orders_by_fetched_at() -> None:
     sql = str(_apply_sort(select(Listing), "newest").compile(dialect=postgresql.dialect())).lower()
     assert "fetched_at" in sql
